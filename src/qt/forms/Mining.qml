@@ -78,18 +78,7 @@ MiningForm {
      }
 
      stopanimation.onCheckStateChanged: {
-         if (stopanimation.checked)
-         {
-             animation1.currentFrame=0
-             animation2.currentFrame=0
-             animation3.currentFrame=0
-             animation1.playing=false
-             animation2.playing=false
-             animation3.playing=false
-             animation1.visible=true
-             animation2.visible=false
-             animation3.visible=false
-         } else
+         if (!stopanimation.checked)
          {
              if (!startminingbutton.visible)
              {
@@ -107,7 +96,7 @@ MiningForm {
      stopminingbutton.onClicked: stopMiningSignalIntern()     
      minereduced.onCheckedChanged: minereducedSignalIntern(minereduced.checked)     
      animation1.onPlayingChanged: {
-         if (!startminingbutton.visible && animation1.playing==false) {
+         if (!startminingbutton.visible && animation1.playing==false && !stopanimation.checked) {
              animation2.visible=true
              animation2.playing=true
              animation1.playing=false
@@ -116,14 +105,14 @@ MiningForm {
          }
      }
      animation2.onPlayingChanged: {
-         if (!startminingbutton.visible && animation2.playing==false) {
+         if (!startminingbutton.visible && animation2.playing==false && !stopanimation.checked) {
              animation2.visible=true
              animation2.playing=true
              animation1.playing=false
              animation1.visible=false
              animation3.visible=false
          } else
-         if (startminingbutton.visible && animation2.playing==false) {
+         if ((startminingbutton.visible || stopanimation.checked) && animation2.playing==false) {
                  animation3.visible=true
                  animation3.playing=true
                  animation2.visible=false
