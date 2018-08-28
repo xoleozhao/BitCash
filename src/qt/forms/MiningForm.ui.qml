@@ -378,6 +378,7 @@ Item {
             id: imageinfo
             width: 16
             height: 16
+            antialiasing: true
             anchors.verticalCenterOffset: 7
             anchors.verticalCenter: minereduced.verticalCenter
             fillMode: Image.PreserveAspectFit
@@ -393,7 +394,7 @@ Item {
         font.family: "Montserrat SemiBold"
         bottomPadding: 5
         topPadding: 5
-        rightPadding: 26
+        rightPadding: 22
         anchors.top: minereduced.bottom
         anchors.topMargin: 0
         checkState: Qt.Unchecked
@@ -409,6 +410,7 @@ Item {
             id: imageinfo2
             width: 16
             height: 16
+            antialiasing: true
             anchors.verticalCenter: stopanimation.verticalCenter
             fillMode: Image.PreserveAspectFit
             anchors.right: stopanimation.right
