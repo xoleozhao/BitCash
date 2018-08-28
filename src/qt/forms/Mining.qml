@@ -23,10 +23,15 @@ MiningForm {
          labelgraphs.opacity=1
          labelcycles.opacity=1
          setminingstatsintern(0,0)         
-         animation1.playing=true
-         animation1.visible=true
-         animation2.visible=false
-         animation3.visible=false
+         if (!stopanimation.checked) {
+             animation1.currentFrame=0
+             animation2.currentFrame=0
+             animation3.currentFrame=0
+             animation1.playing=true
+             animation1.visible=true
+             animation2.visible=false
+             animation3.visible=false
+         }
      }
 
      Timer {
@@ -72,6 +77,32 @@ MiningForm {
          cyclesstat.text=cycles
      }
 
+     stopanimation.onCheckStateChanged: {
+         if (stopanimation.checked)
+         {
+             animation1.currentFrame=0
+             animation2.currentFrame=0
+             animation3.currentFrame=0
+             animation1.playing=false
+             animation2.playing=false
+             animation3.playing=false
+             animation1.visible=true
+             animation2.visible=false
+             animation3.visible=false
+         } else
+         {
+             if (!startminingbutton.visible)
+             {
+                 animation1.currentFrame=0
+                 animation2.currentFrame=0
+                 animation3.currentFrame=0
+                 animation1.playing=true
+                 animation1.visible=true
+                 animation2.visible=false
+                 animation3.visible=false
+             }
+         }
+     }
      startminingbutton.onClicked: startMiningSignalIntern()
      stopminingbutton.onClicked: stopMiningSignalIntern()     
      minereduced.onCheckedChanged: minereducedSignalIntern(minereduced.checked)     

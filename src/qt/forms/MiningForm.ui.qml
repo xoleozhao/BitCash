@@ -154,7 +154,7 @@ Item {
     }
 
     AnimatedImage {
-        id: animation1;
+        id: animation1
         width: 808
         height: 606
         source: "../res/movies/Part-1.gif"
@@ -168,7 +168,7 @@ Item {
     AnimatedImage {
         height: 606
         transformOrigin: Item.Center
-        id: animation2;
+        id: animation2
         width: 808
         source: "../res/movies/Part-2.gif"
 
@@ -180,7 +180,7 @@ Item {
     }
     AnimatedImage {
         height: 606
-        id: animation3;
+        id: animation3
         width: 808
         source: "../res/movies/Part-3.gif"
 
@@ -190,6 +190,7 @@ Item {
         playing: false
         visible: false
     }
+
     /*Image {
         id: image
         width: 571
@@ -199,7 +200,6 @@ Item {
         anchors.bottom: parent.bottom
         source: "../res/assets/illustration-mining.png"
     }*/
-
     property alias startminingbutton: startminingbutton
     property alias stopminingbutton: stopminingbutton
 
@@ -328,6 +328,7 @@ Item {
     property alias graphsstat: graphsstat
     property alias cyclesstat: cyclesstat
     property alias minereduced: minereduced
+    property alias stopanimation: stopanimation
 
     Label {
         id: graphsstat
@@ -359,7 +360,7 @@ Item {
         font.weight: Font.DemiBold
         font.pixelSize: 14
         font.family: "Montserrat SemiBold"
-        bottomPadding: 20
+        bottomPadding: 5
         topPadding: 20
         rightPadding: 22
         anchors.top: whitebox.bottom
@@ -380,6 +381,36 @@ Item {
             anchors.verticalCenter: minereduced.verticalCenter
             fillMode: Image.PreserveAspectFit
             anchors.right: minereduced.right
+            source: "../res/assets/Miscellaneous/info.png"
+        }
+    }
+    CheckBox {
+        id: stopanimation
+        text: qsTr("Stop animation")
+        font.weight: Font.DemiBold
+        font.pixelSize: 14
+        font.family: "Montserrat SemiBold"
+        bottomPadding: 5
+        topPadding: 5
+        rightPadding: 22
+        anchors.top: minereduced.bottom
+        anchors.topMargin: 0
+        checkState: Qt.Unchecked
+        leftPadding: 0
+        anchors.left: layoutrect.left
+        anchors.leftMargin: 0
+        hoverEnabled: true
+        ToolTip.visible: hovered
+        ToolTip.text: qsTr("We recommend checking this option if the animation is slowing down the mining.")
+        ToolTip.delay: 100
+        ToolTip.timeout: 5000
+        Image {
+            id: imageinfo2
+            width: 16
+            height: 16
+            anchors.verticalCenter: stopanimation.verticalCenter
+            fillMode: Image.PreserveAspectFit
+            anchors.right: stopanimation.right
             source: "../res/assets/Miscellaneous/info.png"
         }
     }

@@ -15,8 +15,14 @@
 using Consensus::PoW;
 
 
+/*std::string uint64_to_string( int64_t value ) {
+    std::ostringstream os;
+    os << value;
+    return os.str();
+}*/
+
 //uses the "Virtual Time Span Retargeting Algorithm", developed by the BitCash developers to retarget the nbits after every block
-PoW GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader* pblock, const Consensus::Params& params)
+PoW GetNextWorkRequiredBug(const CBlockIndex* pindexLast, const CBlockHeader* pblock, const Consensus::Params& params)
 {
     assert(pindexLast != nullptr);
 
@@ -46,10 +52,6 @@ PoW GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader* pbloc
     for (unsigned int nCountBlocks = 1; nCountBlocks <= nPastBlocks; nCountBlocks++) {
         arith_uint256 bnTarget = arith_uint256().SetCompact(pindex->nBits);
         currenttime = pindex->GetBlockTime();
-        if (pindex->nEdgeBits!=pindexLast->nEdgeBits){
-            //do not change anything for 24 blocks after nEdgeBits has changed
-            return PoW{pindexLast->nBits, pindexLast->nEdgeBits};
-        }
 
         if (nCountBlocks == 1) {
             lasttime = currenttime;
@@ -76,6 +78,142 @@ PoW GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader* pbloc
 
 
     int64_t nTargetTimespan = (nPastBlocks-1) * params.nPowTargetSpacing;
+/*
+    //use the regular nActualTimespan not the "virtual time span" for nEdgeBits adjustment
+    int64_t nActualTimespan = pindexLast->GetBlockTime() - pindex->GetBlockTime();
+
+    // Check if we can adjust nEdgeBits value
+    uint8_t edgeBitsAdjusted = pindexLast->nEdgeBits;
+    if (nActualTimespan < nTargetTimespan / params.nEdgeBitsTargetThreshold) {
+        edgeBitsAdjusted++;
+    }
+    if (nActualTimespan > nTargetTimespan * params.nEdgeBitsTargetThreshold) {
+        edgeBitsAdjusted--;
+    }
+
+    // Retarget nEdgeBits
+    if (edgeBitsAdjusted != pindexLast->nEdgeBits && params.sEdgeBitsAllowed.count(edgeBitsAdjusted)) {
+        LogPrintf("%s: adjusted edge bits accepted. prev bits: %u new bits: %u\n", __func__, pindexLast->nEdgeBits, edgeBitsAdjusted);
+        return PoW{pindexLast->nBits, static_cast<uint8_t>(edgeBitsAdjusted)};
+    }*/
+
+    //Now try to retarget nBits using the "virtual time span"
+    if (virtualtimespan < nTargetTimespan/3)
+        virtualtimespan = nTargetTimespan/3;
+    if (virtualtimespan > nTargetTimespan*3)
+        virtualtimespan = nTargetTimespan*3;
+
+    if (bnNew.getdouble()*virtualtimespan/nTargetTimespan>bnPowLimit.getdouble())
+    {   //use double type to check if the result is within the range, 
+        //otherwise the 256 bit Bignum will overflow when Hashrates are low
+        bnNew = bnPowLimit;
+    } else 
+    {
+
+        // Retarget
+        bnNew /= nTargetTimespan;
+        bnNew *= virtualtimespan;
+
+        if (bnNew > bnPowLimit) {
+            bnNew = bnPowLimit;
+        }
+    }
+
+    return PoW{bnNew.GetCompact(),pindexLast->nEdgeBits};
+}
+
+//uses the "Virtual Time Span Retargeting Algorithm", developed by the BitCash developers to retarget the nbits after every block
+PoW GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader* pblock, const Consensus::Params& params)
+{
+    assert(pindexLast != nullptr);
+
+    if (pindexLast->nHeight<=52064) return GetNextWorkRequiredBug(pindexLast,pblock,params);
+
+    const arith_uint256 bnPowLimit = UintToArith256(params.powLimit.uHashLimit);
+    int64_t nPastBlocks = 24;
+
+    // make sure we have at least (nPastBlocks + 1) blocks, otherwise just return powLimit
+    if (!pindexLast || pindexLast->nHeight < nPastBlocks) {
+        return PoW{bnPowLimit.GetCompact(),pindexLast->nEdgeBits};
+    }
+
+    arith_uint256 bnTargetNow = arith_uint256().SetCompact(pindexLast->nBits);    
+
+    const CBlockIndex *pindex = pindexLast;
+
+    int64_t lasttime,currenttime,virtualtimespan;
+    arith_uint256 LastbnTarget;    
+
+    virtualtimespan=0;
+    lasttime=0;
+    currenttime=0;
+
+    //Calculate a "virtual time span". 
+    //This means we try to calculate how much time it would have taken to calculate all 24 block, 
+    //if the difficulty would have been the difficulty of the last block all the time
+    int64_t times[24];
+    for (unsigned int nCountBlocks = 0; nCountBlocks <= nPastBlocks-1; nCountBlocks++) {
+        arith_uint256 bnTarget = arith_uint256().SetCompact(pindex->nBits);
+        currenttime = pindex->GetBlockTime();
+        times[nPastBlocks-1-nCountBlocks]=currenttime;
+        if(nCountBlocks != nPastBlocks) {
+            assert(pindex->pprev); // should never fail
+            pindex = pindex->pprev;
+        }
+    }
+    //first sort out times values which do not seam to match
+    for (unsigned int nCountBlocks = 0; nCountBlocks <= nPastBlocks-1; nCountBlocks++) {
+        currenttime = times[nCountBlocks];
+        if (nCountBlocks>0 && times[nCountBlocks]<times[nCountBlocks-1])
+        {
+            for (int i=nCountBlocks-1;i>=0;i--)
+            {
+                if (times[i]<=times[nCountBlocks])
+                {
+                   for (int e=i+1;e<=nCountBlocks-1;e++){
+                       times[e]=(times[nCountBlocks]-times[i])/((nCountBlocks)-(i))+times[i];
+                   }                   
+                   break;
+                } else if (i==0)
+                {
+                   for (int e=0;e<=nCountBlocks-1;e++){
+                       times[e]=times[nCountBlocks];
+                   }
+                }
+            }
+        }
+    }
+
+    pindex = pindexLast;
+
+    for (unsigned int nCountBlocks = 1; nCountBlocks <= nPastBlocks; nCountBlocks++) {
+        arith_uint256 bnTarget = arith_uint256().SetCompact(pindex->nBits);
+        currenttime = times[nPastBlocks-nCountBlocks];
+        if (nCountBlocks == 1) {
+            lasttime = currenttime;
+            LastbnTarget=bnTarget;
+        } else {
+            arith_uint256 bnNew(LastbnTarget);
+            arith_uint256 bnNew2(bnTargetNow);
+
+            //(lasttime-currenttime) is the real time between the two block
+            //we multiply it with the old diff target back then and divide through the current diff target
+            //this gives us the time it would have taken to calculate the block with the current difficulty
+            virtualtimespan+=(lasttime-currenttime)*bnNew.getdouble()/bnNew2.getdouble();
+            lasttime = currenttime;
+            LastbnTarget=bnTarget;
+        }
+
+        if(nCountBlocks != nPastBlocks) {
+            assert(pindex->pprev); // should never fail
+            pindex = pindex->pprev;
+        }
+    }
+
+    arith_uint256 bnNew(bnTargetNow);
+
+    int64_t nTargetTimespan = (nPastBlocks-1) * params.nPowTargetSpacing;
+
 /*
     //use the regular nActualTimespan not the "virtual time span" for nEdgeBits adjustment
     int64_t nActualTimespan = pindexLast->GetBlockTime() - pindex->GetBlockTime();

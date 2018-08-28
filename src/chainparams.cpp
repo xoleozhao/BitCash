@@ -280,6 +280,16 @@ public:
         consensus.BIP66Height = 1; 
         consensus.sEdgeBitsAllowed = {16,17,18,19,20, 21, 22, 23, 24, 25, 26};
         consensus.powLimit = Consensus::PoWLimit{
+/*1f0bc3d9
+1f234b8d
+1f69e2aa
+20013da8
+2003b8fa
+                      000b
+                        23 
+                        69
+                      01
+                      03*/
             uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"),
             *consensus.sEdgeBitsAllowed.begin()};
         consensus.nPowTargetTimespan = 24 * 60 * 60; // one for nBits adjustment
