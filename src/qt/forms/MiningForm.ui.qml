@@ -362,7 +362,7 @@ Item {
         font.family: "Montserrat SemiBold"
         bottomPadding: 5
         topPadding: 20
-        rightPadding: 22
+        rightPadding: 24
         anchors.top: whitebox.bottom
         anchors.topMargin: 0
         checkState: Qt.Unchecked
@@ -393,7 +393,7 @@ Item {
         font.family: "Montserrat SemiBold"
         bottomPadding: 5
         topPadding: 5
-        rightPadding: 22
+        rightPadding: 24
         anchors.top: minereduced.bottom
         anchors.topMargin: 0
         checkState: Qt.Unchecked
