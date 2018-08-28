@@ -1,0 +1,92 @@
+#!/sbin/openrc-run
+
+# backward compatibility for existing gentoo layout 
+#
+if [ -d "/var/lib/bitcash/.bitcash" ]; then
+	BITCASHD_DEFAULT_DATADIR="/var/lib/bitcash/.bitcash"
+else
+	BITCASHD_DEFAULT_DATADIR="/var/lib/bitcashd"
+fi
+
+BITCASHD_CONFIGFILE=${BITCASHD_CONFIGFILE:-/etc/bitcash/bitcash.conf}
+BITCASHD_PIDDIR=${BITCASHD_PIDDIR:-/var/run/bitcashd}
+BITCASHD_PIDFILE=${BITCASHD_PIDFILE:-${BITCASHD_PIDDIR}/bitcashd.pid}
+BITCASHD_DATADIR=${BITCASHD_DATADIR:-${BITCASHD_DEFAULT_DATADIR}}
+BITCASHD_USER=${BITCASHD_USER:-${BITCASH_USER:-bitcash}}
+BITCASHD_GROUP=${BITCASHD_GROUP:-bitcash}
+BITCASHD_BIN=${BITCASHD_BIN:-/usr/bin/bitcashd}
+BITCASHD_NICE=${BITCASHD_NICE:-${NICELEVEL:-0}}
+BITCASHD_OPTS="${BITCASHD_OPTS:-${BITCASH_OPTS}}"
+
+name="Bitcash Core Daemon"
+description="Bitcash cryptocurrency P2P network daemon"
+
+command="/usr/bin/bitcashd"
+command_args="-pid=\"${BITCASHD_PIDFILE}\" \
+		-conf=\"${BITCASHD_CONFIGFILE}\" \
+		-datadir=\"${BITCASHD_DATADIR}\" \
+		-daemon \
+		${BITCASHD_OPTS}"
+
+required_files="${BITCASHD_CONFIGFILE}"
+start_stop_daemon_args="-u ${BITCASHD_USER} \
+			-N ${BITCASHD_NICE} -w 2000"
+pidfile="${BITCASHD_PIDFILE}"
+
+# The retry schedule to use when stopping the daemon. Could be either
+# a timeout in seconds or multiple signal/timeout pairs (like
+# "SIGKILL/180 SIGTERM/300")
+retry="${BITCASHD_SIGTERM_TIMEOUT}"
+
+depend() {
+	need localmount net
+}
+
+# verify
+# 1) that the datadir exists and is writable (or create it)
+# 2) that a directory for the pid exists and is writable
+# 3) ownership and permissions on the config file
+start_pre() {
+	checkpath \
+	-d \
+	--mode 0750 \
+	--owner "${BITCASHD_USER}:${BITCASHD_GROUP}" \
+	"${BITCASHD_DATADIR}"
+
+	checkpath \
+	-d \
+	--mode 0755 \
+	--owner "${BITCASHD_USER}:${BITCASHD_GROUP}" \
+	"${BITCASHD_PIDDIR}"
+
+	checkpath -f \
+	-o ${BITCASHD_USER}:${BITCASHD_GROUP} \
+	-m 0660 \
+	${BITCASHD_CONFIGFILE}
+
+	checkconfig || return 1
+}
+
+checkconfig()
+{
+	if ! grep -qs '^rpcpassword=' "${BITCASHD_CONFIGFILE}" ; then
+		eerror ""
+		eerror "ERROR: You must set a secure rpcpassword to run bitcashd."
+		eerror "The setting must appear in ${BITCASHD_CONFIGFILE}"
+		eerror ""
+		eerror "This password is security critical to securing wallets "
+		eerror "and must not be the same as the rpcuser setting."
+		eerror "You can generate a suitable random password using the following "
+		eerror "command from the shell:"
+		eerror ""
+		eerror "bash -c 'tr -dc a-zA-Z0-9 < /dev/urandom | head -c32 && echo'"
+		eerror ""
+		eerror "It is recommended that you also set alertnotify so you are "
+		eerror "notified of problems:"
+		eerror ""
+		eerror "ie: alertnotify=echo %%s | mail -s \"Bitcash Alert\"" \
+			"admin@foo.com"
+		eerror ""
+		return 1
+	fi
+}

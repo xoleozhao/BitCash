@@ -1,0 +1,8 @@
+/usr/bin/bitcash-cli		--	gen_context(system_u:object_r:bitcash_exec_t,s0)
+/usr/sbin/bitcashd		--	gen_context(system_u:object_r:bitcash_exec_t,s0)
+/usr/lib(64)?/bitcash/bitcashd		--	gen_context(system_u:object_r:bitcash_exec_t,s0)
+
+/etc/bitcash(/.*)?		gen_context(system_u:object_r:bitcash_conf_t,s0)
+/var/lib/bitcash(/.*)?		gen_context(system_u:object_r:bitcash_var_lib_t,s0)
+
+(/var)?/run/bitcashd(/.*)?   gen_context(system_u:object_r:bitcash_var_run_t,s0)

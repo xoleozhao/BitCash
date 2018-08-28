@@ -1,0 +1,33 @@
+# /etc/conf.d/bitcashd: config file for /etc/init.d/bitcashd
+
+# Config file location
+#BITCASHD_CONFIGFILE="/etc/bitcash/bitcash.conf"
+
+# What directory to write pidfile to?  (created and owned by $BITCASHD_USER)
+#BITCASHD_PIDDIR="/var/run/bitcashd"
+
+# What filename to give the pidfile
+#BITCASHD_PIDFILE="${BITCASHD_PIDDIR}/bitcashd.pid"
+
+# Where to write bitcashd data (be mindful that the blockchain is large)
+#BITCASHD_DATADIR="/var/lib/bitcashd"
+
+# User and group to own bitcashd process
+#BITCASHD_USER="bitcash"
+#BITCASHD_GROUP="bitcash"
+
+# Path to bitcashd executable
+#BITCASHD_BIN="/usr/bin/bitcashd"
+
+# Nice value to run bitcashd under
+#BITCASHD_NICE=0
+
+# Additional options (avoid -conf and -datadir, use flags above)
+#BITCASHD_OPTS=""
+
+# The timeout in seconds OpenRC will wait for bitcashd to terminate
+# after a SIGTERM has been raised.
+# Note that this will be mapped as argument to start-stop-daemon's
+# '--retry' option, which means you can specify a retry schedule
+# here. For more information see man 8 start-stop-daemon.
+BITCASHD_SIGTERM_TIMEOUT=60

@@ -1,0 +1,67 @@
+#!/bin/bash
+#
+#  bitcashd The bitcash core server.
+#
+#
+# chkconfig: 345 80 20
+# description: bitcashd
+# processname: bitcashd
+#
+
+# Source function library.
+. /etc/init.d/functions
+
+# you can override defaults in /etc/sysconfig/bitcashd, see below
+if [ -f /etc/sysconfig/bitcashd ]; then
+        . /etc/sysconfig/bitcashd
+fi
+
+RETVAL=0
+
+prog=bitcashd
+# you can override the lockfile via BITCASHD_LOCKFILE in /etc/sysconfig/bitcashd
+lockfile=${BITCASHD_LOCKFILE-/var/lock/subsys/bitcashd}
+
+# bitcashd defaults to /usr/bin/bitcashd, override with BITCASHD_BIN
+bitcashd=${BITCASHD_BIN-/usr/bin/bitcashd}
+
+# bitcashd opts default to -disablewallet, override with BITCASHD_OPTS
+bitcashd_opts=${BITCASHD_OPTS--disablewallet}
+
+start() {
+    echo -n $"Starting $prog: "
+    daemon $DAEMONOPTS $bitcashd $bitcashd_opts
+    RETVAL=$?
+    echo
+    [ $RETVAL -eq 0 ] && touch $lockfile
+    return $RETVAL
+}
+
+stop() {
+    echo -n $"Stopping $prog: "
+    killproc $prog
+    RETVAL=$?
+    echo
+    [ $RETVAL -eq 0 ] && rm -f $lockfile
+    return $RETVAL
+}
+
+case "$1" in
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    status)
+        status $prog
+        ;;
+    restart)
+        stop
+        start
+        ;;
+    *)
+        echo "Usage: service $prog {start|stop|status|restart}"
+        exit 1
+        ;;
+esac

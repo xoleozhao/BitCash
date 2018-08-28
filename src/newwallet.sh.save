@@ -1,0 +1,4 @@
+rm ~/.bitcash/wallet.dat
+./bitcashd
+sleep 3
+./bitcash-cli importprivkey UvrkaRFq2j8M6z7LwaXZvy1bGSjbH7S3BGWEvcJsy1oo4K3GUPDR 

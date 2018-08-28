@@ -1,0 +1,6 @@
+usr/local/bin/bitcash-qt usr/bin
+share/pixmaps/bitcash32.xpm usr/share/pixmaps
+share/pixmaps/bitcash16.xpm usr/share/pixmaps
+share/pixmaps/bitcash128.png usr/share/pixmaps
+debian/bitcash-qt.desktop usr/share/applications
+debian/bitcash-qt.protocol usr/share/kde4/services/

@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>LinksPage</class>
+ <widget class="QWidget" name="LinksPage">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>927</width>
+    <height>622</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="topLayout">
+   <item>
+    <widget class="QFrame" name="frame">
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QFormLayout" name="formLayout">
+      <property name="fieldGrowthPolicy">
+       <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+      </property>
+      <item row="0" column="1">
+       <widget class="QLabel" name="label_4">
+        <property name="text">
+         <string>Here you can create a link to send coins via email or messenger. You can enter the amount you want to send here.</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Reference line:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="referencelineEdit"/>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Amount:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="BitcashAmountField" name="payAmount"/>
+      </item>
+      <item row="5" column="1">
+       <widget class="QPushButton" name="createlinkbtn">
+        <property name="text">
+         <string>Send coins via link</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../bitcash.qrc">
+          <normaloff>:/icons/send</normaloff>:/icons/send</iconset>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="0">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>Created links:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="1">
+       <widget class="QListWidget" name="listWidget"/>
+      </item>
+      <item row="7" column="1">
+       <widget class="QPushButton" name="CopyLinkBtn">
+        <property name="text">
+         <string>Copy selected link</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../bitcash.qrc">
+          <normaloff>:/icons/editcopy</normaloff>:/icons/editcopy</iconset>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="0">
+       <widget class="Line" name="line">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="10" column="1">
+       <widget class="Line" name="line_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="12" column="1">
+       <widget class="QLabel" name="label_5">
+        <property name="text">
+         <string>Here you can paste a link which you have received to claim the coins.</string>
+        </property>
+       </widget>
+      </item>
+      <item row="15" column="0">
+       <widget class="Line" name="line_3">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="13" column="0">
+       <widget class="QLabel" name="label_6">
+        <property name="text">
+         <string>Paste a link here:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="13" column="1">
+       <widget class="QLineEdit" name="PasteEdit"/>
+      </item>
+      <item row="15" column="1">
+       <widget class="QPushButton" name="ClaimCoinsBtn">
+        <property name="text">
+         <string>Claim coins from link</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../bitcash.qrc">
+          <normaloff>:/icons/receiving_addresses</normaloff>:/icons/receiving_addresses</iconset>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="1">
+       <widget class="QLabel" name="label_7">
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Make a copy of the created links before you close this program. Otherwise the coins will be lost forever!!!</string>
+        </property>
+       </widget>
+      </item>
+      <item row="14" column="1">
+       <widget class="QPushButton" name="PasteBtn">
+        <property name="text">
+         <string>Paste link from clipboard</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../bitcash.qrc">
+          <normaloff>:/icons/editpaste</normaloff>:/icons/editpaste</iconset>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>BitcashAmountField</class>
+   <extends>QLineEdit</extends>
+   <header>qt/bitcashamountfield.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="../bitcash.qrc"/>
+ </resources>
+ <connections/>
+</ui>

@@ -1,0 +1,14 @@
+[Desktop Entry]
+Version=1.0
+Name=Bitcash Core
+Comment=Connect to the Bitcash P2P Network
+Comment[de]=Verbinde mit dem Bitcash peer-to-peer Netzwerk
+Comment[fr]=Bitcash, monnaie virtuelle cryptographique pair à pair
+Comment[tr]=Bitcash, eşten eşe kriptografik sanal para birimi
+Exec=bitcash-qt %u
+Terminal=false
+Type=Application
+Icon=bitcash128
+MimeType=x-scheme-handler/bitcash;
+Categories=Office;Finance;P2P;Network;Qt;
+StartupWMClass=Bitcash-qt
