@@ -127,7 +127,7 @@ PoW GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader* pbloc
 {
     assert(pindexLast != nullptr);
 
-    if (pindexLast->nHeight<=52064) return GetNextWorkRequiredBug(pindexLast,pblock,params);
+    if (pindexLast->nHeight<=52063) return GetNextWorkRequiredBug(pindexLast,pblock,params);
 
     const arith_uint256 bnPowLimit = UintToArith256(params.powLimit.uHashLimit);
     int64_t nPastBlocks = 24;

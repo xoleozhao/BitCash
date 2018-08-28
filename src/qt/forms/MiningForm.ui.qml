@@ -378,6 +378,7 @@ Item {
             id: imageinfo
             width: 16
             height: 16
+            anchors.verticalCenterOffset: 7
             anchors.verticalCenter: minereduced.verticalCenter
             fillMode: Image.PreserveAspectFit
             anchors.right: minereduced.right
