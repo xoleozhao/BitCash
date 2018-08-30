@@ -241,7 +241,7 @@ bool FindProofOfWorkAdvanced(
         return true;
     }
 
-    cycle.clear();
+    cycle.clear(); 
  
     return false;
 }

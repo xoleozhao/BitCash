@@ -125,6 +125,8 @@ The install everything to compile it with QtQuickcontrols 2:
     sudo apt-get install qtdeclarative5-dev
     sudo apt-get install qtquickcontrols2-5-dev
     sudo apt-get install qml-module-qtquick-controls2
+    sudo apt-get install qml-module-qtquick-controls
+    sudo apt-get install qml-module-qtquick-layouts
 
 libqrencode (optional) can be installed with:
 

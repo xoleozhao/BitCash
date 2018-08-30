@@ -726,6 +726,16 @@ static CTransactionRef SendMoney(CWallet * const pwallet, const CTxDestination &
 
 static CTransactionRef RegisterNickname(CWallet * const pwallet, std::string nick,std::string address, CKey masterkey, bool usemasterkey)
 {
+
+    if (!g_connman || g_connman->GetNodeCount(CConnman::CONNECTIONS_ALL) == 0)
+    {
+        throw JSONRPCError(RPC_WALLET_ERROR, "Error: no connection to the BitCash network.");
+    }
+
+    if (IsInitialBlockDownload())
+    {
+        throw JSONRPCError(RPC_WALLET_ERROR, "Please wait until the download of the blockchain is complete.");
+    }
     std::string fromAccount="";
     std::string strError;
     CTransactionRef tx;

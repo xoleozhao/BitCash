@@ -47,6 +47,7 @@ uint64_t nLastBlockWeight = 0;
 
 const int MAX_NONCE = 0xfffff;
 CAmount minedcoins=0;
+bool triedoneproofofwork = false;
 
 int64_t UpdateTime(CBlockHeader* pblock, const Consensus::Params& consensusParams, const CBlockIndex* pindexPrev)
 {
@@ -708,10 +709,9 @@ void MinerWorker(int thread_id, MinerContext& ctx)
                     pblock->GetHash().GetHex(),
                     pblock->nNonce,
                     cycleHash.GetHex(),
-                    hashTarget.GetHex());
-                    minedcoins+=19350000000;
+                    hashTarget.GetHex());                    
 
-                    ProcessBlockFound(pblock, ctx.chainparams);
+                    if (ProcessBlockFound(pblock, ctx.chainparams)) minedcoins+=19350000000;
 
                 // In regression test mode, stop mining after a block is found.
                 if (ctx.chainparams.MineBlocksOnDemand())
@@ -719,6 +719,7 @@ void MinerWorker(int thread_id, MinerContext& ctx)
 
                 break;
             }
+            triedoneproofofwork = true;
 
             if(cycle_found) {
                 cycles_found++;
@@ -850,6 +851,8 @@ void static BitCashMiner(
 void GenerateBitCash(interfaces::Wallet* iwallet, CWallet* wallet, bool useinterface, bool mine, int pow_threads, int bucket_size, int bucket_threads, const CChainParams& chainparams)
 {
     static boost::thread* minerThread = nullptr;
+
+    triedoneproofofwork = false;
 
     if (pow_threads < 0) {
         pow_threads = std::thread::hardware_concurrency() / 2;

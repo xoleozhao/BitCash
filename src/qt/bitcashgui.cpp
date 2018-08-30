@@ -40,6 +40,7 @@
 #include <links.h>
 #include <ui_interface.h>
 #include <util.h>
+#include <validation.h>
 
 #include <iostream>
 
@@ -412,6 +413,8 @@ void BitcashGUI::StopMiningBtnClicked()
     miningtimer->stop();
 }
 
+extern bool triedoneproofofwork;
+
 void BitcashGUI::updateminingstats()
 {
     std::string gp = std::to_string(g_connman->GetGraphPower());
@@ -443,7 +446,7 @@ void BitcashGUI::updateminingstats()
        QMetaObject::invokeMethod(qmlrootitem, "displaymininginfo", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, msg));
 
     } else
-    if (!mininginfodisplayed && !mineriswaitingforblockdownload)
+    if (!mininginfodisplayed && !mineriswaitingforblockdownload && triedoneproofofwork)
     {
        mininginfodisplayed=true;
 
@@ -466,7 +469,7 @@ void BitcashGUI::updateminingstats()
        QMetaObject::invokeMethod(qmlrootitem, "displaymininginfo", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, msg));
 
     } else
-    if (!mininginfodisplayed && !mineriswaitingforblockdownload)
+    if (!mininginfodisplayed && !mineriswaitingforblockdownload && triedoneproofofwork)
     {
        mininginfodisplayed=true;
 
@@ -875,13 +878,29 @@ void BitcashGUI::RegisterNickBtnClicked(const QString &nickname, const QString &
     WalletModel * const walletModel = getCurrentWalletModel();
     if (!walletModel) return;
 
+    QVariant returnedValue;
+
+    if (!g_connman || g_connman->GetNodeCount(CConnman::CONNECTIONS_ALL) == 0)
+    {
+        QVariant msg=QString::fromStdString("Error: no connection to the BitCash network.");
+        QMetaObject::invokeMethod(qmlrootitem, "setnicknameerror", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, msg));
+        return;
+    }
+
+
+    if (IsInitialBlockDownload())
+    {
+        QVariant msg=QString::fromStdString("Please wait until the download of the blockchain is complete.");
+        QMetaObject::invokeMethod(qmlrootitem, "setnicknameerror", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, msg));
+        return;
+    }
+
     CPubKey pkey=walletModel->wallet().GetCurrentAddressPubKey();
     CTxDestination dest=PubKeyToDestination(pkey);
     std::string addr=EncodeDestination(dest,pkey);
 
     std::string errorstr;
     bool isokay=walletModel->wallet().RegisterNickname(nickname.toStdString(),/*address.toStdString()*/addr,errorstr);
-    QVariant returnedValue;
 
     if (isokay) 
     {
