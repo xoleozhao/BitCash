@@ -243,12 +243,15 @@ copy merkle root
         fRequireStandard = true;
         fMineBlocksOnDemand = false;
 
+        //checkpoints are the merkle roots of these blocks
         checkpointData = {
             {
                 { 0, uint256S("0x7d57d87ff3c15a521530af60edee1887fba9c193eb518face926785c4cd8f4f1")},
                 { 5000, uint256S("0x3220c952ad933f932c74c8a9ac1a90c2c67544f2884ffe2cb501b3d3bbafb1cc")},
                 { 10000, uint256S("0x2c2e1fda318f953d4490d43045eb5027c46ee263efd32af10b129b3849533766")},
-                { 20000, uint256S("0x7f6c97894c2b98c963fa879a546047545e213b56e95766f9ba06e7fdc50461bb")},                                                    
+                { 20000, uint256S("0x7f6c97894c2b98c963fa879a546047545e213b56e95766f9ba06e7fdc50461bb")},
+                { 30000, uint256S("0x3ca6f893ba77f94bcd7880828c80e25d8acae947091a8c703d4bbc888652a763")},
+                { 40000, uint256S("0x1509b6323cf48a74838ee3f7b2cca7e02f5c44ef78fe9e9b2133eeb94f92a26a")},                                                                                                        
             }
         };
 
