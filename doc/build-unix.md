@@ -120,7 +120,8 @@ To build with Qt 5 (recommended) you need the following:
 
     sudo apt-get install libqt5gui5 libqt5core5a libqt5dbus5 qttools5-dev qttools5-dev-tools libprotobuf-dev protobuf-compiler
 
-The install everything to compile it with QtQuickcontrols 2:
+This will install everything you need to compile it with QtQuickcontrols 2:
+
     sudo apt-get install qt5-default
     sudo apt-get install qtdeclarative5-dev
     sudo apt-get install qtquickcontrols2-5-dev
