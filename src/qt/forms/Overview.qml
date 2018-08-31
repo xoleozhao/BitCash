@@ -700,7 +700,7 @@ Item {
                 id: backupbutton
                 x: 244
                 y: 208
-                width: 144
+                width: 154
                 height: 44
                 text: qsTr("Backup wallet")
                 font.bold: false
