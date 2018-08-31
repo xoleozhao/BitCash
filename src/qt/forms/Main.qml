@@ -67,13 +67,20 @@ Item {
         paperwallet.visible=true
     }
 
+    function setwalletfolder(folder) {
+        backupwallet.setwalletfolderintern(folder)
+    }
+
     function startbackupwallet(msg) {
         paperwallet.visible=false
         backupwallet.visible=true
+        backupwallet.tabBar.currentIndex=0
     }
 
-    function startimportkey(msg) {
-        importkey.visible=true
+    function startimportkey(msg) {        
+        paperwallet.visible=false
+        backupwallet.visible=true
+        backupwallet.tabBar.currentIndex=1
     }
 
     function setpaperwalletaddresses(address,privatekey) {
@@ -85,8 +92,8 @@ Item {
         sendlinks.displayerrormessageintern(msg)
     }
 
-    function displayerrormessageimportkey(msg) {
-        importkey.displayerrormessageintern(msg)
+    function displayerrormessageimportkey(msg) {        
+        backupwallet.displayerrormessageintern(msg)
     }
 
     function generatedlink() {
@@ -144,7 +151,9 @@ Item {
     signal helpSignal()
     signal undolinkremovalSignal()
     signal generatepaperwalletSignal()
-    signal printpaperwalletSignal()    
+    signal printpaperwalletSignal()
+    signal backupwalletfileSignal()
+    signal backupBtnSignal()
     signal importkeySignal(string key)
 
     SwipeView {
@@ -158,6 +167,7 @@ Item {
         Overview {
             id: overview
             onStartMiningSignalInternoverview: tabBar.currentIndex=tabBar.currentIndex+1
+            onStartBackupSignalInternoverview: backupBtnSignal();
         }
         Mining{
             id: mining
@@ -515,12 +525,8 @@ Item {
     {
         id: backupwallet
         onPrintpaperwalletSignalintern: printpaperwalletSignal()
-    }
-
-    Importkey
-    {
-        id: importkey
+        onBackupwalletfileSignalintern: backupwalletfileSignal()
         onImportkeySignalintern: importkeySignal(key)
-    }
+    }    
 
 }

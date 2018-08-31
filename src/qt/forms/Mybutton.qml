@@ -7,7 +7,9 @@ T.Button {
     property color btncolor: "#3f49aa"
     property color btncolordown: "#30357c"
     property color txtcolor: "white"
-    property color txtcolordown: "#f2f2f2"
+    property color txtcolordown: "#f2f2f2"    
+    property color btnbordercolor: "#3e45ac"
+    property int borderwidth: 0
 
     font.family: "Montserrat SemiBold"
 
@@ -24,6 +26,8 @@ T.Button {
         implicitHeight: 40
         opacity: enabled ? 1 : 0.3
         color: btncolor
+        border.color: btnbordercolor
+        border.width: borderwidth
         radius: 3
 
         Image {

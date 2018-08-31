@@ -35,6 +35,7 @@
 #include <chainparams.h>
 #include <init.h>
 #include <interfaces/handler.h>
+#include <wallet/walletutil.h>
 #include <interfaces/node.h>
 #include <miner.h>
 #include <links.h>
@@ -1022,7 +1023,7 @@ BitcashGUI::BitcashGUI(interfaces::Node& node, const PlatformStyle *_platformSty
         walletFrame = new WalletFrame(_platformStyle, this);
         //setCentralWidget(walletFrame);
 
-//    qInstallMessageHandler(myMessageOutput); // Install the handler
+    qInstallMessageHandler(myMessageOutput); // Install the handler
 
     QFontDatabase::addApplicationFont(":/res/assets/Montserrat-Bold.otf");
     QFontDatabase::addApplicationFont(":/res/assets/Montserrat-Light.otf");
@@ -1070,6 +1071,13 @@ BitcashGUI::BitcashGUI(interfaces::Node& node, const PlatformStyle *_platformSty
                       this, SLOT(PrintPaperWalletClicked()));                                         
     QObject::connect(qmlrootitem, SIGNAL(importkeySignal(QString)),
                       this, SLOT(importKeyBtnClicked(QString)));
+    QObject::connect(qmlrootitem, SIGNAL(backupBtnSignal()),
+                      this, SLOT(printMainWalletClicked()));
+
+    QVariant returnedValue;
+    fs::path path=GetWalletDir() / "wallet.dat";
+    QVariant folder=QString::fromStdString(path.string());
+    QMetaObject::invokeMethod(qmlrootitem, "setwalletfolder", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, folder));
 
     miningtimer = new QTimer(this);
     connect(miningtimer, SIGNAL(timeout()), this, SLOT(updateminingstats()));    
@@ -1300,8 +1308,8 @@ void BitcashGUI::createActions()
     importKeyAction = new QAction(platformStyle->TextColorIcon(":/res/assets/Navigation/receive-active.png"), tr("&Import / Restore from paper wallet"), this);
     importKeyAction->setStatusTip(tr("Import a private key from a paper wallet to add your BitCash to the main wallet"));
 
-    printWalletAction = new QAction(platformStyle->TextColorIcon(":/res/assets/Navigation/receive-active.png"), tr("&Backup your current wallet onto paper"), this);
-    printWalletAction->setStatusTip(tr("Prints a copy of the private key of your main wallet as a backup."));
+    printWalletAction = new QAction(platformStyle->TextColorIcon(":/res/assets/Navigation/receive-active.png"), tr("&Backup wallet"), this);
+    printWalletAction->setStatusTip(tr("Make a backup copy of your wallet."));
 
     exportAction = new QAction(platformStyle->TextColorIcon(":/icons/filesave"), tr("&Export transactions..."), this);
     exportAction->setStatusTip(tr("Export the transaction as CSV file"));
@@ -1356,6 +1364,8 @@ void BitcashGUI::createActions()
     {
         connect(encryptWalletAction, SIGNAL(triggered(bool)), walletFrame, SLOT(encryptWallet(bool)));
         connect(backupWalletAction, SIGNAL(triggered()), walletFrame, SLOT(backupWallet()));
+        QObject::connect(qmlrootitem, SIGNAL(backupwalletfileSignal()), walletFrame, SLOT(backupWallet()));
+
         connect(importWalletAction, SIGNAL(triggered()), walletFrame, SLOT(importWallet()));
         connect(changePassphraseAction, SIGNAL(triggered()), walletFrame, SLOT(changePassphrase()));
         connect(signMessageAction, SIGNAL(triggered()), this, SLOT(gotoSignMessageTab()));
@@ -1386,7 +1396,7 @@ void BitcashGUI::createMenuBar()
     if(walletFrame)
     {
         file->addAction(exportAction);
-        file->addAction(backupWalletAction);
+        file->addAction(printWalletAction);
         file->addAction(signMessageAction);
         file->addAction(verifyMessageAction);
         file->addSeparator();
@@ -1403,8 +1413,6 @@ void BitcashGUI::createMenuBar()
     {
         paperwallet->addAction(paperWalletAction);
         paperwallet->addAction(importKeyAction);
-        paperwallet->addSeparator();
-        paperwallet->addAction(printWalletAction);
     }
 
     QMenu *settings = appMenuBar->addMenu(tr("&Settings"));

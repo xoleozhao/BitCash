@@ -257,10 +257,33 @@
         <file>res/assets/Shadow/shadowrighttop.png</file>
         <file>res/assets/Shadow/shadowtop.png</file>
         <file>forms/Paperwallet.qml</file>
-        <file>forms/Importkey.qml</file>
         <file>forms/Backupwallet.qml</file>
         <file>res/movies/Part-1.gif</file>
         <file>res/movies/Part-2.gif</file>
         <file>res/movies/Part-3.gif</file>
+        <file>res/assets/illustration-overview-copy-2.png</file>
+        <file>res/assets/illustration-overview-copy-2@2x.png</file>
+        <file>res/assets/illustration-overview-copy-2@3x.png</file>
+        <file>res/assets/backup-icon-copy.png</file>
+        <file>res/assets/backup-icon-copy@2x.png</file>
+        <file>res/assets/backup-icon-copy@3x.png</file>
+        <file>res/assets/Miscellaneous/close-icon.png</file>
+        <file>res/assets/Miscellaneous/close-icon@2x.png</file>
+        <file>res/assets/Miscellaneous/close-icon@3x.png</file>
+        <file>res/assets/Navigation/backup-icon.png</file>
+        <file>res/assets/Navigation/backup-icon@2x.png</file>
+        <file>res/assets/Navigation/backup-icon@3x.png</file>
+        <file>res/assets/Miscellaneous/info-yellow.png</file>
+        <file>res/assets/Miscellaneous/info-yellow@2x.png</file>
+        <file>res/assets/Miscellaneous/info-yellow@3x.png</file>
+        <file>res/assets/Miscellaneous/download-icon.png</file>
+        <file>res/assets/Miscellaneous/download-icon@2x.png</file>
+        <file>res/assets/Miscellaneous/download-icon@3x.png</file>
+        <file>res/assets/Miscellaneous/print-icon.png</file>
+        <file>res/assets/Miscellaneous/print-icon@2x.png</file>
+        <file>res/assets/Miscellaneous/print-icon@3x.png</file>
+        <file>res/assets/Miscellaneous/import-icon.png</file>
+        <file>res/assets/Miscellaneous/import-icon@2x.png</file>
+        <file>res/assets/Miscellaneous/import-icon@3x.png</file>
     </qresource>
 </RCC>

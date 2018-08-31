@@ -33,6 +33,7 @@ Item {
     }
 
     signal startMiningSignalInternoverview()
+    signal startBackupSignalInternoverview()
 
     function setbalancesintern(avail, pending, immature, total) {
         availLabel.text=avail
@@ -571,7 +572,7 @@ Item {
         x: 354
         y: 31
         width: 420
-        height: 272
+        height: 122
         anchors.right: parent.right
         anchors.rightMargin: 30
         radius: 3
@@ -582,10 +583,11 @@ Item {
             fillMode: Image.PreserveAspectFit
             anchors.left: parent.left
             anchors.bottom: parent.bottom
-            source: "../res/assets/illustration-overview.png"
+            source: "../res/assets/illustration-overview-copy-2.png"
          }
             Label {
                 id: label
+                y: 24
                 text: qsTr("Start mining")
                 font.weight: Font.DemiBold
                 color: "white"                
@@ -601,17 +603,17 @@ Item {
                 id: label4
                 x: -4
                 y: 5
-                height: 118
+                height: 54
                 text: qsTr("Use your computer to mine and earn BitCash now.")
                 wrapMode: Text.WordWrap
-                anchors.right: parent.right
-                anchors.rightMargin: 30
+                anchors.right: startminingbutton.left
+                anchors.rightMargin: 20
                 color: "white"
-                anchors.topMargin: 60
+                anchors.topMargin: 5
                 font.pixelSize: 13
                 font.family: "Montserrat"
                 anchors.left: parent.left
-                anchors.top: parent.top
+                anchors.top: label.bottom
                 anchors.leftMargin: 30
             }
 
@@ -622,6 +624,8 @@ Item {
                 width: 156
                 height: 44
                 text: qsTr("Start mining")
+                font.bold: false
+                anchors.verticalCenter: parent.verticalCenter
                 font.weight: Font.DemiBold
                 font.pixelSize: 14
                 rightPadding: 20
@@ -632,12 +636,84 @@ Item {
                 txtcolor: "#3e45ac"
                 btncolordown: "#eaeaea"
                 txtcolordown: "#494ea7"
-                anchors.bottom: parent.bottom
-                anchors.bottomMargin: 20
                 anchors.right: parent.right
                 anchors.rightMargin: 20                
                 iconname: "../res/assets/Miscellaneous/button-start-2.png"
                 onClicked: startMiningSignalInternoverview()
+            }
+
+    }
+
+    ShadowBox{
+        id: backup
+        x: 354
+        y: 31
+        width: 432
+        height: 134
+        anchors.right: parent.right
+        anchors.rightMargin: 24
+        radius: 3
+        anchors.bottom: balancerect.bottom
+        anchors.bottomMargin: 0
+        border.width: 0
+
+        Image {
+            anchors.leftMargin: 14
+            anchors.verticalCenter: parent.verticalCenter
+            fillMode: Image.PreserveAspectFit
+            anchors.left: parent.left
+            anchors.bottom: parent.bottom
+            source: "../res/assets/backup-icon-copy.png"
+         }
+            Label {
+                id: label11
+                text: qsTr("Backup wallet")
+                font.weight: Font.DemiBold
+                color: "#202124"
+                font.pixelSize: 18
+                font.family: "Montserrat SemiBold"
+                anchors.top: parent.top
+                anchors.topMargin: 30
+                anchors.left: parent.left
+                anchors.leftMargin: 30
+            }
+
+            Text {
+                id: label42
+                x: -4
+                y: 5
+                height: 54
+                text: qsTr("Save a backup of your wallet as a precaution now.")
+                wrapMode: Text.WordWrap
+                anchors.right: backupbutton.left
+                anchors.rightMargin: 20
+                color: "#4f515a"
+                anchors.topMargin: 5
+                font.pixelSize: 13
+                font.family: "Montserrat"
+                anchors.left: parent.left
+                anchors.top: label11.bottom
+                anchors.leftMargin: 30
+            }
+
+            Mybutton {
+                id: backupbutton
+                x: 244
+                y: 208
+                width: 144
+                height: 44
+                text: qsTr("Backup wallet")
+                font.bold: false
+                anchors.verticalCenter: parent.verticalCenter
+                font.weight: Font.DemiBold
+                font.pixelSize: 14
+                rightPadding: 20
+                leftPadding: 20
+                font.family: "Montserrat SemiBold"
+                font.capitalization: Font.MixedCase
+                anchors.right: parent.right
+                anchors.rightMargin: 20
+                onClicked: startBackupSignalInternoverview()
             }
 
     }
