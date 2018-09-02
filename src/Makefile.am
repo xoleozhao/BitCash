@@ -432,7 +432,7 @@ bitcashd_LDADD = \
   $(LIBMEMENV) \
   $(LIBSECP256K1)
 
-bitcashd_LDADD += $(BOOST_LIBS) $(BDB_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(ZMQ_LIBS)
+bitcashd_LDADD += $(BOOST_LIBS) $(BDB_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(ZMQ_LIBS) -ldl
 
 # bitcash-cli binary #
 bitcash_cli_SOURCES = bitcash-cli.cpp

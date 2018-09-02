@@ -86,7 +86,7 @@ bool VerifyProofOfWork(
 
 using Cycle = std::set<uint32_t>;
 
-#if defined(WIN32) || defined(MAC_OSX)
+//#if defined(WIN32) || defined(MAC_OSX)
 
 using Cycles = std::vector<Cycle>;
 
@@ -103,6 +103,7 @@ typedef bool __cdecl (CALLBACK* FindCyclesOnCudaDeviceType)(
 
 typedef  int __cdecl (CALLBACK* SetupKernelBuffersType)();
 #else
+#ifdef MAC_OSX
 //Define the function prototype
 typedef bool __cdecl (* FindCyclesOnCudaDeviceType)(
         uint64_t sip_k0, uint64_t sip_k1,
@@ -114,19 +115,34 @@ typedef bool __cdecl (* FindCyclesOnCudaDeviceType)(
 	char*errormessage);
 
 typedef  int __cdecl (* SetupKernelBuffersType)();
+#else
+//Linux
+//Define the function prototype
+typedef bool (* FindCyclesOnCudaDeviceType)(
+        uint64_t sip_k0, uint64_t sip_k1,
+        uint8_t edgebits,
+        uint8_t proof_size,
+        uint32_t* cycl,
+        int device,
+	bool* exception,
+	char*errormessage);
+
+typedef  int (* SetupKernelBuffersType)();
+
+#endif
 #endif
 
-   bool dllinited = FALSE;
-   bool freeResult, runTimeLinkSuccess = FALSE; 
+   bool dllinited = false;
+   bool freeResult, runTimeLinkSuccess = false; 
    FindCyclesOnCudaDeviceType FindCyclesOnCudaDevicePtr = NULL;
    SetupKernelBuffersType SetupKernelBuffersPtr = NULL;
-#endif
+//#endif
 
 #ifdef WIN32
    HINSTANCE dllHandle = NULL;              
 void intcudadll()
 {
-    dllinited = TRUE;
+    dllinited = true;
     //Load the dll and keep the handle to it
     dllHandle = LoadLibrary("bitcashcuda.dll");
 
@@ -156,7 +172,7 @@ void intcudadll()
 
 void freecudadll()
 {
-    dllinited = FALSE;
+    dllinited = false;
     if (NULL != dllHandle) 
     {   
        //Free the library:
@@ -164,7 +180,7 @@ void freecudadll()
     } 
 }
 
-#endif
+#else
 
 #ifdef MAC_OSX
 
@@ -172,7 +188,7 @@ void* dllHandle = NULL;
 
 void intcudadll()
 {
-    dllinited = TRUE;
+    dllinited = true;
     //Load the dll and keep the handle to it
     dllHandle = dlopen("@executable_path/../Frameworks/bitcashcuda.dylib", RTLD_NOW);
 
@@ -208,14 +224,65 @@ void intcudadll()
 
 void freecudadll()
 {
-    dllinited = FALSE;
-    if (!dllHandle) 
+    dllinited = false;
+    if (dllHandle!=NULL) 
     {   
         //Free the library:
         freeResult = dlclose(dllHandle);       
     } 
 }
 
+#else
+//Linux
+void* dllHandle = NULL;              
+
+void intcudadll()
+{
+    dllinited = true;
+    //Load the dll and keep the handle to it
+    dllHandle = dlopen("/usr/lib/bitcashcuda.so.1.0.0", RTLD_NOW);
+
+    // If the handle is valid, try to get the function address. 
+    if (dllHandle!=NULL) 
+    { 
+        //Get pointer to our function using GetProcAddress:
+        SetupKernelBuffersPtr = (SetupKernelBuffersType)dlsym(dllHandle,
+         "SetupKernelBuffers");
+
+        FindCyclesOnCudaDevicePtr = (FindCyclesOnCudaDeviceType)dlsym(dllHandle,
+         "FindCyclesOnCudaDevice");
+       
+
+        // If the function address is valid, call the function. 
+        if (runTimeLinkSuccess = (NULL != FindCyclesOnCudaDevicePtr && NULL!=SetupKernelBuffersPtr))
+        {
+            SetupKernelBuffersPtr();
+        }
+    }
+  /*
+    char *errstr;
+    errstr = dlerror();
+    if (errstr != NULL)
+    LogPrintf ("A dynamic linking error occurred: (%s)\n", errstr);else
+    LogPrintf ("A dynamic linking NO error occurred\n");
+*/
+    //If unable to call the DLL function, use an alternative. 
+    if(!runTimeLinkSuccess)
+      LogPrintf("Unable to load bitcashcuda.dylib\n");
+}
+
+void freecudadll()
+{
+    dllinited = false;
+    if (dllHandle!=NULL) 
+    {   
+        //Free the library:
+        freeResult = dlclose(dllHandle);       
+    } 
+}
+
+
+#endif
 #endif
 
 bool FindProofOfWorkAdvanced(
@@ -233,7 +300,7 @@ bool FindProofOfWorkAdvanced(
 {
     assert(cycle.empty());
 
-#if defined(WIN32) || defined(MAC_OSX)
+//#if defined(WIN32) || defined(MAC_OSX)
     if (trygpumining)
     {
         //GPU mining (Nvidia) under Windows or Mac
@@ -297,14 +364,14 @@ bool FindProofOfWorkAdvanced(
             FindCycleAdvanced(hash, edgeBits, params.nCuckooProofSize, cycle, nThreads, pool);
     }
     
-    #else
+/*    #else
 
         //CPU mining under Linux
 
         cycleFound =
             FindCycleAdvanced(hash, edgeBits, params.nCuckooProofSize, cycle, nThreads, pool);
 
-    #endif
+    #endif*/
 
     if (cycleFound && ::CheckProofOfWork(SerializeHash(cycle), nBits, params)) {
         return true;

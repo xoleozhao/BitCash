@@ -42,7 +42,7 @@ bench_bench_bitcash_LDADD = \
   $(LIBLEVELDB_SSE42) \
   $(LIBMEMENV) \
   $(LIBSECP256K1) \
-  $(LIBUNIVALUE)
+  $(LIBUNIVALUE) -ldl
 
 if ENABLE_ZMQ
 bench_bench_bitcash_LDADD += $(LIBBITCASH_ZMQ) $(ZMQ_LIBS)

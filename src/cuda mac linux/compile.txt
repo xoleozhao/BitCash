@@ -1,0 +1,5 @@
+Compile .dylib on Mac:
+nvcc kernel.cu -std=c++11 -shared -o bitcashcuda.dylib
+
+Compile .so on Ubuntu:
+nvcc kernel.cu -std=c++11 -m64 -Xcompiler -fPIC -shared -o bitcashcuda.so

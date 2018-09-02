@@ -872,17 +872,15 @@ void GenerateBitCash(interfaces::Wallet* iwallet, CWallet* wallet, bool useinter
         return;
     }
 
-     #if defined(WIN32) || defined(MAC_OSX)
+//     #if defined(WIN32) || defined(MAC_OSX)
 
-        gpuminingfailed = FALSE;
-        bool wasgpu;
+        gpuminingfailed = false;
 
         if (trygpumining) {
             //1 Thread for GPU mining
             pow_threads = 1;
             bucket_threads = 1;
         }
-        wasgpu=trygpumining;
 
         minerThread = new boost::thread(
             &BitCashMiner,
@@ -894,7 +892,7 @@ void GenerateBitCash(interfaces::Wallet* iwallet, CWallet* wallet, bool useinter
             bucket_size,
             bucket_threads);
 
-    #else
+/*    #else
 
         minerThread = new boost::thread(
             &BitCashMiner,
@@ -906,7 +904,7 @@ void GenerateBitCash(interfaces::Wallet* iwallet, CWallet* wallet, bool useinter
             bucket_size,
             bucket_threads);
 
-    #endif
+    #endif*/
 }
 
 
