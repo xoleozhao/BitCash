@@ -28,7 +28,9 @@
 #include <vector>
 
 #include <sys/time.h>
+#ifndef WIN32
 #include <dlfcn.h>
+#endif
 
 namespace cuckoo
 {
