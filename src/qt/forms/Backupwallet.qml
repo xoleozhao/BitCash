@@ -33,6 +33,10 @@ Item {
         folderedit.text=folder
     }
 
+    function setimportprogressintern(percent) {
+        progressBar.value=percent
+    }
+
     function displayerrormessageintern(msg) {
         errorlabel.text=msg
         infoboxerror.visible=true
@@ -560,6 +564,17 @@ Rectangle{
                     font.family: "Montserrat SemiBold"
                     onClicked: importkeySignalintern(privatekeyEditpaste.text)
                     iconname: "../res/assets/Miscellaneous/import-icon.png"
+                }
+
+                ProgressBar {
+                    id: progressBar
+                    y: 433
+                    to: 100
+                    anchors.right: parent.right
+                    anchors.rightMargin: 30
+                    anchors.left: parent.left
+                    anchors.leftMargin: 30
+                    value: 0
                 }
             }
         }

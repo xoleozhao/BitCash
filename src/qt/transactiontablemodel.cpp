@@ -13,6 +13,7 @@
 #include <qt/transactionrecord.h>
 #include <qt/walletmodel.h>
 
+#include <QApplication>
 #include <core_io.h>
 #include <interfaces/handler.h>
 #include <interfaces/node.h>
@@ -792,8 +793,19 @@ static void NotifyTransactionChanged(TransactionTableModel *ttm, const uint256 &
     notification.invoke(ttm);
 }
 
+extern QObject *qmlrootitem;
+extern bool inimporting;
+
 static void ShowProgress(TransactionTableModel *ttm, const std::string &title, int nProgress)
 {
+
+    if (inimporting) {
+        QCoreApplication::processEvents();
+        QVariant returnedValue;
+        QVariant percent=nProgress;
+        QMetaObject::invokeMethod(qmlrootitem, "setimportprogress", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, percent));
+    }
+
     if (nProgress == 0)
         fQueueNotifications = true;
 

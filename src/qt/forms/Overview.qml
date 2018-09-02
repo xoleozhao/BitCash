@@ -10,25 +10,57 @@ Item {
 
     onWidthChanged: {
        if (overviewForm.width<1200){
-           if (1200-overviewForm.width>220){
+           if (1200-overviewForm.width>70){
                if (1200-overviewForm.width>350){
                    image.width=0
                    image.anchors.rightMargin=0
                    image.visible=false
+                   backup.width=0
+                   backup.anchors.rightMargin=0
+                   backup.visible=false
+                   label4.visible=false
+                   label42.visible=false
+                   label11.visible=false
+                   label.visible=false
+                   backupimage.visible=false
                }else {
                    image.width=200;
                    image.anchors.rightMargin=30
                    image.visible=true
+                   backup.width=image.width+12;
+                   backup.anchors.rightMargin=24
+                   backup.visible=true
+                   label4.visible=false
+                   label42.visible=false
+                   label11.visible=false
+                   label.visible=false
+                   backupimage.visible=false
                }
            }else {
                image.width=420-(1200-overviewForm.width);
                image.visible=true
                image.anchors.rightMargin=30
+               backup.width=image.width+12;
+               backup.visible=true
+               backup.anchors.rightMargin=24
+               label4.visible=true
+               label42.visible=true
+               label11.visible=true
+               label.visible=true
+               backupimage.visible=true
            }
        } else {
            image.width=420
            image.visible=true
            image.anchors.rightMargin=30
+           backup.width=image.width+12
+           backup.visible=true
+           backup.anchors.rightMargin=24
+           label4.visible=true
+           label42.visible=true
+           label11.visible=true
+           label.visible=true
+           backupimage.visible=true
        }
     }
 
@@ -658,6 +690,7 @@ Item {
         border.width: 0
 
         Image {
+            id: backupimage
             anchors.leftMargin: 14
             anchors.verticalCenter: parent.verticalCenter
             fillMode: Image.PreserveAspectFit

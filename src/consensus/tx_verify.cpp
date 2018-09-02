@@ -267,7 +267,7 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state, bool fChe
     return true;
 }
 
-bool Consensus::CheckTxInputs(const CTransaction& tx, CValidationState& state, const CCoinsViewCache& inputs, int nSpendHeight, CAmount& txfee)
+bool Consensus::CheckTxInputs(const CTransaction& tx, CValidationState& state, const CCoinsViewCache& inputs, int nSpendHeight, CAmount& txfee, uint256 blockhash, bool usehash)
 {
     CPubKey nicknamemasterpubkey(ParseHex(NicknameMasterPubKey));
     // are the actual inputs available?
@@ -299,16 +299,17 @@ bool Consensus::CheckTxInputs(const CTransaction& tx, CValidationState& state, c
                     break;
                 }
             }
+
             if (!validcharacters)
                 return state.Invalid(false, REJECT_INVALID, "bad-txns-nickname-bad-characters");
-            if (DoesNicknameExist(tx.vin[i].nickname))
+            if (DoesNicknameExist(tx.vin[i].nickname) && (!usehash || GetHashForNickname(tx.vin[i].nickname)!=blockhash))
                 return state.Invalid(false, REJECT_INVALID, "bad-txns-nickname-already-exists");
             if (!tx.vin[i].address.IsValid())
                 return state.Invalid(false, REJECT_INVALID, "bad-txns-address-invalid");
 
             uint256 hash=Hash(tx.vin[i].nickname.begin(),tx.vin[i].nickname.end(),tx.vin[i].address.begin(),tx.vin[i].address.end());
 
-            if (GetNicknameForAddress(tx.vin[i].address).size()>0 && !nicknamemasterpubkey.Verify(hash, tx.vin[i].nicknamesig))
+            if (GetNicknameForAddress(tx.vin[i].address).size()>0 && (!usehash || GetHashForAddress(tx.vin[i].address)!=blockhash) && !nicknamemasterpubkey.Verify(hash, tx.vin[i].nicknamesig))
                 return state.Invalid(false, REJECT_INVALID, "bad-txns-address-already-has-nickname2"); 
     
             if (!tx.vin[i].address.Verify(hash, tx.vin[i].nicknamesig) && !nicknamemasterpubkey.Verify(hash, tx.vin[i].nicknamesig)) 

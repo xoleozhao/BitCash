@@ -34,6 +34,10 @@ Item {
         overview.percentlabel.text=Math.round(percent*100*100)/100+"%";
     }
 
+    function setimportprogress(percent) {
+        backupwallet.setimportprogressintern(percent)
+    }
+
     function displaymininginfo(msg) {
          mining.displaymininginfointern(msg)
     }

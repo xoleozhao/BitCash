@@ -283,6 +283,7 @@ void BitcashGUI::paperWalletClicked()
 }
 
 extern CCriticalSection cs_main;
+bool inimporting=false;
 void BitcashGUI::importKeyBtnClicked(QString keystr) 
 {
     CWallet* pwallet = GetWallet("");
@@ -345,7 +346,9 @@ void BitcashGUI::importKeyBtnClicked(QString keystr)
             pwallet->LearnAllRelatedScripts(pubkey);
         }
     }
+    inimporting=true;
     int64_t scanned_time = pwallet->RescanFromTime(TIMESTAMP_MIN, reserver, true /* update */);
+    inimporting=false;
     QVariant returnedValue;
     QVariant s=QString::fromStdString("The private key has been successfully imported. You may need to restart the wallet.");
     QMetaObject::invokeMethod(qmlrootitem, "displayerrormessageimportkey", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, s));
@@ -354,7 +357,22 @@ void BitcashGUI::importKeyBtnClicked(QString keystr)
 
 void BitcashGUI::importKeyClicked() 
 {
+
+    CWallet* pwallet = GetWallet("");
+    if (!pwallet) return;
+
+    CPubKey pubkey = pwallet->GetCurrentAddressPubKey();
+    CKey secret;
+    if (!pwallet->GetKey(pubkey.GetID(), secret)) return; 
+
+    paperwalletaddress=EncodeDestination(pubkey);
+    paperwalletkey=EncodeSecret(secret);
+
     QVariant returnedValue;
+    QVariant addr=QString::fromStdString(paperwalletaddress);
+    QVariant key=QString::fromStdString(paperwalletkey);
+    QMetaObject::invokeMethod(qmlrootitem, "setpaperwalletaddresses", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, addr), Q_ARG(QVariant, key));
+
     QVariant msg;
     QMetaObject::invokeMethod(qmlrootitem, "startimportkey", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, msg));
 }
@@ -2230,6 +2248,9 @@ void BitcashGUI::detectShutdown()
 
 void BitcashGUI::showProgress(const QString &title, int nProgress)
 {
+    if (inimporting) {
+        return;
+    }
     if (nProgress == 0)
     {
         progressDialog = new QProgressDialog(title, "", 0, 100);
