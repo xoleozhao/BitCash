@@ -872,7 +872,7 @@ void GenerateBitCash(interfaces::Wallet* iwallet, CWallet* wallet, bool useinter
         return;
     }
 
-    #ifdef WIN32
+     #if defined(WIN32) || defined(MAC_OSX)
 
         gpuminingfailed = FALSE;
         bool wasgpu;

@@ -28,6 +28,7 @@
 #include <vector>
 
 #include <sys/time.h>
+#include <dlfcn.h>
 
 namespace cuckoo
 {
@@ -85,10 +86,11 @@ bool VerifyProofOfWork(
 
 using Cycle = std::set<uint32_t>;
 
-#ifdef WIN32
+#if defined(WIN32) || defined(MAC_OSX)
 
 using Cycles = std::vector<Cycle>;
 
+#ifdef WIN32
 //Define the function prototype
 typedef bool __cdecl (CALLBACK* FindCyclesOnCudaDeviceType)(
         uint64_t sip_k0, uint64_t sip_k1,
@@ -100,51 +102,118 @@ typedef bool __cdecl (CALLBACK* FindCyclesOnCudaDeviceType)(
 	char*errormessage);
 
 typedef  int __cdecl (CALLBACK* SetupKernelBuffersType)();
+#else
+//Define the function prototype
+typedef bool __cdecl (* FindCyclesOnCudaDeviceType)(
+        uint64_t sip_k0, uint64_t sip_k1,
+        uint8_t edgebits,
+        uint8_t proof_size,
+        uint32_t* cycl,
+        int device,
+	bool* exception,
+	char*errormessage);
 
-   BOOL dllinited = FALSE;
-   BOOL freeResult, runTimeLinkSuccess = FALSE; 
-   HINSTANCE dllHandle = NULL;              
+typedef  int __cdecl (* SetupKernelBuffersType)();
+#endif
+
+   bool dllinited = FALSE;
+   bool freeResult, runTimeLinkSuccess = FALSE; 
    FindCyclesOnCudaDeviceType FindCyclesOnCudaDevicePtr = NULL;
    SetupKernelBuffersType SetupKernelBuffersPtr = NULL;
+#endif
 
+#ifdef WIN32
+   HINSTANCE dllHandle = NULL;              
 void intcudadll()
 {
-   dllinited = TRUE;
-   //Load the dll and keep the handle to it
-   dllHandle = LoadLibrary("bitcashcuda.dll");
+    dllinited = TRUE;
+    //Load the dll and keep the handle to it
+    dllHandle = LoadLibrary("bitcashcuda.dll");
 
-   // If the handle is valid, try to get the function address. 
-   if (NULL != dllHandle) 
-   { 
-      //Get pointer to our function using GetProcAddress:
-      SetupKernelBuffersPtr = (SetupKernelBuffersType)GetProcAddress(dllHandle,
+    // If the handle is valid, try to get the function address. 
+    if (NULL != dllHandle) 
+    { 
+        //Get pointer to our function using GetProcAddress:
+        SetupKernelBuffersPtr = (SetupKernelBuffersType)GetProcAddress(dllHandle,
          "SetupKernelBuffers");
 
-      FindCyclesOnCudaDevicePtr = (FindCyclesOnCudaDeviceType)GetProcAddress(dllHandle,
+        FindCyclesOnCudaDevicePtr = (FindCyclesOnCudaDeviceType)GetProcAddress(dllHandle,
          "FindCyclesOnCudaDevice");
        
 
-      // If the function address is valid, call the function. 
-      if (runTimeLinkSuccess = (NULL != FindCyclesOnCudaDevicePtr && NULL!=SetupKernelBuffersPtr))
-      {
-          SetupKernelBuffersPtr();
-      }
-  }
+        // If the function address is valid, call the function. 
+        if (runTimeLinkSuccess = (NULL != FindCyclesOnCudaDevicePtr && NULL!=SetupKernelBuffersPtr))
+        {
+            SetupKernelBuffersPtr();
+        }
+    }
 
 
-  //If unable to call the DLL function, use an alternative. 
-   if(!runTimeLinkSuccess)
+    //If unable to call the DLL function, use an alternative. 
+    if(!runTimeLinkSuccess)
       LogPrintf("Unable to load bitcashcuda.dll\n");
 }
 
 void freecudadll()
 {
-   dllinited = FALSE;
-   if (NULL != dllHandle) 
-   {   
-      //Free the library:
-      freeResult = FreeLibrary(dllHandle);       
-   } 
+    dllinited = FALSE;
+    if (NULL != dllHandle) 
+    {   
+       //Free the library:
+       freeResult = FreeLibrary(dllHandle);       
+    } 
+}
+
+#endif
+
+#ifdef MAC_OSX
+
+void* dllHandle = NULL;              
+
+void intcudadll()
+{
+    dllinited = TRUE;
+    //Load the dll and keep the handle to it
+    dllHandle = dlopen("@executable_path/../Frameworks/bitcashcuda.dylib", RTLD_NOW);
+
+    // If the handle is valid, try to get the function address. 
+    if (dllHandle!=NULL) 
+    { 
+        //Get pointer to our function using GetProcAddress:
+        SetupKernelBuffersPtr = (SetupKernelBuffersType)dlsym(dllHandle,
+         "SetupKernelBuffers");
+
+        FindCyclesOnCudaDevicePtr = (FindCyclesOnCudaDeviceType)dlsym(dllHandle,
+         "FindCyclesOnCudaDevice");
+       
+
+        // If the function address is valid, call the function. 
+        if (runTimeLinkSuccess = (NULL != FindCyclesOnCudaDevicePtr && NULL!=SetupKernelBuffersPtr))
+        {
+            SetupKernelBuffersPtr();
+        }
+    }
+  /*
+    char *errstr;
+    errstr = dlerror();
+    if (errstr != NULL)
+    LogPrintf ("A dynamic linking error occurred: (%s)\n", errstr);else
+    LogPrintf ("A dynamic linking NO error occurred\n");
+*/
+
+    //If unable to call the DLL function, use an alternative. 
+    if(!runTimeLinkSuccess)
+      LogPrintf("Unable to load bitcashcuda.dylib\n");
+}
+
+void freecudadll()
+{
+    dllinited = FALSE;
+    if (!dllHandle) 
+    {   
+        //Free the library:
+        freeResult = dlclose(dllHandle);       
+    } 
 }
 
 #endif
@@ -164,10 +233,10 @@ bool FindProofOfWorkAdvanced(
 {
     assert(cycle.empty());
 
-#ifdef WIN32
+#if defined(WIN32) || defined(MAC_OSX)
     if (trygpumining)
     {
-        //GPU mining (Nvidia) under Windows
+        //GPU mining (Nvidia) under Windows or Mac
 
         bool exception;
         char errormessage[256];
@@ -197,7 +266,7 @@ bool FindProofOfWorkAdvanced(
                 }
             } else
             {
-                LogPrintf("Could not load CUDA DLL.\n");
+                LogPrintf("Could not load bitcashcuda.dll or bitcashcuda.dylib.\n");
                 trygpumining = false;
                 gpuminingfailed = true;
             }
@@ -223,14 +292,14 @@ bool FindProofOfWorkAdvanced(
 
     } 
     if (!trygpumining) {
-        //CPU mining under Windows
+        //CPU mining under Windows or Mac
         cycleFound =
             FindCycleAdvanced(hash, edgeBits, params.nCuckooProofSize, cycle, nThreads, pool);
     }
     
     #else
 
-        //CPU mining under Linux and MacOS
+        //CPU mining under Linux
 
         cycleFound =
             FindCycleAdvanced(hash, edgeBits, params.nCuckooProofSize, cycle, nThreads, pool);
@@ -241,7 +310,7 @@ bool FindProofOfWorkAdvanced(
         return true;
     }
 
-    cycle.clear(); 
+    cycle.clear();
  
     return false;
 }
