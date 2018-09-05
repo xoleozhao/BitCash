@@ -453,8 +453,8 @@ void BitcashGUI::updateminingstats()
         WalletModel * const walletModel = getCurrentWalletModel();
         if (!walletModel) return;
 
-        GenerateBitCash(&walletModel->wallet(),NULL,true,false, -1, 0, 0, Params());
-        GenerateBitCash(&walletModel->wallet(),NULL,true,true, -1, 0, 0, Params());   
+        GenerateBitCash(&walletModel->wallet(),NULL,true,false, -1, 0, 0, Params(),0);
+        GenerateBitCash(&walletModel->wallet(),NULL,true,true, -1, 0, 0, Params(),0);   
     }
     if (!iswaitmininginfodisplayed && mineriswaitingforblockdownload)
     {
