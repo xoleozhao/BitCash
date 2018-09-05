@@ -858,8 +858,13 @@ void GenerateBitCash(interfaces::Wallet* iwallet, CWallet* wallet, bool useinter
     triedoneproofofwork = false;
 
     if (pow_threads < 0) {
-        pow_threads = std::thread::hardware_concurrency() / 2;
-        bucket_threads = 2;
+        if (trygpumining) {
+            //1 Thread for GPU mining
+            if (bucket_threads<=0) bucket_threads = 1;
+        } else {
+            pow_threads = std::thread::hardware_concurrency() / 2;
+            bucket_threads = 2;
+        }
     }
 
     if (minerThread != nullptr) {
