@@ -860,6 +860,7 @@ void GenerateBitCash(interfaces::Wallet* iwallet, CWallet* wallet, bool useinter
     if (pow_threads < 0) {
         if (trygpumining) {
             //1 Thread for GPU mining
+            pow_threads = 1;
             if (bucket_threads<=0) bucket_threads = 1;
         } else {
             pow_threads = std::thread::hardware_concurrency() / 2;
