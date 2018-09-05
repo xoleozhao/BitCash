@@ -304,10 +304,9 @@ bool FindProofOfWorkAdvanced(
 {
     assert(cycle.empty());
 
-//#if defined(WIN32) || defined(MAC_OSX)
     if (trygpumining)
     {
-        //GPU mining (Nvidia) under Windows or Mac
+        //GPU mining (Nvidia)
 
         bool exception;
         char errormessage[256];
@@ -363,20 +362,11 @@ bool FindProofOfWorkAdvanced(
 
     } 
     if (!trygpumining) {
-        //CPU mining under Windows or Mac
+        //CPU mining
         cycleFound =
             FindCycleAdvanced(hash, edgeBits, params.nCuckooProofSize, cycle, nThreads, pool);
     }
     
-/*    #else
-
-        //CPU mining under Linux
-
-        cycleFound =
-            FindCycleAdvanced(hash, edgeBits, params.nCuckooProofSize, cycle, nThreads, pool);
-
-    #endif*/
-
     if (cycleFound && ::CheckProofOfWork(SerializeHash(cycle), nBits, params)) {
         return true;
     }

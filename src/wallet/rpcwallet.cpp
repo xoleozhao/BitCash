@@ -4408,7 +4408,7 @@ UniValue setgenerate(const JSONRPCRequest& request)
     if (request.params.size() > 1)
         minerreduced = request.params[1].get_bool();
 
-    int pow_threads = DEFAULT_MINING_POW_THREADS;
+    int pow_threads = 1;
 
     int gpuid = 0;
     if (request.params.size() > 2) {
@@ -4421,7 +4421,7 @@ UniValue setgenerate(const JSONRPCRequest& request)
             mine = false;
     }
 
-    int bucket_threads = DEFAULT_MINING_BUCKET_THREADS;
+    int bucket_threads = 1;
     if (request.params.size() > 4) {
         bucket_threads = request.params[4].get_int();
     }
@@ -4437,18 +4437,6 @@ UniValue setgenerate(const JSONRPCRequest& request)
     gArgs.ForceSetArg("-minebucketsize", itostr(bucket_size));
 
     GenerateBitCash(NULL, pwallet, false, mine, pow_threads, bucket_size, bucket_threads, Params(), gpuid);
-
-    #ifdef WIN32
-    MilliSleep(2000);
-    if (gpuminingfailed)
-    {
-        //check if we want to switch to CPU mining with more than 1 thread if GPU mining fails.
-        gpuminingfailed = FALSE;
-
-        GenerateBitCash(NULL, pwallet, false, false, pow_threads, bucket_size, bucket_threads, Params(), gpuid);
-        GenerateBitCash(NULL, pwallet, false, true, pow_threads, bucket_size, bucket_threads, Params(), gpuid);
-    }
-    #endif
 
     return gArgs.GetBoolArg("-mine", DEFAULT_MINING);
 }

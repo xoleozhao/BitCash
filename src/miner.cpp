@@ -827,7 +827,7 @@ void static BitCashMiner(
                 wallet,
                 useinterface,
                 &pool,
-                gpuid
+                gpuid+t
             };
 
             pool.push(MinerWorker, ctx);
@@ -875,15 +875,7 @@ void GenerateBitCash(interfaces::Wallet* iwallet, CWallet* wallet, bool useinter
         return;
     }
 
-//     #if defined(WIN32) || defined(MAC_OSX)
-
         gpuminingfailed = false;
-
-        if (trygpumining) {
-            //1 Thread for GPU mining
-            pow_threads = 1;
-            bucket_threads = 1;
-        }
 
         minerThread = new boost::thread(
             &BitCashMiner,
@@ -894,20 +886,6 @@ void GenerateBitCash(interfaces::Wallet* iwallet, CWallet* wallet, bool useinter
             pow_threads,
             bucket_size,
             bucket_threads, gpuid);
-
-/*    #else
-
-        minerThread = new boost::thread(
-            &BitCashMiner,
-            iwallet,
-            wallet,
-            useinterface,
-            chainparams,
-            pow_threads,
-            bucket_size,
-            bucket_threads);
-
-    #endif*/
 }
 
 
