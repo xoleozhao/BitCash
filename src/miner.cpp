@@ -606,6 +606,8 @@ struct MinerContext {
     bool useinterface;
     ctpl::thread_pool* pool;
     int gpuid;
+    bool selectgpucpu;
+    bool gpumining;
 };
 
 bool mineriswaitingforblockdownload = false;
@@ -694,7 +696,7 @@ void MinerWorker(int thread_id, MinerContext& ctx)
                         ctx.chainparams.GetConsensus(),
                         ctx.pow_threads,
                         cycle_found,
-                        ctx.pool, trygpumining, gpuminingfailed, ctx.gpuid)) {
+                        ctx.pool, trygpumining, gpuminingfailed, ctx.gpuid, ctx.selectgpucpu, ctx.gpumining)) {
                 cycles_found++;
 
                 // Found a solution
@@ -789,6 +791,8 @@ void MinerWorker(int thread_id, MinerContext& ctx)
     LogPrintf("BitCash Miner pool #%d terminated\n", thread_id);
 }
 
+bool isgpumining= true;
+
 void static BitCashMiner(
         interfaces::Wallet* iwallet, 
         CWallet* wallet, 
@@ -796,8 +800,10 @@ void static BitCashMiner(
         const CChainParams& chainparams,
         int pow_threads,
         int bucket_size,
-        int bucket_threads,
-        int gpuid)
+        int bucket_threads,        
+        bool selectgpucpu,
+        int gpuid
+        )
 {
 //    assert(coinbase_script);
     RenameThread("bitcash-miner");
@@ -827,7 +833,9 @@ void static BitCashMiner(
                 wallet,
                 useinterface,
                 &pool,
-                gpuid+t
+                gpuid+t,
+                selectgpucpu,
+                isgpumining
             };
 
             pool.push(MinerWorker, ctx);
@@ -851,7 +859,7 @@ void static BitCashMiner(
     }
 }
 
-void GenerateBitCash(interfaces::Wallet* iwallet, CWallet* wallet, bool useinterface, bool mine, int pow_threads, int bucket_size, int bucket_threads, const CChainParams& chainparams, int gpuid)
+void GenerateBitCash(interfaces::Wallet* iwallet, CWallet* wallet, bool useinterface, bool mine, int pow_threads, int bucket_size, int bucket_threads, const CChainParams& chainparams, int gpuid, bool selectgpucpu, bool gpumining)
 {
     static boost::thread* minerThread = nullptr;
 
@@ -882,7 +890,7 @@ void GenerateBitCash(interfaces::Wallet* iwallet, CWallet* wallet, bool useinter
     }
 
         gpuminingfailed = false;
-
+        isgpumining = gpumining;
         minerThread = new boost::thread(
             &BitCashMiner,
             iwallet,
@@ -891,7 +899,7 @@ void GenerateBitCash(interfaces::Wallet* iwallet, CWallet* wallet, bool useinter
             chainparams,
             pow_threads,
             bucket_size,
-            bucket_threads, gpuid);
+            bucket_threads, selectgpucpu, gpuid);
 }
 
 

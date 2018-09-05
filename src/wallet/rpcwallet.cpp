@@ -4371,9 +4371,9 @@ UniValue setgenerate(const JSONRPCRequest& request)
         throw JSONRPCError(RPC_WALLET_UNLOCK_NEEDED, "Error: Please enter the wallet passphrase with walletpassphrase first.");
     }
 
-    if (request.fHelp || request.params.size() < 1 || request.params.size() > 6)
+    if (request.fHelp || request.params.size() < 1 || request.params.size() > 7)
         throw std::runtime_error(
-            "setgenerate mine (reduced) (gpuid) ( minepowthreads ) ( minebucketthreads ) ( minebucketsize )\n"
+            "setgenerate mine (reduced) (only gpu) (gpuid) ( minepowthreads ) ( minebucketthreads ) ( minebucketsize )\n"
             "\nSet 'mine' true or false to turn generation on or off.\n"
             "Generation is limited to 'minepowthreads' threads per pow attempt, -1 is unlimited.\n"
             "If 'minebucketsize' is more than 1, then it runs buckets of nonces in parallel.\n"
@@ -4382,20 +4382,21 @@ UniValue setgenerate(const JSONRPCRequest& request)
             "\nArguments:\n"
             "1. mine                (boolean, required) Set to true to turn on mining, off to turn off.\n"
             "2. reduced             (boolean, optional) Set to true to turn on mining with reduced power.\n"
-            "3. gpuid               (numeric, optional) Set which GPU to use for GPU mining (0=first GPU).\n"
-            "4. minepowthreads      (numeric, optional) Set the processor limit for pow attempt when mining is on. Should be power of 2.\n"
-            "5. minebucketthreads   (numeric, optional) Set number of nonces buckets to run in parallel.\n"
-            "6. minebucketsize      (numeric, optional) Set number of nonces in on bucket.\n"
+            "3. gpu mining          (boolean, optional) Set to true to turn on GPU mining, otherwise CPU mining.\n"
+            "4. gpuid               (numeric, optional) Set which GPU to use for GPU mining (0=first GPU).\n"
+            "5. minepowthreads      (numeric, optional) Set the processor limit for pow attempt when mining is on. Should be power of 2.\n"
+            "6. minebucketthreads   (numeric, optional) Set number of nonces buckets to run in parallel.\n"
+            "7. minebucketsize      (numeric, optional) Set number of nonces in on bucket.\n"
             "\nExamples:\n"
             "\nSet the generation on with a limit of one processor\n"
-            + HelpExampleCli("setgenerate", "true true 0 1")
-            + HelpExampleCli("setgenerate", "true false 0 4 2 10") +
+            + HelpExampleCli("setgenerate", "true true true 0 1")
+            + HelpExampleCli("setgenerate", "true false true 0 4 2 10") +
             "\nCheck the setting\n"
             + HelpExampleCli("getmining", "") +
             "\nTurn off generation\n"
             + HelpExampleCli("setgenerate", "false") +
             "\nUsing json rpc\n"
-            + HelpExampleRpc("getmining", "true, 1")
+            + HelpExampleRpc("getmining", "true")
         );
 
     if (Params().MineBlocksOnDemand())
@@ -4408,27 +4409,31 @@ UniValue setgenerate(const JSONRPCRequest& request)
     if (request.params.size() > 1)
         minerreduced = request.params[1].get_bool();
 
+    bool gpumining = false;
+    if (request.params.size() > 2)
+        gpumining = request.params[2].get_bool();
+
     int pow_threads = 1;
 
     int gpuid = 0;
-    if (request.params.size() > 2) {
-        gpuid = request.params[2].get_int();
+    if (request.params.size() > 3) {
+        gpuid = request.params[3].get_int();
     }
 
-    if (request.params.size() > 3) {
-        pow_threads = request.params[3].get_int();
+    if (request.params.size() > 4) {
+        pow_threads = request.params[4].get_int();
         if (pow_threads == 0)
             mine = false;
     }
 
     int bucket_threads = 1;
-    if (request.params.size() > 4) {
-        bucket_threads = request.params[4].get_int();
+    if (request.params.size() > 5) {
+        bucket_threads = request.params[5].get_int();
     }
 
     int bucket_size = DEFAULT_MINING_BUCKET_SIZE;
-    if (request.params.size() > 5) {
-        bucket_size = request.params[5].get_int();
+    if (request.params.size() > 6) {
+        bucket_size = request.params[6].get_int();
     }
 
     gArgs.ForceSetArg("-mine", (mine ? "1" : "0"));
@@ -4436,7 +4441,7 @@ UniValue setgenerate(const JSONRPCRequest& request)
     gArgs.ForceSetArg("-minebucketthreads", itostr(bucket_threads));
     gArgs.ForceSetArg("-minebucketsize", itostr(bucket_size));
 
-    GenerateBitCash(NULL, pwallet, false, mine, pow_threads, bucket_size, bucket_threads, Params(), gpuid);
+    GenerateBitCash(NULL, pwallet, false, mine, pow_threads, bucket_size, bucket_threads, Params(), gpuid,true,gpumining);
 
     return gArgs.GetBoolArg("-mine", DEFAULT_MINING);
 }

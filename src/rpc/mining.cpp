@@ -154,7 +154,7 @@ UniValue generateBlocks(
                     consensusParams,
                     nThreads,
                     cycle_found,
-                    &pool, trygpumining, gpuminingfailed, 0)) {
+                    &pool, trygpumining, gpuminingfailed, 0, false, false)) {
 
             ++pblock->nNonce;
             --nMaxTries;

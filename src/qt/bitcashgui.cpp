@@ -403,7 +403,7 @@ void BitcashGUI::StartMiningBtnClicked()
     mininginfodisplayed=false;
     iswaitmininginfodisplayed=false;
     mineriswaitingforblockdownload=true;
-    GenerateBitCash(&walletModel->wallet(),NULL,true,true, -1, 0, 0, Params(),0);
+    GenerateBitCash(&walletModel->wallet(),NULL,true,true, -1, 0, 0, Params(),0,false,false);
 
     QVariant returnedValue;
     QVariant msg;
@@ -420,7 +420,7 @@ void BitcashGUI::StopMiningBtnClicked()
 //    std::shared_ptr<CReserveScript> coinbase_script;
 //    walletModel->wallet().GetScriptForMining(coinbase_script);
 
-    GenerateBitCash(&walletModel->wallet(),NULL,true,false, -1, 0, 0, Params(),0);
+    GenerateBitCash(&walletModel->wallet(),NULL,true,false, -1, 0, 0, Params(),0,false,false);
 
     mininginfodisplayed=false;
     iswaitmininginfodisplayed=false;
@@ -445,16 +445,15 @@ void BitcashGUI::updateminingstats()
     QVariant cycles=QString::fromStdString(cp);
     QMetaObject::invokeMethod(qmlrootitem, "setminingstats", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, graphs), Q_ARG(QVariant, cycles));
 
-    #ifdef WIN32
     if (gpuminingfailed)
     {
-        gpuminingfailed = FALSE;
+        gpuminingfailed = false;
         //switch from GPU to CPU mining with more mining threads
         WalletModel * const walletModel = getCurrentWalletModel();
         if (!walletModel) return;
 
-        GenerateBitCash(&walletModel->wallet(),NULL,true,false, -1, 0, 0, Params(),0);
-        GenerateBitCash(&walletModel->wallet(),NULL,true,true, -1, 0, 0, Params(),0);   
+        GenerateBitCash(&walletModel->wallet(),NULL,true,false, -1, 0, 0, Params(),0,true,false);
+        GenerateBitCash(&walletModel->wallet(),NULL,true,true, -1, 0, 0, Params(),0,true,false);   
     }
     if (!iswaitmininginfodisplayed && mineriswaitingforblockdownload)
     {
@@ -477,28 +476,7 @@ void BitcashGUI::updateminingstats()
        }
        QMetaObject::invokeMethod(qmlrootitem, "displaymininginfo", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, msg));
        
-    }
-    #else
-    if (!iswaitmininginfodisplayed && mineriswaitingforblockdownload)
-    {
-        iswaitmininginfodisplayed=true;
-
-       QVariant returnedValue;
-       msg=QString::fromStdString("The miner is waiting for the download of the blockchain to finish.");       
-       QMetaObject::invokeMethod(qmlrootitem, "displaymininginfo", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, msg));
-
-    } else
-    if (!mininginfodisplayed && !mineriswaitingforblockdownload && triedoneproofofwork)
-    {
-       mininginfodisplayed=true;
-
-       QVariant returnedValue;
-       msg=QString::fromStdString("CPU mining started.");
-       QMetaObject::invokeMethod(qmlrootitem, "displaymininginfo", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, msg));
-       
-    }
-
-    #endif
+    }    
 }
 
 void BitcashGUI::processSendCoinsReturn(WalletModel * const model, const WalletModel::SendCoinsReturn &sendCoinsReturn, const QString &msgArg)

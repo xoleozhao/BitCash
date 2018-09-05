@@ -271,7 +271,7 @@ void intcudadll()
 */
     //If unable to call the DLL function, use an alternative. 
     if(!runTimeLinkSuccess)
-      LogPrintf("Unable to load bitcashcuda.dylib\n");
+      LogPrintf("Unable to load /usr/lib/bitcashcuda.so.1.0.0\n");
 }
 
 void freecudadll()
@@ -299,11 +299,14 @@ bool FindProofOfWorkAdvanced(
     ctpl::thread_pool* pool,
     bool& trygpumining,
     bool& gpuminingfailed,
-    int gpuid
+    int gpuid,
+    bool selectgpucpu,
+    bool gpumining
 )
 {
     assert(cycle.empty());
 
+    if  (selectgpucpu) trygpumining=gpumining;
     if (trygpumining)
     {
         //GPU mining (Nvidia)
@@ -331,22 +334,28 @@ bool FindProofOfWorkAdvanced(
                             _id,&exception,(char*)&errormessage);
                 if (exception) {
                     LogPrintf("GPU mining error: %s\n", errormessage);
-                    trygpumining = false;
-                    gpuminingfailed = true;
+                    if  (!selectgpucpu) {
+                      trygpumining = false;
+                      gpuminingfailed = true;
+                    }
                 }
             } else
             {
-                LogPrintf("Could not load bitcashcuda.dll or bitcashcuda.dylib.\n");
-                trygpumining = false;
-                gpuminingfailed = true;
+                LogPrintf("Could not load bitcashcuda.dll or bitcashcuda.dylib or bitcashcuda.so.1.0.0.\n");
+                if  (!selectgpucpu) {
+                    trygpumining = false;
+                    gpuminingfailed = true;
+                }
             }
 
 
         }
         catch (const std::exception &exc)
         {	
-            trygpumining = false;
-            gpuminingfailed = true;
+            if (!selectgpucpu) {
+                trygpumining = false;
+                gpuminingfailed = true;
+            }
             LogPrintf("GPU mining error: %s\n", exc.what());
         }		
 

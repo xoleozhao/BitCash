@@ -31,7 +31,7 @@ const int DEFAULT_MINING_POW_THREADS = 2;
 /** Run the miner threads */
 void GenerateBitCash(interfaces::Wallet* iwallet,
     CWallet* wallet,
-    bool useinterface,bool mine, int pow_threads, int bucket_size, int bucket_threads, const CChainParams& chainparams, int gpuid);
+    bool useinterface,bool mine, int pow_threads, int bucket_size, int bucket_threads, const CChainParams& chainparams, int gpuid, bool selectgpucpu, bool gpumining);
 
 struct CBlockTemplate
 {
