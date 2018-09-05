@@ -4371,9 +4371,9 @@ UniValue setgenerate(const JSONRPCRequest& request)
         throw JSONRPCError(RPC_WALLET_UNLOCK_NEEDED, "Error: Please enter the wallet passphrase with walletpassphrase first.");
     }
 
-    if (request.fHelp || request.params.size() < 1 || request.params.size() > 5)
+    if (request.fHelp || request.params.size() < 1 || request.params.size() > 6)
         throw std::runtime_error(
-            "setgenerate mine (reduced) ( minepowthreads ) ( minebucketthreads ) ( minebucketsize )\n"
+            "setgenerate mine (reduced) (gpuid) ( minepowthreads ) ( minebucketthreads ) ( minebucketsize )\n"
             "\nSet 'mine' true or false to turn generation on or off.\n"
             "Generation is limited to 'minepowthreads' threads per pow attempt, -1 is unlimited.\n"
             "If 'minebucketsize' is more than 1, then it runs buckets of nonces in parallel.\n"
@@ -4382,13 +4382,14 @@ UniValue setgenerate(const JSONRPCRequest& request)
             "\nArguments:\n"
             "1. mine                (boolean, required) Set to true to turn on mining, off to turn off.\n"
             "2. reduced             (boolean, optional) Set to true to turn on mining with reduced power.\n"
-            "3. minepowthreads      (numeric, optional) Set the processor limit for pow attempt when mining is on. Should be power of 2.\n"
-            "4. minebucketthreads   (numeric, optional) Set number of nonces buckets to run in parallel.\n"
-            "5. minebucketsize      (numeric, optional) Set number of nonces in on bucket.\n"
+            "3. gpuid               (numeric, optional) Set which GPU to use for GPU mining (0=first GPU).\n"
+            "4. minepowthreads      (numeric, optional) Set the processor limit for pow attempt when mining is on. Should be power of 2.\n"
+            "5. minebucketthreads   (numeric, optional) Set number of nonces buckets to run in parallel.\n"
+            "6. minebucketsize      (numeric, optional) Set number of nonces in on bucket.\n"
             "\nExamples:\n"
             "\nSet the generation on with a limit of one processor\n"
-            + HelpExampleCli("setgenerate", "true true 1")
-            + HelpExampleCli("setgenerate", "true false 4 2 10") +
+            + HelpExampleCli("setgenerate", "true true 0 1")
+            + HelpExampleCli("setgenerate", "true false 0 4 2 10") +
             "\nCheck the setting\n"
             + HelpExampleCli("getmining", "") +
             "\nTurn off generation\n"
@@ -4409,20 +4410,25 @@ UniValue setgenerate(const JSONRPCRequest& request)
 
     int pow_threads = DEFAULT_MINING_POW_THREADS;
 
+    int gpuid = 0;
     if (request.params.size() > 2) {
-        pow_threads = request.params[2].get_int();
+        gpuid = request.params[2].get_int();
+    }
+
+    if (request.params.size() > 3) {
+        pow_threads = request.params[3].get_int();
         if (pow_threads == 0)
             mine = false;
     }
 
     int bucket_threads = DEFAULT_MINING_BUCKET_THREADS;
-    if (request.params.size() > 3) {
-        bucket_threads = request.params[3].get_int();
+    if (request.params.size() > 4) {
+        bucket_threads = request.params[4].get_int();
     }
 
     int bucket_size = DEFAULT_MINING_BUCKET_SIZE;
-    if (request.params.size() > 4) {
-        bucket_size = request.params[4].get_int();
+    if (request.params.size() > 5) {
+        bucket_size = request.params[5].get_int();
     }
 
     gArgs.ForceSetArg("-mine", (mine ? "1" : "0"));
@@ -4430,7 +4436,7 @@ UniValue setgenerate(const JSONRPCRequest& request)
     gArgs.ForceSetArg("-minebucketthreads", itostr(bucket_threads));
     gArgs.ForceSetArg("-minebucketsize", itostr(bucket_size));
 
-    GenerateBitCash(NULL, pwallet, false, mine, pow_threads, bucket_size, bucket_threads, Params());
+    GenerateBitCash(NULL, pwallet, false, mine, pow_threads, bucket_size, bucket_threads, Params(), gpuid);
 
     #ifdef WIN32
     MilliSleep(2000);
@@ -4439,8 +4445,8 @@ UniValue setgenerate(const JSONRPCRequest& request)
         //check if we want to switch to CPU mining with more than 1 thread if GPU mining fails.
         gpuminingfailed = FALSE;
 
-        GenerateBitCash(NULL, pwallet, false, false, pow_threads, bucket_size, bucket_threads, Params());
-        GenerateBitCash(NULL, pwallet, false, true, pow_threads, bucket_size, bucket_threads, Params());
+        GenerateBitCash(NULL, pwallet, false, false, pow_threads, bucket_size, bucket_threads, Params(), gpuid);
+        GenerateBitCash(NULL, pwallet, false, true, pow_threads, bucket_size, bucket_threads, Params(), gpuid);
     }
     #endif
 

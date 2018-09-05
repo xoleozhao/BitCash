@@ -774,8 +774,8 @@ Item {
             y: 20
 
             width: 300
-            anchors.right: percentlabel.left
-            anchors.rightMargin: 10
+            anchors.right: parent.right
+            anchors.rightMargin: 100
             anchors.verticalCenter: parent.verticalCenter
             value: 0.5
             visible: false
@@ -786,7 +786,7 @@ Item {
             x: 1176
             y: 14
             color: "#3e45ac"
-            text: qsTr("Label")
+            text: qsTr("")
             anchors.right: parent.right
             anchors.rightMargin: 20
             anchors.verticalCenter: parent.verticalCenter

@@ -48,7 +48,8 @@ bool FindProofOfWorkAdvanced(
         bool& cycleFound,
         ctpl::thread_pool* pool,
         bool& trygpumining,
-        bool& gpuminingfailed);
+        bool& gpuminingfailed,
+        int gpuid);
 }
 
 #endif // MERIT_CUCKOO_MINER_H

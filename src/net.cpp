@@ -1703,6 +1703,7 @@ void CConnman::ThreadDNSAddressSeed()
             {
                 for (const CNetAddr& ip : vIPs)
                 {
+                    LogPrintf("IP address: %s\n", ip.ToString());
                     int nOneDay = 24*3600;
                     CAddress addr = CAddress(CService(ip, Params().GetDefaultPort()), requiredServiceBits);
                     addr.nTime = GetTime() - 3*nOneDay - GetRand(4*nOneDay); // use a random age between 3 and 7 days old

@@ -176,7 +176,7 @@ void MiningPage::startminingClicked()
 //    std::shared_ptr<CReserveScript> coinbase_script;
 //    walletModel->wallet().GetScriptForMining(coinbase_script);
 
-    GenerateBitCash(&walletModel->wallet(), NULL, true, true, -1, 0, 0, Params());
+    GenerateBitCash(&walletModel->wallet(), NULL, true, true, -1, 0, 0, Params(), 0);
     ui->startminingbtn->setEnabled(false);
     ui->stopminingbtn->setEnabled(true);
 }
@@ -186,7 +186,7 @@ void MiningPage::stopminingClicked()
 //    std::shared_ptr<CReserveScript> coinbase_script;
 //    walletModel->wallet().GetScriptForMining(coinbase_script);
 
-    GenerateBitCash(&walletModel->wallet(), NULL, true, false, -1, 0, 0, Params());
+    GenerateBitCash(&walletModel->wallet(), NULL, true, false, -1, 0, 0, Params(), 0);
     ui->startminingbtn->setEnabled(true);
     ui->stopminingbtn->setEnabled(false);
 }

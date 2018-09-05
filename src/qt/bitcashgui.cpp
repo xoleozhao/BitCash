@@ -403,7 +403,7 @@ void BitcashGUI::StartMiningBtnClicked()
     mininginfodisplayed=false;
     iswaitmininginfodisplayed=false;
     mineriswaitingforblockdownload=true;
-    GenerateBitCash(&walletModel->wallet(),NULL,true,true, -1, 0, 0, Params());
+    GenerateBitCash(&walletModel->wallet(),NULL,true,true, -1, 0, 0, Params(),0);
 
     QVariant returnedValue;
     QVariant msg;
@@ -420,7 +420,7 @@ void BitcashGUI::StopMiningBtnClicked()
 //    std::shared_ptr<CReserveScript> coinbase_script;
 //    walletModel->wallet().GetScriptForMining(coinbase_script);
 
-    GenerateBitCash(&walletModel->wallet(),NULL,true,false, -1, 0, 0, Params());
+    GenerateBitCash(&walletModel->wallet(),NULL,true,false, -1, 0, 0, Params(),0);
 
     mininginfodisplayed=false;
     iswaitmininginfodisplayed=false;

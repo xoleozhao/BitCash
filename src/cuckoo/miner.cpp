@@ -101,7 +101,8 @@ typedef bool __cdecl (CALLBACK* FindCyclesOnCudaDeviceType)(
         uint32_t* cycl,
         int device,
 	bool* exception,
-	char*errormessage);
+	char*errormessage
+        );
 
 typedef  int __cdecl (CALLBACK* SetupKernelBuffersType)();
 #else
@@ -297,7 +298,8 @@ bool FindProofOfWorkAdvanced(
     bool& cycleFound,
     ctpl::thread_pool* pool,
     bool& trygpumining,
-    bool& gpuminingfailed
+    bool& gpuminingfailed,
+    int gpuid
 )
 {
     assert(cycle.empty());
@@ -320,7 +322,7 @@ bool FindProofOfWorkAdvanced(
 
         try {
        
-            int _id=0;
+            int _id=gpuid;
             if (runTimeLinkSuccess){
                 cycleFound = FindCyclesOnCudaDevicePtr(
                             keys.k0, keys.k1,
