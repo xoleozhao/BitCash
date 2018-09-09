@@ -318,7 +318,7 @@ bool FindProofOfWorkAdvanced(
 
         siphash_keys keys;
         Cycles cycles;
-        uint32_t cycl[42];
+        uint32_t cycl[1000];
         auto hashStr = hash.GetHex();    
         setKeys(hashStr.c_str(), hashStr.size(), &keys);
 
