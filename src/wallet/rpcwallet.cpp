@@ -5,6 +5,7 @@
 
 #include <amount.h>
 #include <chain.h>
+#include <chainparams.h>
 #include <consensus/validation.h>
 #include <index/txindex.h>
 #include <core_io.h>
@@ -134,6 +135,70 @@ static std::string LabelFromValue(const UniValue& value)
     if (label == "*")
         throw JSONRPCError(RPC_WALLET_INVALID_LABEL_NAME, "Invalid label name");
     return label;
+}
+
+static UniValue createcoinbaseforaddress(const JSONRPCRequest& request)
+{
+    CWallet * const pwallet = GetWalletForJSONRPCRequest(request);
+    if (!EnsureWalletIsAvailable(pwallet, request.fHelp)) {
+        return NullUniValue;
+    }
+
+    if (request.fHelp || request.params.size() != 2)
+        throw std::runtime_error(
+            "createcoinbaseforaddress \"address\" \"blockheight\"\n"
+            "\nReturns a coinbase transaction for the Bitcash address.\n"
+            "\nArguments:\n"
+            "1. \"address\"          (string, required) The BitCash address.\n"
+            "2. \"blockheight\"      (numeric, required) The blockheight of the new block to calculate.\n"
+            "\nResult:\n"
+            "\"coinbase1\"    (string) Coinbase part 1 as HEX string.\n"
+            "\"coinbase2\"    (string) Coinbase part 2 as HEX string.\n"
+            "\nExamples:\n"
+            + HelpExampleCli("createcoinbaseforaddress", "address blockheight")
+            + HelpExampleRpc("createcoinbaseforaddress", "address, blockheight")
+        );
+
+    LOCK2(cs_main, pwallet->cs_wallet);
+
+    // Parse the label first so we don't generate a key if there's an error
+    CTxDestination destination = DecodeDestination(request.params[0].get_str());
+    if (!IsValidDestination(destination)) {
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Error: Invalid address");
+    }
+    int nHeight = request.params[1].get_int();
+
+    CPubKey addr=GetSecondPubKeyForDestination(destination);
+
+    // Create coinbase transaction.
+    CMutableTransaction coinbaseTx;
+    coinbaseTx.vin.resize(1);
+    coinbaseTx.vin[0].prevout.SetNull();
+    coinbaseTx.vout.resize(2);
+    coinbaseTx.vout[0].nValue = GetBlockSubsidy(nHeight, Params().GetConsensus());
+    pwallet->FillTxOutForTransaction(coinbaseTx.vout[0],addr,"");
+
+    //Pay to the development fund....
+    coinbaseTx.vout[1].scriptPubKey = GetScriptForRawPubKey(CPubKey(ParseHex(Dev1scriptPubKey)));
+    coinbaseTx.vout[1].nValue = GetBlockSubsidyDevs(nHeight, Params().GetConsensus());
+    
+    coinbaseTx.vin[0].scriptSig = CScript() << nHeight << ParseHex("FFBBAAEE003344BBFFBBAAEE003344BB") << OP_0;
+
+    CDataStream stream(SER_NETWORK, PROTOCOL_VERSION);
+    stream << coinbaseTx;
+    std::string str=HexStr(stream.begin(),stream.end());
+    std::size_t found = str.find("ffbbaaee003344bbffbbaaee003344bb");
+    std::string str1=str;
+    std::string str2="";
+    if (found!=std::string::npos) {
+       str1=str.substr(0,found+32);
+       str2=str.substr(found+32,str.size()-found+32);
+    }
+    UniValue result(UniValue::VOBJ);
+    result.pushKV("coinbase", str);
+    result.pushKV("coinbasepart1", str1);
+    result.pushKV("coinbasepart2", str2);
+    return result;
 }
 
 static UniValue getnewaddress(const JSONRPCRequest& request)
@@ -4985,6 +5050,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "backupwallet",                     &backupwallet,                  {"destination"} },
     { "wallet",             "bumpfee",                          &bumpfee,                       {"txid", "options"} },
     { "wallet",             "claimcoinsfromlink",               &claimcoinsfromlink,            {"link"} },
+    { "wallet",             "createcoinbaseforaddress",         &createcoinbaseforaddress,      {"address"} },
     { "wallet",             "dumpprivkey",                      &dumpprivkey,                   {"address"}  },
     { "wallet",             "dumpwallet",                       &dumpwallet,                    {"filename"} },
     { "wallet",             "encryptwallet",                    &encryptwallet,                 {"passphrase"} },
