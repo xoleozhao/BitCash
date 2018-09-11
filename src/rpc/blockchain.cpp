@@ -54,25 +54,21 @@ double GetDifficulty(const CChain& chain, const CBlockIndex* blockindex)
 {
     if (blockindex == nullptr)
     {
-        if (chain.Tip() == nullptr)
+        if (chainActive.Tip() == nullptr)
             return 1.0;
         else
-            blockindex = chain.Tip();
+            blockindex = chainActive.Tip();
     }
 
     int nShift = (blockindex->nBits >> 24) & 0xff;
-    double dDiff =
-        (double)0x0000ffff / (double)(blockindex->nBits & 0x00ffffff);
 
-    while (nShift < 29)
+    double dDiff =
+        (double)0x007fff80 / (double)(blockindex->nBits & 0x00ffffff);
+
+    while (nShift < 32)
     {
         dDiff *= 256.0;
         nShift++;
-    }
-    while (nShift > 29)
-    {
-        dDiff /= 256.0;
-        nShift--;
     }
 
     return dDiff;
