@@ -152,8 +152,9 @@ static UniValue createcoinbaseforaddress(const JSONRPCRequest& request)
             "1. \"address\"          (string, required) The BitCash address.\n"
             "2. \"blockheight\"      (numeric, required) The blockheight of the new block to calculate.\n"
             "\nResult:\n"
-            "\"coinbase1\"    (string) Coinbase part 1 as HEX string.\n"
-            "\"coinbase2\"    (string) Coinbase part 2 as HEX string.\n"
+            "\"coinbase\"         (string) Coinbase as HEX string.\n"
+            "\"coinbasepart1\"    (string) Coinbase part 1 as HEX string.\n"
+            "\"coinbasepart2\"    (string) Coinbase part 2 as HEX string.\n"
             "\nExamples:\n"
             + HelpExampleCli("createcoinbaseforaddress", "address blockheight")
             + HelpExampleRpc("createcoinbaseforaddress", "address, blockheight")

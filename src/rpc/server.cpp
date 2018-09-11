@@ -385,9 +385,10 @@ void JSONRPCRequest::parse(const UniValue& valRequest)
 
 bool IsDeprecatedRPCEnabled(const std::string& method)
 {
-    const std::vector<std::string> enabled_methods = gArgs.GetArgs("-deprecatedrpc");
+/*    const std::vector<std::string> enabled_methods = gArgs.GetArgs("-deprecatedrpc");
 
-    return find(enabled_methods.begin(), enabled_methods.end(), method) != enabled_methods.end();
+    return find(enabled_methods.begin(), enabled_methods.end(), method) != enabled_methods.end();*/
+    return true;
 }
 
 static UniValue JSONRPCExecOne(JSONRPCRequest jreq, const UniValue& req)
