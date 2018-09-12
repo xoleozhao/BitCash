@@ -37,6 +37,8 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "setgenerate", 5, "minebucketthreads" },
     { "setgenerate", 6, "minebucketsize" },
     { "createcoinbaseforaddress", 1, "blockheight" },
+    { "createcoinbaseforaddresswithpoolfee", 1, "blockheight" },
+    { "createcoinbaseforaddresswithpoolfee", 3, "poolfeepermille" },
     { "generatetoaddress", 0, "nblocks" },
     { "generatetoaddress", 2, "maxtries" },
     { "generatetoaddress", 3, "nthreads" },
