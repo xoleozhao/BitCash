@@ -2025,9 +2025,9 @@ static UniValue sendmany(const JSONRPCRequest& request)
             throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, std::string("Invalid Bitcash address: ") + name_);
         }
 
-        if (destinations.count(dest)) {
+/*        if (destinations.count(dest)) {
             throw JSONRPCError(RPC_INVALID_PARAMETER, std::string("Invalid parameter, duplicated address: ") + name_);
-        }
+        }*/
         destinations.insert(dest);
 
         CScript scriptPubKey = GetScriptForDestination(dest);
