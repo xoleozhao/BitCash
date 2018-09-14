@@ -1,7 +1,7 @@
 Bitcash Core integration/staging tree
 =====================================
 
-https://choosebitcash.com
+https://www.choosebitcash.com
 
 What is Bitcash?
 ----------------
@@ -14,7 +14,7 @@ designed to facilitate real world trade between consumers and merchants with a g
 the world’s most used cryptocurrency.
 
 For more information, as well as an immediately useable, binary version of
-the Bitcash Core software, see https://choosebitcash.com.
+the Bitcash Core software, see https://www.choosebitcash.com.
 
 License
 -------
