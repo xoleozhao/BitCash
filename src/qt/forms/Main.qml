@@ -32,7 +32,7 @@ Item {
         overview.percentlabel.visible=show
         overview.progressBar.value=percent
         overview.percentlabel.text=Math.round(percent*100*100)/100+"%";
-    }
+    }        
 
     function setimportprogress(percent) {
         backupwallet.setimportprogressintern(percent)
@@ -104,6 +104,17 @@ Item {
         sendlinks.generatedlinkintern()
     }
 
+    function twitterlinkerror(msg)
+    {
+        twitter.displayerrormessageintern("Error: "+msg);
+    }
+
+    function twitterlinkokay(msg)
+    {
+        twitter.visible=false
+        twittersuccess.visible=true;
+    }
+
     function setbalances(avail, pending, immature, total, availnum) {
         overview.setbalancesintern(avail, pending, immature, total)
         send.setmaxbalanceintern(avail, availnum)
@@ -145,6 +156,7 @@ Item {
     signal claimlinkBtnSignal(string link)
     signal datefiltersignal(int index)
     signal downloadtransactionsSignal()
+    signal sendtoTwitterSignal(string twitteruser, string linktosend)
 
     signal registerNickSignal(string nickname, string address)
     signal minereducedSignal(bool isreduced)
@@ -197,6 +209,11 @@ Item {
             onClaimlinkBtnSignalIntern: claimlinkBtnSignal(link)
             onDeletelinksignalintern: deletelinksignal(link)
             onUndolinkremovalSignalintern: undolinkremovalSignal()
+            onSendToTwittersignalintern:{
+                twitter.twitteredit.text="";
+                twitter.visible=true
+                twitter.linktosend=name
+            }
         }
 
         Receive{
@@ -532,5 +549,21 @@ Item {
         onBackupwalletfileSignalintern: backupwalletfileSignal()
         onImportkeySignalintern: importkeySignal(key)
     }    
+    Twitter
+    {
+        id: twitter
+        sendBtn.onClicked: {
+            if (twitteredit.text==="")
+            {
+                displayerrormessageintern("Please fill out the field for the Twitter user name.")
+            }else {
+                sendtoTwitterSignal(twitteredit.text,linktosend)
+            }
+        }
+    }
+    TwitterSuccess
+    {
+        id: twittersuccess
+    }
 
 }

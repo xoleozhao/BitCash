@@ -11,6 +11,7 @@ Item {
 
     property int  datewidth : 150
     property int  btnswidth : 50
+    property int  btnswidth1 : 50
     property int  btnswidth2 : 50
     property int  linkwidth : 400
     property int  amountwidth : 220
@@ -21,6 +22,7 @@ Item {
     signal claimlinkBtnSignalIntern(string link)
     signal deletelinksignalintern(string link)
     signal undolinkremovalSignalintern()
+    signal sendToTwittersignalintern(string name);
 
     property real maxbalancenum : 0
 
@@ -371,7 +373,7 @@ Item {
             background: Rectangle { color: "#ebebeb" }
         }
                         Label {
-                            width: sendlinksform.width-amountwidth-linkwidth-btnswidth2-btnswidth-datewidth-30-30
+                            width: sendlinksform.width-amountwidth-linkwidth-btnswidth2-btnswidth-btnswidth1-datewidth-30-30
                             height: 44
                             text: "Description"
                             verticalAlignment: Text.AlignVCenter
@@ -403,6 +405,21 @@ Item {
                         }
                         Label {
                             width: btnswidth
+                            height: 44
+                            text: ""
+                            verticalAlignment: Text.AlignVCenter
+                            anchors.verticalCenter: parent.verticalCenter
+                            rightPadding: 20
+                            leftPadding: 20
+                            font.weight: Font.DemiBold
+                            font.pixelSize: 13
+                            font.family: "Montserrat SemiBold"
+                            color:"black"
+                            padding: 10
+                            background: Rectangle { color: "#ebebeb" }
+                        }
+                        Label {
+                            width: btnswidth1
                             height: 44
                             text: ""
                             verticalAlignment: Text.AlignVCenter
@@ -555,7 +572,7 @@ Item {
 
                         ItemDelegate {
                             property int column: 1
-                            width: sendlinksform.width-linkwidth-amountwidth-datewidth-btnswidth-btnswidth2-30-30
+                            width: sendlinksform.width-linkwidth-amountwidth-datewidth-btnswidth-btnswidth1-btnswidth2-30-30
                             text: ""
                             Label {
                                 text: description
@@ -659,10 +676,14 @@ Item {
                             property int column: 4
                             width: btnswidth
                             text: ""
-                            Button {
-                                anchors.leftMargin: 20
-                                anchors.left: parent.left
+                            Button {                                
+                                anchors.horizontalCenter: parent.horizontalCenter
                                 anchors.verticalCenter: parent.verticalCenter
+                                ToolTip.text: "Copy link"
+                                ToolTip.delay: 1000
+                                ToolTip.timeout: 5000
+                                ToolTip.visible: hovered
+                                id: copybtn
                                 onClicked: {
                                     copytextfield.text=name
                                     copytextfield.selectAll()
@@ -676,6 +697,29 @@ Item {
                                     id: imageforbutton                                    
                                     fillMode: Image.PreserveAspectFit
                                     source: "../res/assets/Miscellaneous/copy-link.png"
+                                }
+                            }                            
+                            clip: true
+
+                        }
+                        ItemDelegate {
+                            property int column: 4
+                            width: btnswidth1
+                            text: ""
+                            Button {
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                anchors.verticalCenter: parent.verticalCenter
+                                ToolTip.text: "Send coins to Twitter user account"
+                                ToolTip.delay: 1000
+                                ToolTip.timeout: 5000
+                                ToolTip.visible: hovered
+                                onClicked: {
+                                    sendToTwittersignalintern(name);
+                                }
+                                background: Image {
+                                    id: imagefortwbutton
+                                    fillMode: Image.PreserveAspectFit
+                                    source: "../res/assets/Miscellaneous/twitter.png"
                                 }
                             }
                             clip: true
@@ -740,6 +784,10 @@ Item {
                             property int column: 4
                             width: btnswidth2
                             text: ""
+                            ToolTip.text: "Remove link"
+                            ToolTip.delay: 1000
+                            ToolTip.timeout: 5000
+                            ToolTip.visible: hovered
                             Button {
                                 anchors.leftMargin: 20
                                 anchors.left: parent.left

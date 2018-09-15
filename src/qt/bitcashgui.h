@@ -26,6 +26,7 @@
 #include <QString>
 #include <QTimer>
 #include <QQmlContext>
+#include <QNetworkReply>
 
 class ClientModel;
 class NetworkStyle;
@@ -82,6 +83,7 @@ public:
     void removeAllWallets();
 #endif // ENABLE_WALLET
     bool enableWallet;
+    QNetworkAccessManager *manager;
 
 protected:
     void changeEvent(QEvent *e);
@@ -198,6 +200,8 @@ public Q_SLOTS:
     void RegisterNickBtnClicked(const QString &nickname, const QString &address);
     void SendLinksBtnClicked(const QString &description, double amount);
     void SendBtnClicked(const QString &destination, const QString &label, const QString &description, double amount, bool substractfee);
+    void sendtoTwitterClicked(QString twitteruser, QString coinlink);
+    void replyFinished(QNetworkReply *reply);
     void ClaimLinksBtnClicked(const QString &strlinkqt);
     void Onminereduced(bool reduced);
     void StartMiningBtnClicked(); 

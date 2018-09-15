@@ -105,6 +105,7 @@
         <file>forms/ReceiveForm.ui.qml</file>
         <file>forms/SendLinks.qml</file>
         <file>forms/Transactions.qml</file>
+        <file>forms/Twitter.qml</file>
         <file>qtquickcontrols2.conf</file>
         <file>forms/MenuTextField.qml</file>
         <file>res/icons/info.png</file>
@@ -285,5 +286,8 @@
         <file>res/assets/Miscellaneous/import-icon.png</file>
         <file>res/assets/Miscellaneous/import-icon@2x.png</file>
         <file>res/assets/Miscellaneous/import-icon@3x.png</file>
+        <file>res/assets/Miscellaneous/twitter.png</file>
+        <file>forms/TwitterSuccess.qml</file>
+        <file>res/assets/Miscellaneous/closesmall.png</file>
     </qresource>
 </RCC>

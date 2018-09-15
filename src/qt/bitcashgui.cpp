@@ -49,6 +49,7 @@
 #include <QAction>
 #include <QApplication>
 #include <QComboBox>
+#include <QNetworkReply>
 #include <QDateTime>
 #include <QDesktopWidget>
 #include <QDragEnterEvent>
@@ -144,6 +145,67 @@ WalletModel* BitcashGUI::getCurrentWalletModel()
     WalletModel * const walletModel = walletView->getWalletModel();
     return walletModel;
 }
+
+void hexchar(unsigned char c, unsigned char &hex1, unsigned char &hex2)
+{
+    hex1 = c / 16;
+    hex2 = c % 16;
+    hex1 += hex1 <= 9 ? '0' : 'a' - 10;
+    hex2 += hex2 <= 9 ? '0' : 'a' - 10;
+}
+
+std::string urlencode(std::string s)
+{
+    const char *str = s.c_str();
+    std::vector<char> v(s.size());
+    v.clear();
+    for (size_t i = 0, l = s.size(); i < l; i++)
+    {
+        char c = str[i];
+        if ((c >= '0' && c <= '9') ||
+            (c >= 'a' && c <= 'z') ||
+            (c >= 'A' && c <= 'Z') ||
+            c == '-' || c == '_' || c == '.' || c == '!' || c == '~' ||
+            c == '*' || c == '\'' || c == '(' || c == ')')
+        {
+            v.push_back(c);
+        }
+        else if (c == ' ')
+        {
+            v.push_back('+');
+        }
+        else
+        {
+            v.push_back('%');
+            unsigned char d1, d2;
+            hexchar(c, d1, d2);
+            v.push_back(d1);
+            v.push_back(d2);
+        }
+    }
+
+    return std::string(v.cbegin(), v.cend());
+}
+
+std::string timestr(time_t t) {
+   std::stringstream strm;
+   strm << t;
+   return strm.str();
+}
+
+void BitcashGUI::sendtoTwitterClicked(QString twitteruser, QString coinlink) 
+{
+    QUrlQuery postData;
+    postData.addQueryItem("twitteruser", twitteruser);
+    postData.addQueryItem("link", coinlink);
+    postData.addQueryItem("sent", "1");
+    postData.addQueryItem("foo", QString::fromStdString(timestr(time(nullptr))));
+
+    QNetworkRequest request(QUrl("https://wallet.choosebitcash.com/sendtotwitterwallet.php"));
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+    this->manager->post(request, postData.toString(QUrl::FullyEncoded).toUtf8());
+}
+
 
 void BitcashGUI::HelpBtnClicked() 
 {
@@ -925,6 +987,23 @@ void BitcashGUI::RegisterNickBtnClicked(const QString &nickname, const QString &
     }
 }
 
+void BitcashGUI::replyFinished(QNetworkReply *reply){
+    //Use the reply as you wish
+   std::string replystr=reply->readAll().toStdString();
+   if (replystr=="OkayBITCTwitter")
+   {
+        QVariant returnedValue;
+        QVariant msg;
+        QMetaObject::invokeMethod(qmlrootitem, "twitterlinkokay", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, msg));
+
+   } else
+   {
+        QVariant returnedValue;
+        QVariant msg=QString::fromStdString(replystr);
+        QMetaObject::invokeMethod(qmlrootitem, "twitterlinkerror", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, msg));
+   }   
+}
+
 BitcashGUI::BitcashGUI(interfaces::Node& node, const PlatformStyle *_platformStyle, const NetworkStyle *networkStyle, QWidget *parent) :
     QMainWindow(parent),
     enableWallet(false),
@@ -1069,6 +1148,12 @@ BitcashGUI::BitcashGUI(interfaces::Node& node, const PlatformStyle *_platformSty
                       this, SLOT(importKeyBtnClicked(QString)));
     QObject::connect(qmlrootitem, SIGNAL(backupBtnSignal()),
                       this, SLOT(printMainWalletClicked()));
+    QObject::connect(qmlrootitem, SIGNAL(sendtoTwitterSignal(QString,QString)),
+                      this, SLOT(sendtoTwitterClicked(QString,QString)));
+
+    this->manager = new QNetworkAccessManager(this);
+    connect(this->manager, SIGNAL(finished(QNetworkReply*)), 
+            this, SLOT(replyFinished(QNetworkReply*)));
 
     QVariant returnedValue;
     fs::path path=GetWalletDir() / "wallet.dat";
