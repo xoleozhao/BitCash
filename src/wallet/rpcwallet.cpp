@@ -1212,7 +1212,7 @@ UniValue getinfoaboutlink(const JSONRPCRequest& request)
             "\nArguments:\n"
             "1. \"link\"          (string, required) The BitCash Send to anyone link\n"
             "\nExamples:\n"
-            "\nDump a private key\n"
+            "\nGet information about a link.\n"
             + HelpExampleCli("getinfoaboutlink", "\"link\"") +
             "\nGet information about a BitCash Send to anyone link.\n"
             + HelpExampleRpc("getinfoaboutlink", "\"link\"")
@@ -1272,10 +1272,17 @@ UniValue getinfoaboutlink(const JSONRPCRequest& request)
             CKey otpkey;
             if (pwallet->DoesTxOutBelongtoPrivKeyCalcOneTimePrivate(ctx.vout[i],key,otpkey))
             {                
+                COutPoint out;
+                out.hash=hash;
+                out.n=i;
+                CCoinsViewCache view(pcoinsTip.get());
+                const Coin& coin = view.AccessCoin(out);                
+
                 std::string refline=pwallet->DecryptRefLineTxOutWithOnePrivateKey(ctx.vout[i],key);
                 UniValue result(UniValue::VOBJ);
                 result.pushKV("description", refline);
                 result.pushKV("amount", ValueFromAmount(ctx.vout[i].nValue));
+                if (coin.IsSpent()) result.pushKV("claimed", true);else result.pushKV("claimed", false);
                 return result;
             }
 
