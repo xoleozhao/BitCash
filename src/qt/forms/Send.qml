@@ -2,19 +2,70 @@ import QtQuick 2.7
 import QtQuick.Controls 2.0
 import DestCheckValidator 1.0
 import AmountEntryValidator 1.0
+import DestCheckValidator2 1.0
 
 SendForm {    
     signal sendBtnSignalIntern(string destination, string label, string description, double amount, bool substractfee)
+    signal sendBtntwSignalIntern(string destination, string description, double amount)
+    signal sendconfirmedBtntwSignalIntern(string destination, string description, double amount)
     signal sendtoanyoneSignalIntern()
     signal viewaccounthistorysignal()
     signal gotooverviewsignal()
+
+    Timer {
+        id: timer
+        function setTimeout(cb, delayTime) {
+            timer.interval = delayTime
+            timer.repeat = false
+            timer.triggered.connect(cb)
+            timer.triggered.connect(function () {
+                timer.triggered.disconnect(cb) // This is important
+            })
+            timer.start()
+        }
+    }
+    function displayerrormessageintern(msg) {
+        errorlabel.text=msg
+        infoboxerror.visible=true
+        timer.setTimeout(function(){
+            infoboxerror.visible=false
+        }, 5000);
+    }
+
+    function showconfirmtwitterintern(msg)
+    {
+        if (descriptionEdittw.text!=""){
+            confirmtext.text= "You're about to send "+amountEdittw.text+" BITC for '"+descriptionEdittw.text+"' to @"+paytoEdittw.text+". Please confirm this transaction."
+        }else
+        {
+            confirmtext.text= "You're about to send "+amountEdittw.text+" BITC to @"+paytoEdittw.text+". Please confirm this transaction."
+        }
+        twitteruser.text=msg;
+        twitteruser2.text="@"+paytoEdittw.text;
+        profileimage.source="https://wallet.choosebitcash.com/gettwitteruserpic.php?twitteruser="+paytoEdittw.text;
+        whitebox.visible=false
+        whitebox2.visible=false
+        whitebox3.visible=true
+    }
 
     function clearsendentriesintern(msg) {
         paytoEdit.text=""
         labelEdit.text=""
         descriptionEdit.text=""
-        amountEdit.text=""
-        whitebox2.visible=true        
+        amountEdit.text=""       
+        whitebox2.visible=true
+        whitebox.visible=false
+        whitebox3.visible=false
+    }
+
+    function clearsendentriesinterntw(msg) {
+        paytoEdittw.text=""
+        labelEdittw.text=""
+        descriptionEdittw.text=""
+        amountEdittw.text=""
+        whitebox2.visible=false
+        whitebox.visible=true
+        whitebox3.visible=false
     }
 
     property real maxbalancenum : 0
@@ -24,6 +75,7 @@ SendForm {
     }
 
     property real leftbalance: 0
+    property real leftbalancetw: 0
 
     function calcleftbalance()
     {
@@ -32,10 +84,18 @@ SendForm {
         leftamountlabel.text=leftbalance
     }
 
+    function calcleftbalancetw()
+    {
+        leftbalancetw=maxbalancenum-amountEdittw.text
+        if (leftbalancetw<0)leftbalancetw=0
+        leftamountlabeltw.text=leftbalancetw
+    }
+
     function setmaxbalanceintern(avail,availnum) {
         maxbalance.text=avail
         maxbalancenum=availnum;
         calcleftbalance()
+        calcleftbalancetw()
     }
 
     /*Menu {
@@ -62,6 +122,10 @@ SendForm {
         // use it
         id: destCheckVal
     }
+    DestCheckValidator2 {
+        // use it
+        id: destCheckVal2
+    }
     AmountEntryValidator {
         // use it
         id: amountCheckVal
@@ -71,10 +135,24 @@ SendForm {
     paytoEdit.MouseArea.anchors.fill: parent*/
 
     amountEdit.validator: amountCheckVal
+    amountEdittw.validator: amountCheckVal
     amountEdit.onTextChanged: calcleftbalance()
+    amountEdittw.onTextChanged: calcleftbalancetw()
     paytoEdit.validator: destCheckVal
+    paytoEdittw.validator: destCheckVal2
     sendBtn.onClicked: {
         sendBtnSignalIntern(paytoEdit.text,labelEdit.text,descriptionEdit.text,amountEdit.text,subtractfeeCheck.checked)
+    }
+    sendBtntw.onClicked: {
+        sendBtntwSignalIntern(paytoEdittw.text,descriptionEdittw.text,amountEdittw.text)
+    }
+    sendconfirmtwBtn.onClicked: {
+        sendconfirmedBtntwSignalIntern(paytoEdittw.text,descriptionEdittw.text,amountEdittw.text)
+    }
+    changetwbtn.onClicked: {
+        whitebox.visible=true
+        whitebox2.visible=false
+        whitebox3.visible=false
     }
     linksendtoanyone.onClicked: sendtoanyoneSignalIntern()
     availableBalanceBtn.onClicked: amountEdit.text=maxbalancenum
@@ -84,6 +162,8 @@ SendForm {
     }
     othertransactionBtn.onClicked: {
         whitebox2.visible=false
+        whitebox3.visible=false
+        whitebox.visible=true
         shadow2.visible=false
     }
     viewaccounthistory.onClicked:viewaccounthistorysignal()

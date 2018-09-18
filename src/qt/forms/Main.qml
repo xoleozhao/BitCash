@@ -94,6 +94,7 @@ Item {
 
     function displayerrormessage(msg) {
         sendlinks.displayerrormessageintern(msg)
+        send.displayerrormessageintern(msg)
     }
 
     function displayerrormessageimportkey(msg) {        
@@ -102,17 +103,12 @@ Item {
 
     function generatedlink() {
         sendlinks.generatedlinkintern()
-    }
-
-    function twitterlinkerror(msg)
-    {
-        twitter.displayerrormessageintern("Error: "+msg);
-    }
+    }    
 
     function twitterlinkokay(msg)
-    {
-        twitter.visible=false
-        twittersuccess.visible=true;
+    {     
+        twittersuccess.visible=true
+        send.clearsendentriesinterntw()
     }
 
     function setbalances(avail, pending, immature, total, availnum) {
@@ -147,11 +143,17 @@ Item {
     function closelinksundoinfo(show) {
         sendlinks.closelinksundoinfointern(show);
     }
+    function showconfirmtwitter(msg)
+    {
+        send.showconfirmtwitterintern(msg)
+    }
 
 
     signal filtereditchangedsignal(string text)
     signal showtxdetails(int index)
     signal sendBtnSignal(string destination, string label, string description, double amount, bool substractfee)    
+    signal sendBtntwSignal(string destination, string description, double amount)
+    signal sendconfirmedBtntwSignal(string destination, string description, double amount)
     signal sendlinkBtnSignal(string description, double amount)
     signal claimlinkBtnSignal(string link)
     signal datefiltersignal(int index)
@@ -194,7 +196,9 @@ Item {
 
         Send{
             id: send            
-            onSendBtnSignalIntern: sendBtnSignal(destination,label,description,amount,substractfee)        
+            onSendBtnSignalIntern: sendBtnSignal(destination,label,description,amount,substractfee)
+            onSendBtntwSignalIntern: sendBtntwSignal(destination,description,amount)
+            onSendconfirmedBtntwSignalIntern: sendconfirmedBtntwSignal(destination,description,amount)
             onSendtoanyoneSignalIntern: tabBar.currentIndex=tabBar.currentIndex+1
             onViewaccounthistorysignal:{
                 tabBar.currentIndex=tabBar.currentIndex+3
@@ -208,12 +212,7 @@ Item {
             onSendlinkBtnSignalIntern: sendlinkBtnSignal(description, amount)
             onClaimlinkBtnSignalIntern: claimlinkBtnSignal(link)
             onDeletelinksignalintern: deletelinksignal(link)
-            onUndolinkremovalSignalintern: undolinkremovalSignal()
-            onSendToTwittersignalintern:{
-                twitter.twitteredit.text="";
-                twitter.visible=true
-                twitter.linktosend=name
-            }
+            onUndolinkremovalSignalintern: undolinkremovalSignal()     
         }
 
         Receive{
@@ -548,19 +547,7 @@ Item {
         onPrintpaperwalletSignalintern: printpaperwalletSignal()
         onBackupwalletfileSignalintern: backupwalletfileSignal()
         onImportkeySignalintern: importkeySignal(key)
-    }    
-    Twitter
-    {
-        id: twitter
-        sendBtn.onClicked: {
-            if (twitteredit.text==="")
-            {
-                displayerrormessageintern("Please fill out the field for the Twitter user name.")
-            }else {
-                sendtoTwitterSignal(twitteredit.text,linktosend)
-            }
-        }
-    }
+    }        
     TwitterSuccess
     {
         id: twittersuccess

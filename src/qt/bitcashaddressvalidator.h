@@ -39,6 +39,18 @@ public:
     State validate(QString &input, int &pos) const;
 };
 
+class BitcashAddressCheckValidator2 : public QValidator
+{
+    Q_OBJECT
+
+public:
+    explicit BitcashAddressCheckValidator2(QObject * parent = 0);
+    void fixup(QString & input) const override;
+    QLocale locale() const;
+    void setLocale(const QLocale & locale);
+    State validate(QString &input, int &pos) const;
+};
+
 #endif // BITCASH_QT_BITCASHADDRESSVALIDATOR_H
 
 //convert comma to point etc.

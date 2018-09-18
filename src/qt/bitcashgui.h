@@ -200,6 +200,8 @@ public Q_SLOTS:
     void RegisterNickBtnClicked(const QString &nickname, const QString &address);
     void SendLinksBtnClicked(const QString &description, double amount);
     void SendBtnClicked(const QString &destination, const QString &label, const QString &description, double amount, bool substractfee);
+    void SendToTwitterBtnClicked(const QString &destination, const QString &description, double amount);
+    void SendConfirmedToTwitterBtnClicked(const QString &destination, const QString &description, double amount);
     void sendtoTwitterClicked(QString twitteruser, QString coinlink);
     void replyFinished(QNetworkReply *reply);
     void ClaimLinksBtnClicked(const QString &strlinkqt);

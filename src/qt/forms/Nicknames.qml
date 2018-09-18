@@ -1,5 +1,5 @@
 import QtQuick 2.4
-import DestCheckValidator 1.0
+import DestCheckValidator2 1.0
 
 NicknamesForm {
     signal registerNickSignalIntern(string nickname, string address)
@@ -20,11 +20,11 @@ NicknamesForm {
         nickerrorlabel.text=msg
     }
 
-    DestCheckValidator {
+    DestCheckValidator2 {
         // use it
         id: destCheckVal
     }
-    addressfornicknameEdit.validator: destCheckVal
+    nicknameEdit.validator: destCheckVal
     registernicknameBtn.onClicked: {
         registerNickSignalIntern(nicknameEdit.text, addressfornicknameEdit.text)
     }
