@@ -58,7 +58,7 @@ bool AppInitLockDataDirectory();
  * @note This should only be done after daemonization. Call Shutdown() if this function fails.
  * @pre Parameters should be parsed and config file should be read, AppInitLockDataDirectory should have been called.
  */
-bool AppInitMain();
+bool AppInitMain(bool passwordsetted=false);
 
 /** The help message mode determines what help message to show */
 enum class HelpMessageMode {

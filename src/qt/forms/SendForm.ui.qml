@@ -172,7 +172,8 @@ Item {
         border.width: 0
         anchors.top: sendcap.bottom
         anchors.topMargin: 30
-        height: 590
+        //height: 590
+        height: 530
 
         TabBar {
             id: tabBar
@@ -180,8 +181,12 @@ Item {
             font.family: "Montserrat SemiBold"
             currentIndex: swipeView.currentIndex
             width: whitebox.width
-            height: 60
-            position: TabBar.Header
+            //height: 60
+            //visible: true
+            visible: false
+            height:0
+
+            position: TabBar.Header            
             anchors.left: whitebox.left
             anchors.leftMargin: 6
             anchors.right: whitebox.right
@@ -261,6 +266,7 @@ Item {
             anchors.rightMargin: 6
             anchors.bottomMargin: 6
             currentIndex: tabBar.currentIndex
+            Component.onCompleted: contentItem.interactive = false
             Item {
                 id: direct
 

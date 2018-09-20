@@ -1222,9 +1222,14 @@ bool AppInitLockDataDirectory()
     return true;
 }
 
-bool AppInitMain()
+bool AppInitMain(bool passwordsetted)
 {
     const CChainParams& chainparams = Params();
+    uint64_t nMaxOutboundLimit = 0; //unlimited unless -maxuploadtarget is set
+    uint64_t nMaxOutboundTimeframe = MAX_UPLOAD_TIMEFRAME;
+
+    if (!passwordsetted)
+    {
     // ********************************************************* Step 4a: application initialization
 #ifndef WIN32
     CreatePidFile(GetPidFile(), getpid());
@@ -1404,8 +1409,6 @@ bool AppInitMain()
         RegisterValidationInterface(pzmqNotificationInterface);
     }
 #endif
-    uint64_t nMaxOutboundLimit = 0; //unlimited unless -maxuploadtarget is set
-    uint64_t nMaxOutboundTimeframe = MAX_UPLOAD_TIMEFRAME;
 
     if (gArgs.IsArgSet("-maxuploadtarget")) {
         nMaxOutboundLimit = gArgs.GetArg("-maxuploadtarget", DEFAULT_MAX_UPLOAD_TARGET)*1024*1024;
@@ -1624,7 +1627,10 @@ bool AppInitMain()
     }
 
     // ********************************************************* Step 9: load wallet
-    if (!g_wallet_init_interface.Open()) return false;
+    if (!g_wallet_init_interface.Open()) return false;    
+    }
+    //unlock wallet
+    if (g_wallet_init_interface.NeedPassword()) return false;
 
     // ********************************************************* Step 10: data directory maintenance
 
@@ -1761,6 +1767,7 @@ bool AppInitMain()
             connOptions.m_specified_outgoing = connect;
         }
     }
+    CConnman& connman = *g_connman;
     if (!connman.Start(scheduler, connOptions)) {
         return false;
     }

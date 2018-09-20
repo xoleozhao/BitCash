@@ -10,6 +10,8 @@
 
 #include <chainparams.h>
 #include <qt/clientmodel.h>
+#include <QMessageBox>
+#include <qt/askpassphrasedialog.h>
 #include <fs.h>
 #include <qt/guiconstants.h>
 #include <qt/guiutil.h>
@@ -92,6 +94,8 @@ Q_IMPORT_PLUGIN(QCocoaIntegrationPlugin);
 Q_DECLARE_METATYPE(bool*)
 Q_DECLARE_METATYPE(CAmount)
 Q_DECLARE_METATYPE(uint256)
+
+bool passworddialogcanceled=false;
 
 static void InitMessage(const std::string &message)
 {
@@ -181,6 +185,8 @@ void DebugMessageHandler(QtMsgType type, const QMessageLogContext& context, cons
 }
 #endif
 
+class BitcashApplication;
+
 /** Class encapsulating Bitcash Core startup and shutdown.
  * Allows running startup and shutdown in a different thread from the UI thread.
  */
@@ -188,7 +194,7 @@ class BitcashCore: public QObject
 {
     Q_OBJECT
 public:
-    explicit BitcashCore(interfaces::Node& node);
+    explicit BitcashCore(interfaces::Node& node,BitcashApplication *bitcapp);
 
 public Q_SLOTS:
     void initialize();
@@ -198,12 +204,14 @@ Q_SIGNALS:
     void initializeResult(bool success);
     void shutdownResult();
     void runawayException(const QString &message);
+    void AskForPassword();
 
 private:
     /// Pass fatal exception message to UI thread
     void handleRunawayException(const std::exception *e);
 
     interfaces::Node& m_node;
+    BitcashApplication *bitcashapp;
 };
 
 /** Main Bitcash application object */
@@ -240,6 +248,7 @@ public:
 
 public Q_SLOTS:
     void initializeResult(bool success);
+    void askforpassword();
     void shutdownResult();
     /// Handle runaway exceptions. Shows a message box with the problem and quits the program.
     void handleRunawayException(const QString &message);
@@ -248,7 +257,8 @@ Q_SIGNALS:
     void requestedInitialize();
     void requestedShutdown();
     void stopThread();
-    void splashFinished(QWidget *window);
+    void splashFinished(QWidget *window);    
+    void passworddialogfinished();
 
 private:
     QThread *coreThread;
@@ -270,8 +280,8 @@ private:
 
 #include <qt/bitcash.moc>
 
-BitcashCore::BitcashCore(interfaces::Node& node) :
-    QObject(), m_node(node)
+BitcashCore::BitcashCore(interfaces::Node& node,BitcashApplication *bitcapp) :
+    QObject(), m_node(node), bitcashapp(bitcapp)
 {
 }
 
@@ -286,7 +296,22 @@ void BitcashCore::initialize()
     try
     {
         qDebug() << __func__ << ": Running initialization in thread";
+    extern bool neededapassword;
+    extern bool passwordwaswrong;
         bool rv = m_node.appInitMain();
+        if (!rv && neededapassword) {
+          passworddialogcanceled=false;
+          while(neededapassword && !passworddialogcanceled){
+            Q_EMIT AskForPassword();
+            QEventLoop loop;
+            connect(bitcashapp, SIGNAL(passworddialogfinished()), &loop, SLOT(quit()));
+            loop.exec();
+
+            neededapassword = false;
+            passwordwaswrong=false;
+            rv = m_node.appInitMain(true);
+          }
+        }
         Q_EMIT initializeResult(rv);
     } catch (const std::exception& e) {
         handleRunawayException(&e);
@@ -308,6 +333,14 @@ void BitcashCore::shutdown()
     } catch (...) {
         handleRunawayException(nullptr);
     }
+}
+
+void BitcashApplication::askforpassword()
+{
+    AskPassphraseDialog dlg(AskPassphraseDialog::Unlock, NULL); 
+    passworddialogcanceled=!(dlg.exec()==QDialog::Accepted);
+
+    Q_EMIT passworddialogfinished();
 }
 
 BitcashApplication::BitcashApplication(interfaces::Node& node, int &argc, char **argv):
@@ -377,10 +410,6 @@ void BitcashApplication::createWindow(const NetworkStyle *networkStyle)
 
     pollShutdownTimer = new QTimer(window);
     connect(pollShutdownTimer, SIGNAL(timeout()), window, SLOT(detectShutdown()));
-
-/*    QQuickView *view = new QQuickView;
-    view->setSource("qrc:/forms/BitCash.qml);
-    view->show();*/
 }
 
 void BitcashApplication::createSplashScreen(const NetworkStyle *networkStyle)
@@ -397,8 +426,9 @@ void BitcashApplication::startThread()
 {
     if(coreThread)
         return;
+
     coreThread = new QThread(this);
-    BitcashCore *executor = new BitcashCore(m_node);
+    BitcashCore *executor = new BitcashCore(m_node,this);
     executor->moveToThread(coreThread);
 
     /*  communication to and from thread */
@@ -410,6 +440,8 @@ void BitcashApplication::startThread()
     /*  make sure executor object is deleted in its own thread */
     connect(this, SIGNAL(stopThread()), executor, SLOT(deleteLater()));
     connect(this, SIGNAL(stopThread()), coreThread, SLOT(quit()));
+    connect(executor, SIGNAL(AskForPassword()), this, SLOT(askforpassword()));
+    connect(this, SIGNAL(passworddialogfinished()), this, SLOT(passworddialogfinished()));
 
     coreThread->start();
 }
@@ -431,11 +463,18 @@ void BitcashApplication::requestInitialize()
     Q_EMIT requestedInitialize();
 }
 
+extern bool passwordwaswrong;
+
 void BitcashApplication::requestShutdown()
 {
     // Show a simple window indicating shutdown status
     // Do this first as some of the steps may take some time below,
     // for example the RPC console may still be executing a command.
+    if (passwordwaswrong)
+    {
+        QMessageBox::critical(NULL, tr("Password was wrong"),tr("The wallet can not start without the correct password. The program will close now."));
+    }
+
     shutdownWindow.reset(ShutdownWindow::showShutdownWindow(window));
 
     qDebug() << __func__ << ": Requesting shutdown";
@@ -709,7 +748,8 @@ int main(int argc, char *argv[])
         // This is acceptable because this function only contains steps that are quick to execute,
         // so the GUI thread won't be held up.
         if (node->baseInitialize()) {
-            app.requestInitialize();
+
+           app.requestInitialize();
 #if defined(Q_OS_WIN) && QT_VERSION >= 0x050000
             WinShutdownMonitor::registerShutdownBlockReason(QObject::tr("%1 didn't yet exit safely...").arg(QObject::tr(PACKAGE_NAME)), (HWND)app.getMainWinId());
 #endif

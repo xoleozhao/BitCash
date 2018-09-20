@@ -14,6 +14,10 @@
 #include <wallet/wallet.h>
 #include <wallet/walletutil.h>
 
+SecureString thewalletpassword="";
+bool passwordwaswrong=false;
+bool neededapassword=false;
+
 class WalletInit : public WalletInitInterface {
 public:
 
@@ -33,6 +37,9 @@ public:
 
     //! Load wallet databases.
     bool Open() const override;
+
+    //! Returns true if we need a password for the wallets
+    bool NeedPassword() const override;
 
     //! Complete startup of wallets.
     void Start(CScheduler& scheduler) const override;
@@ -71,6 +78,7 @@ std::string WalletInit::GetHelpString(bool showDebug) const
     strUsage += HelpMessageOpt("-txconfirmtarget=<n>", strprintf(_("If paytxfee is not set, include enough fee so transactions begin confirmation on average within n blocks (default: %u)"), DEFAULT_TX_CONFIRM_TARGET));
     strUsage += HelpMessageOpt("-upgradewallet", _("Upgrade wallet to latest format on startup"));
     strUsage += HelpMessageOpt("-wallet=<path>", _("Specify wallet database path. Can be specified multiple times to load multiple wallets. Path is interpreted relative to <walletdir> if it is not absolute, and will be created if it does not exist (as a directory containing a wallet.dat file and log files). For backwards compatibility this will also accept names of existing data files in <walletdir>.)"));
+    strUsage += HelpMessageOpt("-passphrase", _("Specifies the password to unlock the wallet.") + " ");
     strUsage += HelpMessageOpt("-walletbroadcast", _("Make the wallet broadcast transactions") + " " + strprintf(_("(default: %u)"), DEFAULT_WALLETBROADCAST));
     strUsage += HelpMessageOpt("-walletdir=<dir>", _("Specify directory to hold wallets (default: <datadir>/wallets if it exists, otherwise <datadir>)"));
     strUsage += HelpMessageOpt("-walletnotify=<cmd>", _("Execute command when a wallet transaction changes (%s in cmd is replaced by TxID)"));
@@ -267,6 +275,77 @@ bool WalletInit::Open() const
     }
 
     return true;
+}
+
+/*bool WalletInit::Open() const
+{
+    if (gArgs.GetBoolArg("-disablewallet", DEFAULT_DISABLE_WALLET)) {
+        LogPrintf("Wallet disabled!\n");
+        return true;
+    }
+
+    for (const std::string& walletFile : gArgs.GetArgs("-wallet")) {
+        CWallet * const pwallet = CWallet::CreateWalletFromFile(walletFile, fs::absolute(walletFile, GetWalletDir()));
+        if (!pwallet) {
+            return false;
+        }
+          if (pwallet->IsLocked()) {
+              pwallet->Unlock(thewalletpassword);
+              if (pwallet->IsLocked()) {
+                  for (const std::string& pass : gArgs.GetArgs("-passphrase")) {
+                      if (pwallet->IsLocked()) {
+                          SecureString strWalletPass;
+                          strWalletPass.reserve(100);
+                          strWalletPass = pass.c_str();
+                          pwallet->Unlock(strWalletPass);
+                      }                      
+                  }
+              }
+          }
+              if (pwallet->IsLocked()) {
+                 passwordwaswrong=true;
+                 neededapassword=true;
+                 LogPrintf("Could not decrypt wallet! Specify passphare with parameter -passphrase=<pass>\n");
+                 return false;
+	      } else
+	      {
+                 AddWallet(pwallet);
+              }
+            
+
+    }
+
+    return true;	         
+}*/
+
+bool WalletInit::NeedPassword() const
+{
+
+    for (CWallet* pwallet : GetWallets()) {
+
+          if (pwallet->IsLocked()) {
+              pwallet->Unlock(thewalletpassword);
+              if (pwallet->IsLocked()) {
+                  for (const std::string& pass : gArgs.GetArgs("-passphrase")) {
+                      if (pwallet->IsLocked()) {
+                          SecureString strWalletPass;
+                          strWalletPass.reserve(100);
+                          strWalletPass = pass.c_str();
+                          pwallet->Unlock(strWalletPass);
+                      }                      
+                  }
+              }
+          }
+
+        bool needpass=pwallet->IsLocked();
+        if (needpass) {              
+            neededapassword=true;
+            passwordwaswrong=true;
+            LogPrintf("Could not decrypt wallet! Specify passphare with parameter -passphrase=<pass>\n");
+            return true;
+        }
+    }
+    return false;
 }
 
 void WalletInit::Start(CScheduler& scheduler) const

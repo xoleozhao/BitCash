@@ -72,7 +72,7 @@ public:
     virtual bool baseInitialize() = 0;
 
     //! Start node.
-    virtual bool appInitMain() = 0;
+    virtual bool appInitMain(bool passwordsetted=false) = 0;
 
     //! Stop node.
     virtual void appShutdown() = 0;

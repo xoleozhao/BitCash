@@ -22,6 +22,8 @@ public:
     virtual bool Verify() const = 0;
     /** Open wallets*/
     virtual bool Open() const = 0;
+    /** Returns true if a password is needed for the*/
+    virtual bool NeedPassword() const = 0;
     /** Start wallets*/
     virtual void Start(CScheduler& scheduler) const = 0;
     /** Flush Wallets*/

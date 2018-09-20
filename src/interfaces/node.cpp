@@ -66,7 +66,7 @@ class NodeImpl : public Node
         return AppInitBasicSetup() && AppInitParameterInteraction() && AppInitSanityChecks() &&
                AppInitLockDataDirectory();
     }
-    bool appInitMain() override { return AppInitMain(); }
+    bool appInitMain(bool passwordsetted=false) override { return AppInitMain(passwordsetted); }
     void appShutdown() override
     {
         Interrupt();

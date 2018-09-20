@@ -17,6 +17,7 @@
 #include <QKeyEvent>
 #include <QMessageBox>
 #include <QPushButton>
+#include <iostream>
 
 AskPassphraseDialog::AskPassphraseDialog(Mode _mode, QWidget *parent) :
     QDialog(parent),
@@ -87,10 +88,12 @@ void AskPassphraseDialog::setModel(WalletModel *_model)
     this->model = _model;
 }
 
+extern SecureString thewalletpassword;
+
 void AskPassphraseDialog::accept()
 {
     SecureString oldpass, newpass1, newpass2;
-    if(!model)
+    if(!model && mode!=Unlock)
         return;
     oldpass.reserve(MAX_PASSPHRASE_SIZE);
     newpass1.reserve(MAX_PASSPHRASE_SIZE);
@@ -153,7 +156,7 @@ void AskPassphraseDialog::accept()
         }
         } break;
     case Unlock:
-        if(!model->setWalletLocked(false, oldpass))
+        /*if(!model->setWalletLocked(false, oldpass))
         {
             QMessageBox::critical(this, tr("Wallet unlock failed"),
                                   tr("The passphrase entered for the wallet decryption was incorrect."));
@@ -161,7 +164,9 @@ void AskPassphraseDialog::accept()
         else
         {
             QDialog::accept(); // Success
-        }
+        }*/
+        thewalletpassword=oldpass;
+        QDialog::accept(); 
         break;
     case Decrypt:
         if(!model->setWalletEncrypted(false, oldpass))

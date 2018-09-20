@@ -36,15 +36,6 @@ WalletModel::WalletModel(std::unique_ptr<interfaces::Wallet> wallet, interfaces:
     cachedEncryptionStatus(Unencrypted),
     cachedNumBlocks(0)
 {
-
-    // Unlock wallet to show description line decrypted
-    if (getEncryptionStatus() == Locked)
-    {
-        AskPassphraseDialog dlg(AskPassphraseDialog::Unlock,0);
-        dlg.setModel(this);
-        dlg.exec();
-    }
-
     fHaveWatchOnly = m_wallet->haveWatchOnly();
     fForceCheckBalanceChanged = false;
 
