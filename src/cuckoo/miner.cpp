@@ -334,6 +334,7 @@ bool FindProofOfWorkAdvanced(
                             _id,&exception,(char*)&errormessage);
                 if (exception) {
                     LogPrintf("GPU mining error: %s\n", errormessage);
+                    sleep(3000);//sleep 3 seconds, so that we do not get 100% cpu usage when something fails
                     if  (!selectgpucpu) {
                       trygpumining = false;
                       gpuminingfailed = true;
