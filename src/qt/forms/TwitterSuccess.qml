@@ -81,7 +81,7 @@ Rectangle{
             anchors.verticalCenter: sendcap.verticalCenter
             anchors.left: parent.left
             fillMode: Image.PreserveAspectFit
-            source: "../res/assets/Miscellaneous/twitter.png"
+            source: "../res/assets/Miscellaneous/twittericon.png"
         }
 
         Text {

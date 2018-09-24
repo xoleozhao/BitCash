@@ -39,12 +39,18 @@ Item {
     property alias pasteaddresstw: pasteaddresstw
     property alias leftamountlabeltw: leftamountlabeltw
 
+    property alias descriptionEditan: descriptionEditan
+    property alias amountEditan: amountEditan
+    property alias sendBtnan: sendBtnan
+    property alias leftamountlabelan: leftamountlabelan
+
     property alias changetwbtn: changetwbtn
     property alias sendconfirmtwBtn: sendconfirmtwBtn
     property alias confirmtext: confirmtext
     property alias twitteruser: twitteruser
     property alias twitteruser2: twitteruser2
     property alias profileimage: profileimage
+    property alias tabBar: tabBar
 
     Rectangle {
         id: toolBar
@@ -130,6 +136,54 @@ Item {
         }
     }
 
+    property alias toolBar2: toolBar2
+    property alias text11: text11
+
+    Rectangle {
+        id: toolBar2
+        y: 0
+        visible: false
+        height: 44
+        anchors.right: parent.right
+        anchors.rightMargin: 0
+        anchors.left: parent.left
+        anchors.leftMargin: 0
+        color: "#ddf5e3"
+
+        Image {
+            x: 30
+            y: 13
+            width: 16
+            height: 16
+            fillMode: Image.PreserveAspectFit
+            source: "../res/assets/Notification Alerts/success-icon.png"
+        }
+
+        Button {
+            onClicked: toolBar2.visible = false
+            anchors.right: parent.right
+            anchors.rightMargin: 30
+            y: 13
+            width: 16
+            height: 16
+            background: Image {
+                fillMode: Image.PreserveAspectFit
+                source: "../res/assets/Notification Alerts/success-close.png"
+            }
+        }
+
+        Label {
+            id: text11
+            x: 58
+            y: 13
+            text: ""
+            font.pixelSize: 13
+            font.weight: Font.DemiBold
+            font.family: "Montserrat SemiBold"
+            color: "#1bb846"
+        }
+    }
+
     Rectangle {
         id: layoutrect
         anchors.top: toolBar.bottom
@@ -173,7 +227,7 @@ Item {
         anchors.top: sendcap.bottom
         anchors.topMargin: 30
         //height: 590
-        height: 530
+        height: 590
 
         TabBar {
             id: tabBar
@@ -181,12 +235,10 @@ Item {
             font.family: "Montserrat SemiBold"
             currentIndex: swipeView.currentIndex
             width: whitebox.width
-            //height: 60
-            //visible: true
-            visible: false
-            height:0
+            height: 60
+            visible: true
 
-            position: TabBar.Header            
+            position: TabBar.Header
             anchors.left: whitebox.left
             anchors.leftMargin: 6
             anchors.right: whitebox.right
@@ -201,13 +253,14 @@ Item {
                 y: 0
                 text: qsTr("Direct")
                 rightPadding: 15
-                leftPadding: 30
+                leftPadding: 58
                 width: implicitWidth
                 height: 60
                 contentItem: Text {
-                    id: textoverview
+                    id: textbitcash
                     x: 58
                     text: parent.text
+                    leftPadding: 0
                     font: parent.font
                     opacity: enabled ? 1.0 : 0.3
                     color: "#4d505e"
@@ -215,27 +268,27 @@ Item {
                     verticalAlignment: Text.AlignVCenter
                     elide: Text.ElideRight
                 }
-                /*onCheckedChanged: {
-                if (checked) {
-                    textoverview.color="#202124"
-
-                }else {
-                    textoverview.color="#4d505e"
+                Image {
+                    id: imagebitcash
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.left: parent.left
+                    anchors.leftMargin: 35
+                    fillMode: Image.PreserveAspectFit
+                    source: "../res/assets/Miscellaneous/bitcashicon.png"
                 }
-            }*/
             }
 
             TabButton {
-                id: tabButton
+                id: tabButton2
                 text: qsTr("Twitter")
                 rightPadding: 15
                 font.capitalization: Font.MixedCase
-                leftPadding: 15
+                leftPadding: 41
                 width: implicitWidth
                 height: 60
 
                 contentItem: Text {
-                    id: textmining
+                    id: texttwitter
                     text: parent.text
                     font: parent.font
                     opacity: enabled ? 1.0 : 0.3
@@ -244,13 +297,43 @@ Item {
                     verticalAlignment: Text.AlignVCenter
                     elide: Text.ElideRight
                 }
-                /*onCheckedChanged: {
-                if (checked) {
-                    textmining.color="#202124"
-                }else {
-                    textmining.color="#4d505e"
+                Image {
+                    id: imagetwitter
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.left: parent.left
+                    anchors.leftMargin: 15
+                    fillMode: Image.PreserveAspectFit
+                    source: "../res/assets/Miscellaneous/twittericon.png"
                 }
-            }*/
+            }
+
+            TabButton {
+                id: tabButton3
+                text: qsTr("Anyone")
+                rightPadding: 15
+                font.capitalization: Font.MixedCase
+                leftPadding: 41
+                width: implicitWidth
+                height: 60
+
+                contentItem: Text {
+                    id: textanyone
+                    text: parent.text
+                    font: parent.font
+                    opacity: enabled ? 1.0 : 0.3
+                    color: "#4d505e"
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                    elide: Text.ElideRight
+                }
+                Image {
+                    id: imageanyone
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.left: parent.left
+                    anchors.leftMargin: 15
+                    fillMode: Image.PreserveAspectFit
+                    source: "../res/assets/Miscellaneous/anyoneicon.png"
+                }
             }
         }
 
@@ -813,6 +896,202 @@ Item {
                     leftPadding: 4
                     anchors.left: leftamountlabeltw.right
                     anchors.top: infolabeltw.top
+                }
+            }
+            //Anyone
+            Item {
+                id: anyone
+
+                Rectangle {
+                    id: bluebox
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.top: parent.top
+                    anchors.leftMargin: 30
+                    anchors.topMargin: 20
+                    anchors.rightMargin: 30
+                    color: "#e2e3f3"
+                    radius: 3
+                    border.color: "#3e45ac"
+                    border.width: 1
+
+                    height: 103
+
+                    Text {
+                        id: text13
+                        color: "#3e45ac"
+                        text: qsTr("If you want to send BitCash to someone without an existing BitCash address, you can simply create a BitCash link and send it via email, SMS or social media.")
+                        anchors.right: parent.right
+                        anchors.rightMargin: 30
+                        font.weight: Font.DemiBold
+                        font.family: "Montserrat SemiBold"
+                        lineHeight: 1.5
+                        anchors.bottom: parent.bottom
+                        anchors.bottomMargin: 20
+                        anchors.left: infoicon.right
+                        anchors.leftMargin: 10
+                        anchors.top: parent.top
+                        anchors.topMargin: 20
+                        wrapMode: Text.WordWrap
+                        font.pixelSize: 13
+                    }
+
+                    Image {
+                        id: infoicon
+                        anchors.top: parent.top
+                        anchors.topMargin: 20
+                        anchors.leftMargin: 20
+                        anchors.left: parent.left
+                        fillMode: Image.PreserveAspectFit
+                        source: "../res/assets/Notification Alerts/info-icon.png"
+                    }
+                }
+
+                MenuTextField {
+                    id: descriptionEditan
+                    height: 48
+                    font.pixelSize: 14
+                    font.family: "Montserrat"
+                    padding: 16
+                    rightPadding: 16
+                    leftPadding: 16
+                    topPadding: 16
+                    anchors.top: text3an.bottom
+                    anchors.topMargin: 20
+                    anchors.left: parent.left
+                    anchors.leftMargin: 30
+                    anchors.rightMargin: 30
+                    anchors.right: parent.right
+                    selectByMouse: true
+                    placeholderText: "What are you paying for?"
+                }
+
+                Label {
+                    id: text3an
+                    color: "#3d3e40"
+                    text: qsTr("Description")
+                    font.weight: Font.DemiBold
+                    anchors.top: bluebox.bottom
+                    anchors.topMargin: 30
+                    anchors.left: parent.left
+                    anchors.leftMargin: 30
+                    font.pixelSize: 14
+                    font.family: "Montserrat SemiBold"
+                }
+
+                MenuTextField {
+                    id: amountEditan
+                    width: 228
+                    height: 48
+                    font.pixelSize: 14
+                    font.family: "Montserrat"
+                    topPadding: 16
+                    padding: 16
+                    anchors.top: text4an.bottom
+                    anchors.topMargin: 20
+                    anchors.left: parent.left
+                    anchors.leftMargin: 30
+                    horizontalAlignment: Text.AlignLeft
+                    selectByMouse: true
+                    placeholderText: "0.000000000"
+                }
+                Rectangle {
+                    anchors.left: amountEditan.right
+                    anchors.top: amountEditan.top
+                    anchors.bottom: amountEditan.bottom
+                    width: 80
+                    radius: 4
+                    border.width: 1
+                    border.color: "#eeeeef"
+                    color: "#f7f7f7"
+                    Text {
+                        color: "#4d505e"
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        anchors.top: parent.top
+                        anchors.bottom: parent.bottom
+                        padding: 16
+                        text: "BITC"
+                        font.pixelSize: 14
+                        font.weight: Font.Normal
+                        font.family: "Montserrat"
+                    }
+                }
+
+                Label {
+                    id: text4an
+                    color: "#3d3e40"
+                    text: qsTr("Amount")
+                    font.weight: Font.DemiBold
+                    anchors.top: descriptionEditan.bottom
+                    anchors.topMargin: 25
+                    anchors.left: parent.left
+                    anchors.leftMargin: 30
+                    font.pixelSize: 14
+                    font.family: "Montserrat SemiBold"
+                }
+
+                Mybutton {
+                    id: sendBtnan
+                    height: 44
+                    text: qsTr("Send")
+                    font.weight: Font.DemiBold
+                    font.pixelSize: 14
+                    leftPadding: 44
+                    anchors.left: parent.left
+                    anchors.leftMargin: 30
+                    anchors.top: infolabelan.bottom
+                    anchors.topMargin: 15
+                    iconname: "../res/assets/Miscellaneous/button-send.png"
+                    font.capitalization: Font.MixedCase
+                    font.family: "Montserrat SemiBold"
+                }
+
+                Label {
+                    id: infolabelan
+                    color: "#3e45ac"
+                    text: qsTr("You'll have")
+                    font.weight: Font.DemiBold
+                    font.pixelSize: 13
+                    font.family: "Montserrat SemiBold"
+                    rightPadding: 4
+                    anchors.left: parent.left
+                    anchors.leftMargin: 30
+                    anchors.top: amountEditan.bottom
+                    anchors.topMargin: 20
+                }
+                Label {
+                    id: bitcashiconan
+                    anchors.left: infolabelan.right
+                    anchors.verticalCenter: infolabelan.verticalCenter
+
+                    font.pixelSize: 13
+                    font.family: "Montserrat SemiBold"
+                    font.weight: Font.DemiBold
+                    color: "#3e45ac"
+                    text: "₡"
+                }
+
+                Label {
+                    id: leftamountlabelan
+                    color: "#3e45ac"
+                    text: qsTr("0.000000000")
+                    font.weight: Font.DemiBold
+                    font.pixelSize: 13
+                    font.family: "Montserrat SemiBold"
+                    leftPadding: 0
+                    anchors.left: bitcashiconan.right
+                    anchors.top: infolabelan.top
+                }
+                Label {
+                    id: infolabel2an
+                    color: "#3e45ac"
+                    text: qsTr("available balance left on your acccount")
+                    font.pixelSize: 13
+                    font.weight: Font.DemiBold
+                    font.family: "Montserrat SemiBold"
+                    leftPadding: 4
+                    anchors.left: leftamountlabelan.right
+                    anchors.top: infolabelan.top
                 }
             }
         }

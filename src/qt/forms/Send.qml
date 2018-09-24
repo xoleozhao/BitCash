@@ -8,6 +8,7 @@ SendForm {
     signal sendBtnSignalIntern(string destination, string label, string description, double amount, bool substractfee)
     signal sendBtntwSignalIntern(string destination, string description, double amount)
     signal sendconfirmedBtntwSignalIntern(string destination, string description, double amount)
+    signal sendlinkBtnSignalIntern(string description, double amount)
     signal sendtoanyoneSignalIntern()
     signal viewaccounthistorysignal()
     signal gotooverviewsignal()
@@ -29,6 +30,19 @@ SendForm {
         infoboxerror.visible=true
         timer.setTimeout(function(){
             infoboxerror.visible=false
+        }, 5000);
+    }
+
+    function gotosendtoanyone()
+    {
+        tabBar.currentIndex=2
+    }
+
+    function generatedlinkintern() {
+        text11.text=qsTr("You have successfully generated a link which you can send to anyone. The link has been copied to the clipboard.")
+        toolBar2.visible=true;
+        timer.setTimeout(function(){
+            toolBar2.visible=false
         }, 5000);
     }
 
@@ -76,6 +90,7 @@ SendForm {
 
     property real leftbalance: 0
     property real leftbalancetw: 0
+    property real leftbalancean: 0
 
     function calcleftbalance()
     {
@@ -91,11 +106,19 @@ SendForm {
         leftamountlabeltw.text=leftbalancetw
     }
 
+    function calcleftbalancean()
+    {
+        leftbalancean=maxbalancenum-amountEditan.text
+        if (leftbalancean<0)leftbalancean=0
+        leftamountlabelan.text=leftbalancean
+    }
+
     function setmaxbalanceintern(avail,availnum) {
         maxbalance.text=avail
         maxbalancenum=availnum;
         calcleftbalance()
         calcleftbalancetw()
+        calcleftbalancean()
     }
 
     /*Menu {
@@ -138,6 +161,7 @@ SendForm {
     amountEdittw.validator: amountCheckVal
     amountEdit.onTextChanged: calcleftbalance()
     amountEdittw.onTextChanged: calcleftbalancetw()
+    amountEditan.onTextChanged: calcleftbalancean()
     paytoEdit.validator: destCheckVal
     paytoEdittw.validator: destCheckVal2
     sendBtn.onClicked: {
@@ -145,6 +169,9 @@ SendForm {
     }
     sendBtntw.onClicked: {
         sendBtntwSignalIntern(paytoEdittw.text,descriptionEdittw.text,amountEdittw.text)
+    }
+    sendBtnan.onClicked: {
+        sendlinkBtnSignalIntern(descriptionEditan.text,amountEditan.text)
     }
     sendconfirmtwBtn.onClicked: {
         sendconfirmedBtntwSignalIntern(paytoEdittw.text,descriptionEdittw.text,amountEdittw.text)

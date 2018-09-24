@@ -92,17 +92,17 @@ Item {
         backupwallet.setpaperwalletaddressesintern(address,privatekey)
     }        
 
-    function displayerrormessage(msg) {
-        sendlinks.displayerrormessageintern(msg)
+    function displayerrormessage(msg) {        
         send.displayerrormessageintern(msg)
+        receive.displayerrormessageintern(msg)
     }
 
     function displayerrormessageimportkey(msg) {        
         backupwallet.displayerrormessageintern(msg)
     }
 
-    function generatedlink() {
-        sendlinks.generatedlinkintern()
+    function generatedlink() {    
+        send.generatedlinkintern()
     }    
 
     function twitterlinkokay(msg)
@@ -113,8 +113,7 @@ Item {
 
     function setbalances(avail, pending, immature, total, availnum) {
         overview.setbalancesintern(avail, pending, immature, total)
-        send.setmaxbalanceintern(avail, availnum)
-        sendlinks.setmaxbalanceintern(avail, availnum)
+        send.setmaxbalanceintern(avail, availnum)        
     }
 
     function setreceivingaddress(address,nick) {        
@@ -129,19 +128,21 @@ Item {
     }
 
     function addbitcashexpresslink(link,desc,amount,date) {
-        sendlinks.addbitcashexpresslinkintern(link,desc,amount,date)
+        transactions.addbitcashexpresslinkintern(link,desc,amount,date)
+        send.descriptionEditan.text=""
+        send.amountEditan.text=""
     }
-    function bitcashexpressclaimed() {
-        sendlinks.bitcashexpressclaimedintern()
+    function bitcashexpressclaimed() {        
+        receive.bitcashexpressclaimedintern()
     }
     function settxdetails(text) {
         transactions.settxdetailsintern(text)
     }
     function clearlinklistmodel() {
-        sendlinks.clearlinklistmodelintern();
+        transactions.clearlinklistmodelintern();
     }
     function closelinksundoinfo(show) {
-        sendlinks.closelinksundoinfointern(show);
+        transactions.closelinksundoinfointern(show);
     }
     function showconfirmtwitter(msg)
     {
@@ -199,25 +200,20 @@ Item {
             onSendBtnSignalIntern: sendBtnSignal(destination,label,description,amount,substractfee)
             onSendBtntwSignalIntern: sendBtntwSignal(destination,description,amount)
             onSendconfirmedBtntwSignalIntern: sendconfirmedBtntwSignal(destination,description,amount)
-            onSendtoanyoneSignalIntern: tabBar.currentIndex=tabBar.currentIndex+1
+            onSendlinkBtnSignalIntern: sendlinkBtnSignal(description, amount)
+            onSendtoanyoneSignalIntern: gotosendtoanyone()
             onViewaccounthistorysignal:{
-                tabBar.currentIndex=tabBar.currentIndex+3
+                tabBar.currentIndex=tabBar.currentIndex+2
             }
             onGotooverviewsignal: {
                 tabBar.currentIndex=tabBar.currentIndex-2
             }
         }
-        SendLinks{
-            id: sendlinks
-            onSendlinkBtnSignalIntern: sendlinkBtnSignal(description, amount)
-            onClaimlinkBtnSignalIntern: claimlinkBtnSignal(link)
-            onDeletelinksignalintern: deletelinksignal(link)
-            onUndolinkremovalSignalintern: undolinkremovalSignal()     
-        }
 
         Receive{
             id: receive
             onGotocreatenicksignal:tabBar.currentIndex=tabBar.currentIndex+2
+            onClaimlinkBtnSignalIntern: claimlinkBtnSignal(link)
 
         }
 
@@ -227,6 +223,8 @@ Item {
             onFiltereditchangedsignalintern:filtereditchangedsignal(text)
             onDatefiltersignalintern:datefiltersignal(index)
             onDownloadtransactionsSignalintern: downloadtransactionsSignal()
+            onDeletelinksignalintern: deletelinksignal(link)
+            onUndolinkremovalSignalintern: undolinkremovalSignal()
         }
 
         Nicknames{
@@ -365,43 +363,6 @@ Item {
                 anchors.leftMargin: 15
                 fillMode: Image.PreserveAspectFit
                 source: "../res/assets/Navigation/send-inactive.png"
-            }
-        }
-
-        TabButton {
-            id: tabButton2
-            text: qsTr("Send to anyone")
-            rightPadding: 15
-            leftPadding: 37
-            width: implicitWidth
-            height: 60
-            contentItem: Text {
-                id: textsendtoanyone
-                text: parent.text
-                font: parent.font
-                opacity: enabled ? 1.0 : 0.3
-                color: "#4d505e"
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
-                elide: Text.ElideRight
-            }
-            onCheckedChanged: {
-                if (checked) {
-                    textsendtoanyone.color="#202124"
-                    imagesendtoanyone.source="../res/assets/Navigation/send-to-anyone-active.png";
-
-                }else {
-                    textsendtoanyone.color="#4d505e"
-                    imagesendtoanyone.source="../res/assets/Navigation/send-to-anyone-inactive.png";
-                }
-            }
-            Image {
-                id: imagesendtoanyone
-                anchors.verticalCenter: parent.verticalCenter
-                anchors.left: parent.left
-                anchors.leftMargin: 15
-                fillMode: Image.PreserveAspectFit
-                source: "../res/assets/Navigation/send-to-anyone-inactive.png"
             }
         }
 

@@ -2,7 +2,26 @@ import QtQuick 2.4
 
 ReceiveForm {
 
+    signal claimlinkBtnSignalIntern(string link)
     signal gotocreatenicksignal()
+
+    function displayerrormessageintern(msg) {
+        errorlabel.text=msg
+        infoboxerror.visible=true
+        timer.setTimeout(function(){
+            infoboxerror.visible=false
+        }, 5000);
+    }
+
+    function bitcashexpressclaimedintern() {
+        linkedit.text=""
+        text11.text=qsTr("You have successfully claimed the coins from the link.")
+        toolBar2.visible=true;
+        timer.setTimeout(function(){
+            toolBar2.visible=false
+        }, 5000);
+    }
+
     function setreceivingaddressintern(address,nick) {
         receivingaddress.text=address
         receivingnickname.text=nick
@@ -61,4 +80,6 @@ ReceiveForm {
         }, 3000);
     }
     createnickname.onClicked: gotocreatenicksignal()
+    claimcoinsbtn.onClicked: claimlinkBtnSignalIntern(linkedit.text)
 }
+

@@ -12,6 +12,14 @@ Item {
     property int  typewidth : 150
     property int  addresswidth : 150
     property int  amountwidth : 220
+    property alias listView: listView
+    property alias listViewlinks: listViewlinks
+
+    property int  datewidthan : 150
+    property int  btnswidthan : 50
+    property int  btnswidth2an : 50
+    property int  linkwidthan : 400
+    property int  amountwidthan : 220
 
     function settxdetailsintern(text) {
         detailarea.text=text
@@ -22,6 +30,24 @@ Item {
     signal filtereditchangedsignalintern(string text)
     signal datefiltersignalintern(int index)
     signal downloadtransactionsSignalintern()
+    signal deletelinksignalintern(string link)
+    signal undolinkremovalSignalintern()
+
+    function addbitcashexpresslinkintern(link,desc,amount,date) {
+        linksmodel.insert(0,{
+                               "name": link,
+                               "description": desc,
+                               "amount": amount,
+                               "txdate": date
+                           })
+    }
+
+    function closelinksundoinfointern(show) {
+        infobox.visible=show
+    }
+    function clearlinklistmodelintern() {
+        linksmodel.clear()
+    }
 
     function geticonname(nr)
     {
@@ -29,6 +55,116 @@ Item {
         if (nr===2) return "../res/assets/Type of Transaction/history-type-mined.png";else
         return "../res/assets/Type of Transaction/history-type-received.png";
     }
+
+    ListModel {
+        id: linksmodel
+
+       /* ListElement {
+            name: "Apple"
+            amount: 2.45
+            description: "hgfhdh"
+        }
+        ListElement {
+            name: "Orange"
+            amount: 3.25
+            description: "f435345"
+        }
+        ListElement {
+            name: "Banana"
+            amount: 1.95
+            description: "ffff"
+        }*/
+    }
+
+    TabBar {
+        id: tabBar
+        font.capitalization: Font.MixedCase
+        font.family: "Montserrat SemiBold"
+        currentIndex: swipeView.currentIndex
+        width: parent.width
+        height: 60
+        visible: true
+
+        position: TabBar.Header
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.top: parent.top
+        font.weight: Font.DemiBold
+        font.pixelSize: 14
+
+        TabButton {
+            id: tabButton1
+            y: 0
+            text: qsTr("Transactions")
+            rightPadding: 15
+            leftPadding: 58
+            width: implicitWidth
+            height: 60
+            contentItem: Text {
+                id: textbitcash
+                x: 58
+                text: parent.text
+                leftPadding: 0
+                font: parent.font
+                opacity: enabled ? 1.0 : 0.3
+                color: "#4d505e"
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                elide: Text.ElideRight
+            }
+            Image {
+                id: imagebitcash
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.left: parent.left
+                anchors.leftMargin: 35
+                fillMode: Image.PreserveAspectFit
+                source: "../res/assets/Miscellaneous/bitcashicon.png"
+            }
+        }
+
+        TabButton {
+            id: tabButton2
+            text: qsTr("Send to anyone links")
+            rightPadding: 15
+            font.capitalization: Font.MixedCase
+            leftPadding: 41
+            width: implicitWidth
+            height: 60
+
+            contentItem: Text {
+                id: textanyone
+                text: parent.text
+                font: parent.font
+                opacity: enabled ? 1.0 : 0.3
+                color: "#4d505e"
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                elide: Text.ElideRight
+            }
+            Image {
+                id: imageanyone
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.left: parent.left
+                anchors.leftMargin: 15
+                fillMode: Image.PreserveAspectFit
+                source: "../res/assets/Miscellaneous/anyoneicon.png"
+            }
+        }
+    }
+
+    SwipeView {
+        id: swipeView
+        clip: true
+        //interactive: false
+        anchors.top: tabBar.bottom
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        anchors.left: parent.left
+        currentIndex: tabBar.currentIndex
+        Component.onCompleted: contentItem.interactive = false
+        Item {
+            id: transactions
+
 
     Image {
         id: historyicon
@@ -159,7 +295,6 @@ Item {
         visible: false
     }
 
-    property alias listView: listView
     ListView {
         id: listView
         anchors.bottomMargin: 0        
@@ -596,6 +731,624 @@ Item {
                     anchors.verticalCenter: parent.verticalCenter
                 }
             }
+        }        
+     }
+        Item {
+            id: anyonelinke
+////////////
+
+            Row {
+                id: headerlinks
+                clip: true
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.leftMargin: 30
+                anchors.rightMargin: 30
+                anchors.top: historycaplinks.bottom
+                anchors.topMargin: 20
+                spacing: 0
+                height: 44
+
+                Label {
+                    //without this column the background color of the next colum is not displayed???
+                    width: 1
+                    height: 44
+                    text: ""
+                }
+
+                Label {
+                    width: datewidth
+                    height: 44
+                    text: "Date"
+                    verticalAlignment: Text.AlignVCenter
+                    anchors.verticalCenter: parent.verticalCenter
+                    rightPadding: 20
+                    leftPadding: 20
+                    font.weight: Font.DemiBold
+                    font.pixelSize: 13
+                    font.family: "Montserrat SemiBold"
+                    color:"#202124"
+                    padding: 10
+                    background: Rectangle { color: "#ebebeb" }
+                }
+                                Label {
+                                    width: transactionsForm.width-amountwidthan-linkwidthan-btnswidth2an-btnswidthan-datewidthan-30-30
+                                    height: 44
+                                    text: "Description"
+                                    verticalAlignment: Text.AlignVCenter
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    rightPadding: 20
+                                    leftPadding: 20
+                                    font.weight: Font.DemiBold
+                                    font.pixelSize: 13
+                                    font.family: "Montserrat SemiBold"
+                                    color:"#202124"
+                                    padding: 10
+                                    background: Rectangle { color: "#ebebeb" }
+                                }
+
+                                Label {
+                                    width: linkwidthan
+                                    height: 44
+                                    text: "Link"
+                                    verticalAlignment: Text.AlignVCenter
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    rightPadding: 20
+                                    leftPadding: 20
+                                    font.weight: Font.DemiBold
+                                    font.pixelSize: 13
+                                    font.family: "Montserrat SemiBold"
+                                    color:"#202124"
+                                    padding: 10
+                                    background: Rectangle { color: "#ebebeb" }
+                                }
+                                Label {
+                                    width: btnswidthan
+                                    height: 44
+                                    text: ""
+                                    verticalAlignment: Text.AlignVCenter
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    rightPadding: 20
+                                    leftPadding: 20
+                                    font.weight: Font.DemiBold
+                                    font.pixelSize: 13
+                                    font.family: "Montserrat SemiBold"
+                                    color:"black"
+                                    padding: 10
+                                    background: Rectangle { color: "#ebebeb" }
+                                }
+                                Label {
+                                    width: amountwidthan
+                                    height: 44
+                                    text: "Amount"
+                                    verticalAlignment: Text.AlignVCenter
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    rightPadding: 20
+                                    leftPadding: 20
+                                    font.weight: Font.DemiBold
+                                    horizontalAlignment: Text.AlignRight
+                                    font.pixelSize: 13
+                                    font.family: "Montserrat SemiBold"
+                                    color:"black"
+                                    padding: 10
+                                    background: Rectangle { color: "#ebebeb" }
+                                }
+                                Label {
+                                    width: btnswidth2an
+                                    height: 44
+                                    text: ""
+                                    verticalAlignment: Text.AlignVCenter
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    rightPadding: 20
+                                    leftPadding: 20
+                                    font.weight: Font.DemiBold
+                                    font.pixelSize: 13
+                                    font.family: "Montserrat SemiBold"
+                                    color:"black"
+                                    padding: 10
+                                    background: Rectangle { color: "#ebebeb" }
+                                }
+            }
+
+            TextField
+            {
+                id: copytextfieldlinks
+                width: 0
+                height: 0
+                visible: false
+            }
+
+            Timer {
+                id: timer
+                function setTimeout(cb, delayTime) {
+                    timer.interval = delayTime;
+                    timer.repeat = false;
+                    timer.triggered.connect(cb);
+                    timer.triggered.connect(function() {
+                        timer.triggered.disconnect(cb); // This is important
+                    });
+                    timer.start();
+                }
+            }
+
+            property alias listViewlinks: listViewlinks
+            ListView {
+                id: listViewlinks
+                anchors.topMargin: 0
+                anchors.bottomMargin: 0
+                anchors.top: headerlinks.bottom
+                anchors.right: parent.right
+                anchors.bottom: parent.bottom
+                anchors.left: parent.left
+                clip: true
+
+                    contentWidth: headerlinks.width
+                    flickableDirection: Flickable.VerticalFlick
+
+                    model: linksmodel
+                    delegate: Column {
+                        id: delegatelinks
+                        property int row: index
+
+
+                        Row {
+                                anchors.left: parent.left
+                                anchors.right: parent.right
+                                anchors.leftMargin: 30
+                                anchors.rightMargin: 30
+                                spacing: 0
+                                height: 65
+
+                                ItemDelegate {
+                                    property int column: 0
+                                    width: datewidth
+                                    id: datelinks
+                                    text: ""
+                                    clip: true
+                                    Label {
+                                        text: txdate
+                                        anchors.leftMargin: 20
+                                        anchors.rightMargin: 8
+                                        anchors.left: parent.left
+                                        anchors.right: parent.right
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        font.pixelSize: 14
+                                        font.weight: Font.DemiBold
+                                        font.family: "Montserrat SemiBold"
+                                        color: "#202124"
+                                    }
+                                    ToolTip.delay: 1000
+                                    ToolTip.timeout: 5000
+                                    ToolTip.visible: hovered
+                                    ToolTip.text: txdate
+                                    MouseArea {
+                                        anchors.fill: parent
+                                        acceptedButtons: Qt.RightButton
+                                        hoverEnabled: true
+                                        onClicked: {
+                                            contextMenulinks.x = mouse.x;
+                                            contextMenulinks.y = mouse.y;
+                                            contextMenulinks.open();
+                                        }
+                                        onPressAndHold: {
+                                            if (mouse.source === Qt.MouseEventNotSynthesized) {
+                                                contextMenulinks.x = mouse.x;
+                                                contextMenulinks.y = mouse.y;
+                                                contextMenulinks.open();
+                                            }
+                                        }
+                                    }
+                                    Menu {
+                                        id: contextMenulinks
+                                        MenuItem {
+                                            text: "Copy date"
+                                            onTriggered: {
+                                                copytextfieldlinks.text=txdate
+                                                copytextfieldlinks.selectAll()
+                                                copytextfieldlinks.copy()
+                                            }
+                                        }
+                                    }
+                                    onDoubleClicked: {
+                                        showtxdetailsintern(index)
+                                    }
+                                }
+
+                                ItemDelegate {
+                                    property int column: 1
+                                    width: transactionsForm.width-linkwidthan-amountwidthan-datewidthan-btnswidthan-btnswidth2an-30-30
+                                    text: ""
+                                    Label {
+                                        text: description
+                                        anchors.leftMargin: 20
+                                        anchors.rightMargin: 8
+                                        anchors.left: parent.left
+                                        anchors.right: parent.right
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        font.weight: Font.Normal
+                                        font.family: "Montserrat"
+                                        font.pixelSize: 14
+                                        color: "#202124"
+                                    }
+                                    clip: true
+                                    ToolTip.delay: 1000
+                                    ToolTip.timeout: 5000
+                                    ToolTip.visible: hovered
+                                    ToolTip.text: description
+                                    MouseArea {
+                                        anchors.fill: parent
+                                        acceptedButtons: Qt.RightButton
+                                        hoverEnabled: true
+                                        onClicked: {
+                                            contextMenureflinelinks.x = mouse.x;
+                                            contextMenureflinelinks.y = mouse.y;
+                                            contextMenureflinelinks.open();
+                                        }
+                                        onPressAndHold: {
+                                            if (mouse.source === Qt.MouseEventNotSynthesized) {
+                                                contextMenureflinelinks.x = mouse.x;
+                                                contextMenureflinelinks.y = mouse.y;
+                                                contextMenureflinelinks.open();
+                                            }
+                                        }
+                                    }
+                                    Menu {
+                                        id: contextMenureflinelinks
+                                        MenuItem {
+                                            text: "Copy description"
+                                            onTriggered: {
+                                                copytextfieldlinks.text=description
+                                                copytextfieldlinks.selectAll()
+                                                copytextfieldlinks.copy()
+                                            }
+                                        }
+                                    }
+
+                                }
+
+                                ItemDelegate {
+                                    property int column: 2
+                                    width: linkwidthan
+                                    text: ""
+                                    Label {
+                                        text: name
+                                        anchors.leftMargin: 20
+                                        anchors.rightMargin: 8
+                                        anchors.left: parent.left
+                                        anchors.right: parent.right
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        font.weight: Font.Normal
+                                        font.family: "Montserrat"
+                                        font.pixelSize: 14
+                                        color: "#202124"
+                                    }
+                                    clip: true
+                                    ToolTip.delay: 1000
+                                    ToolTip.timeout: 5000
+                                    ToolTip.visible: hovered
+                                    ToolTip.text: name
+                                    MouseArea {
+                                        anchors.fill: parent
+                                        acceptedButtons: Qt.RightButton
+                                        hoverEnabled: true
+                                        onClicked: {
+                                            contextMenuaddresslinks.x = mouse.x;
+                                            contextMenuaddresslinks.y = mouse.y;
+                                            contextMenuaddresslinks.open();
+                                        }
+                                        onPressAndHold: {
+                                            if (mouse.source === Qt.MouseEventNotSynthesized) {
+                                                contextMenuaddresslinks.x = mouse.x;
+                                                contextMenuaddresslinks.y = mouse.y;
+                                                contextMenuaddresslinks.open();
+                                            }
+                                        }
+                                    }
+                                    Menu {
+                                        id: contextMenuaddresslinks
+                                        MenuItem {
+                                            text: "Copy link"
+                                            onTriggered: {
+                                                copytextfieldlinks.text=name
+                                                copytextfieldlinks.selectAll()
+                                                copytextfieldlinks.copy()
+                                            }
+                                        }
+                                    }
+                                }
+                                ItemDelegate {
+                                    property int column: 4
+                                    width: btnswidthan
+                                    text: ""
+                                    Button {
+                                        anchors.horizontalCenter: parent.horizontalCenter
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        ToolTip.text: "Copy link"
+                                        ToolTip.delay: 1000
+                                        ToolTip.timeout: 5000
+                                        ToolTip.visible: hovered
+                                        id: copybtn
+                                        onClicked: {
+                                            copytextfieldlinks.text=name
+                                            copytextfieldlinks.selectAll()
+                                            copytextfieldlinks.copy()
+                                            infoboxcopied.visible=true
+                                            timer.setTimeout(function(){
+                                                infoboxcopied.visible=false
+                                            }, 3000);
+                                        }
+                                        background: Image {
+                                            id: imageforbuttonlinks
+                                            fillMode: Image.PreserveAspectFit
+                                            source: "../res/assets/Miscellaneous/copy-link.png"
+                                        }
+                                    }
+                                    clip: true
+
+                                }
+                                ItemDelegate {
+                                    property int column: 3
+                                    width: amountwidthan
+                                    text: ""
+                                    Label {
+                                        text: amount
+                                        anchors.leftMargin: 8
+                                        anchors.rightMargin: 20
+                                        anchors.left: parent.left
+                                        anchors.right: parent.right
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        horizontalAlignment: Text.AlignRight
+
+                                        font.family: "Montserrat"
+                                        font.bold: true
+                                        font.pixelSize: 14
+                                        color: "#202124"
+                                    }
+                                    clip: true
+                                    ToolTip.delay: 1000
+                                    ToolTip.timeout: 5000
+                                    ToolTip.visible: hovered
+                                    ToolTip.text: amount
+                                    MouseArea {
+                                        anchors.fill: parent
+                                        acceptedButtons: Qt.RightButton
+                                        hoverEnabled: true
+                                        onClicked: {
+                                            contextMenuamountan.x = mouse.x;
+                                            contextMenuamountan.y = mouse.y;
+                                            contextMenuamountan.open();
+                                        }
+                                        onPressAndHold: {
+                                            if (mouse.source === Qt.MouseEventNotSynthesized) {
+                                                contextMenuamountan.x = mouse.x;
+                                                contextMenuamountan.y = mouse.y;
+                                                contextMenuamountan.open();
+                                            }
+                                        }
+                                    }
+                                    Menu {
+                                        id: contextMenuamountan
+                                        MenuItem {
+                                            text: "Copy amount"
+                                            onTriggered: {
+                                                copytextfieldlinks.text=amount
+                                                copytextfieldlinks.selectAll()
+                                                copytextfieldlinks.copy()
+                                            }
+                                        }
+                                    }
+                                    onDoubleClicked: {
+                                        showtxdetailsintern(index)
+                                    }
+                                }
+                                ItemDelegate {
+                                    property int column: 4
+                                    width: btnswidth2an
+                                    text: ""
+                                    ToolTip.text: "Remove link"
+                                    ToolTip.delay: 1000
+                                    ToolTip.timeout: 5000
+                                    ToolTip.visible: hovered
+                                    Button {
+                                        anchors.leftMargin: 20
+                                        anchors.left: parent.left
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        onClicked: {
+                                            deletelinksignalintern(name)
+                                            linksmodel.remove(index)
+                                        }
+                                        background: Image {
+                                            id: imageforbutton2
+                                            fillMode: Image.PreserveAspectFit
+                                            source: "../res/assets/Miscellaneous/delete.png"
+                                        }
+                                    }
+                                    clip: true
+
+                                }
+
+                        }
+                        Rectangle {
+                            width: parent.width
+                            height: 1
+                            color: Material.accent
+                        }
+                    }
+
+                    ScrollIndicator.horizontal: ScrollIndicator { }
+                    ScrollIndicator.vertical: ScrollIndicator { }
+            }
+
+            Label {
+                id: label
+                x: 8
+                y: 234
+                text: qsTr("Created links:")
+                visible: false
+            }
+
+            Image {
+                id: historyiconlinks
+                y: 36
+                anchors.verticalCenter: historycaplinks.verticalCenter
+                anchors.left: parent.left
+                anchors.leftMargin: 30
+                fillMode: Image.PreserveAspectFit
+                source: "../res/assets/Navigation/history-inactive.png"
+            }
+
+            Text {
+                id: historycaplinks
+                x: 30
+                y: 30
+                width: 97
+                color: "#202124"
+                anchors.left: historyiconlinks.right
+                anchors.leftMargin: 15
+                text: qsTr("History of generated links")
+                font.pixelSize: 18
+                font.family: "Montserrat SemiBold"
+                font.weight: Font.DemiBold
+            }
+            Rectangle{
+                id: infoboxcopied
+                visible: false
+                anchors.left:parent.left
+                anchors.bottom:parent.bottom
+                anchors.leftMargin: 30
+                anchors.bottomMargin: 80
+                height: 44
+                width: 270
+                radius: 3
+                border.width: 0
+                color: "#4d505e"
+                Label{
+                    text: qsTr("Link copied to clipboard.")
+                    font.weight: Font.DemiBold
+                    font.pixelSize: 14
+                    font.family: "Montserrat SemiBold"
+                    color: "#ffffff"
+                    anchors.left:parent.left
+                    anchors.leftMargin: 20
+                    anchors.verticalCenter: parent.verticalCenter
+                }
+                Button {
+                    id: closebuttoncopy
+                    onClicked: infoboxcopied.visible = false
+                    anchors.right: parent.right
+                    anchors.rightMargin: 20
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: 16
+                    height: 16
+                    background: Image {
+                        x:0
+                        y:0
+                        fillMode: Image.PreserveAspectFit
+                        source: "../res/icons/closebtngrey.png"
+                    }
+                }
+
+            }
+
+            Rectangle{
+                id: infobox
+                visible: false
+                anchors.left:parent.left
+                anchors.bottom:parent.bottom
+                anchors.leftMargin: 30
+                anchors.bottomMargin: 30
+                height: 44
+                width: 270
+                radius: 3
+                border.width: 0
+                color: "#4d505e"
+                Label{
+                    text: qsTr("Removed link.")
+                    font.weight: Font.DemiBold
+                    font.pixelSize: 14
+                    font.family: "Montserrat SemiBold"
+                    color: "#ffffff"
+                    anchors.left:parent.left
+                    anchors.leftMargin: 20
+                    anchors.verticalCenter: parent.verticalCenter
+                }
+                Button {
+                    id: closebutton
+                    onClicked: infobox.visible = false
+                    anchors.right: parent.right
+                    anchors.rightMargin: 20
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: 16
+                    height: 16
+                    background: Image {
+                        x:0
+                        y:0
+                        fillMode: Image.PreserveAspectFit
+                        source: "../res/icons/closebtngrey.png"
+                    }
+                }
+                Mybutton{
+                    width: 61
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.right: closebutton.left
+                    anchors.rightMargin: 20
+                    text: "Undo"
+                    font.weight: Font.DemiBold
+                    leftPadding: 10
+                    height:28
+                    font.capitalization: Font.MixedCase
+                    font.family: "Montserrat SemiBold"
+                    btncolor: "#ffffff"
+                    btncolordown: "#e5e5e5"
+                    txtcolor: "#3e45ac"
+                    txtcolordown: "#353b9b"
+                    onClicked: undolinkremovalSignalintern()
+                }
+            }
+
+            Rectangle{
+                id: infoboxerror
+                visible: false
+                anchors.left:parent.left
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.right: parent.right
+                anchors.rightMargin: 30
+                anchors.leftMargin: 30
+                anchors.bottomMargin: 30
+                height: 44
+                width: 240
+                radius: 3
+                border.width: 0
+                color: "#4d505e"
+                Label{
+                    id: errorlabel
+                    text: ""
+                    font.family: "Montserrat"
+                    font.pixelSize: 11
+                    color: "#ffffff"
+                    anchors.left:parent.left
+                    anchors.leftMargin: 20
+                    anchors.verticalCenter: parent.verticalCenter
+                }
+                Button {
+                    id: closebuttonerror
+                    onClicked: infoboxerror.visible = false
+                    anchors.right: parent.right
+                    anchors.rightMargin: 20
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: 16
+                    height: 16
+                    background: Image {
+                        x:0
+                        y:0
+                        fillMode: Image.PreserveAspectFit
+                        source: "../res/icons/closebtngrey.png"
+                    }
+                }
+
+            }
+///////////////
         }
+  }
 
 }
