@@ -8,10 +8,14 @@
 #include <stdlib.h>  
 #include <errno.h>  
 #include <unistd.h>   //close  
+#ifdef WIN32
+#include <winsock2.h>
+#else
 #include <arpa/inet.h>    //close  
+#include <sys/socket.h> 
+#include <netinet/in.h>   
+#endif
 #include <sys/types.h>  
-#include <sys/socket.h>  
-#include <netinet/in.h>  
 #include <sys/time.h> //FD_SET, FD_ISSET, FD_ZERO macros  
 #include <thread>
 #include <fstream>
@@ -357,8 +361,7 @@ void stratum()
                 if ((valread = read( sd , buffer, 1024)) == 0)   
                 {   
                     //Somebody disconnected , get his details and print  
-                    getpeername(sd , (struct sockaddr*)&address , \ 
-                        (socklen_t*)&addrlen);   
+                    getpeername(sd , (struct sockaddr*)&address , (socklen_t*)&addrlen);   
                     printf("Host disconnected , ip %s , port %d \n" ,  
                           inet_ntoa(address.sin_addr) , ntohs(address.sin_port));   
                          
