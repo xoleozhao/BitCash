@@ -286,6 +286,7 @@ Item {
                 leftPadding: 41
                 width: implicitWidth
                 height: 60
+                visible: false
 
                 contentItem: Text {
                     id: texttwitter
@@ -340,7 +341,7 @@ Item {
         SwipeView {
             id: swipeView
             clip: true
-            //interactive: false
+            interactive: false
             anchors.top: tabBar.bottom
             anchors.right: whitebox.right
             anchors.bottom: whitebox.bottom

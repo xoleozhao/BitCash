@@ -39,6 +39,8 @@ struct CBlockTemplate
     std::vector<CAmount> vTxFees;
     std::vector<int64_t> vTxSigOpsCost;
     std::vector<unsigned char> vchCoinbaseCommitment;
+    std::string coinb1, coinb2;
+    int blockheight;
 };
 
 // Container for tracking updates to ancestor feerate as we include (parent)
@@ -170,7 +172,7 @@ public:
     /** Construct a new block template */
     std::unique_ptr<CBlockTemplate> CreateNewBlock(interfaces::Wallet* iwallet,
     CWallet* wallet,
-    bool useinterface, bool fMineWitnessTx=true);
+    bool useinterface, bool fMineWitnessTx=true, bool includeextranonce=false);
     std::unique_ptr<CBlockTemplate> CreateNewBlockWithScriptPubKey(const CScript& scriptPubKeyIn, bool fMineWitnessTx=true);
 
 private:

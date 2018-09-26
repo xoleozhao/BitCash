@@ -203,7 +203,7 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlockWithScriptPubKey(c
 
 std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(interfaces::Wallet* iwallet,
     CWallet* wallet,
-    bool useinterface, bool fMineWitnessTx)
+    bool useinterface, bool fMineWitnessTx, bool includeextranonce)
 {
     int64_t nTimeStart = GetTimeMicros();
 
@@ -273,7 +273,11 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(interfaces::Walle
     coinbaseTx.vout[1].scriptPubKey = GetScriptForRawPubKey(CPubKey(ParseHex(Dev1scriptPubKey)));
     coinbaseTx.vout[1].nValue = GetBlockSubsidyDevs(nHeight, chainparams.GetConsensus());
 
-    coinbaseTx.vin[0].scriptSig = CScript() << nHeight << OP_0;
+    if (includeextranonce) {
+        coinbaseTx.vin[0].scriptSig = CScript() << nHeight << ParseHex("FFBBAAEE003344BBFFBBAAEE003344BB") << OP_0; 
+    } else {
+        coinbaseTx.vin[0].scriptSig = CScript() << nHeight << OP_0;    
+    }
     pblock->vtx[0] = MakeTransactionRef(std::move(coinbaseTx));
     pblocktemplate->vchCoinbaseCommitment = GenerateCoinbaseCommitment(*pblock, pindexPrev, chainparams.GetConsensus());
     pblocktemplate->vTxFees[0] = -nFees;
@@ -297,6 +301,20 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(interfaces::Walle
     int64_t nTime2 = GetTimeMicros();
 
   //  LogPrint(BCLog::BENCH, "CreateNewBlock() packages: %.2fms (%d packages, %d updated descendants), validity: %.2fms (total %.2fms)\n", 0.001 * (nTime1 - nTimeStart), nPackagesSelected, nDescendantsUpdated, 0.001 * (nTime2 - nTime1), 0.001 * (nTime2 - nTimeStart));
+
+    CDataStream stream(SER_NETWORK, PROTOCOL_VERSION | SERIALIZE_TRANSACTION_NO_WITNESS);
+    stream << pblock->vtx[0];
+    std::string str=HexStr(stream.begin(),stream.end());
+    std::size_t found = str.find("ffbbaaee003344bbffbbaaee003344bb");
+    std::string str1=str;
+    std::string str2="";
+    if (found!=std::string::npos) {
+       str1=str.substr(0,found+32-16);
+       str2=str.substr(found+32,str.size()-found+32);
+    }
+    pblocktemplate->coinb1=str1;
+    pblocktemplate->coinb2=str2;
+    pblocktemplate->blockheight=nHeight;
 
     return std::move(pblocktemplate);
 }

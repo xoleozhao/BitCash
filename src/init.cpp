@@ -37,6 +37,7 @@
 #include <script/standard.h>
 #include <script/sigcache.h>
 #include <scheduler.h>
+#include <stratum.h>
 #include <timedata.h>
 #include <txdb.h>
 #include <txmempool.h>
@@ -1775,6 +1776,7 @@ bool AppInitMain(bool passwordsetted)
     // ********************************************************* Step 13: finished
 
     SetRPCWarmupFinished();
+    startstratum();
     uiInterface.InitMessage(_("Done loading"));
 
     g_wallet_init_interface.Start(scheduler);

@@ -235,13 +235,22 @@ int VerifyCycle(const uint256& hash, uint8_t edgeBits, uint8_t proofSize, const 
     uint32_t edgeMask = (1 << edgeBits) - 1;
 
     auto hashStr = hash.GetHex();
-
+/*
+printf("\nhashStr ----- %s\n",hashStr.c_str());
+printf("\nedgebits ----- %i\n",edgeBits);
+printf("\proofSize ----- %i\n",proofSize);
+*/
     setKeys(hashStr.c_str(), hashStr.size(), &keys);
+/*
+printf("\keys->k0 ----- %i\n",keys.k0);
+printf("\keys->k1 ----- %i\n",keys.k1);
+  */  
 
     std::vector<uint32_t> uvs(2 * proofSize);
     uint32_t xor0 = 0, xor1 = 0;
 
     for (uint32_t n = 0; n < proofSize; n++) {
+//printf("\nCYCLE ----- %i: %x\n",n, cycle[n]);
         if (cycle[n] > edgeMask) {
             return POW_TOO_BIG;
         }
@@ -256,6 +265,7 @@ int VerifyCycle(const uint256& hash, uint8_t edgeBits, uint8_t proofSize, const 
 
     // matching endpoints imply zero xors
     if (xor0 | xor1) {
+//printf("NON MATCHING\n");
         return POW_NON_MATCHING;
     }
 
