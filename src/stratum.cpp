@@ -202,6 +202,7 @@ void stratum()
     if (!pwallet) return;
 
     int opt = TRUE;
+    int client_socket_status[100];
     int master_socket , addrlen , new_socket , client_socket[100] ,  
           max_clients = 100 , activity, i , valread , sd;   
     int max_sd;   
@@ -216,7 +217,8 @@ void stratum()
     //initialise all client_socket[] to 0 so not checked  
     for (i = 0; i < max_clients; i++)   
     {   
-        client_socket[i] = 0;   
+        client_socket[i] = 0;
+        client_socket_status[i] = 0;      
     }   
          
     //create a master socket  
@@ -289,7 +291,7 @@ void stratum()
        
         if ((activity < 0) && (errno!=EINTR))   
         {   
-            printf("select error");   
+            LogPrintf("Statrum Server: select error");   
         }   
              
         //If something happened on the master socket ,  
@@ -325,13 +327,13 @@ void stratum()
             for (i = 0; i < max_clients; i++)   
             {   
                 sd = client_socket[i];   
-                if (FD_ISSET( sd , &readfds)) {
+                if (client_socket_status[i]=1 && FD_ISSET( sd , &readfds)) {
 
 			std::string extranonce1=strprintf("%08x", extranonce1i+i);
 			std::stringstream ss;
 			ss << "\n";
 
-                        sprintf(message, "{ \"id\": null, \"method\": \"mining.set_difficulty\", \"params\": [%.4f]}\n",diff);
+                        sprintf(message, "{ \"id\": null, \"method\": \"mining.set_difficulty\", \"params\": [%.0f]}\n",diff);
                         if( send(sd, message, strlen(message), 0) != strlen(message) )   
                         {   
                             perror("send");   
@@ -348,7 +350,6 @@ void stratum()
             }
 
         }   
-             
         //else its some IO operation on some other socket 
         for (i = 0; i < max_clients; i++)   
         {   
@@ -358,24 +359,26 @@ void stratum()
             {   
                 //Check if it was for closing , and also read the  
                 //incoming message  
-                if ((valread = read( sd , buffer, 1024)) == 0)   
+                valread = recv( sd , buffer, 1024,0);
+                if (valread<0)   
                 {   
                     //Somebody disconnected , get his details and print  
                     getpeername(sd , (struct sockaddr*)&address , (socklen_t*)&addrlen);   
-                    printf("Host disconnected , ip %s , port %d \n" ,  
+                    LogPrintf("Stratum Server: Host disconnected , ip %s , port %d \n" ,  
                           inet_ntoa(address.sin_addr) , ntohs(address.sin_port));   
                          
                     //Close the socket and mark as 0 in list for reuse  
                     close( sd );   
-                    client_socket[i] = 0;   
+                    client_socket[i] = 0;  
+                    client_socket_status[i] = 0;       
                 }   
                      
                 //Echo back the message that came in  
-                else 
+                else if (strlen(buffer)>0)
                 {   
                     //set the string terminating NULL byte on the end  
                     //of the data read  
-//                    printf("Message: %s", buffer);
+                    //printf("Message: %s", buffer);
                     std::string jsonstr = buffer;
                     RSJresource  json (jsonstr);
                     int id=json["id"].as<int>(0);
@@ -383,14 +386,15 @@ void stratum()
                     if (json["method"].as<std::string>("")=="mining.subscribe")
                     {                        
 			std::string extranonce1=strprintf("%08x", extranonce1i+i);
-			std::stringstream ss;
-			ss << "{\"id\": "<< id << ", \"result\": [ [ \"mining.set_difficulty\", \"1\", \"mining.notify\", \"ae6812eb4cd7735a302a8a9dd95cf71f\"], \""<<extranonce1<<"\", 4], \"error\": null}\n";
-			std::string res=ss.str();
-               
-                        if( send(sd, res.c_str(), res.length(), 0) != res.length() )   
+
+                        sprintf(message, "{\"id\": %i, \"result\": [ [ \"mining.set_difficulty\", \"%.0f\", \"mining.notify\", \"ae6812eb4cd7735a302a8a9dd95cf71f\"], \"%s\", 4], \"error\": null}\n",
+                                id, diff,extranonce1.c_str());
+
+                        if( send(sd, message, strlen(message), 0) != strlen(message) )   
                         {   
                             perror("send");   
-                        }   
+                        }  
+
                     } else
                     if (json["method"].as<std::string>("")=="mining.authorize")
                     {                        
@@ -402,6 +406,12 @@ void stratum()
                         {   
                             perror("send");   
                         }   
+
+                        sprintf(message, "{ \"id\": null, \"method\": \"mining.set_difficulty\", \"params\": [%.0f]}\n",diff);
+                        if( send(sd, message, strlen(message), 0) != strlen(message) )   
+                        {   
+                            perror("send");   
+                        }  
                         
                         sprintf(message, "{\"id\":null,\"method\":\"mining.notify\",\"params\":[\"%x\",\"%s\",\"%s\",\"%s\",[%s],\"%s\",\"%s\",\"%s\",true]}\n",
   		        jobid, hexstring_be(pblock->hashPrevBlock.GetHex()).c_str(), coinb1.c_str(), coinb2.c_str(), branchestr.c_str(),
@@ -410,7 +420,7 @@ void stratum()
                         {   
                             perror("send");   
                         }  
-
+                        client_socket_status[i] = 1;
 
                     } else
                     if (json["method"].as<std::string>("")=="mining.submit")
