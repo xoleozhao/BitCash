@@ -35,7 +35,7 @@ SendForm {
 
     function gotosendtoanyone()
     {
-        tabBar.currentIndex=2
+        tabBar.currentIndex=1//2
     }
 
     function generatedlinkintern() {
@@ -48,7 +48,7 @@ SendForm {
 
     function showconfirmtwitterintern(msg)
     {
-        if (descriptionEdittw.text!=""){
+        if (descriptionEdittw.text!==""){
             confirmtext.text= "You're about to send "+amountEdittw.text+" BITC for '"+descriptionEdittw.text+"' to @"+paytoEdittw.text+". Please confirm this transaction."
         }else
         {
@@ -73,6 +73,7 @@ SendForm {
     }
 
     function clearsendentriesinterntw(msg) {
+        /*
         paytoEdittw.text=""
         labelEdittw.text=""
         descriptionEdittw.text=""
@@ -80,6 +81,7 @@ SendForm {
         whitebox2.visible=false
         whitebox.visible=true
         whitebox3.visible=false
+        */
     }
 
     property real maxbalancenum : 0
@@ -101,9 +103,11 @@ SendForm {
 
     function calcleftbalancetw()
     {
+        /*
         leftbalancetw=maxbalancenum-amountEdittw.text
         if (leftbalancetw<0)leftbalancetw=0
         leftamountlabeltw.text=leftbalancetw
+        */
     }
 
     function calcleftbalancean()
@@ -121,26 +125,6 @@ SendForm {
         calcleftbalancean()
     }
 
-    /*Menu {
-            id: contextMenu
-
-            MenuItem {
-                text: qsTr("Copy")
-                enabled: textArea.selectedText
-                onTriggered: paytoEdit.copy()
-            }
-            MenuItem {
-                text: qsTr("Cut")
-                enabled: textArea.selectedText
-                onTriggered: paytoEdit.cut()
-            }
-            MenuItem {
-                text: qsTr("Paste")
-                enabled: textArea.canPaste
-                onTriggered: paytoEdit.paste()
-            }
-        }*/
-
     DestCheckValidator {
         // use it
         id: destCheckVal
@@ -153,23 +137,22 @@ SendForm {
         // use it
         id: amountCheckVal
     }
-/*    //paytoEdit.MouseArea.onClicked: contextMenu.open()
-    paytoEdit.MouseArea.acceptedButtons: Qt.RightButton
-    paytoEdit.MouseArea.anchors.fill: parent*/
 
-    amountEdit.validator: amountCheckVal
-    amountEdittw.validator: amountCheckVal
-    amountEdit.onTextChanged: calcleftbalance()
-    amountEdittw.onTextChanged: calcleftbalancetw()
+    amountEdit.validator: amountCheckVal       
+    amountEdit.onTextChanged: calcleftbalance()    
     amountEditan.onTextChanged: calcleftbalancean()
     paytoEdit.validator: destCheckVal
+/*
     paytoEdittw.validator: destCheckVal2
-    sendBtn.onClicked: {
-        sendBtnSignalIntern(paytoEdit.text,labelEdit.text,descriptionEdit.text,amountEdit.text,subtractfeeCheck.checked)
-    }
+    amountEdittw.validator: amountCheckVal
+    amountEdittw.onTextChanged: calcleftbalancetw()
     sendBtntw.onClicked: {
         sendBtntwSignalIntern(paytoEdittw.text,descriptionEdittw.text,amountEdittw.text)
     }
+*/
+    sendBtn.onClicked: {
+        sendBtnSignalIntern(paytoEdit.text,labelEdit.text,descriptionEdit.text,amountEdit.text,subtractfeeCheck.checked)
+    }    
     sendBtnan.onClicked: {
         sendlinkBtnSignalIntern(descriptionEditan.text,amountEditan.text)
     }
