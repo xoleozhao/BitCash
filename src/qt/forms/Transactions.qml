@@ -76,96 +76,6 @@ Item {
         }*/
     }
 
-    TabBar {
-        id: tabBar
-        font.capitalization: Font.MixedCase
-        font.family: "Montserrat SemiBold"
-        currentIndex: swipeView.currentIndex
-        width: parent.width
-        height: 60
-        visible: true
-
-        position: TabBar.Header
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.top: parent.top
-        font.weight: Font.DemiBold
-        font.pixelSize: 14
-
-        TabButton {
-            id: tabButton1
-            y: 0
-            text: qsTr("Transactions")
-            rightPadding: 15
-            leftPadding: 58
-            width: implicitWidth
-            height: 60
-            contentItem: Text {
-                id: textbitcash
-                x: 58
-                text: parent.text
-                leftPadding: 0
-                font: parent.font
-                opacity: enabled ? 1.0 : 0.3
-                color: "#4d505e"
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
-                elide: Text.ElideRight
-            }
-            Image {
-                id: imagebitcash
-                anchors.verticalCenter: parent.verticalCenter
-                anchors.left: parent.left
-                anchors.leftMargin: 35
-                fillMode: Image.PreserveAspectFit
-                source: "../res/assets/Miscellaneous/bitcashicon.png"
-            }
-        }
-
-        TabButton {
-            id: tabButton2
-            text: qsTr("Send to anyone links")
-            rightPadding: 15
-            font.capitalization: Font.MixedCase
-            leftPadding: 41
-            width: implicitWidth
-            height: 60
-
-            contentItem: Text {
-                id: textanyone
-                text: parent.text
-                font: parent.font
-                opacity: enabled ? 1.0 : 0.3
-                color: "#4d505e"
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
-                elide: Text.ElideRight
-            }
-            Image {
-                id: imageanyone
-                anchors.verticalCenter: parent.verticalCenter
-                anchors.left: parent.left
-                anchors.leftMargin: 15
-                fillMode: Image.PreserveAspectFit
-                source: "../res/assets/Miscellaneous/anyoneicon.png"
-            }
-        }
-    }
-
-    SwipeView {
-        id: swipeView
-        clip: true
-        //interactive: false
-        anchors.top: tabBar.bottom
-        anchors.right: parent.right
-        anchors.bottom: parent.bottom
-        anchors.left: parent.left
-        currentIndex: tabBar.currentIndex
-        Component.onCompleted: contentItem.interactive = false
-        Item {
-            id: transactions
-
-
     Image {
         id: historyicon
         y: 36
@@ -186,8 +96,99 @@ Item {
         text: qsTr("History")
         font.pixelSize: 20
         font.family: "Montserrat SemiBold"
-        font.weight: Font.DemiBold        
+        font.weight: Font.DemiBold
     }
+
+    TabBar {
+        id: tabBar
+        font.capitalization: Font.MixedCase
+        font.family: "Montserrat SemiBold"
+        currentIndex: swipeView.currentIndex
+        width: parent.width
+        height: 60
+        visible: true
+
+        position: TabBar.Header
+        anchors.topMargin: 10
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.top: historycap.bottom
+        font.weight: Font.DemiBold
+        font.pixelSize: 14
+
+        TabButton {
+            id: tabButton1
+            y: 0
+            text: qsTr("Transactions")
+            rightPadding: 15
+            leftPadding: 30
+            width: implicitWidth
+            height: 60
+            contentItem: Text {
+                id: textbitcash
+                x: 58
+                text: parent.text
+                leftPadding: 0
+                font: parent.font
+                opacity: enabled ? 1.0 : 0.3
+                color: "#4d505e"
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                elide: Text.ElideRight
+            }
+            /*Image {
+                id: imagebitcash
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.left: parent.left
+                anchors.leftMargin: 35
+                fillMode: Image.PreserveAspectFit
+                source: "../res/assets/Miscellaneous/bitcashicon.png"
+            }*/
+        }
+
+        TabButton {
+            id: tabButton2
+            text: qsTr("Generated links")
+            rightPadding: 15
+            font.capitalization: Font.MixedCase
+            leftPadding: 15
+            width: implicitWidth
+            height: 60
+
+            contentItem: Text {
+                id: textanyone
+                text: parent.text
+                font: parent.font
+                opacity: enabled ? 1.0 : 0.3
+                color: "#4d505e"
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                elide: Text.ElideRight
+            }
+            /*Image {
+                id: imageanyone
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.left: parent.left
+                anchors.leftMargin: 15
+                fillMode: Image.PreserveAspectFit
+                source: "../res/assets/Miscellaneous/anyoneicon.png"
+            }*/
+        }
+    }
+
+    SwipeView {
+        id: swipeView
+        clip: true
+        //interactive: false
+        anchors.top: tabBar.bottom
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        anchors.left: parent.left
+        currentIndex: tabBar.currentIndex
+        Component.onCompleted: contentItem.interactive = false
+        Item {
+            id: transactions
+
 
     Row {
         id: header        
@@ -622,7 +623,7 @@ Item {
             rightPadding: 16
             leftPadding: 46
             anchors.topMargin: 30
-            anchors.top:historycap.bottom
+            anchors.top:parent.top
             anchors.right: downloadlistbtn.left
             anchors.rightMargin: 20
             anchors.left: dateselect.right
@@ -689,7 +690,7 @@ Item {
             width: 200
             font.pixelSize: 14
             font.family: "Montserrat"
-            anchors.top: historycap.bottom
+            anchors.top: parent.top
             anchors.topMargin: 28
             anchors.left: parent.left
             anchors.leftMargin: 30
@@ -744,7 +745,7 @@ Item {
                 anchors.right: parent.right
                 anchors.leftMargin: 30
                 anchors.rightMargin: 30
-                anchors.top: historycaplinks.bottom
+                anchors.top: parent.top
                 anchors.topMargin: 20
                 spacing: 0
                 height: 44
@@ -1187,29 +1188,6 @@ Item {
                 visible: false
             }
 
-            Image {
-                id: historyiconlinks
-                y: 36
-                anchors.verticalCenter: historycaplinks.verticalCenter
-                anchors.left: parent.left
-                anchors.leftMargin: 30
-                fillMode: Image.PreserveAspectFit
-                source: "../res/assets/Navigation/history-inactive.png"
-            }
-
-            Text {
-                id: historycaplinks
-                x: 30
-                y: 30
-                width: 97
-                color: "#202124"
-                anchors.left: historyiconlinks.right
-                anchors.leftMargin: 15
-                text: qsTr("History of generated links")
-                font.pixelSize: 18
-                font.family: "Montserrat SemiBold"
-                font.weight: Font.DemiBold
-            }
             Rectangle{
                 id: infoboxcopied
                 visible: false
