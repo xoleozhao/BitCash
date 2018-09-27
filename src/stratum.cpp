@@ -56,7 +56,7 @@ static bool ProcessBlockFound(const CBlock* pblock, const CChainParams& chainpar
 }
 
 uint32_t getHex(string hexstr) {
-    return (uint32_t)strtol(hexstr.c_str(), 0, 16);
+    return strtoull(hexstr.c_str(), 0, 16);
 }
 
 #define HASHLEN_STR		65
