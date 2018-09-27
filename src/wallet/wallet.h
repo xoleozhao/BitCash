@@ -1069,7 +1069,7 @@ public:
 
     bool DelAddressBook(const CTxDestination& address);
 
-    const std::string& GetLabelName(const CScript& scriptPubKey) const;
+    const std::string& GetLabelName(const CPubKey& pubkey) const;
 
     void Inventory(const uint256 &hash) override
     {

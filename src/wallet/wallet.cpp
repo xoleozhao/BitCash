@@ -2939,7 +2939,6 @@ CAmount CWallet::GetImmatureWatchOnlyBalance() const
 CAmount CWallet::GetLegacyBalance(const isminefilter& filter, int minDepth, const std::string* account) const
 {
     LOCK2(cs_main, cs_wallet);
-
     CAmount balance = 0;
     for (const auto& entry : mapWallet) {
         const CWalletTx& wtx = entry.second;
@@ -2955,7 +2954,37 @@ CAmount CWallet::GetLegacyBalance(const isminefilter& filter, int minDepth, cons
         for (const CTxOut& out : wtx.tx->vout) {
             if (outgoing && IsChange(out)) {
                 debit -= out.nValue;
-            } else if (IsMineConst(out,52) & filter && depth >= minDepth && (!account || *account == GetLabelName(out.scriptPubKey))) {
+            } else if (IsMineConst(out,52) & filter && depth >= minDepth) {
+                if (account) {
+
+                    CPubKey onetimedestpubkey;
+                    if (ExtractCompletePubKey(*this, out.scriptPubKey,onetimedestpubkey))
+                    {
+                
+                        for (const std::pair<CTxDestination, CAddressBookData>& item : mapAddressBook) {
+                            if (item.second.name==*account) {
+                                CPubKey pubkey=GetSecondPubKeyForDestination(item.first);
+
+                                CKey key;
+                                if (GetKey(pubkey.GetID(), key)) {
+
+                                    char randprivkey[32];
+                                    memcpy(&randprivkey,out.randomPrivatKey,32);
+                                    DecryptPrivateKey((unsigned char*)&randprivkey,out.randomPubKey,key);
+
+                                    std::vector<unsigned char> vec(randprivkey, randprivkey + 32);
+    
+                                    CKey privkey;
+                                    privkey.Set(vec.begin(),vec.end(),true);
+                                    CPubKey destinationPubKey=CalculateOnetimeDestPubKey(pubkey,privkey,false);
+                                    if (onetimedestpubkey==destinationPubKey) {
+                                        balance += out.nValue;
+                                    }
+                                }
+                            }
+                        }                
+                    }    
+                } else
                 balance += out.nValue;
             }
         }
@@ -4515,14 +4544,12 @@ bool CWallet::DelAddressBook(const CTxDestination& address)
     return WalletBatch(*database).EraseName(EncodeDestinationHasSecondKey(address));
 }
 
-const std::string& CWallet::GetLabelName(const CScript& scriptPubKey) const
+const std::string& CWallet::GetLabelName(const CPubKey& pubkey) const
 {
-    CTxDestination address;
-    if (ExtractDestination(scriptPubKey, address) && !scriptPubKey.IsUnspendable()) {
-        auto mi = mapAddressBook.find(address);
-        if (mi != mapAddressBook.end()) {
-            return mi->second.name;
-        }
+    CTxDestination address=GetDestinationForKey(pubkey, OutputType::LEGACY);
+    auto mi = mapAddressBook.find(address);
+    if (mi != mapAddressBook.end()) {
+      return mi->second.name;
     }
     // A scriptPubKey that doesn't have an entry in the address book is
     // associated with the default label ("").
