@@ -37,7 +37,7 @@ using namespace std;
      
 #define TRUE   1  
 #define FALSE  0  
-#define PORT 8888 
+#define PORT 8888
 
 static bool ProcessBlockFound(const CBlock* pblock, const CChainParams& chainparams)
 {
@@ -224,8 +224,8 @@ void stratum()
     //create a master socket  
     if( (master_socket = socket(AF_INET , SOCK_STREAM , 0)) == 0)   
     {   
-        perror("socket failed");   
-        exit(EXIT_FAILURE);   
+        LogPrintf("Stratum Server: Error: socket failed\n");   
+        return;
     }   
      
     //set master socket to allow multiple connections ,  
@@ -233,8 +233,8 @@ void stratum()
     if( setsockopt(master_socket, SOL_SOCKET, SO_REUSEADDR, (char *)&opt,  
           sizeof(opt)) < 0 )   
     {   
-        perror("setsockopt");   
-        exit(EXIT_FAILURE);   
+        LogPrintf("Stratum Server: Error: setsockopt \n");   
+        return;
     }   
      
     //type of socket created  
@@ -245,14 +245,14 @@ void stratum()
     //bind the socket to localhost port 8888  
     if (bind(master_socket, (struct sockaddr *)&address, sizeof(address))<0)   
     {   
-        perror("bind failed");   
-        exit(EXIT_FAILURE);   
+        LogPrintf("Stratum Server: Could not bind to port %i\n",PORT);   
+        return;
     }   
     //try to specify maximum of 3 pending connections for the master socket  
     if (listen(master_socket, 3) < 0)   
     {   
-        perror("listen");   
-        exit(EXIT_FAILURE);   
+        LogPrintf("Stratum Server: Error: listen \n");   
+        return;
     }   
          
     //accept the incoming connection  
@@ -301,8 +301,8 @@ void stratum()
             if ((new_socket = accept(master_socket,  
                     (struct sockaddr *)&address, (socklen_t*)&addrlen))<0)   
             {   
-                perror("accept");   
-                exit(EXIT_FAILURE);   
+                LogPrintf("Stratum Server: Error: accept \n");   
+                return;
             }   
                              
             //add new socket to array of sockets  
@@ -336,7 +336,7 @@ void stratum()
                         sprintf(message, "{ \"id\": null, \"method\": \"mining.set_difficulty\", \"params\": [%.0f]}\n",diff);
                         if( send(sd, message, strlen(message), 0) != strlen(message) )   
                         {   
-                            perror("send");   
+                            LogPrintf("Stratum Server: Error: send %i\n",PORT);   
                         }  
 
                         sprintf(message, "{\"id\":null,\"method\":\"mining.notify\",\"params\":[\"%x\",\"%s\",\"%s\",\"%s\",[%s],\"%s\",\"%s\",\"%s\",true]}\n",
@@ -344,7 +344,7 @@ void stratum()
                         strprintf("%08x", pblock->nVersion).c_str(), strprintf("%08x", pblock->nBits).c_str(), strprintf("%08x", pblock->GetBlockTime()).c_str());                        
                         if( send(sd, message, strlen(message), 0) != strlen(message) )   
                         {   
-                            perror("send");   
+                            LogPrintf("Stratum Server: Error: send %i\n",PORT);   
                         }  
                 }
             }
@@ -392,7 +392,7 @@ void stratum()
 
                         if( send(sd, message, strlen(message), 0) != strlen(message) )   
                         {   
-                            perror("send");   
+                            LogPrintf("Stratum Server: Error: send \n");   
                         }  
 
                     } else
@@ -404,13 +404,13 @@ void stratum()
                
                         if( send(sd, res.c_str(), res.length(), 0) != res.length() )   
                         {   
-                            perror("send");   
+                            LogPrintf("Stratum Server: Error: send \n");   
                         }   
 
                         sprintf(message, "{ \"id\": null, \"method\": \"mining.set_difficulty\", \"params\": [%.0f]}\n",diff);
                         if( send(sd, message, strlen(message), 0) != strlen(message) )   
                         {   
-                            perror("send");   
+                            LogPrintf("Stratum Server: Error: send \n");   
                         }  
                         
                         sprintf(message, "{\"id\":null,\"method\":\"mining.notify\",\"params\":[\"%x\",\"%s\",\"%s\",\"%s\",[%s],\"%s\",\"%s\",\"%s\",true]}\n",
@@ -418,7 +418,7 @@ void stratum()
                         strprintf("%08x", pblock->nVersion).c_str(), strprintf("%08x", pblock->nBits).c_str(), strprintf("%08x", pblock->GetBlockTime()).c_str());                        
                         if( send(sd, message, strlen(message), 0) != strlen(message) )   
                         {   
-                            perror("send");   
+                            LogPrintf("Stratum Server: Error: send \n");   
                         }  
                         client_socket_status[i] = 1;
 
@@ -453,22 +453,24 @@ void stratum()
                         pblock->vtx[0] = MakeTransactionRef(std::move(txCoinbase));
                         pblock->hashMerkleRoot = BlockMerkleRoot(*pblock);
 			if (ProcessBlockFound(pblock, Params())) {
+                            LogPrintf("Stratum Server: Found block! \n");   
   			    std::stringstream ss;
 			    ss << "{\"error\": null, \"id\": "<< id<< ", \"result\": true}\n";
 			    std::string res=ss.str();
                
                             if( send(sd, res.c_str(), res.length(), 0) != res.length() )   
                             {   
-                                perror("send");   
+                                LogPrintf("Stratum Server: Error: send \n");   
                             } 
                         }else {
+                            LogPrintf("Stratum Server: Block was not accepted\n");   
   			    std::stringstream ss;
 			    ss << "{\"error\": \"No block found\", \"id\": "<< id<< ", \"result\": false}\n";
 			    std::string res=ss.str();
                
                             if( send(sd, res.c_str(), res.length(), 0) != res.length() )   
                             {   
-                                perror("send");   
+                                LogPrintf("Stratum Server: Error: send \n");   
                             } 
                         }
 
