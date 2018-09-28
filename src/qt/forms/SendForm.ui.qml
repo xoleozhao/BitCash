@@ -29,7 +29,8 @@ Item {
     property alias pasteaddress: pasteaddress
     property alias leftamountlabel: leftamountlabel
 
-    /*property alias paytoEdittw: paytoEdittw
+    /*********************************/
+/*    property alias paytoEdittw: paytoEdittw
     property alias labelEdittw: labelEdittw
     property alias descriptionEdittw: descriptionEdittw
     property alias amountEdittw: amountEdittw
@@ -37,8 +38,8 @@ Item {
     property alias availableBalanceBtntw: availableBalanceBtntw
     property alias maxbalancetw: maxbalancetw
     property alias pasteaddresstw: pasteaddresstw
-    property alias leftamountlabeltw: leftamountlabeltw
-*/
+    property alias leftamountlabeltw: leftamountlabeltw*/
+    /*************************************/
     property alias descriptionEditan: descriptionEditan
     property alias amountEditan: amountEditan
     property alias sendBtnan: sendBtnan
@@ -278,7 +279,8 @@ Item {
                 }
             }
 
-            /*            TabButton {
+            /***************************************/
+            /*TabButton {
                 id: tabButton2
                 text: qsTr("Twitter")
                 rightPadding: 15
@@ -286,7 +288,6 @@ Item {
                 leftPadding: 41
                 width: implicitWidth
                 height: 60
-                visible: false
 
                 contentItem: Text {
                     id: texttwitter
@@ -306,8 +307,8 @@ Item {
                     fillMode: Image.PreserveAspectFit
                     source: "../res/assets/Miscellaneous/twittericon.png"
                 }
-            }
-*/
+            }*/
+            /***************************************/
             TabButton {
                 id: tabButton3
                 text: qsTr("Anyone")
@@ -619,8 +620,8 @@ Item {
                 }
             }
             //Twitter
-            /*
-            Item {
+            /******************************************/
+            /*Item {
                 id: twitter
 
                 Label {
@@ -682,6 +683,11 @@ Item {
                     anchors.rightMargin: 30
                     selectByMouse: true
                     placeholderText: "Twitter's nickname of the recipient"
+
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("Insert the recipient's Twitter handle here.")
+                    ToolTip.delay: 100
+                    ToolTip.timeout: 5000
                 }
 
                 MenuTextField {
@@ -899,6 +905,7 @@ Item {
                     anchors.top: infolabeltw.top
                 }
             }*/
+            /*******************************************************/
             //Anyone
             Item {
                 id: anyone
@@ -1234,7 +1241,7 @@ Item {
         anchors.top: sendcap.bottom
         anchors.topMargin: 30
         visible: false
-        height: 320
+        height: 359
         Image {
             id: profileimage
             y: 16

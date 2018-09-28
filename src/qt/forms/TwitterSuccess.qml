@@ -6,8 +6,6 @@ import QtQuick.Layouts 1.3
 Item {
     id: item1
     visible: false
-    //width: 1000
-    //height: 1000
     width: parent.width
     height: parent.height
 
@@ -54,7 +52,7 @@ Rectangle{
     border.color: "#ffffff"
     border.width: 1
     width: 690
-    height: 360
+    height: 388
 
 
     Button {
@@ -102,10 +100,9 @@ Rectangle{
 
         Label {
             id: text1
-            height: 111
+            height: 146
             color: "#3d3e40"
-            text: qsTr("You can now send the following link to the Twitter user or use it in public tweets, so that the Twitter user can claim his coins. The Twitter user can click on the link and claim his coins. No other user can get access to this coins.
-If you submitted this by accident, you can simply claim the coins yourself with your link.")
+            text: qsTr("Send the below link directly to the twitter user so that he/she can claim the coins.\n\n You can even paste the link in public tweets or comments. No need to worry, no other user can gain access to these coins except for the intended twitter user.\n\nIf you submitted this transaction by accident, you can claim the coins back with your link.")
             anchors.right: parent.right
             anchors.rightMargin: 36
             wrapMode: Text.WrapAtWordBoundaryOrAnywhere

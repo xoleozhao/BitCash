@@ -35,7 +35,9 @@ SendForm {
 
     function gotosendtoanyone()
     {
-        tabBar.currentIndex=1//2
+        /**************************************/
+        tabBar.currentIndex=1
+        /**************************************/
     }
 
     function generatedlinkintern() {
@@ -49,10 +51,10 @@ SendForm {
     function showconfirmtwitterintern(msg)
     {
         if (descriptionEdittw.text!==""){
-            confirmtext.text= "You're about to send "+amountEdittw.text+" BITC for '"+descriptionEdittw.text+"' to @"+paytoEdittw.text+". Please confirm this transaction."
+            confirmtext.text= "You're about to send "+amountEdittw.text+" BITC to @"+paytoEdittw.text+" with the following description: '"+descriptionEdittw.text+"'.\n\n Please confirm this transaction."
         }else
         {
-            confirmtext.text= "You're about to send "+amountEdittw.text+" BITC to @"+paytoEdittw.text+". Please confirm this transaction."
+            confirmtext.text= "You're about to send "+amountEdittw.text+" BITC to @"+paytoEdittw.text+".\n\n Please confirm this transaction."
         }
         twitteruser.text=msg;
         twitteruser2.text="@"+paytoEdittw.text;
@@ -73,15 +75,15 @@ SendForm {
     }
 
     function clearsendentriesinterntw(msg) {
-        /*
-        paytoEdittw.text=""
+        /************************/
+        /*paytoEdittw.text=""
         labelEdittw.text=""
         descriptionEdittw.text=""
         amountEdittw.text=""
         whitebox2.visible=false
         whitebox.visible=true
-        whitebox3.visible=false
-        */
+        whitebox3.visible=false*/
+        /*****************/
     }
 
     property real maxbalancenum : 0
@@ -103,11 +105,11 @@ SendForm {
 
     function calcleftbalancetw()
     {
-        /*
+        /****************************/
         leftbalancetw=maxbalancenum-amountEdittw.text
         if (leftbalancetw<0)leftbalancetw=0
         leftamountlabeltw.text=leftbalancetw
-        */
+        /*****************************/
     }
 
     function calcleftbalancean()
@@ -142,14 +144,14 @@ SendForm {
     amountEdit.onTextChanged: calcleftbalance()    
     amountEditan.onTextChanged: calcleftbalancean()
     paytoEdit.validator: destCheckVal
-/*
-    paytoEdittw.validator: destCheckVal2
+/***********************************/
+/*    paytoEdittw.validator: destCheckVal2
     amountEdittw.validator: amountCheckVal
     amountEdittw.onTextChanged: calcleftbalancetw()
     sendBtntw.onClicked: {
         sendBtntwSignalIntern(paytoEdittw.text,descriptionEdittw.text,amountEdittw.text)
-    }
-*/
+    }*/
+/***********************************/
     sendBtn.onClicked: {
         sendBtnSignalIntern(paytoEdit.text,labelEdit.text,descriptionEdit.text,amountEdit.text,subtractfeeCheck.checked)
     }    
