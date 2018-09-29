@@ -321,7 +321,7 @@ void stratum()
         if (pindexPrev != chainActive.Tip()) {
             pindexPrev = chainActive.Tip();
             getnewjob();
-            diff=GetDifficulty(pindexPrev);
+            diff=GetNextDifficulty(pindexPrev);
             if (diff<1)diff=1;
 
             for (i = 0; i < max_clients; i++)   

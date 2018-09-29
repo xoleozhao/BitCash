@@ -50,6 +50,40 @@ static CUpdatedBlock latestblock;
 /* Calculate the difficulty for a given block index,
  * or the block index of the given chain.
  */
+double GetNextDifficulty(const CChain& chain, const CBlockIndex* blockindex)
+{
+    if (blockindex == nullptr)
+    {
+        if (chainActive.Tip() == nullptr)
+            return 1.0;
+        else
+            blockindex = chainActive.Tip();
+    }
+
+    auto pow = GetNextWorkRequired(blockindex, NULL, Params().GetConsensus());
+    int nShift = (pow.nBits >> 24) & 0xff;
+
+    double dDiff =
+        (double)0x007fff80 / (double)(pow.nBits & 0x00ffffff);
+
+    while (nShift < 32)
+    {
+        dDiff *= 256.0;
+        nShift++;
+    }
+
+    return dDiff;
+}
+
+double GetNextDifficulty(const CBlockIndex* blockindex)
+{
+    return GetNextDifficulty(chainActive, blockindex);
+}
+
+
+/* Calculate the difficulty for a given block index,
+ * or the block index of the given chain.
+ */
 double GetDifficulty(const CChain& chain, const CBlockIndex* blockindex)
 {
     if (blockindex == nullptr)
@@ -367,6 +401,23 @@ static UniValue getdifficulty(const JSONRPCRequest& request)
 
     LOCK(cs_main);
     return GetDifficulty();
+}
+
+static UniValue getnextdifficulty(const JSONRPCRequest& request)
+{
+    if (request.fHelp || request.params.size() != 0)
+        throw std::runtime_error(
+            "getnextdifficulty\n"
+            "\nReturns the proof-of-work difficulty for the next block as a multiple of the minimum difficulty.\n"
+            "\nResult:\n"
+            "n.nnn       (numeric) the proof-of-work difficulty as a multiple of the minimum difficulty.\n"
+            "\nExamples:\n"
+            + HelpExampleCli("getnextdifficulty", "")
+            + HelpExampleRpc("getnextdifficulty", "")
+        );
+
+    LOCK(cs_main);
+    return GetNextDifficulty();
 }
 
 static std::string EntryDescriptionString()
@@ -1665,6 +1716,7 @@ static const CRPCCommand commands[] =
     { "blockchain",         "getblockheader",         &getblockheader,         {"blockhash","verbose"} },
     { "blockchain",         "getchaintips",           &getchaintips,           {} },
     { "blockchain",         "getdifficulty",          &getdifficulty,          {} },
+    { "blockchain",         "getnextdifficulty",      &getnextdifficulty,      {} },
     { "blockchain",         "getmempoolancestors",    &getmempoolancestors,    {"txid","verbose"} },
     { "blockchain",         "getmempooldescendants",  &getmempooldescendants,  {"txid","verbose"} },
     { "blockchain",         "getmempoolentry",        &getmempoolentry,        {"txid"} },
