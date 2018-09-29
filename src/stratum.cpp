@@ -260,6 +260,8 @@ void stratum()
 
     CBlockIndex* pindexPrev = chainActive.Tip();
     getnewjob();
+    diff=GetNextDifficulty(pindexPrev);
+    if (diff<1)diff=1;
 
     while(TRUE)   
     {   
