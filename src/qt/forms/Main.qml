@@ -95,6 +95,10 @@ Item {
     function displayerrormessage(msg) {        
         send.displayerrormessageintern(msg)
         receive.displayerrormessageintern(msg)
+/*************************************/
+/*
+        payments.displayerrormessageintern(msg)*/
+/*************************************/
     }
 
     function displayerrormessageimportkey(msg) {        
@@ -132,17 +136,29 @@ Item {
         send.descriptionEditan.text=""
         send.amountEditan.text=""
     }
+    function addpayment(id,recipient,desc,amount,day,month) {
+        payments.addpaymentsintern(id,recipient, desc,amount, day, month)
+    }
     function bitcashexpressclaimed() {        
         receive.bitcashexpressclaimedintern()
     }
     function settxdetails(text) {
         transactions.settxdetailsintern(text)
+    }        
+    function clearpaymentfields(msg) {
+        payments.clearpaymentfieldsintern(msg)
+    }
+    function clearpaymentlistmodel() {
+        payments.clearpaymentlistmodelintern()
     }
     function clearlinklistmodel() {
         transactions.clearlinklistmodelintern();
     }
     function closelinksundoinfo(show) {
         transactions.closelinksundoinfointern(show);
+    }
+    function closepaymentsundoinfo(show) {
+        payments.closepaymentsundoinfointern(show);
     }
     function showconfirmtwitter(msg)
     {
@@ -160,6 +176,7 @@ Item {
     signal datefiltersignal(int index)
     signal downloadtransactionsSignal()
     signal sendtoTwitterSignal(string twitteruser, string linktosend)
+    signal createPaymentBtnSignal(string recipient, string description, double amount, int day, int month)
 
     signal registerNickSignal(string nickname, string address)
     signal minereducedSignal(bool isreduced)
@@ -169,11 +186,13 @@ Item {
     signal stopMiningSignal()
     signal helpSignal()
     signal undolinkremovalSignal()
+    signal undopaymentremovalSignal()
     signal generatepaperwalletSignal()
     signal printpaperwalletSignal()
     signal backupwalletfileSignal()
     signal backupBtnSignal()
     signal importkeySignal(string key)
+    signal deletepaymentsignal(string idstr)
 
     SwipeView {
         id: swipeView
@@ -231,7 +250,14 @@ Item {
             id: nicknames
             onRegisterNickSignalIntern: registerNickSignal(nickname, address)
         }
-
+/********************************/
+        /*Payments{
+            id: payments
+            onCreatePaymentBtnSignalIntern: createPaymentBtnSignal(recipient, description, amount, day, month)
+            onDeletepaymentsignalintern: deletepaymentsignal(idstr)
+            onUndopaymentremovalSignalintern: undopaymentremovalSignal()
+        }*/
+/**************************************/
     }   
 
     TabBar {
@@ -476,7 +502,44 @@ Item {
                 source: "../res/assets/Navigation/create-your-nickname-inactive.png"
             }
         }
+/*****************************************/
+/*        TabButton {
+            id: tabButton6
+            text: qsTr("Recurring payments")
+            rightPadding: 15
+            leftPadding: 45
+            width: implicitWidth
+            height: 60
+            contentItem: Text {
+                id: textpayments
+                text: parent.text
+                font: parent.font
+                opacity: enabled ? 1.0 : 0.3
+                color: "#4d505e"
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                elide: Text.ElideRight
+            }
+            onCheckedChanged: {
+                if (checked) {
+                    textnicknames.color="#202124"
+                    imagenicknames.source="../res/assets/Navigation/create-your-nickname-active.png";
 
+                }else {
+                    textnicknames.color="#4d505e"
+                    imagenicknames.source="../res/assets/Navigation/create-your-nickname-inactive.png";
+                }
+            }
+            Image {
+                id: imagepayments
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.left: parent.left
+                anchors.leftMargin: 15
+                fillMode: Image.PreserveAspectFit
+                source: "../res/assets/Navigation/create-your-nickname-inactive.png"
+            }
+        }*/
+/********************************************/
     }
 
     Button {

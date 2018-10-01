@@ -950,9 +950,6 @@ Item {
                                             }
                                         }
                                     }
-                                    onDoubleClicked: {
-                                        showtxdetailsintern(index)
-                                    }
                                 }
 
                                 ItemDelegate {
@@ -1137,9 +1134,6 @@ Item {
                                                 copytextfieldlinks.copy()
                                             }
                                         }
-                                    }
-                                    onDoubleClicked: {
-                                        showtxdetailsintern(index)
                                     }
                                 }
                                 ItemDelegate {

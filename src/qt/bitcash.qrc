@@ -291,5 +291,6 @@
         <file>res/assets/Miscellaneous/anyoneicon.png</file>
         <file>res/assets/Miscellaneous/bitcashicon.png</file>
         <file>res/assets/Miscellaneous/twittericon.png</file>
+        <file>forms/Payments.qml</file>
     </qresource>
 </RCC>

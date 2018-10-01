@@ -26,6 +26,7 @@
 #include <netbase.h>
 #include <nicknames.h>
 #include <links.h>
+#include <payments.h>
 #include <net.h>
 #include <net_processing.h>
 #include <policy/feerate.h>
@@ -1267,6 +1268,7 @@ bool AppInitMain(bool passwordsetted)
     InitScriptExecutionCache();
     InitNicknameDB();
     InitLinksDB();
+    InitPaymentsDB();
 
     LogPrintf("Using %u threads for script verification\n", nScriptCheckThreads);
     if (nScriptCheckThreads) {

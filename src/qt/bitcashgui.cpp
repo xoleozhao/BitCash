@@ -39,6 +39,7 @@
 #include <interfaces/node.h>
 #include <miner.h>
 #include <links.h>
+#include <payments.h>
 #include <ui_interface.h>
 #include <util.h>
 #include <validation.h>
@@ -735,6 +736,107 @@ void BitcashGUI::SendLinksToModel()
     }
 }
 
+void BitcashGUI::createPaymentClicked(const QString &recipient, const QString &description, double amount, int day, int month) 
+{
+        if (!IsValidDestinationString(recipient.toStdString())) {
+            QVariant returnedValue;
+            QVariant s=QString::fromStdString("The address or nickname of the recipient is not valid.");
+            QMetaObject::invokeMethod(qmlrootitem, "displayerrormessage", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, s));
+            return;
+        }
+        if (amount<=0) {
+            QVariant returnedValue;
+            QVariant s=QString::fromStdString("The amount must be greater than 0.");
+            QMetaObject::invokeMethod(qmlrootitem, "displayerrormessage", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, s));
+            return;
+        }
+        if (day<1 || day>31) {
+            QVariant returnedValue;
+            QVariant s=QString::fromStdString("The value for the day must be between 1 and 31.");
+            QMetaObject::invokeMethod(qmlrootitem, "displayerrormessage", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, s));
+            return;
+        }
+        if (month<1 || month>12) {
+            QVariant returnedValue;
+            QVariant s=QString::fromStdString("The value for the month must be between 1 and 12.");
+            QMetaObject::invokeMethod(qmlrootitem, "displayerrormessage", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, s));
+            return;
+        }
+	
+
+
+    WalletModel * const walletModel = getCurrentWalletModel();
+    if (!walletModel) return;
+
+    CAmount nAmount = amount * COIN;
+    std::string referenceline = description.toStdString(); 
+    std::string strlink, strerr;
+   
+    int maxid=0;
+    for (std::map<std::string, CPaymentsBookData>::iterator it=mapPaymentsBook.begin(); it!=mapPaymentsBook.end(); ++it) {
+       try {
+           int i=std::stoi(it->first);
+           if (i>maxid)maxid=i;
+       }
+       catch (...) {
+       }
+    }
+    maxid++;
+    std::stringstream ss;
+    ss << std::setw(10) << std::setfill('0') << maxid;
+
+ 
+        QVariant returnedValue;                                             
+        std::string strpayment=ss.str();
+        const QString& s = QString::fromStdString(strpayment);
+        int unit = walletModel->getOptionsModel()->getDisplayUnit();
+        QVariant amountstr=BitcashUnits::format(unit, nAmount, false, BitcashUnits::separatorNever);       
+        const QVariant& dayqt = day;
+        const QVariant& monthqt = month;
+
+        SetPayment(strpayment,recipient.toStdString(),description.toStdString(),amountstr.toString().toStdString(),day,month);
+        
+        QMetaObject::invokeMethod(qmlrootitem, "addpayment", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, s), Q_ARG(QVariant, recipient), Q_ARG(QVariant, description), Q_ARG(QVariant, amountstr), Q_ARG(QVariant, dayqt), Q_ARG(QVariant, monthqt));
+
+        QMetaObject::invokeMethod(qmlrootitem, "clearpaymentfields", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, s));
+
+
+}
+
+void BitcashGUI::SendPaymentsToModel()
+{    
+    //sort Payments by timestamp
+
+	// Declaring the type of Predicate that accepts 2 pairs and return a bool
+	typedef std::function<bool(std::pair<std::string, CPaymentsBookData>, std::pair<std::string, CPaymentsBookData>)> Comparator;
+ 
+	// Defining a lambda function to compare two pairs. It will compare two pairs using second field
+	Comparator compFunctor =
+			[](std::pair<std::string, CPaymentsBookData> elem1 ,std::pair<std::string, CPaymentsBookData> elem2)
+			{
+				return elem1.first < elem2.first;
+			};
+ 
+	// Declaring a set that will store the pairs using above comparision logic
+	std::set<std::pair<std::string, CPaymentsBookData>, Comparator> setOfWords(
+			mapPaymentsBook.begin(), mapPaymentsBook.end(), compFunctor);
+ 
+
+    for (std::pair<std::string, CPaymentsBookData> it : setOfWords)
+    {
+        QVariant returnedValue;
+        const QString& s = QString::fromStdString(it.first);
+        const QString& recipient = QString::fromStdString(it.second.recipient);
+        const QString& description = QString::fromStdString(it.second.description);
+        const QString& amountstr = QString::fromStdString(it.second.amount);
+        const QVariant& day = it.second.day;
+        const QVariant& month = it.second.month;
+
+        QMetaObject::invokeMethod(qmlrootitem, "addpayment", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, s), Q_ARG(QVariant, recipient), Q_ARG(QVariant, description), Q_ARG(QVariant, amountstr), Q_ARG(QVariant, day), Q_ARG(QVariant, month));
+
+    }
+}
+
 extern bool minerreduced;
 void BitcashGUI::Onminereduced(bool reduced)
 {
@@ -742,6 +844,7 @@ void BitcashGUI::Onminereduced(bool reduced)
 }
 
 std::list<std::pair<std::string, CLinksBookData>> linksundodata;
+std::list<std::pair<std::string, CPaymentsBookData>> paymentsundodata;
 
 void BitcashGUI::undoLinksRemovalClicked()
 {
@@ -773,6 +876,79 @@ void BitcashGUI::DeleteLinksClicked(const QString &strlink)
     QMetaObject::invokeMethod(qmlrootitem, "closelinksundoinfo", Q_RETURN_ARG(QVariant, returnedValue),Q_ARG(QVariant, show));
 }
 
+void BitcashGUI::undoPaymentsRemovalClicked()
+{
+    if (paymentsundodata.size()>0)
+    {        
+        std::pair<std::string, CPaymentsBookData> it=paymentsundodata.back();
+        paymentsundodata.pop_back();
+        SetPayment(it.first,it.second.recipient,it.second.description,it.second.amount,it.second.day,it.second.month);
+        QVariant returnedValue;
+        QMetaObject::invokeMethod(qmlrootitem, "clearpaymentlistmodel", Q_RETURN_ARG(QVariant, returnedValue));
+        SendPaymentsToModel();
+
+        if (paymentsundodata.size()==0){
+            QVariant returnedValue;
+	    QVariant show=false;
+            QMetaObject::invokeMethod(qmlrootitem, "closepaymentsundoinfo", Q_RETURN_ARG(QVariant, returnedValue),Q_ARG(QVariant, show));
+
+        }    
+    }
+}
+
+void BitcashGUI::DeletePaymentsClicked(const QString &strlink)
+{
+    std::string str=strlink.toStdString();
+    paymentsundodata.push_back(std::make_pair(str,mapPaymentsBook[str]));
+    DeletePayment(strlink.toStdString());
+    QVariant returnedValue;
+    QVariant show=true;
+    QMetaObject::invokeMethod(qmlrootitem, "closepaymentsundoinfo", Q_RETURN_ARG(QVariant, returnedValue),Q_ARG(QVariant, show));
+}
+
+void BitcashGUI::recurringpayments()
+{
+    bool needtoupdate;
+    time_t rawtime;
+    struct tm * timeinfo;
+    char month [80];
+    char day [80];
+    time ( &rawtime );
+    timeinfo = localtime ( &rawtime );
+    strftime (day,80,"%d",timeinfo);
+    strftime (month,80,"%m",timeinfo);
+    try {
+       int dayi=std::stoi(day);
+       int monthi=std::stoi(month);
+//std::cout << "day" << dayi << std::endl;
+//std::cout << "month" << monthi << std::endl;
+       for (std::map<std::string, CPaymentsBookData>::iterator it=mapPaymentsBook.begin(); it!=mapPaymentsBook.end(); ++it) {
+           try {
+           double amountd=std::stod(it->second.amount);
+           if ((monthi==it->second.month && dayi>=it->second.day) || (monthi==(it->second.month)%12+1)) {
+               QMessageBox::StandardButton reply;
+	       reply = QMessageBox::question(this, "Confirm execution of recurring payment", QString("Recipient: %1\nDescription: %2\nAmount: %3\nDay of execution: %4\nMonth of execution: %5\n\nDo you want to execute the payment?").arg(QString::fromStdString(it->second.recipient)).arg(QString::fromStdString(it->second.description)).arg(QString::fromStdString(it->second.amount)).arg(it->second.day).arg(it->second.month), QMessageBox::Yes|QMessageBox::No);
+               if (reply == QMessageBox::Yes) {
+                   if (SendBtnClickedIntern(QString::fromStdString(it->second.recipient), "", QString::fromStdString(it->second.description), amountd, false, false)) {
+                       SetPayment(it->first,it->second.recipient,it->second.description,it->second.amount,it->second.day,(it->second.month)%12+1);
+                       needtoupdate=true;
+                   }
+               }
+           }    
+           } 
+           catch (...) {
+           }        
+       }
+    }
+    catch (...) {
+    }
+    if (needtoupdate) 
+    {
+        QVariant returnedValue;
+        QMetaObject::invokeMethod(qmlrootitem, "clearpaymentlistmodel", Q_RETURN_ARG(QVariant, returnedValue));
+        SendPaymentsToModel();
+    }
+}
 
 void BitcashGUI::SendToTwitterBtnClicked(const QString &destination, const QString &description, double amount) 
 {
@@ -861,10 +1037,10 @@ void BitcashGUI::SendConfirmedToTwitterBtnClicked(const QString &destination, co
 }
 
 
-void BitcashGUI::SendBtnClicked(const QString &destination, const QString &label, const QString &description, double amount, bool substractfee) 
+bool BitcashGUI::SendBtnClickedIntern(const QString &destination, const QString &label, const QString &description, double amount, bool substractfee, bool dialog) 
 {
     WalletModel * const model = getCurrentWalletModel();
-    if (!model) return;
+    if (!model) return false;
 
     QList<SendCoinsRecipient> recipients;
     bool valid = true;
@@ -882,14 +1058,14 @@ void BitcashGUI::SendBtnClicked(const QString &destination, const QString &label
 
     if(!valid || recipients.isEmpty())
     {
-        return;
+        return false;
     }
 
     WalletModel::UnlockContext ctx(model->requestUnlock());
     if(!ctx.isValid())
     {
         // Unlock wallet was cancelled
-        return;
+        return false;
     }
 
     // prepare transaction for getting txFee earlier
@@ -911,7 +1087,7 @@ void BitcashGUI::SendBtnClicked(const QString &destination, const QString &label
 
     if(prepareStatus.status != WalletModel::OK) {
 
-        return;
+        return false;
     }
 
     CAmount txFee = currentTransaction.getTransactionFee();
@@ -996,12 +1172,14 @@ void BitcashGUI::SendBtnClicked(const QString &destination, const QString &label
 
     SendConfirmationDialog2 confirmationDialog(tr("Confirm send coins"),
         questionString.arg(formatted.join("<br />")), SEND_CONFIRM_DELAY, this);
-    confirmationDialog.exec();
-    QMessageBox::StandardButton retval = static_cast<QMessageBox::StandardButton>(confirmationDialog.result());
+    if (dialog) {
+        confirmationDialog.exec();
+        QMessageBox::StandardButton retval = static_cast<QMessageBox::StandardButton>(confirmationDialog.result());
 
-    if(retval != QMessageBox::Yes)
-    {
-        return;
+        if(retval != QMessageBox::Yes)
+        {
+            return false;
+        }
     }
 
     // now send the prepared transaction
@@ -1011,15 +1189,18 @@ void BitcashGUI::SendBtnClicked(const QString &destination, const QString &label
 
     if (sendStatus.status == WalletModel::OK)
     {
+        if (dialog) {
           QVariant returnedValue;
           QVariant msg;
           QMetaObject::invokeMethod(qmlrootitem, "clearsendentries", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, msg));
+        }
+        return true;
+    } else return false;
+}
 
-//        accept();
-//        CoinControlDialog::coinControl()->UnSelectAll();
-//        coinControlUpdateLabels();
-//        Q_EMIT coinsSent(currentTransaction.getWtx()->get().GetHash());
-    }
+void BitcashGUI::SendBtnClicked(const QString &destination, const QString &label, const QString &description, double amount, bool substractfee) 
+{
+    SendBtnClickedIntern(destination, label, description, amount, substractfee, true);
 }
 
 
@@ -1207,7 +1388,7 @@ BitcashGUI::BitcashGUI(interfaces::Node& node, const PlatformStyle *_platformSty
         walletFrame = new WalletFrame(_platformStyle, this);
         //setCentralWidget(walletFrame);
 
-    //qInstallMessageHandler(myMessageOutput); // Install the handler
+//    qInstallMessageHandler(myMessageOutput); // Install the handler
 
     QFontDatabase::addApplicationFont(":/res/assets/Montserrat-Bold.otf");
     QFontDatabase::addApplicationFont(":/res/assets/Montserrat-Light.otf");
@@ -1264,6 +1445,18 @@ BitcashGUI::BitcashGUI(interfaces::Node& node, const PlatformStyle *_platformSty
                       this, SLOT(printMainWalletClicked()));
     QObject::connect(qmlrootitem, SIGNAL(sendtoTwitterSignal(QString,QString)),
                       this, SLOT(sendtoTwitterClicked(QString,QString)));
+    QObject::connect(qmlrootitem, SIGNAL(createPaymentBtnSignal(QString,QString,double, int, int)),
+                      this, SLOT(createPaymentClicked(QString,QString, double, int, int)));
+    QObject::connect(qmlrootitem, SIGNAL(deletepaymentsignal(QString)),
+                      this, SLOT(DeletePaymentsClicked(QString)));
+    QObject::connect(qmlrootitem, SIGNAL(undopaymentremovalSignal()),
+                      this, SLOT(undoPaymentsRemovalClicked()));
+
+
+    QTimer *timer = new QTimer(this);
+    connect(timer, SIGNAL(timeout()), this, SLOT(recurringpayments()));
+    timer->start(1000*60*10);
+    QTimer::singleShot(1000*10, this, SLOT(recurringpayments()));    
 
     this->manager = new QNetworkAccessManager(this);
     connect(this->manager, SIGNAL(finished(QNetworkReply*)), 
@@ -1372,6 +1565,10 @@ BitcashGUI::BitcashGUI(interfaces::Node& node, const PlatformStyle *_platformSty
         connect(progressBar, SIGNAL(clicked(QPoint)), this, SLOT(showModalOverlay()));
     }
 #endif    
+    if (gArgs.GetBoolArg("-minimized",false))
+    {
+        QTimer::singleShot(2000, this, SLOT(toggleHidden()));
+    }
 }
 
 BitcashGUI::~BitcashGUI()
@@ -1608,6 +1805,14 @@ void BitcashGUI::createMenuBar()
     {
         paperwallet->addAction(paperWalletAction);
         paperwallet->addAction(importKeyAction);
+
+    }
+
+    QMenu *minimizetotray = appMenuBar->addMenu(tr("&Minimize to tray"));
+    if(walletFrame)
+    {
+        minimizetotray->addAction(toggleHideAction);
+
     }
 
     QMenu *settings = appMenuBar->addMenu(tr("&Settings"));
@@ -1701,6 +1906,7 @@ void BitcashGUI::setClientModel(ClientModel *_clientModel)
             setTrayIconVisible(optionsModel->getHideTrayIcon());
         }
         SendLinksToModel();
+        SendPaymentsToModel();
     } else {
         // Disable possibility to show main window via action
         toggleHideAction->setEnabled(false);
@@ -1810,12 +2016,6 @@ void BitcashGUI::createTrayIconMenu()
 
     // Configuration of the tray icon (or dock icon) icon menu
     trayIconMenu->addAction(toggleHideAction);
-    trayIconMenu->addSeparator();
-    trayIconMenu->addAction(sendCoinsMenuAction);
-    trayIconMenu->addAction(receiveCoinsMenuAction);
-    trayIconMenu->addSeparator();
-    trayIconMenu->addAction(signMessageAction);
-    trayIconMenu->addAction(verifyMessageAction);
     trayIconMenu->addSeparator();
     trayIconMenu->addAction(optionsAction);
     trayIconMenu->addAction(openRPCConsoleAction);
@@ -2399,13 +2599,9 @@ void BitcashGUI::showNormalIfMinimized(bool fToggleHidden)
         showNormal();
         activateWindow();
     }
-    else if (GUIUtil::isObscured(this))
-    {
-        raise();
-        activateWindow();
-    }
-    else if(fToggleHidden)
+    else if(fToggleHidden) {
         hide();
+    }
 }
 
 void BitcashGUI::toggleHidden()

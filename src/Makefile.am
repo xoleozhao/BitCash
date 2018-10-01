@@ -274,6 +274,8 @@ libbitcash_wallet_a_SOURCES = \
   nicknames.cpp \
   linksdb.cpp \
   links.cpp \
+  paymentsdb.cpp \
+  payments.cpp \
   $(BITCASH_CORE_H)
 
 # crypto primitives library
