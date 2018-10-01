@@ -111,8 +111,32 @@ Item {
 
     function twitterlinkokay(msg)
     {     
+        twittersuccess.twitteredit.text="https://wallet.choosebitcash.com/twitterlogin.php"
+        twittersuccess.text1.text=qsTr("Send the below link directly to the Twitter user so that he/she can claim the coins.\n\n You can even paste the link in public tweets or comments. No need to worry, no other user can gain access to these coins except for the intended Twitter user.\n\nIf you submitted this transaction by accident, you can claim the coins back with your link.")
+        twittersuccess.sendcap.text= qsTr("Successfully sent the coins to the Twitter user")
+        twittersuccess.sendicon.source= "../res/assets/Miscellaneous/twittericon.png"
         twittersuccess.visible=true
         send.clearsendentriesinterntw()
+    }
+
+    function instalinkokay(msg)
+    {
+        twittersuccess.twitteredit.text="https://wallet.choosebitcash.com/instalogin.php"
+        twittersuccess.text1.text=qsTr("Send the below link directly to the Instagram user so that he/she can claim the coins.\n\n You can even paste the link in public posts or comments. No need to worry, no other user can gain access to these coins except for the intended Instagram user.\n\nIf you submitted this transaction by accident, you can claim the coins back with your link.")
+        twittersuccess.sendcap.text= qsTr("Successfully sent the coins to the Instagram user")
+        twittersuccess.sendicon.source= "../res/assets/Miscellaneous/instaicon.png"
+        twittersuccess.visible=true
+        send.clearsendentriesinternin()
+    }
+
+    function redditlinkokay(msg)
+    {
+        twittersuccess.twitteredit.text="https://wallet.choosebitcash.com/redditlogin.php"
+        twittersuccess.text1.text=qsTr("Send the below link directly to the Reddit user so that he/she can claim the coins.\n\n You can even paste the link in public posts or comments. No need to worry, no other user can gain access to these coins except for the intended Reddit user.\n\nIf you submitted this transaction by accident, you can claim the coins back with your link.")
+        twittersuccess.sendcap.text= qsTr("Successfully sent the coins to the Reddit user")
+        twittersuccess.sendicon.source= "../res/assets/Miscellaneous/redditicon.png"
+        twittersuccess.visible=true
+        send.clearsendentriesinternre()
     }
 
     function setbalances(avail, pending, immature, total, availnum) {
@@ -161,21 +185,36 @@ Item {
         payments.closepaymentsundoinfointern(show);
     }
     function showconfirmtwitter(msg)
-    {
+    {    
         send.showconfirmtwitterintern(msg)
     }
 
+    function showconfirminsta(msg)
+    {
+        send.showconfirminstaintern(msg)
+    }
+
+    function showconfirmreddit(msg)
+    {
+        send.showconfirmredditintern(msg)
+    }
 
     signal filtereditchangedsignal(string text)
     signal showtxdetails(int index)
     signal sendBtnSignal(string destination, string label, string description, double amount, bool substractfee)    
     signal sendBtntwSignal(string destination, string description, double amount)
+    signal sendBtninSignal(string destination, string description, double amount)
+    signal sendBtnreSignal(string destination, string description, double amount)
     signal sendconfirmedBtntwSignal(string destination, string description, double amount)
+    signal sendconfirmedBtninSignal(string destination, string description, double amount)
+    signal sendconfirmedBtnreSignal(string destination, string description, double amount)
     signal sendlinkBtnSignal(string description, double amount)
     signal claimlinkBtnSignal(string link)
     signal datefiltersignal(int index)
     signal downloadtransactionsSignal()
     signal sendtoTwitterSignal(string twitteruser, string linktosend)
+    signal sendtoInstaSignal(string twitteruser, string linktosend)
+    signal sendtoRedditSignal(string twitteruser, string linktosend)
     signal createPaymentBtnSignal(string recipient, string description, double amount, int day, int month)
 
     signal registerNickSignal(string nickname, string address)
@@ -219,6 +258,10 @@ Item {
             onSendBtnSignalIntern: sendBtnSignal(destination,label,description,amount,substractfee)
             onSendBtntwSignalIntern: sendBtntwSignal(destination,description,amount)
             onSendconfirmedBtntwSignalIntern: sendconfirmedBtntwSignal(destination,description,amount)
+            onSendBtninSignalIntern: sendBtninSignal(destination,description,amount)
+            onSendconfirmedBtninSignalIntern: sendconfirmedBtninSignal(destination,description,amount)
+            onSendBtnreSignalIntern: sendBtnreSignal(destination,description,amount)
+            onSendconfirmedBtnreSignalIntern: sendconfirmedBtnreSignal(destination,description,amount)
             onSendlinkBtnSignalIntern: sendlinkBtnSignal(description, amount)
             onSendtoanyoneSignalIntern: gotosendtoanyone()
             onViewaccounthistorysignal:{
@@ -503,7 +546,7 @@ Item {
             }
         }
 /*****************************************/
-/*        TabButton {
+        /*TabButton {
             id: tabButton6
             text: qsTr("Recurring payments")
             rightPadding: 15

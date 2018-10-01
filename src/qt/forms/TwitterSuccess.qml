@@ -10,6 +10,10 @@ Item {
     height: parent.height
 
     property alias twitteredit: twitteredit
+    property alias text1: text1
+    property alias sendicon: sendicon
+    property alias sendcap: sendcap
+    property int sendmode
 
 
     function displayerrormessageintern(msg) {
@@ -102,7 +106,7 @@ Rectangle{
             id: text1
             height: 146
             color: "#3d3e40"
-            text: qsTr("Send the below link directly to the twitter user so that he/she can claim the coins.\n\n You can even paste the link in public tweets or comments. No need to worry, no other user can gain access to these coins except for the intended twitter user.\n\nIf you submitted this transaction by accident, you can claim the coins back with your link.")
+            text: qsTr("Send the below link directly to the Twitter user so that he/she can claim the coins.\n\n You can even paste the link in public tweets or comments. No need to worry, no other user can gain access to these coins except for the intended Twitter user.\n\nIf you submitted this transaction by accident, you can claim the coins back with your link.")
             anchors.right: parent.right
             anchors.rightMargin: 36
             wrapMode: Text.WrapAtWordBoundaryOrAnywhere
