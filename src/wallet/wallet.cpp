@@ -232,7 +232,7 @@ CPubKey CalculateOnetimeDestPubKey(CPubKey pubkey,CKey privkey, bool iscreatetra
 
     return onetime;
 }
-
+   
 //Calculate private Key to send the TxOut
 CKey CalculateOnetimeDestPrivateKey(CKey privkeyfromAddress,CKey privkey)
 {
@@ -275,9 +275,10 @@ CKey CalculateOnetimeDestPrivateKey(CKey privkeyfromAddress,CKey privkey)
     BN_add(pri, pri, secrectBN);
     char keystore[32];
     unsigned char *binary = (unsigned char*) &keystore;
+    memset(keystore, 0, sizeof(keystore));
 
     BN_bn2bin(pri, binary);
-    std::vector<unsigned char> vec(keystore, keystore + BN_num_bytes(pri));
+    std::vector<unsigned char> vec(keystore, keystore + 32);
     onetime.Set(vec.begin(),vec.end(),true);
 
     BN_free( pri );
@@ -2002,9 +2003,12 @@ isminetype CWallet::IsMine(const CTxOut& txout, int nr)
 //                std::cout << "Destination Pubkey: " << HexStr(destinationPubKey.begin(),destinationPubKey.end()) << std::endl;
 //                std::cout << "The One Time key matches!!!!!!!!!! Yeah!!!!" << std::endl;
 
+//                std::cout << "privKey: " << HexStr(privkey.begin(),privkey.end()) << std::endl;
+//                std::cout << "Key: " << HexStr(key.begin(),key.end()) << std::endl;
+
                 CKey otpk=CalculateOnetimeDestPrivateKey(key,privkey);  
 
-        //        std::cout << "One Time private Key encoded in CKey: " << HexStr(otpk.begin(),otpk.end()) << std::endl;
+//                std::cout << "One Time private Key encoded in CKey: " << HexStr(otpk.begin(),otpk.end()) << std::endl;
                 
                 AddKeyPubKeyWithDB(batch, otpk, destinationPubKey);
 

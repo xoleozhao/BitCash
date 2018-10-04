@@ -120,7 +120,7 @@ SendForm {
 
     function clearsendentriesinterntw(msg) {
         /************************/
-        /*paytoEdittw.text=""
+/*        paytoEdittw.text=""
         labelEdittw.text=""
         descriptionEdittw.text=""
         amountEdittw.text=""
@@ -235,7 +235,7 @@ SendForm {
     amountEditan.onTextChanged: calcleftbalancean()
     paytoEdit.validator: destCheckVal
 /***********************************/
-    /*paytoEdittw.validator: destCheckVal2
+/*    paytoEdittw.validator: destCheckVal2
     amountEdittw.validator: amountCheckVal
     amountEdittw.onTextChanged: calcleftbalancetw()
     sendBtntw.onClicked: {
