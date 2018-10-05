@@ -2008,14 +2008,12 @@ isminetype CWallet::IsMine(const CTxOut& txout, int nr)
 //                std::cout << "Key: " << HexStr(key.begin(),key.end()) << std::endl;
 
                 CKey otpk=CalculateOnetimeDestPrivateKey(key,privkey);  
-
-	if (onetimedestpubkey!=otpk.GetPubKey()) {
+/*
             std::cout << "otpk: " << HexStr(otpk.begin(),otpk.end()) << std::endl;
             std::cout << "otpk pub: " << HexStr(otpk.GetPubKey().begin(),otpk.GetPubKey().end()) << std::endl;
             std::cout << "onetimedestpubkey: " << HexStr(onetimedestpubkey.begin(),onetimedestpubkey.end()) << std::endl;
-        }
   
-
+*/
 //                std::cout << "One Time private Key encoded in CKey: " << HexStr(otpk.begin(),otpk.end()) << std::endl;
                 
                 AddKeyPubKeyWithDB(batch, otpk, destinationPubKey);
