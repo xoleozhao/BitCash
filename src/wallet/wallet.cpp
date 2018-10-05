@@ -277,6 +277,7 @@ CKey CalculateOnetimeDestPrivateKey(CKey privkeyfromAddress,CKey privkey)
     unsigned char *binary = (unsigned char*) &keystore;
     memset(keystore, 0, sizeof(keystore));
 
+    binary+=(32-BN_num_bytes(pri));
     BN_bn2bin(pri, binary);
     std::vector<unsigned char> vec(keystore, keystore + 32);
     onetime.Set(vec.begin(),vec.end(),true);
@@ -2007,6 +2008,13 @@ isminetype CWallet::IsMine(const CTxOut& txout, int nr)
 //                std::cout << "Key: " << HexStr(key.begin(),key.end()) << std::endl;
 
                 CKey otpk=CalculateOnetimeDestPrivateKey(key,privkey);  
+
+	if (onetimedestpubkey!=otpk.GetPubKey()) {
+            std::cout << "otpk: " << HexStr(otpk.begin(),otpk.end()) << std::endl;
+            std::cout << "otpk pub: " << HexStr(otpk.GetPubKey().begin(),otpk.GetPubKey().end()) << std::endl;
+            std::cout << "onetimedestpubkey: " << HexStr(onetimedestpubkey.begin(),onetimedestpubkey.end()) << std::endl;
+        }
+  
 
 //                std::cout << "One Time private Key encoded in CKey: " << HexStr(otpk.begin(),otpk.end()) << std::endl;
                 
