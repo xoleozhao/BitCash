@@ -11,6 +11,7 @@ Item {
 
     property alias twitteredit: twitteredit
     property alias text1: text1
+    property alias text2: text2
     property alias sendicon: sendicon
     property alias sendcap: sendcap
     property int sendmode
@@ -56,7 +57,7 @@ Rectangle{
     border.color: "#ffffff"
     border.width: 1
     width: 690
-    height: 388
+    height: 458
 
 
     Button {
@@ -140,6 +141,10 @@ Rectangle{
             anchors.rightMargin: 0
             selectByMouse: true
             placeholderText: ""
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("Only the link without short message to the recipient.")
+            ToolTip.delay: 100
+            ToolTip.timeout: 5000
         }
 
         Mybutton {
@@ -172,6 +177,63 @@ Rectangle{
             borderwidth: 1
         }
 
+        MenuTextField {
+            id: text2
+            height: 48
+            anchors.left: parent.left
+            anchors.leftMargin: 36
+            color: "#202124"
+            text: "https://wallet.choosebitcash.com/twitterlogin.php"
+            selectEnd: 1
+            font.pixelSize: 14
+            font.family: "Montserrat"
+            font.letterSpacing: 0
+            bottomPadding: 16
+            padding: 16
+            rightPadding: 16
+            topPadding: 16
+            leftPadding: 16
+            anchors.top: twitteredit.bottom
+            anchors.topMargin: 20
+            anchors.right: copyBtn2.right
+            anchors.rightMargin: 0
+            selectByMouse: true
+            placeholderText: ""
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("A short message to the recipient together with the link.")
+            ToolTip.delay: 100
+            ToolTip.timeout: 5000
+        }
+
+        Mybutton {
+            id: copyBtn2
+            width: 90
+            height: 48
+            text: qsTr("Copy")
+            anchors.verticalCenter: text2.verticalCenter
+            anchors.right: parent.right
+            anchors.rightMargin: 36
+            font.weight: Font.DemiBold
+            font.pixelSize: 14
+            leftPadding: 20
+            font.capitalization: Font.MixedCase
+            font.family: "Montserrat SemiBold"
+            onClicked: {
+                text2.selectAll()
+                text2.copy()
+                copyBtn2.text="Copied"
+                timer.setTimeout(function(){
+                    copyBtn2.text="Copy"
+                }, 3000);
+            }
+            btncolor: "#f7f7f7"
+            txtcolor: "#4d505e"
+            btncolordown: "#eaeaea"
+            txtcolordown: "#494ea7"
+            btnbordercolor: "#dededf"
+            borderwidth: 1
+        }
+
         Mybutton {
             id: closeBtn2
             height: 44
@@ -181,7 +243,7 @@ Rectangle{
             leftPadding: 44
             anchors.left: parent.left
             anchors.leftMargin: 36
-            anchors.top: twitteredit.bottom
+            anchors.top: text2.bottom
             anchors.topMargin: 15
             iconname: "../res/assets/Miscellaneous/closesmall.png"
             font.capitalization: Font.MixedCase

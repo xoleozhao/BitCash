@@ -109,9 +109,18 @@ Item {
         send.generatedlinkintern()
     }    
 
+    property string senderstr
+    property string recieverstr
+    property string coinsstr
     function twitterlinkokay(msg)
     {     
-        twittersuccess.twitteredit.text="https://wallet.choosebitcash.com/twitterlogin.php"
+        senderstr=receive.receivingnicknameEdit.text
+        if (senderstr==="") senderstr=receive.receivingaddressEdit.text
+        recieverstr=send.paytoEdittw.text
+        coinsstr=send.amountEdittw.text
+
+        twittersuccess.twitteredit.text="https://wallet.choosebitcash.com/twitterlogin.php?sender="+senderstr+"&receiver="+recieverstr+"&coins="+coinsstr
+        twittersuccess.text2.text="Hey @"+recieverstr+", I just sent you "+coinsstr+" BITC to your twitter account as a tip. Click here to claim it: "+twittersuccess.twitteredit.text
         twittersuccess.text1.text=qsTr("Send the below link directly to the Twitter user so that he/she can claim the coins.\n\n You can even paste the link in public tweets or comments. No need to worry, no other user can gain access to these coins except for the intended Twitter user.\n\nIf you submitted this transaction by accident, you can claim the coins back with your link.")
         twittersuccess.sendcap.text= qsTr("Successfully sent the coins to the Twitter user")
         twittersuccess.sendicon.source= "../res/assets/Miscellaneous/twittericon.png"
