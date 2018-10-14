@@ -382,7 +382,6 @@ static UniValue getnewwatchonlyaddress(const JSONRPCRequest& request)
         }
     }
 
-
     // Generate a new key that is NOT added to wallet
     CKey secret;
     secret.MakeNewKey(true);
@@ -393,6 +392,12 @@ static UniValue getnewwatchonlyaddress(const JSONRPCRequest& request)
     CTxDestination dest = GetDestinationForKey(newKey, output_type);
 
     pwallet->SetAddressBook(dest, label, "receive");
+
+    CScript script;
+    script = GetScriptForRawPubKey(newKey);
+    if (!pwallet->HaveWatchOnly(script)) {
+        pwallet->AddWatchOnly(script, 0);
+    }
     
     UniValue result(UniValue::VOBJ);
     result.pushKV("address", EncodeDestinationHasSecondKey(dest));
@@ -437,6 +442,12 @@ static UniValue getnewwatchonlyaddresswithaddressaslabel(const JSONRPCRequest& r
 
     label=EncodeDestinationHasSecondKey(dest);
     pwallet->SetAddressBook(dest, label, "receive");
+
+    CScript script;
+    script = GetScriptForRawPubKey(newKey);
+    if (!pwallet->HaveWatchOnly(script)) {
+        pwallet->AddWatchOnly(script, 0);
+    }
     
     UniValue result(UniValue::VOBJ);
     result.pushKV("address", EncodeDestinationHasSecondKey(dest));
@@ -5242,6 +5253,7 @@ static UniValue listlabels(const JSONRPCRequest& request)
 extern UniValue abortrescan(const JSONRPCRequest& request); // in rpcdump.cpp
 extern UniValue dumpprivkey(const JSONRPCRequest& request); // in rpcdump.cpp
 extern UniValue importprivkey(const JSONRPCRequest& request);
+extern UniValue getaddressforprivkey(const JSONRPCRequest& request);
 extern UniValue importprivkeysfromfile(const JSONRPCRequest& request);
 extern UniValue importaddress(const JSONRPCRequest& request);
 extern UniValue importpubkey(const JSONRPCRequest& request);
@@ -5276,6 +5288,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "getaddressinfo",                   &getaddressinfo,                {"address"} },
     { "wallet",             "getbalance",                       &getbalance,                    {"account","minconf","include_watchonly"} },
     { "wallet",             "getaddressfornickname",            &getaddressfornickname,             {} },
+    { "wallet",             "getaddressforprivkey",             &getaddressforprivkey,          {"privkey"} },
     { "wallet",             "getinfoaboutlink",                 &getinfoaboutlink,              {"link"} },
     { "wallet",             "getnicknameforaddress",            &getnicknameforaddress,             {} },
     { "wallet",             "getcurrentaddress",                &getcurrentaddress,             {} },

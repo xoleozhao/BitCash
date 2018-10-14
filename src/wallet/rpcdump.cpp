@@ -187,6 +187,38 @@ UniValue importprivkey(const JSONRPCRequest& request)
     return NullUniValue;
 }
 
+UniValue getaddressforprivkey(const JSONRPCRequest& request)
+{
+    CWallet * const pwallet = GetWalletForJSONRPCRequest(request);
+    if (!EnsureWalletIsAvailable(pwallet, request.fHelp)) {
+        return NullUniValue;
+    }
+
+    if (request.fHelp || request.params.size() < 1 || request.params.size() > 1)
+        throw std::runtime_error(
+            "getaddressforprivkey \"privkey\"\n"
+            "\nReturns the public address for the private key.\n"
+            "\nArguments:\n"
+            "1. \"privkey\"          (string, required) The private key (see dumpprivkey)\n"
+            "\nExamples:\n"
+            "\nImport the private key with rescan\n"
+            + HelpExampleCli("getaddressforprivkey", "\"mykey\"") +
+            "\nAs a JSON-RPC call\n"
+            + HelpExampleRpc("getaddressforprivkey", "\"mykey\"")
+        );
+
+
+        std::string strSecret = request.params[0].get_str();
+        CKey key = DecodeSecret(strSecret);
+        if (!key.IsValid()) throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid private key encoding");
+
+        CPubKey pubkey = key.GetPubKey();
+        CTxDestination dest=GetDestinationForKey(pubkey, OutputType::LEGACY);
+        std::string str=EncodeDestinationHasSecondKey(dest);
+        assert(key.VerifyPubKey(pubkey));
+
+    return str;
+}
 
 UniValue importprivkeysfromfile(const JSONRPCRequest& request)
 {
