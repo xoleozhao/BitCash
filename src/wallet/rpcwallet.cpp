@@ -344,6 +344,106 @@ static UniValue getnewaddress(const JSONRPCRequest& request)
     return EncodeDestinationHasSecondKey(dest);
 }
 
+static UniValue getnewwatchonlyaddress(const JSONRPCRequest& request)
+{
+    CWallet * const pwallet = GetWalletForJSONRPCRequest(request);
+    if (!EnsureWalletIsAvailable(pwallet, request.fHelp)) {
+        return NullUniValue;
+    }
+
+    if (request.fHelp || request.params.size() > 2)
+        throw std::runtime_error(
+            "getnewwatchonlyaddress ( \"label\" \"address_type\" )\n"
+            "\nReturns a new Bitcash watch only address for receiving payments and the private key for the new address.\n"
+            "If 'label' is specified, it is added to the address book \n"
+            "so payments received with the address will be associated with 'label'.\n"
+            "\nArguments:\n"
+            "1. \"label\"          (string, optional) The label name for the address to be linked to. If not provided, the default label \"\" is used. It can also be set to the empty string \"\" to represent the default label. The label does not need to exist, it will be created if there is no label by the given name.\n"
+            "2. \"address_type\"   (string, optional) The address type to use. Options are \"legacy\", \"p2sh-segwit\". Default is set by -addresstype.\n"
+            "\nResult:\n"
+            "\"address\"    (string) The new bitcash address\n"
+            "\"privatekey\" (string) The private key for the new address\n"
+            "\nExamples:\n"
+            + HelpExampleCli("getnewwatchonlyaddress", "")
+            + HelpExampleRpc("getnewwatchonlyaddress", "")
+        );
+
+    LOCK2(cs_main, pwallet->cs_wallet);
+
+    // Parse the label first so we don't generate a key if there's an error
+    std::string label;
+    if (!request.params[0].isNull())
+        label = LabelFromValue(request.params[0]);
+
+    OutputType output_type = pwallet->m_default_address_type;
+    if (!request.params[1].isNull()) {
+        if (!ParseOutputType(request.params[1].get_str(), output_type)) {
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, strprintf("Unknown address type '%s'", request.params[1].get_str()));
+        }
+    }
+
+
+    // Generate a new key that is NOT added to wallet
+    CKey secret;
+    secret.MakeNewKey(true);
+    CPubKey newKey = secret.GetPubKey();
+
+    pwallet->LearnRelatedScripts(newKey, output_type);
+
+    CTxDestination dest = GetDestinationForKey(newKey, output_type);
+
+    pwallet->SetAddressBook(dest, label, "receive");
+    
+    UniValue result(UniValue::VOBJ);
+    result.pushKV("address", EncodeDestinationHasSecondKey(dest));
+    result.pushKV("privatekey", EncodeSecret(secret));
+    return result;
+}
+
+static UniValue getnewwatchonlyaddresswithaddressaslabel(const JSONRPCRequest& request)
+{
+    CWallet * const pwallet = GetWalletForJSONRPCRequest(request);
+    if (!EnsureWalletIsAvailable(pwallet, request.fHelp)) {
+        return NullUniValue;
+    }
+
+    if (request.fHelp || request.params.size() > 2)
+        throw std::runtime_error(
+            "getnewwatchonlyaddresswithaddressaslabel ( \"label\" \"address_type\" )\n"
+            "\nReturns a new Bitcash watch only address for receiving payments and the private key for the new address.\n"
+            "The address itself is used as label for the address book entry \n"
+            "so payments received with all stealths addresses will be associated with the address.\n"
+            "\nResult:\n"
+            "\"address\"    (string) The new bitcash address\n"
+            "\"privatekey\" (string) The private key for the new address\n"
+            "\nExamples:\n"
+            + HelpExampleCli("getnewwatchonlyaddresswithaddressaslabel", "")
+            + HelpExampleRpc("getnewwatchonlyaddresswithaddressaslabel", "")
+        );
+
+    LOCK2(cs_main, pwallet->cs_wallet);
+
+    std::string label;
+    OutputType output_type = pwallet->m_default_address_type;
+
+    // Generate a new key that is NOT added to wallet
+    CKey secret;
+    secret.MakeNewKey(true);
+    CPubKey newKey = secret.GetPubKey();
+
+    pwallet->LearnRelatedScripts(newKey, output_type);
+
+    CTxDestination dest = GetDestinationForKey(newKey, output_type);
+
+    label=EncodeDestinationHasSecondKey(dest);
+    pwallet->SetAddressBook(dest, label, "receive");
+    
+    UniValue result(UniValue::VOBJ);
+    result.pushKV("address", EncodeDestinationHasSecondKey(dest));
+    result.pushKV("privatekey", EncodeSecret(secret));
+    return result;
+}
+
 static UniValue getcurrentaddress(const JSONRPCRequest& request)
 {
     CWallet * const pwallet = GetWalletForJSONRPCRequest(request);
@@ -5181,6 +5281,8 @@ static const CRPCCommand commands[] =
     { "wallet",             "getcurrentaddress",                &getcurrentaddress,             {} },
     { "wallet",             "getcurrentnickname",               &getcurrentnickname,             {} },
     { "wallet",             "getnewaddress",                    &getnewaddress,                 {"label|account","address_type"} },
+    { "wallet",             "getnewwatchonlyaddress",           &getnewwatchonlyaddress,        {"label|account","address_type"} },
+    { "wallet",             "getnewwatchonlyaddresswithaddressaslabel",           &getnewwatchonlyaddresswithaddressaslabel,        {"label|account","address_type"} },
     { "wallet",             "getrawchangeaddress",              &getrawchangeaddress,           {"address_type"} },
     { "wallet",             "getreceivedbyaddress",             &getreceivedbyaddress,          {"address","minconf"} },
     { "wallet",             "gettransaction",                   &gettransaction,                {"txid","include_watchonly"} },
