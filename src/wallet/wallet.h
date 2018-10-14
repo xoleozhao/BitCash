@@ -877,6 +877,7 @@ public:
     bool FillTxOutForTransaction(CTxOut& out,CTxDestination destination,std::string referenceline);
     bool GetRealAddressAndRefline(CTxOut out,CPubKey& recipientpubkey,std::string& referenceline,std::string mpk,bool usempk) const;
     bool GetRealAddressAsSender(CTxOut out,CPubKey& recipientpubkey) const;
+    bool GetRealAddressAsReceiver(CTxOut txout,CPubKey& recipientpubkey) const;
 
 
     /**
@@ -959,7 +960,7 @@ public:
     CAmount GetWatchOnlyBalance() const;
     CAmount GetUnconfirmedWatchOnlyBalance() const;
     CAmount GetImmatureWatchOnlyBalance() const;
-    CAmount GetLegacyBalance(const isminefilter& filter, int minDepth, const std::string* account) const;
+    CAmount GetLegacyBalance(const isminefilter& filter, int minDepth, const std::string* account);
     CAmount GetAvailableBalance(const CCoinControl* coinControl = nullptr) const;
 
     OutputType TransactionChangeType(OutputType change_type, const std::vector<CRecipient>& vecSend);

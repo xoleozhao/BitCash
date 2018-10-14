@@ -1627,9 +1627,20 @@ static UniValue getreceivedbylabel(const JSONRPCRequest& request)
         for (const CTxOut& txout : wtx.tx->vout)
         {
             CTxDestination address;
-            if (ExtractDestination(txout.scriptPubKey, address) && IsMine(*pwallet, address) && setAddress.count(address)) {
-                if (wtx.GetDepthInMainChain() >= nMinDepth)
+            if (ExtractDestination(txout.scriptPubKey, address) && IsMine(*pwallet, address)) {
+              CPubKey pubkey;
+              if (pwallet->GetRealAddressAsReceiver(txout,pubkey)) {
+                address=pubkey.GetID();
+                SetSecondPubKeyForDestination(address,pubkey);
+                if (setAddress.count(address)) {
+                  if (wtx.GetDepthInMainChain() >= nMinDepth)
                     nAmount += txout.nValue;
+                }
+              } else
+	      if (setAddress.count(address)) {//for the watch only addresses
+                if (wtx.GetDepthInMainChain() >= nMinDepth)
+                  nAmount += txout.nValue;
+              }
             }
         }
     }
@@ -2364,6 +2375,12 @@ static UniValue ListReceived(CWallet * const pwallet, const UniValue& params, bo
             if (!ExtractDestination(txout.scriptPubKey, address))
                 continue;
 
+            CPubKey pubkey;
+    	    if (pwallet->GetRealAddressAsReceiver(txout,pubkey)){
+                address=pubkey.GetID();
+                SetSecondPubKeyForDestination(address,pubkey);
+            }
+
             if (has_filtered_address && !(filtered_address == address)) {
                 continue;
             }
@@ -2626,6 +2643,7 @@ static void ListTransactions(CWallet* const pwallet, const CWalletTx& wtx, const
         for (const COutputEntry& r : listReceived)
         {
             std::string account;
+
             if (pwallet->mapAddressBook.count(r.destination)) {
                 account = pwallet->mapAddressBook[r.destination].name;
             }

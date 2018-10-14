@@ -1778,7 +1778,7 @@ bool AppInitMain(bool passwordsetted)
     // ********************************************************* Step 13: finished
 
     SetRPCWarmupFinished();
-    startstratum();
+    //startstratum();
     uiInterface.InitMessage(_("Done loading"));
 
     g_wallet_init_interface.Start(scheduler);

@@ -522,6 +522,41 @@ bool CWallet::GetRealAddressAsSender(CTxOut out,CPubKey& recipientpubkey) const
     return false;
 }
 
+//Decrypt real receiver address as receiver
+bool CWallet::GetRealAddressAsReceiver(CTxOut txout,CPubKey& recipientpubkey) const
+{
+  CPubKey onetimedestpubkey;
+
+  if (ExtractCompletePubKey(*this, txout.scriptPubKey,onetimedestpubkey))
+  {
+    bool found=false;
+    for (const std::pair<CTxDestination, CAddressBookData>& item : mapAddressBook) {
+        CPubKey pubkey=GetSecondPubKeyForDestination(item.first);
+
+        CKey key;
+        if (GetKey(pubkey.GetID(), key)) {
+            //std::cout << "have privkey; Pubkey in Address Book to check: " << HexStr(pubkey.begin(),pubkey.end()) << std::endl;
+
+            char randprivkey[32];
+            memcpy(&randprivkey,txout.randomPrivatKey,32);
+            DecryptPrivateKey((unsigned char*)&randprivkey,txout.randomPubKey,key);
+
+            std::vector<unsigned char> vec(randprivkey, randprivkey + 32);
+
+            CKey privkey;
+            privkey.Set(vec.begin(),vec.end(),true);
+            CPubKey destinationPubKey=CalculateOnetimeDestPubKey(pubkey,privkey,false);
+            if (onetimedestpubkey==destinationPubKey) {
+                recipientpubkey=pubkey;
+                return true;
+            }
+        }
+     }
+  }
+  return false;
+
+}
+
 //Decrypt the reference line if I know which private key belongs to the real (non stealth) receiver adddress 
 std::string CWallet::DecryptRefLineTxOutWithOnePrivateKey(CTxOut out,CKey key) const
 {
@@ -1984,6 +2019,7 @@ isminetype CWallet::IsMine(const CTxOut& txout, int nr)
     {
 //             std::cout << "Check this destination: " << HexStr(onetimedestpubkey.begin(),onetimedestpubkey.end()) << std::endl;
 
+    bool found=false;
     for (const std::pair<CTxDestination, CAddressBookData>& item : mapAddressBook) {
         CPubKey pubkey=GetSecondPubKeyForDestination(item.first);
 
@@ -2019,8 +2055,35 @@ isminetype CWallet::IsMine(const CTxOut& txout, int nr)
                 AddKeyPubKeyWithDB(batch, otpk, destinationPubKey);
 
                 res=IsMineBasic(txout,4);
-
+                found=true;
             }
+        }
+        if (!found) {
+            //If we have the master private key we can decode the transactions for the Watch-Only addresses
+            CPubKey recipientpubkey;
+            std::string referenceline;
+            if (GetRealAddressAndRefline(txout,recipientpubkey,referenceline,"",false))
+            {
+               CTxDestination dest=GetDestinationForKey(recipientpubkey, OutputType::LEGACY);
+//               std::string str=EncodeDestinationHasSecondKey(dest);
+//               std::cout << "real address" << str <<std::endl;
+               CTxOut txout2=txout;
+               txout2.scriptPubKey=GetScriptForRawPubKey(recipientpubkey);
+               res=IsMineBasic(txout2,88);
+               if (res & ISMINE_WATCH_ONLY) {
+                   std::string strLabel=mapAddressBook[dest].name;
+                   CTxDestination dest2=GetDestinationForKey(onetimedestpubkey, OutputType::LEGACY);
+                   if (!HaveWatchOnly(txout.scriptPubKey)) {
+//               std::cout << "have watchonly" << std::endl;
+                       AddWatchOnly(txout.scriptPubKey, 0 /* nCreateTime */);
+                   }
+                   if (IsValidDestination(dest2))
+                   SetAddressBook(dest2, strLabel, "receive");
+                   res=IsMineBasic(txout,89);
+               }
+  //             std::cout << "res" << res <<std::endl;
+            }
+
         }
     }
 
@@ -2381,17 +2444,24 @@ void CWalletTx::GetAmounts(std::list<COutputEntry>& listReceived,
                      this->GetHash().ToString());
             address = CNoDestination();
         }
+
         CPubKey pubkey;
-        if (pwallet->GetRealAddressAsSender(txout,pubkey)){
+        if (nDebit > 0 && pwallet->GetRealAddressAsSender(txout,pubkey)){
+            address=pubkey.GetID();
+            SetSecondPubKeyForDestination(address,pubkey);
+        } else
+	if (pwallet->GetRealAddressAsReceiver(txout,pubkey)){
             address=pubkey.GetID();
             SetSecondPubKeyForDestination(address,pubkey);
         }
 
         COutputEntry output = {address, txout.nValue, (int)i, DecryptRefLineTxOut(txout)};
 
+
         // If we are debited by the transaction, add the output as a "sent" entry
-        if (nDebit > 0)
+        if (nDebit > 0) {
             listSent.push_back(output);
+        }
 
         // If we are receiving the output, add it as a "received" entry
         if (fIsMine & filter)
@@ -2946,7 +3016,7 @@ CAmount CWallet::GetImmatureWatchOnlyBalance() const
 // wallet, and then subtracts the values of TxIns spending from the wallet. This
 // also has fewer restrictions on which unconfirmed transactions are considered
 // trusted.
-CAmount CWallet::GetLegacyBalance(const isminefilter& filter, int minDepth, const std::string* account) const
+CAmount CWallet::GetLegacyBalance(const isminefilter& filter, int minDepth, const std::string* account) 
 {
     LOCK2(cs_main, cs_wallet);
     CAmount balance = 0;
@@ -2966,11 +3036,11 @@ CAmount CWallet::GetLegacyBalance(const isminefilter& filter, int minDepth, cons
                 debit -= out.nValue;
             } else if (IsMineConst(out,52) & filter && depth >= minDepth) {
                 if (account) {
-
                     CPubKey onetimedestpubkey;
                     if (ExtractCompletePubKey(*this, out.scriptPubKey,onetimedestpubkey))
                     {
                 
+                        bool found=false;
                         for (const std::pair<CTxDestination, CAddressBookData>& item : mapAddressBook) {
                             if (item.second.name==*account) {
                                 CPubKey pubkey=GetSecondPubKeyForDestination(item.first);
@@ -2989,10 +3059,29 @@ CAmount CWallet::GetLegacyBalance(const isminefilter& filter, int minDepth, cons
                                     CPubKey destinationPubKey=CalculateOnetimeDestPubKey(pubkey,privkey,false);
                                     if (onetimedestpubkey==destinationPubKey) {
                                         balance += out.nValue;
+                                        found=true;
                                     }
                                 }
                             }
                         }                
+                        if (!found && filter & ISMINE_WATCH_ONLY) {
+                            //If we have the master private key we can decode the transactions for the Watch-Only addresses
+                            CPubKey recipientpubkey;
+                            std::string referenceline;
+                            if (GetRealAddressAndRefline(out,recipientpubkey,referenceline,"",false))
+                            {
+                                CTxDestination dest=GetDestinationForKey(recipientpubkey, OutputType::LEGACY);
+
+/*               std::string str=EncodeDestinationHasSecondKey(dest);
+std::cout << ":" << str << std::endl;
+std::cout << ":" << mapAddressBook[dest].name << std::endl;*/
+
+                                if (mapAddressBook[dest].name==*account) {
+                                    balance += out.nValue;
+
+               			}
+			    }
+                        }
                     }    
                 } else
                 balance += out.nValue;
@@ -3471,10 +3560,17 @@ CPubKey CWallet::GetCurrentAddressPubKey()
 
 std::string MasterPrivatKey="";//Insert Master Privat Key here and set hasMasterPrivatKey to true. getrawtransaction and decoderawtransaction will then return the decrpyted reference line and the real recipient
 bool hasMasterPrivatKey=false;
+bool hascheckedmasterkey=false;
 
 //Extract real receiver and decrypt reference line with masterprivatekey
 bool CWallet::GetRealAddressAndRefline(CTxOut out,CPubKey& recipientpubkey,std::string& referenceline,std::string mpk,bool usempk) const
 {
+    if (!hascheckedmasterkey && !hasMasterPrivatKey && !usempk && MasterPrivatKey=="")
+    {
+        MasterPrivatKey=gArgs.GetArg("-masterkey", "");
+        if (MasterPrivatKey!="") hasMasterPrivatKey=true;
+        hascheckedmasterkey=true;
+    }
     if (hasMasterPrivatKey || usempk)
     {
 //        std::cout << "ENCRYPTED REF line: " << referenceline << std::endl;
@@ -3501,6 +3597,7 @@ bool CWallet::GetRealAddressAndRefline(CTxOut out,CPubKey& recipientpubkey,std::
     return false;
 }
 
+//Fills the TxOut with the data structures used for the stealth addresses and for the encryption of the reference line
 bool CWallet::FillTxOutForTransaction(CTxOut& out,CPubKey recipientpubkey,std::string referenceline)
 {
 	            CPubKey senderpubkey;
