@@ -208,14 +208,14 @@ UniValue getaddressforprivkey(const JSONRPCRequest& request)
         );
 
 
-        std::string strSecret = request.params[0].get_str();
-        CKey key = DecodeSecret(strSecret);
-        if (!key.IsValid()) throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid private key encoding");
+    std::string strSecret = request.params[0].get_str();
+    CKey key = DecodeSecret(strSecret);
+    if (!key.IsValid()) throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid private key encoding");
 
-        CPubKey pubkey = key.GetPubKey();
-        CTxDestination dest=GetDestinationForKey(pubkey, OutputType::LEGACY);
-        std::string str=EncodeDestinationHasSecondKey(dest);
-        assert(key.VerifyPubKey(pubkey));
+    CPubKey pubkey = key.GetPubKey();
+    CTxDestination dest=GetDestinationForKey(pubkey, OutputType::LEGACY);
+    std::string str=EncodeDestinationHasSecondKey(dest);
+    assert(key.VerifyPubKey(pubkey));
 
     return str;
 }

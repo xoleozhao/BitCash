@@ -450,11 +450,17 @@ public:
 
     //! filter decides which addresses will count towards the debit
     CAmount GetDebit(const isminefilter& filter) const;
+    CAmount GetDebitForAddress(CTxDestination dest) const;
     CAmount GetCredit(const isminefilter& filter) const;
     CAmount GetImmatureCredit(bool fUseCache=true) const;
     CAmount GetAvailableCredit(bool fUseCache=true) const;
     CAmount GetImmatureWatchOnlyCredit(const bool fUseCache=true) const;
     CAmount GetAvailableWatchOnlyCredit(const bool fUseCache=true) const;
+    CAmount GetAvailableWatchOnlyCreditForOneDestination(CTxDestination dest) const;
+    CAmount GetImmatureWatchOnlyCreditForOneDestination(CTxDestination dest) const;
+    CAmount GetAvailableCreditForOneDestination(CTxDestination dest, bool fUseCache=true) const;
+    CAmount GetImmatureCreditForOneDestination(CTxDestination dest) const;
+
     CAmount GetChange() const;
 
     std::string DecryptRefLineTxOut(CTxOut out) const;
@@ -467,6 +473,9 @@ public:
 
     void GetAmounts(std::list<COutputEntry>& listReceived,
                     std::list<COutputEntry>& listSent, CAmount& nFee, std::string& strSentAccount, const isminefilter& filter) const;
+
+    void GetAmountsForAddress(CTxDestination dest, std::list<COutputEntry>& listReceived,
+                           std::list<COutputEntry>& listSent, CAmount& nFee) const;
 
     bool IsFromMe(const isminefilter& filter) const
     {
@@ -773,7 +782,7 @@ public:
      * if they are not ours
      */
     bool SelectCoins(const std::vector<COutput>& vAvailableCoins, const CAmount& nTargetValue, std::set<CInputCoin>& setCoinsRet, CAmount& nValueRet,
-                    const CCoinControl& coin_control, CoinSelectionParams& coin_selection_params, bool& bnb_used) const;
+                    const CCoinControl& coin_control, CoinSelectionParams& coin_selection_params, bool& bnb_used, bool willprovideprivatekeylater) const;
 
     /** Get a name for this wallet for logging/debugging purposes.
      */
@@ -826,7 +835,7 @@ public:
     /**
      * populate vCoins with vector of available COutputs.
      */
-    void AvailableCoins(std::vector<COutput>& vCoins, bool fOnlySafe=true, const CCoinControl *coinControl = nullptr, const CAmount& nMinimumAmount = 1, const CAmount& nMaximumAmount = MAX_MONEY, const CAmount& nMinimumSumAmount = MAX_MONEY, const uint64_t nMaximumCount = 0, const int nMinDepth = 0, const int nMaxDepth = 9999999) const;
+    void AvailableCoins(std::vector<COutput>& vCoins, bool fOnlySafe=true, const CCoinControl *coinControl = nullptr, const CAmount& nMinimumAmount = 1, const CAmount& nMaximumAmount = MAX_MONEY, const CAmount& nMinimumSumAmount = MAX_MONEY, const uint64_t nMaximumCount = 0, const int nMinDepth = 0, const int nMaxDepth = 99999999, bool onlyforonedest = false, CTxDestination dest = CNoDestination()) const;
 
     /**
      * Return list of available coins and locked coins grouped by non-change output address.
@@ -845,7 +854,7 @@ public:
      * assembled
      */
     bool SelectCoinsMinConf(const CAmount& nTargetValue, const CoinEligibilityFilter& eligibility_filter, std::vector<COutput> vCoins,
-        std::set<CInputCoin>& setCoinsRet, CAmount& nValueRet, const CoinSelectionParams& coin_selection_params, bool& bnb_used) const;
+        std::set<CInputCoin>& setCoinsRet, CAmount& nValueRet, const CoinSelectionParams& coin_selection_params, bool& bnb_used, bool willprovideprivatekeylater) const;
 
     bool IsSpent(const uint256& hash, unsigned int n) const;
 
@@ -955,11 +964,17 @@ public:
     // ResendWalletTransactionsBefore may only be called if fBroadcastTransactions!
     std::vector<uint256> ResendWalletTransactionsBefore(int64_t nTime, CConnman* connman);
     CAmount GetBalance() const;
+    CAmount GetBalanceForAddress(CTxDestination dest) const;
     CAmount GetUnconfirmedBalance() const;
     CAmount GetImmatureBalance() const;
     CAmount GetWatchOnlyBalance() const;
     CAmount GetUnconfirmedWatchOnlyBalance() const;
     CAmount GetImmatureWatchOnlyBalance() const;
+    CAmount GetUnconfirmedBalanceForAddress(CTxDestination dest) const;
+    CAmount GetImmatureBalanceForAddress(CTxDestination dest) const;
+    CAmount GetWatchOnlyBalanceForAddress(CTxDestination dest) const;
+    CAmount GetUnconfirmedWatchOnlyBalanceForAddress(CTxDestination dest) const;
+    CAmount GetImmatureWatchOnlyBalanceForAddress(CTxDestination dest) const;
     CAmount GetLegacyBalance(const isminefilter& filter, int minDepth, const std::string* account);
     CAmount GetAvailableBalance(const CCoinControl* coinControl = nullptr) const;
 
@@ -978,9 +993,12 @@ public:
      * selected by SelectCoins(); Also create the change output, when needed
      * @note passing nChangePosInOut as -1 will result in setting a random position
      */
-    bool CreateTransaction(const std::vector<CRecipient>& vecSend, CTransactionRef& tx, CReserveKey& reservekey, CAmount& nFeeRet, int& nChangePosInOut,
-                           std::string& strFailReason, const CCoinControl& coin_control, bool sign = true);
-    bool CreateTransactionToMe(uint256& txid, int outnr, CKey key, CAmount nValue, const CScript& scriptPubKey, std::string refline, CTransactionRef& tx, std::string& strFailReason, const CCoinControl& coin_control, CTxOut output);
+    bool CreateTransaction(const std::vector<CRecipient>& vecSend, CTransactionRef& tx, CReserveKey& reservekey, CAmount& nFeeRet,
+                           int& nChangePosInOut, std::string& strFailReason, const CCoinControl& coin_control, bool sign = true, 
+                           bool onlyfromoneaddress = false, CTxDestination fromaddress =  CNoDestination(), 
+                           bool provideprivatekey = false, CKey privatekey = CKey());
+    bool CreateTransactionToMe(uint256& txid, int outnr, CKey key, CAmount nValue, const CScript& scriptPubKey, std::string refline, CTransactionRef& tx, std::string& strFailReason, const CCoinControl& coin_control, CTxOut output,
+                           bool onlyfromoneaddress = false, CTxDestination fromaddress =  CNoDestination());
     bool CommitNicknameTransaction(CTransactionRef tx, std::vector<std::pair<std::string, std::string>> orderForm, std::string fromAccount,  CConnman* connman, CValidationState& state);
 
     bool CommitTransaction(CTransactionRef tx, mapValue_t mapValue, std::vector<std::pair<std::string, std::string>> orderForm, std::string fromAccount, CReserveKey& reservekey, CConnman* connman, CValidationState& state, bool keepkey=true, bool frombitcashexpresslink=false);
@@ -1041,13 +1059,16 @@ public:
      * Returns amount of debit if the input matches the
      * filter, otherwise returns 0
      */
-    CAmount GetDebit(const CTxIn& txin, const isminefilter& filter) const;
+    CAmount GetDebit(const CTxIn& txin, const isminefilter& filter) const;   
+    CAmount GetDebitForAddress(CTxDestination dest, const CTxIn &txin) const;
     isminetype IsMineConst(const CTxOut& txout, int nr) const;
+    isminetype IsMineForOneDestination(const CTxOut& txout, CTxDestination& desttocheck) const;
     isminetype IsMine(const CTxOut& txout, int nr);
     isminetype IsMineBasic(const CTxOut& txout, int nr);    
 
     CAmount GetCredit(const CTxOut& txout, const isminefilter& filter) const;
     bool IsChange(const CTxOut& txout) const;
+    bool IsChangeForAddress(CTxDestination dest, const CTxOut& txout) const;
     CAmount GetChange(const CTxOut& txout) const;
     bool IsMine(const CTransaction& tx);
     bool IsMineForScanningBlockchain(const CTransaction& tx);
@@ -1055,9 +1076,11 @@ public:
     /** should probably be renamed to IsRelevantToMe */
     bool IsFromMe(const CTransaction& tx);
     CAmount GetDebit(const CTransaction& tx, const isminefilter& filter) const;
+    CAmount GetDebitForAddress(CTxDestination dest, const CTransaction& tx) const;
     /** Returns whether all of the inputs match the filter */
     bool IsAllFromMe(const CTransaction& tx, const isminefilter& filter) const;
     CAmount GetCredit(const CTransaction& tx, const isminefilter& filter) const;
+    CAmount GetCreditForOneDestination(CTxDestination dest,const CTransaction& tx, const isminefilter& filter) const;
     CAmount GetChange(const CTransaction& tx) const;
     void ChainStateFlushed(const CBlockLocator& loc) override;
 
@@ -1201,7 +1224,7 @@ public:
     CTxDestination AddAndGetDestinationForScript(const CScript& script, OutputType);
 
     /** Whether a given output is spendable by this wallet */
-    bool OutputEligibleForSpending(const COutput& output, const CoinEligibilityFilter& eligibility_filter) const;
+    bool OutputEligibleForSpending(const COutput& output, const CoinEligibilityFilter& eligibility_filter, bool willprovideprivatekeylater) const;
 };
 
 /** A key allocated from the key pool. */

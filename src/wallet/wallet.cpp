@@ -529,7 +529,6 @@ bool CWallet::GetRealAddressAsReceiver(CTxOut txout,CPubKey& recipientpubkey) co
 
   if (ExtractCompletePubKey(*this, txout.scriptPubKey,onetimedestpubkey))
   {
-    bool found=false;
     for (const std::pair<CTxDestination, CAddressBookData>& item : mapAddressBook) {
         CPubKey pubkey=GetSecondPubKeyForDestination(item.first);
 
@@ -1994,6 +1993,25 @@ CAmount CWallet::GetDebit(const CTxIn &txin, const isminefilter& filter) const
     return 0;
 }
 
+// Note that this function doesn't distinguish between a 0-valued input,
+// and a not-"is mine" (according to the filter) input.
+CAmount CWallet::GetDebitForAddress(CTxDestination dest, const CTxIn &txin) const
+{
+    {
+        LOCK(cs_wallet);
+        std::map<uint256, CWalletTx>::const_iterator mi = mapWallet.find(txin.prevout.hash);
+        if (mi != mapWallet.end())
+        {
+            const CWalletTx& prev = (*mi).second;
+            if (txin.prevout.n < prev.tx->vout.size())
+                if (IsMineForOneDestination(prev.tx->vout[txin.prevout.n], dest) != ISMINE_NO) {
+                    return prev.tx->vout[txin.prevout.n].nValue;
+                }
+        }
+    }
+    return 0;
+}
+
 isminetype CWallet::IsMineBasic(const CTxOut& txout, int nr)
 {
     return ::IsMine(*this, txout.scriptPubKey,txout.randomPubKey,(char*)&txout.randomPrivatKey);
@@ -2002,6 +2020,47 @@ isminetype CWallet::IsMineBasic(const CTxOut& txout, int nr)
 isminetype CWallet::IsMineConst(const CTxOut& txout, int nr) const
 {
     return ::IsMine(*this, txout.scriptPubKey,txout.randomPubKey,(char*)&txout.randomPrivatKey);
+}
+
+isminetype CWallet::IsMineForOneDestination(const CTxOut& txout, CTxDestination& desttocheck) const
+{
+    CPubKey onetimedestpubkey;
+
+    if (ExtractCompletePubKey(*this, txout.scriptPubKey,onetimedestpubkey))
+    {
+        CPubKey pubkey=GetSecondPubKeyForDestination(desttocheck);
+
+        CKey key;
+        if (GetKey(pubkey.GetID(), key)) {
+            //std::cout << "have privkey; Pubkey in Address Book to check: " << HexStr(pubkey.begin(),pubkey.end()) << std::endl;
+
+            char randprivkey[32];
+            memcpy(&randprivkey,txout.randomPrivatKey,32);
+            DecryptPrivateKey((unsigned char*)&randprivkey,txout.randomPubKey,key);
+
+            std::vector<unsigned char> vec(randprivkey, randprivkey + 32);
+
+            CKey privkey;
+            privkey.Set(vec.begin(),vec.end(),true);
+            CPubKey destinationPubKey=CalculateOnetimeDestPubKey(pubkey,privkey,false);
+            if (onetimedestpubkey==destinationPubKey) {                
+                return ISMINE_SPENDABLE;
+            }
+        }
+
+        //If we have the master private key we can decode the transactions for the Watch-Only addresses
+        CPubKey recipientpubkey;
+        std::string referenceline;
+        if (GetRealAddressAndRefline(txout,recipientpubkey,referenceline,"",false))
+        {
+           if (recipientpubkey==pubkey) {
+               return ISMINE_WATCH_ONLY;
+           }
+        }
+
+    }
+
+    return ISMINE_NO;
 }
 
 isminetype CWallet::IsMine(const CTxOut& txout, int nr)
@@ -2123,6 +2182,15 @@ bool CWallet::IsChange(const CTxOut& txout) const
     return false;
 }
 
+bool CWallet::IsChangeForAddress(CTxDestination dest, const CTxOut& txout) const
+{
+    if (IsMineForOneDestination(txout, dest) != ISMINE_NO)
+    {
+        return true;
+    }
+    return false;
+}
+
 CAmount CWallet::GetChange(const CTxOut& txout) const
 {
     if (!MoneyRange(txout.nValue))
@@ -2167,6 +2235,18 @@ CAmount CWallet::GetDebit(const CTransaction& tx, const isminefilter& filter) co
     return nDebit;
 }
 
+CAmount CWallet::GetDebitForAddress(CTxDestination dest, const CTransaction& tx) const
+{
+    CAmount nDebit = 0;
+    for (const CTxIn& txin : tx.vin)
+    {
+        nDebit += GetDebitForAddress(dest, txin);
+        if (!MoneyRange(nDebit))
+            throw std::runtime_error(std::string(__func__) + ": value out of range");
+    }
+    return nDebit;
+}
+
 bool CWallet::IsAllFromMe(const CTransaction& tx, const isminefilter& filter) const
 {
     LOCK(cs_wallet);
@@ -2193,6 +2273,19 @@ CAmount CWallet::GetCredit(const CTransaction& tx, const isminefilter& filter) c
     CAmount nCredit = 0;
     for (const CTxOut& txout : tx.vout)
     {
+        nCredit += GetCredit(txout, filter);
+        if (!MoneyRange(nCredit))
+            throw std::runtime_error(std::string(__func__) + ": value out of range");
+    }
+    return nCredit;
+}
+
+CAmount CWallet::GetCreditForOneDestination(CTxDestination dest,const CTransaction& tx, const isminefilter& filter) const
+{
+    CAmount nCredit = 0;
+    for (const CTxOut& txout : tx.vout)
+    {
+        if (IsMineForOneDestination(txout, dest) == ISMINE_NO) continue;
         nCredit += GetCredit(txout, filter);
         if (!MoneyRange(nCredit))
             throw std::runtime_error(std::string(__func__) + ": value out of range");
@@ -2470,6 +2563,77 @@ void CWalletTx::GetAmounts(std::list<COutputEntry>& listReceived,
 
 }
 
+void CWalletTx::GetAmountsForAddress(CTxDestination dest, std::list<COutputEntry>& listReceived,
+                           std::list<COutputEntry>& listSent, CAmount& nFee) const
+{
+    nFee = 0;
+    listReceived.clear();
+    listSent.clear();
+
+    // Compute fee:
+    CAmount nDebit = GetDebitForAddress(dest);
+    if (nDebit > 0) // debit>0 means we signed/sent this transaction
+    {
+        CAmount nValueOut = tx->GetValueOut();
+        nFee = nDebit - nValueOut;
+    }
+
+    // Sent/received.
+    for (unsigned int i = 0; i < tx->vout.size(); ++i)
+    {
+        const CTxOut& txout = tx->vout[i];
+        isminetype fIsMine = ISMINE_NO;
+        // Only need to handle txouts if AT LEAST one of these is true:
+        //   1) they debit from us (sent)
+        //   2) the output is to us (received)
+        if (nDebit > 0)
+        {
+            // Don't report 'change' txouts
+            if (pwallet->IsChangeForAddress(dest, txout)) {
+                continue;
+            }
+        }
+        else {
+            fIsMine = pwallet->IsMineForOneDestination(txout,dest);
+            if (fIsMine==ISMINE_NO)
+            continue;
+        }
+
+        // In either case, we need to get the destination address
+        CTxDestination address;
+
+        if (!ExtractDestination(txout.scriptPubKey, address) && !txout.scriptPubKey.IsUnspendable())
+        {
+            LogPrintf("CWalletTx::GetAmounts: Unknown transaction type found, txid %s\n",
+                     this->GetHash().ToString());
+            address = CNoDestination();
+        }
+
+
+        CPubKey pubkey;
+        if (nDebit > 0 && pwallet->GetRealAddressAsSender(txout,pubkey)){
+            address=pubkey.GetID();
+            SetSecondPubKeyForDestination(address,pubkey);
+        } else
+	if (pwallet->GetRealAddressAsReceiver(txout,pubkey)){
+            address=pubkey.GetID();
+            SetSecondPubKeyForDestination(address,pubkey);           
+        }
+
+        COutputEntry output = {address, txout.nValue, (int)i, DecryptRefLineTxOut(txout)};
+
+        // If we are debited by the transaction, add the output as a "sent" entry
+        if (nDebit > 0) {
+            listSent.push_back(output);
+        }
+
+        // If we are receiving the output, add it as a "received" entry
+        if (fIsMine!=ISMINE_NO)
+            listReceived.push_back(output);
+    }
+
+}
+
 /**
  * Scan active chain for relevant transactions after importing keys. This should
  * be called whenever new keys are added to the wallet, with the oldest key
@@ -2687,6 +2851,14 @@ CAmount CWalletTx::GetDebit(const isminefilter& filter) const
     return debit;
 }
 
+CAmount CWalletTx::GetDebitForAddress(CTxDestination dest) const
+{
+    if (tx->vin.empty())
+        return 0;
+
+    return pwallet->GetDebitForAddress(dest, *tx);
+}
+
 CAmount CWalletTx::GetCredit(const isminefilter& filter) const
 {
     // Must wait until coinbase is safely deep enough in the chain before valuing it
@@ -2734,6 +2906,16 @@ CAmount CWalletTx::GetImmatureCredit(bool fUseCache) const
     return 0;
 }
 
+CAmount CWalletTx::GetImmatureCreditForOneDestination(CTxDestination dest) const
+{
+    if (IsCoinBase() && GetBlocksToMaturity() > 0 && IsInMainChain())
+    {
+        return pwallet->GetCreditForOneDestination(dest, *tx, ISMINE_SPENDABLE);
+    }
+
+    return 0;
+}
+
 CAmount CWalletTx::GetAvailableCredit(bool fUseCache) const
 {
     if (pwallet == nullptr)
@@ -2764,6 +2946,32 @@ CAmount CWalletTx::GetAvailableCredit(bool fUseCache) const
     return nCredit;
 }
 
+CAmount CWalletTx::GetAvailableCreditForOneDestination(CTxDestination dest, bool fUseCache) const
+{
+    if (pwallet == nullptr)
+        return 0;
+
+    // Must wait until coinbase is safely deep enough in the chain before valuing it
+    if (IsCoinBase() && GetBlocksToMaturity() > 0)
+        return 0;
+
+    CAmount nCredit = 0;
+    uint256 hashTx = GetHash();
+    for (unsigned int i = 0; i < tx->vout.size(); i++)
+    {
+        if (!pwallet->IsSpent(hashTx, i))
+        {
+            const CTxOut &txout = tx->vout[i];
+            if (pwallet->IsMineForOneDestination(tx->vout[i], dest) == ISMINE_NO) continue;
+            nCredit += pwallet->GetCredit(txout, ISMINE_SPENDABLE);
+            if (!MoneyRange(nCredit))
+                throw std::runtime_error(std::string(__func__) + " : value out of range");
+        }
+    }
+
+    return nCredit;
+}
+
 CAmount CWalletTx::GetImmatureWatchOnlyCredit(const bool fUseCache) const
 {
     if (IsCoinBase() && GetBlocksToMaturity() > 0 && IsInMainChain())
@@ -2773,6 +2981,16 @@ CAmount CWalletTx::GetImmatureWatchOnlyCredit(const bool fUseCache) const
         nImmatureWatchCreditCached = pwallet->GetCredit(*tx, ISMINE_WATCH_ONLY);
         fImmatureWatchCreditCached = true;
         return nImmatureWatchCreditCached;
+    }
+
+    return 0;
+}
+
+CAmount CWalletTx::GetImmatureWatchOnlyCreditForOneDestination(CTxDestination dest) const
+{
+    if (IsCoinBase() && GetBlocksToMaturity() > 0 && IsInMainChain())
+    {
+        return pwallet->GetCreditForOneDestination(dest, *tx, ISMINE_WATCH_ONLY);
     }
 
     return 0;
@@ -2804,6 +3022,31 @@ CAmount CWalletTx::GetAvailableWatchOnlyCredit(const bool fUseCache) const
 
     nAvailableWatchCreditCached = nCredit;
     fAvailableWatchCreditCached = true;
+    return nCredit;
+}
+
+CAmount CWalletTx::GetAvailableWatchOnlyCreditForOneDestination(CTxDestination dest) const
+{
+    if (pwallet == nullptr)
+        return 0;
+
+    // Must wait until coinbase is safely deep enough in the chain before valuing it
+    if (IsCoinBase() && GetBlocksToMaturity() > 0)
+        return 0;
+
+    CAmount nCredit = 0;
+    for (unsigned int i = 0; i < tx->vout.size(); i++)
+    {
+        if (!pwallet->IsSpent(GetHash(), i))
+        {
+            const CTxOut &txout = tx->vout[i];
+            if (pwallet->IsMineForOneDestination(txout, dest) == ISMINE_NO) continue;
+            nCredit += pwallet->GetCredit(txout, ISMINE_WATCH_ONLY);
+            if (!MoneyRange(nCredit))
+                throw std::runtime_error(std::string(__func__) + ": value out of range");
+        }
+    }
+   
     return nCredit;
 }
 
@@ -2936,6 +3179,22 @@ CAmount CWallet::GetBalance() const
     return nTotal;
 }
 
+CAmount CWallet::GetBalanceForAddress(CTxDestination dest) const
+{
+    CAmount nTotal = 0;
+    { 
+        LOCK2(cs_main, cs_wallet);
+        for (const auto& entry : mapWallet)
+        {
+            const CWalletTx* pcoin = &entry.second;
+            if (pcoin->IsTrusted())
+                nTotal += pcoin->GetAvailableCreditForOneDestination(dest);
+        }
+    }
+
+    return nTotal;
+}
+
 CAmount CWallet::GetUnconfirmedBalance() const
 {
     CAmount nTotal = 0;
@@ -2951,6 +3210,22 @@ CAmount CWallet::GetUnconfirmedBalance() const
     return nTotal;
 }
 
+CAmount CWallet::GetUnconfirmedBalanceForAddress(CTxDestination dest) const
+{
+    CAmount nTotal = 0;
+    {
+        LOCK2(cs_main, cs_wallet);
+        for (const auto& entry : mapWallet)
+        {
+            const CWalletTx* pcoin = &entry.second;
+            if (!pcoin->IsTrusted() && pcoin->GetDepthInMainChain() == 0 && pcoin->InMempool())
+                nTotal += pcoin->GetAvailableCreditForOneDestination(dest);
+        }
+    }
+    return nTotal;
+}
+
+
 CAmount CWallet::GetImmatureBalance() const
 {
     CAmount nTotal = 0;
@@ -2965,6 +3240,21 @@ CAmount CWallet::GetImmatureBalance() const
     return nTotal;
 }
 
+CAmount CWallet::GetImmatureBalanceForAddress(CTxDestination dest) const
+{
+    CAmount nTotal = 0;
+    {
+        LOCK2(cs_main, cs_wallet);
+        for (const auto& entry : mapWallet)
+        {
+            const CWalletTx* pcoin = &entry.second;
+            nTotal += pcoin->GetImmatureCreditForOneDestination(dest);
+        }
+    }
+    return nTotal;
+}
+
+
 CAmount CWallet::GetWatchOnlyBalance() const
 {
     CAmount nTotal = 0;
@@ -2975,6 +3265,22 @@ CAmount CWallet::GetWatchOnlyBalance() const
             const CWalletTx* pcoin = &entry.second;
             if (pcoin->IsTrusted())
                 nTotal += pcoin->GetAvailableWatchOnlyCredit();
+        }
+    }
+
+    return nTotal;
+}
+
+CAmount CWallet::GetWatchOnlyBalanceForAddress(CTxDestination dest) const
+{
+    CAmount nTotal = 0;
+    {
+        LOCK2(cs_main, cs_wallet);
+        for (const auto& entry : mapWallet)
+        {
+            const CWalletTx* pcoin = &entry.second;
+            if (pcoin->IsTrusted())
+                nTotal += pcoin->GetAvailableWatchOnlyCreditForOneDestination(dest);
         }
     }
 
@@ -2996,6 +3302,21 @@ CAmount CWallet::GetUnconfirmedWatchOnlyBalance() const
     return nTotal;
 }
 
+CAmount CWallet::GetUnconfirmedWatchOnlyBalanceForAddress(CTxDestination dest) const
+{
+    CAmount nTotal = 0;
+    {
+        LOCK2(cs_main, cs_wallet);
+        for (const auto& entry : mapWallet)
+        {
+            const CWalletTx* pcoin = &entry.second;
+            if (!pcoin->IsTrusted() && pcoin->GetDepthInMainChain() == 0 && pcoin->InMempool())
+                nTotal += pcoin->GetAvailableWatchOnlyCreditForOneDestination(dest);
+        }
+    }
+    return nTotal;
+}
+
 CAmount CWallet::GetImmatureWatchOnlyBalance() const
 {
     CAmount nTotal = 0;
@@ -3009,6 +3330,21 @@ CAmount CWallet::GetImmatureWatchOnlyBalance() const
     }
     return nTotal;
 }
+
+CAmount CWallet::GetImmatureWatchOnlyBalanceForAddress(CTxDestination dest) const
+{
+    CAmount nTotal = 0;
+    {
+        LOCK2(cs_main, cs_wallet);
+        for (const auto& entry : mapWallet)
+        {
+            const CWalletTx* pcoin = &entry.second;
+            nTotal += pcoin->GetImmatureWatchOnlyCreditForOneDestination(dest);
+        }
+    }
+    return nTotal;
+}
+
 
 // Calculate total balance in a different way from GetBalance. The biggest
 // difference is that GetBalance sums up all unspent TxOuts paying to the
@@ -3116,7 +3452,7 @@ CAmount CWallet::GetAvailableBalance(const CCoinControl* coinControl) const
     return balance;
 }
 
-void CWallet::AvailableCoins(std::vector<COutput> &vCoins, bool fOnlySafe, const CCoinControl *coinControl, const CAmount &nMinimumAmount, const CAmount &nMaximumAmount, const CAmount &nMinimumSumAmount, const uint64_t nMaximumCount, const int nMinDepth, const int nMaxDepth) const
+void CWallet::AvailableCoins(std::vector<COutput> &vCoins, bool fOnlySafe, const CCoinControl *coinControl, const CAmount &nMinimumAmount, const CAmount &nMaximumAmount, const CAmount &nMinimumSumAmount, const uint64_t nMaximumCount, const int nMinDepth, const int nMaxDepth, bool onlyforonedest, CTxDestination dest) const
 {
     AssertLockHeld(cs_main);
     AssertLockHeld(cs_wallet);
@@ -3196,12 +3532,18 @@ void CWallet::AvailableCoins(std::vector<COutput> &vCoins, bool fOnlySafe, const
 
             if (IsSpent(wtxid, i))
                 continue;
+            
 
             isminetype mine = IsMineConst(pcoin->tx->vout[i],53);
+
+            if (onlyforonedest) {            
+                mine = IsMineForOneDestination(pcoin->tx->vout[i], dest);
+            }
 
             if (mine == ISMINE_NO) {
                 continue;
             }
+
 
             bool fSpendableIn = ((mine & ISMINE_SPENDABLE) != ISMINE_NO) || (coinControl && coinControl->fAllowWatchOnly && (mine & ISMINE_WATCH_SOLVABLE) != ISMINE_NO);
             bool fSolvableIn = (mine & (ISMINE_SPENDABLE | ISMINE_WATCH_SOLVABLE)) != ISMINE_NO;
@@ -3288,9 +3630,9 @@ const CTxOut& CWallet::FindNonChangeParentOutput(const CTransaction& tx, int out
     return ptx->vout[n];
 }
 
-bool CWallet::OutputEligibleForSpending(const COutput& output, const CoinEligibilityFilter& eligibility_filter) const
+bool CWallet::OutputEligibleForSpending(const COutput& output, const CoinEligibilityFilter& eligibility_filter, bool willprovideprivatekeylater) const
 {
-    if (!output.fSpendable)
+    if (!output.fSpendable && !willprovideprivatekeylater)
         return false;
 
     if (output.nDepth < (output.tx->IsFromMe(ISMINE_ALL) ? eligibility_filter.conf_mine : eligibility_filter.conf_theirs))
@@ -3302,8 +3644,10 @@ bool CWallet::OutputEligibleForSpending(const COutput& output, const CoinEligibi
     return true;
 }
 
-bool CWallet::SelectCoinsMinConf(const CAmount& nTargetValue, const CoinEligibilityFilter& eligibility_filter, std::vector<COutput> vCoins,
-                                 std::set<CInputCoin>& setCoinsRet, CAmount& nValueRet, const CoinSelectionParams& coin_selection_params, bool& bnb_used) const
+bool CWallet::SelectCoinsMinConf(const CAmount& nTargetValue, const CoinEligibilityFilter& eligibility_filter, 
+                                 std::vector<COutput> vCoins,
+                                 std::set<CInputCoin>& setCoinsRet, CAmount& nValueRet, 
+                                 const CoinSelectionParams& coin_selection_params, bool& bnb_used, bool willprovideprivatekeylater) const
 {
     setCoinsRet.clear();
     nValueRet = 0;
@@ -3323,7 +3667,7 @@ bool CWallet::SelectCoinsMinConf(const CAmount& nTargetValue, const CoinEligibil
         // Filter by the min conf specs and add to utxo_pool and calculate effective value
         for (const COutput &output : vCoins)
         {
-            if (!OutputEligibleForSpending(output, eligibility_filter))
+            if (!OutputEligibleForSpending(output, eligibility_filter, willprovideprivatekeylater))
                 continue;
 
             CInputCoin coin(output.tx->tx, output.i);
@@ -3343,7 +3687,7 @@ bool CWallet::SelectCoinsMinConf(const CAmount& nTargetValue, const CoinEligibil
         // Filter by the min conf specs and add to utxo_pool
         for (const COutput &output : vCoins)
         {
-            if (!OutputEligibleForSpending(output, eligibility_filter))
+            if (!OutputEligibleForSpending(output, eligibility_filter, willprovideprivatekeylater))
                 continue;
 
             CInputCoin coin = CInputCoin(output.tx->tx, output.i);
@@ -3354,7 +3698,7 @@ bool CWallet::SelectCoinsMinConf(const CAmount& nTargetValue, const CoinEligibil
     }
 }
 
-bool CWallet::SelectCoins(const std::vector<COutput>& vAvailableCoins, const CAmount& nTargetValue, std::set<CInputCoin>& setCoinsRet, CAmount& nValueRet, const CCoinControl& coin_control, CoinSelectionParams& coin_selection_params, bool& bnb_used) const
+bool CWallet::SelectCoins(const std::vector<COutput>& vAvailableCoins, const CAmount& nTargetValue, std::set<CInputCoin>& setCoinsRet, CAmount& nValueRet, const CCoinControl& coin_control, CoinSelectionParams& coin_selection_params, bool& bnb_used, bool willprovideprivatekeylater) const
 {
     std::vector<COutput> vCoins(vAvailableCoins);
 
@@ -3366,7 +3710,7 @@ bool CWallet::SelectCoins(const std::vector<COutput>& vAvailableCoins, const CAm
 
         for (const COutput& out : vCoins)
         {
-            if (!out.fSpendable)
+            if (!out.fSpendable && !willprovideprivatekeylater)
                  continue;
             nValueRet += out.tx->tx->vout[out.i].nValue;
             setCoinsRet.insert(CInputCoin(out.tx->tx, out.i));
@@ -3413,13 +3757,13 @@ bool CWallet::SelectCoins(const std::vector<COutput>& vAvailableCoins, const CAm
     bool fRejectLongChains = gArgs.GetBoolArg("-walletrejectlongchains", DEFAULT_WALLET_REJECT_LONG_CHAINS);
 
     bool res = nTargetValue <= nValueFromPresetInputs ||
-        SelectCoinsMinConf(nTargetValue - nValueFromPresetInputs, CoinEligibilityFilter(1, 6, 0), vCoins, setCoinsRet, nValueRet, coin_selection_params, bnb_used) ||
-        SelectCoinsMinConf(nTargetValue - nValueFromPresetInputs, CoinEligibilityFilter(1, 1, 0), vCoins, setCoinsRet, nValueRet, coin_selection_params, bnb_used) ||
-        (m_spend_zero_conf_change && SelectCoinsMinConf(nTargetValue - nValueFromPresetInputs, CoinEligibilityFilter(0, 1, 2), vCoins, setCoinsRet, nValueRet, coin_selection_params, bnb_used)) ||
-        (m_spend_zero_conf_change && SelectCoinsMinConf(nTargetValue - nValueFromPresetInputs, CoinEligibilityFilter(0, 1, std::min((size_t)4, nMaxChainLength/3)), vCoins, setCoinsRet, nValueRet, coin_selection_params, bnb_used)) ||
-        (m_spend_zero_conf_change && SelectCoinsMinConf(nTargetValue - nValueFromPresetInputs, CoinEligibilityFilter(0, 1, nMaxChainLength/2), vCoins, setCoinsRet, nValueRet, coin_selection_params, bnb_used)) ||
-        (m_spend_zero_conf_change && SelectCoinsMinConf(nTargetValue - nValueFromPresetInputs, CoinEligibilityFilter(0, 1, nMaxChainLength), vCoins, setCoinsRet, nValueRet, coin_selection_params, bnb_used)) ||
-        (m_spend_zero_conf_change && !fRejectLongChains && SelectCoinsMinConf(nTargetValue - nValueFromPresetInputs, CoinEligibilityFilter(0, 1, std::numeric_limits<uint64_t>::max()), vCoins, setCoinsRet, nValueRet, coin_selection_params, bnb_used));
+        SelectCoinsMinConf(nTargetValue - nValueFromPresetInputs, CoinEligibilityFilter(1, 6, 0), vCoins, setCoinsRet, nValueRet, coin_selection_params, bnb_used, willprovideprivatekeylater) ||
+        SelectCoinsMinConf(nTargetValue - nValueFromPresetInputs, CoinEligibilityFilter(1, 1, 0), vCoins, setCoinsRet, nValueRet, coin_selection_params, bnb_used, willprovideprivatekeylater) ||
+        (m_spend_zero_conf_change && SelectCoinsMinConf(nTargetValue - nValueFromPresetInputs, CoinEligibilityFilter(0, 1, 2), vCoins, setCoinsRet, nValueRet, coin_selection_params, bnb_used, willprovideprivatekeylater)) ||
+        (m_spend_zero_conf_change && SelectCoinsMinConf(nTargetValue - nValueFromPresetInputs, CoinEligibilityFilter(0, 1, std::min((size_t)4, nMaxChainLength/3)), vCoins, setCoinsRet, nValueRet, coin_selection_params, bnb_used, willprovideprivatekeylater)) ||
+        (m_spend_zero_conf_change && SelectCoinsMinConf(nTargetValue - nValueFromPresetInputs, CoinEligibilityFilter(0, 1, nMaxChainLength/2), vCoins, setCoinsRet, nValueRet, coin_selection_params, bnb_used, willprovideprivatekeylater)) ||
+        (m_spend_zero_conf_change && SelectCoinsMinConf(nTargetValue - nValueFromPresetInputs, CoinEligibilityFilter(0, 1, nMaxChainLength), vCoins, setCoinsRet, nValueRet, coin_selection_params, bnb_used, willprovideprivatekeylater)) ||
+        (m_spend_zero_conf_change && !fRejectLongChains && SelectCoinsMinConf(nTargetValue - nValueFromPresetInputs, CoinEligibilityFilter(0, 1, std::numeric_limits<uint64_t>::max()), vCoins, setCoinsRet, nValueRet, coin_selection_params, bnb_used, willprovideprivatekeylater));
 
     // because SelectCoinsMinConf clears the setCoinsRet, we now add the possible inputs to the coinset
     setCoinsRet.insert(setPresetCoins.begin(), setPresetCoins.end());
@@ -3720,8 +4064,10 @@ bool CWallet::CreateNicknameTransaction(std::string nickname, std::string addres
 }
 
 
-bool CWallet::CreateTransaction(const std::vector<CRecipient>& vecSend, CTransactionRef& tx, CReserveKey& reservekey, CAmount& nFeeRet,
-                                int& nChangePosInOut, std::string& strFailReason, const CCoinControl& coin_control, bool sign)
+bool CWallet::CreateTransaction(const std::vector<CRecipient>& vecSend, CTransactionRef& tx, CReserveKey& reservekey, 
+                                CAmount& nFeeRet, int& nChangePosInOut, std::string& strFailReason, 
+                                const CCoinControl& coin_control, bool sign, 
+	                        bool onlyfromoneaddress, CTxDestination fromaddress, bool provideprivatekey, CKey privatekey)
 {
     CAmount nValue = 0;
     int nChangePosRequest = nChangePosInOut;
@@ -3786,7 +4132,8 @@ bool CWallet::CreateTransaction(const std::vector<CRecipient>& vecSend, CTransac
         LOCK2(cs_main, cs_wallet);
         {
             std::vector<COutput> vAvailableCoins;
-            AvailableCoins(vAvailableCoins, true, &coin_control);
+            AvailableCoins(vAvailableCoins, true, &coin_control, 1, MAX_MONEY, MAX_MONEY, 0, 0, 99999999, onlyfromoneaddress, fromaddress);
+
             CoinSelectionParams coin_selection_params; // Parameters for coin selection, init with dummy
 
             // Create change script that will be used if we need change
@@ -3796,7 +4143,11 @@ bool CWallet::CreateTransaction(const std::vector<CRecipient>& vecSend, CTransac
 
             CPubKey pubkeyforchange;
 
-            pubkeyforchange=GetCurrentAddressPubKey();
+            if (onlyfromoneaddress) {
+                pubkeyforchange = GetSecondPubKeyForDestination(fromaddress);
+            } else {
+                pubkeyforchange = GetCurrentAddressPubKey();
+            }
             scriptChange = GetScriptForRawPubKey(pubkeyforchange);
 
             CTxOut change_prototype_txout(0, scriptChange);
@@ -3874,7 +4225,7 @@ bool CWallet::CreateTransaction(const std::vector<CRecipient>& vecSend, CTransac
                     setCoins.clear();
                     coin_selection_params.change_spend_size = CalculateMaximumSignedInputSize(change_prototype_txout, this);
                     coin_selection_params.effective_fee = nFeeRateNeeded;
-                    if (!SelectCoins(vAvailableCoins, nValueToSelect, setCoins, nValueIn, coin_control, coin_selection_params, bnb_used))
+                    if (!SelectCoins(vAvailableCoins, nValueToSelect, setCoins, nValueIn, coin_control, coin_selection_params, bnb_used, provideprivatekey))
                     {
                         // If BnB was used, it was the first pass. No longer the first pass and continue loop with knapsack.
                         if (bnb_used) {
@@ -4047,7 +4398,13 @@ bool CWallet::CreateTransaction(const std::vector<CRecipient>& vecSend, CTransac
                 const CScript& scriptPubKey = coin.txout.scriptPubKey;
                 SignatureData sigdata;
 
-                if (!ProduceSignature(*this, TransactionSignatureCreator(&txNewConst, nIn, coin.txout.nValue, SIGHASH_ALL), scriptPubKey, sigdata))
+                CKey otpk;
+
+                if (provideprivatekey) {
+                    DoesTxOutBelongtoPrivKeyCalcOneTimePrivate(coin.txout, privatekey, otpk);            
+                }
+
+                if (!ProduceSignature(*this, TransactionSignatureCreator(&txNewConst, nIn, coin.txout.nValue, SIGHASH_ALL, otpk, provideprivatekey), scriptPubKey, sigdata))
                 {
                     strFailReason = _("Signing transaction failed");
                     return false;
@@ -4139,7 +4496,7 @@ bool CWallet::CommitNicknameTransaction(CTransactionRef tx, std::vector<std::pai
     return true;
 }
 
-bool CWallet::CreateTransactionToMe(uint256& txid,int outnr, CKey key, CAmount nValue, const CScript& scriptPubKey, std::string refline, CTransactionRef& tx, std::string& strFailReason, const CCoinControl& coin_control, CTxOut output)
+bool CWallet::CreateTransactionToMe(uint256& txid,int outnr, CKey key, CAmount nValue, const CScript& scriptPubKey, std::string refline, CTransactionRef& tx, std::string& strFailReason, const CCoinControl& coin_control, CTxOut output, bool onlyfromoneaddress, CTxDestination fromaddress)
 {
     CAmount nFeeRet = 0;
     CMutableTransaction txNew;
@@ -4163,7 +4520,11 @@ bool CWallet::CreateTransactionToMe(uint256& txid,int outnr, CKey key, CAmount n
             CScript scriptChange;
             CPubKey pubkeyforchange;
 
-            pubkeyforchange=GetCurrentAddressPubKey();
+            if (onlyfromoneaddress) {
+                pubkeyforchange = GetSecondPubKeyForDestination(fromaddress);
+            } else {
+                pubkeyforchange = GetCurrentAddressPubKey();
+            }
             scriptChange = GetScriptForRawPubKey(pubkeyforchange);
 
             CTxOut change_prototype_txout(0, scriptChange);
