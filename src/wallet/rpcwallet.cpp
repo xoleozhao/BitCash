@@ -1034,7 +1034,7 @@ static UniValue registernicknamewithmasterkey(const JSONRPCRequest& request)
 
     if (request.fHelp || request.params.size() < 3 || request.params.size() > 3)
         throw std::runtime_error(
-            "registernickname \"nickname\" \"address\" \"masterkey\"\n"
+            "registernicknamewithmasterkey \"nickname\" \"address\" \"masterkey\"\n"
             "\nRegister a nickname for a given address.\n"
             + HelpRequiringPassphrase(pwallet) +
             "\nArguments:\n"
@@ -1044,7 +1044,7 @@ static UniValue registernicknamewithmasterkey(const JSONRPCRequest& request)
             "\nResult:\n"
             "\"txid\"                  (string) The transaction id.\n"
             "\nExamples:\n"
-            + HelpExampleCli("registernickname", "\"nick\" \"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" \"secretkey\"")
+            + HelpExampleCli("registernicknamewithmasterkey", "\"nick\" \"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" \"secretkey\"")
         );
 
     // Make sure the results are valid at least up to the most recent block
@@ -1064,6 +1064,48 @@ static UniValue registernicknamewithmasterkey(const JSONRPCRequest& request)
 
     if (!key.IsValid()) throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid private key encoding");
     if (key.GetPubKey().GetID()!=masterpubkey.GetID()) throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Incorrect master private key.");
+
+    EnsureWalletIsUnlocked(pwallet);
+
+    CTransactionRef tx = RegisterNickname(pwallet, nick, address, key, true);
+
+    return tx->GetHash().GetHex();
+}
+
+static UniValue registernicknamewithprivatekey(const JSONRPCRequest& request)
+{
+    CWallet * const pwallet = GetWalletForJSONRPCRequest(request);
+    if (!EnsureWalletIsAvailable(pwallet, request.fHelp)) {
+        return NullUniValue;
+    }
+
+    if (request.fHelp || request.params.size() < 3 || request.params.size() > 3)
+        throw std::runtime_error(
+            "registernicknamewithprivatekey \"nickname\" \"address\" \"masterkey\"\n"
+            "\nRegister a nickname for a given address and the private key belonging to the address. The address does not need to be part of the wallet.\n"
+            + HelpRequiringPassphrase(pwallet) +
+            "\nArguments:\n"
+            "1. \"nickname\"           (string, required) The nickname to register.\n"
+            "2. \"address\"            (string, required) The bitcash address.\n"
+            "3. \"privatekey\"         (string, required) The private key belonging to the address.\n"
+            "\nResult:\n"
+            "\"txid\"                  (string) The transaction id.\n"
+            "\nExamples:\n"
+            + HelpExampleCli("registernicknamewithprivatekey", "\"nick\" \"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" \"privatekey\"")
+        );
+
+    // Make sure the results are valid at least up to the most recent block
+    // the user could have gotten from another RPC command prior to now
+    pwallet->BlockUntilSyncedToCurrentChain();
+
+    LOCK2(cs_main, pwallet->cs_wallet);
+
+    std::string nick = request.params[0].get_str();
+    std::string address = request.params[1].get_str();
+    std::string strSecret = request.params[2].get_str();
+
+    CKey key = DecodeSecret(strSecret);
+    if (!key.IsValid()) throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid private key encoding");
 
     EnsureWalletIsUnlocked(pwallet);
 
@@ -5928,7 +5970,8 @@ static const CRPCCommand commands[] =
     { "wallet",             "sendfrom",                         &sendfrom,                      {"fromaccount","toaddress","amount","minconf","comment","comment_to"} },
     { "wallet",             "sendmany",                         &sendmany,                      {"fromaccount|dummy","amounts","minconf","comment","subtractfeefrom","replaceable","conf_target","estimate_mode"} },
     { "wallet",             "registernickname",                 &registernickname,              {"nickname","address"} },
-    { "wallet",             "registernicknamewithmasterkey",    &registernicknamewithmasterkey, {"nickname","address","masterkey"} },    
+    { "wallet",             "registernicknamewithmasterkey",    &registernicknamewithmasterkey, {"nickname","address","masterkey"} },
+    { "wallet",             "registernicknamewithprivatekey",   &registernicknamewithprivatekey, {"nickname","address","privatekey"} },   
     { "wallet",             "sendaslink",                       &sendaslink,                    {"amount","comment","comment_to","subtractfeefromamount","replaceable","conf_target","estimate_mode"} },
     { "wallet",             "sendtoaddress",                    &sendtoaddress,                
  {"address","amount","comment","comment_to","subtractfeefromamount","replaceable","conf_target","estimate_mode"} },
