@@ -955,7 +955,10 @@ static CTransactionRef SendMoney(CWallet * const pwallet, const CTxDestination &
         CTxDestination dest=pubkey.GetID();
         SetSecondPubKeyForDestination(dest,pubkey);
 
-        curBalance = pwallet->GetBalanceForAddress(dest);   
+        curBalance = pwallet->GetWatchOnlyBalanceForAddress(dest);   
+    } else 
+    if (onlyfromoneaddress) {    
+       curBalance = pwallet->GetBalanceForAddress(fromaddress);   
     } else {    
         curBalance = pwallet->GetBalance();   
     }
