@@ -4823,6 +4823,17 @@ bool CWallet::ClaimFromLink(std::string& strlink, std::string& strerr)
         CKey otpkey;
         if (DoesTxOutBelongtoPrivKeyCalcOneTimePrivate(ctx.vout[i],key,otpkey))
         {
+            COutPoint out;
+            out.hash=hash;
+            out.n=i;
+            CCoinsViewCache view(pcoinsTip.get());
+            const Coin& coin = view.AccessCoin(out);
+
+            if (coin.IsSpent()) {
+                strerr = strprintf("Error: These coins have already been claimed.");
+                return false;
+            }
+
             std::string refline=DecryptRefLineTxOutWithOnePrivateKey(ctx.vout[i],key);
 
             // Create and send the transaction

@@ -1577,6 +1577,17 @@ UniValue claimcoinsfromlink(const JSONRPCRequest& request)
             CKey otpkey;
             if (pwallet->DoesTxOutBelongtoPrivKeyCalcOneTimePrivate(ctx.vout[i],key,otpkey))
             {
+
+                COutPoint out;
+                out.hash=hash;
+                out.n=i;
+                CCoinsViewCache view(pcoinsTip.get());
+                const Coin& coin = view.AccessCoin(out);
+
+                if (coin.IsSpent()) {
+                    throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "These coins have already been claimed.");
+                }
+
                 std::string refline=pwallet->DecryptRefLineTxOutWithOnePrivateKey(ctx.vout[i],key);
                 CTransactionRef txout = SendCoinsToMe(pwallet, hash, i, otpkey, ctx.vout[i].nValue, ctx.vout[i].scriptPubKey, refline,coin_control, ctx.vout[i], hasdest, dest);
                 return txout->GetHash().GetHex();
