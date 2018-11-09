@@ -88,7 +88,8 @@ CTxDestination DecodeDestinationNoNickname(const std::string& str, const CChainP
         // Public-key-hash-addresses have version 0 (or 111 testnet).
         // The data vector contains RIPEMD160(SHA256(pubkey)), where pubkey is the serialized public key.
         const std::vector<unsigned char>& pubkey_prefix = params.Base58Prefix(CChainParams::PUBKEY_ADDRESS);
-        if (data.size() == 33 + /*hash.size() +*/ pubkey_prefix.size() && std::equal(pubkey_prefix.begin(), pubkey_prefix.end(), data.begin())) {
+        const std::vector<unsigned char>& pubkey_prefixtrezor = params.Base58Prefix(CChainParams::PUBKEY_ADDRESSTREZOR);
+        if (data.size() == 33 + /*hash.size() +*/ pubkey_prefix.size() && (std::equal(pubkey_prefix.begin(), pubkey_prefix.end(), data.begin()) || std::equal(pubkey_prefixtrezor.begin(), pubkey_prefixtrezor.end(), data.begin()))) {
             temprecokey.resize(33);
             std::copy(data.begin() + pubkey_prefix.size(), data.begin() + pubkey_prefix.size()+33, temprecokey.begin());
             CPubKey pkey;
@@ -103,7 +104,8 @@ CTxDestination DecodeDestinationNoNickname(const std::string& str, const CChainP
         // Script-hash-addresses have version 5 (or 196 testnet).
         // The data vector contains RIPEMD160(SHA256(cscript)), where cscript is the serialized redemption script.
         const std::vector<unsigned char>& script_prefix = params.Base58Prefix(CChainParams::SCRIPT_ADDRESS);
-        if (data.size() == 33 + /*hash.size() +*/ script_prefix.size() && std::equal(script_prefix.begin(), script_prefix.end(), data.begin())) {
+        const std::vector<unsigned char>& script_prefixtrezor = params.Base58Prefix(CChainParams::SCRIPT_ADDRESSTREZOR);
+        if (data.size() == 33 + /*hash.size() +*/ script_prefix.size() && (std::equal(script_prefix.begin(), script_prefix.end(), data.begin()) || std::equal(script_prefixtrezor.begin(), script_prefixtrezor.end(), data.begin()))) {
             temprecokey.resize(33);
             std::copy(data.begin() + pubkey_prefix.size(), data.begin() + pubkey_prefix.size()+33, temprecokey.begin());
             CPubKey pkey;
