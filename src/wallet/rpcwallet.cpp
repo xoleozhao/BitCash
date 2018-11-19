@@ -6137,6 +6137,8 @@ extern UniValue importprunedfunds(const JSONRPCRequest& request);
 extern UniValue removeprunedfunds(const JSONRPCRequest& request);
 extern UniValue importmulti(const JSONRPCRequest& request);
 extern UniValue rescanblockchain(const JSONRPCRequest& request);
+extern UniValue getchildkeyforprivkey(const JSONRPCRequest& request);
+extern UniValue getnumberofchildkeysforprivkey(const JSONRPCRequest& request);
 
 static const CRPCCommand commands[] =
 { //  category              name                                actor (function)                argNames
@@ -6164,8 +6166,10 @@ static const CRPCCommand commands[] =
     { "wallet",             "getbalanceforaddress",             &getbalanceforaddress,                    {"address","minconf","include_watchonly"} },
     { "wallet",             "getaddressfornickname",            &getaddressfornickname,             {} },
     { "wallet",             "getaddressforprivkey",             &getaddressforprivkey,          {"privkey"} },
+    { "wallet",             "getchildkeyforprivkey",            &getchildkeyforprivkey,         {"privkey", "childkeynumber"} },
     { "wallet",             "getinfoaboutlink",                 &getinfoaboutlink,              {"link"} },
     { "wallet",             "getnicknameforaddress",            &getnicknameforaddress,             {} },
+    { "wallet",             "getnumberofchildkeysforprivkey",   &getnumberofchildkeysforprivkey,{"privkey"} },
     { "wallet",             "getcurrentaddress",                &getcurrentaddress,             {} },
     { "wallet",             "getcurrentnickname",               &getcurrentnickname,             {} },
     { "wallet",             "getnewaddress",                    &getnewaddress,                 {"label|account","address_type"} },

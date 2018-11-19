@@ -220,6 +220,88 @@ UniValue getaddressforprivkey(const JSONRPCRequest& request)
     return str;
 }
 
+UniValue getchildkeyforprivkey(const JSONRPCRequest& request)
+{
+    CWallet * const pwallet = GetWalletForJSONRPCRequest(request);
+    if (!EnsureWalletIsAvailable(pwallet, request.fHelp)) {
+        return NullUniValue;
+    }
+
+    if (request.fHelp || request.params.size() < 2 || request.params.size() > 2)
+        throw std::runtime_error(
+            "getchildkeyforprivkey \"privkey\" childkeynumber\n"
+            "\nReturns a child private key for the given private key.\n"
+            "\nArguments:\n"
+            "1. \"privkey\"          (string, required) The private key (see dumpprivkey)\n"
+            "2. Childkey number      (numeric, required) The number of the child key (0 is the first child key)\n"
+            "\nExamples:\n"
+            + HelpExampleCli("getchildkeyforprivkey", "\"mykey\" 0") +
+            "\nAs a JSON-RPC call\n"
+            + HelpExampleRpc("getchildkeyforprivkey", "\"mykey\" 1")
+        );
+
+
+    std::string strSecret = request.params[0].get_str();
+    CKey key = DecodeSecret(strSecret);
+    if (!key.IsValid()) throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid private key encoding");
+
+    int nrkey = request.params[1].get_int();
+
+    CExtKey masterKey; 
+    CExtKey childKey;
+    masterKey.SetMaster(key.begin(), key.size());
+    masterKey.Derive(childKey, nrkey);
+
+    return EncodeSecret(childKey.key);
+}
+
+UniValue getnumberofchildkeysforprivkey(const JSONRPCRequest& request)
+{
+    CWallet * const pwallet = GetWalletForJSONRPCRequest(request);
+    if (!EnsureWalletIsAvailable(pwallet, request.fHelp)) {
+        return NullUniValue;
+    }
+
+    if (request.fHelp || request.params.size() < 1 || request.params.size() > 1)
+        throw std::runtime_error(
+            "getnumberofchildkeysforprivkey \"privkey\"\n"
+            "\nReturns the number of childkeys for which there are addresses in the address book for a given private key.\n"
+            "\nArguments:\n"
+            "1. \"privkey\"          (string, required) The private key (see dumpprivkey)\n"
+            "\nExamples:\n"
+            + HelpExampleCli("getnumberofchildkeysforprivkey", "\"mykey\"") +
+            "\nAs a JSON-RPC call\n"
+            + HelpExampleRpc("getnumberofchildkeysforprivkey", "\"mykey\"")
+        );
+
+
+    std::string strSecret = request.params[0].get_str();
+    CKey key = DecodeSecret(strSecret);
+    if (!key.IsValid()) throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid private key encoding");
+    
+    CExtKey masterKey; 
+    CExtKey childKey;
+    bool found;
+
+    masterKey.SetMaster(key.begin(), key.size());    
+
+    int nrkey = 0;
+    do {          
+        
+       masterKey.Derive(childKey, nrkey);
+
+       found = false;
+       for (const auto& dest : GetAllDestinationsForKey(childKey.key.GetPubKey())) {
+           if (pwallet->mapAddressBook.count(dest)) {
+               found=true;
+            }
+       }
+       if (found) nrkey++;
+    } while (found);
+
+    return nrkey;
+}
+
 UniValue importprivkeysfromfile(const JSONRPCRequest& request)
 {
     CWallet * const pwallet = GetWalletForJSONRPCRequest(request);

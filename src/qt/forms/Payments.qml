@@ -263,7 +263,7 @@ Item {
                     background: Rectangle { color: "#ebebeb" }
                 }
                                 Label {
-                                    width: paymentsForm.width-amountwidth-descriptionwidth-recipientwidth-btnswidth-daywidth-monthwidth-30-30
+                                    width: paymentsForm.width-amountwidth-recipientwidth-btnswidth-daywidth-monthwidth-30-30
                                     height: 44
                                     text: "Description"
                                     verticalAlignment: Text.AlignVCenter
@@ -433,7 +433,7 @@ Item {
 
                                 ItemDelegate {
                                     property int column: 1
-                                    width: paymentsForm.width-amountwidth-descriptionwidth-recipientwidth-btnswidth-daywidth-monthwidth-30-30
+                                    width: paymentsForm.width-amountwidth-recipientwidth-btnswidth-daywidth-monthwidth-30-30
                                     text: ""
                                     Label {
                                         text: description

@@ -39,6 +39,7 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "createcoinbaseforaddress", 1, "blockheight" },
     { "createcoinbaseforaddresswithpoolfee", 1, "blockheight" },
     { "createcoinbaseforaddresswithpoolfee", 3, "poolfeepermille" },
+    { "getchildkeyforprivkey", 1, "childkeynumber" },
     { "generatetoaddress", 0, "nblocks" },
     { "generatetoaddress", 2, "maxtries" },
     { "generatetoaddress", 3, "nthreads" },
