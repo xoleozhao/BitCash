@@ -231,6 +231,8 @@ UniValue getchildkeyforprivkey(const JSONRPCRequest& request)
         throw std::runtime_error(
             "getchildkeyforprivkey \"privkey\" childkeynumber\n"
             "\nReturns a child private key for the given private key.\n"
+ 	    "The address itself is used as label for the address book entry \n"
+            "so payments received with all stealths addresses will be associated with the address.\n"
             "\nArguments:\n"
             "1. \"privkey\"          (string, required) The private key (see dumpprivkey)\n"
             "2. Childkey number      (numeric, required) The number of the child key (0 is the first child key)\n"
@@ -251,6 +253,24 @@ UniValue getchildkeyforprivkey(const JSONRPCRequest& request)
     CExtKey childKey;
     masterKey.SetMaster(key.begin(), key.size());
     masterKey.Derive(childKey, nrkey);
+
+    std::string label;
+    OutputType output_type = pwallet->m_default_address_type;
+
+    CPubKey newKey = childKey.key.GetPubKey();
+
+    pwallet->LearnRelatedScripts(newKey, output_type);
+
+    CTxDestination dest = GetDestinationForKey(newKey, output_type);   
+
+    label=EncodeDestinationHasSecondKey(dest);
+    pwallet->SetAddressBook(dest, label, "receive");
+
+    CScript script;
+    script = GetScriptForRawPubKey(newKey);
+    if (!pwallet->HaveWatchOnly(script)) {
+        pwallet->AddWatchOnly(script, 0);
+    }
 
     return EncodeSecret(childKey.key);
 }
