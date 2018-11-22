@@ -337,7 +337,7 @@ QValidator::State BitcashAmountEntryValidator::validate(QString &input, int &pos
         return QValidator::Invalid;
     }
     int posdecimal=input.indexOf('.');
-    if (posdecimal>=0 && input.size()-posdecimal>7) return QValidator::Invalid;
+    if (posdecimal>=0 && input.size()-posdecimal>10) return QValidator::Invalid;
     if (posdecimal>12) return QValidator::Invalid;
     if (posdecimal==-1 && input.size()>12) return QValidator::Invalid;
 

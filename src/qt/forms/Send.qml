@@ -231,7 +231,8 @@ SendForm {
     }
 
     amountEdit.validator: amountCheckVal       
-    amountEdit.onTextChanged: calcleftbalance()    
+    amountEdit.onTextChanged: calcleftbalance()
+    amountEditan.validator: amountCheckVal
     amountEditan.onTextChanged: calcleftbalancean()
     paytoEdit.validator: destCheckVal
 /***********************************/
