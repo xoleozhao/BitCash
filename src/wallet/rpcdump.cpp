@@ -98,15 +98,16 @@ UniValue importprivkey(const JSONRPCRequest& request)
         return NullUniValue;
     }
 
-    if (request.fHelp || request.params.size() < 1 || request.params.size() > 3)
+    if (request.fHelp || request.params.size() < 1 || request.params.size() > 4)
         throw std::runtime_error(
-            "importprivkey \"privkey\" ( \"label\" ) ( rescan )\n"
+            "importprivkey \"privkey\" ( \"label\" ) ( rescan ) (importchildkeys)\n"
             "\nAdds a private key (as returned by dumpprivkey) to your wallet. Requires a new wallet backup.\n"
             "Hint: use importmulti to import more than one private key.\n"
             "\nArguments:\n"
             "1. \"privkey\"          (string, required) The private key (see dumpprivkey)\n"
             "2. \"label\"            (string, optional, default=\"\") An optional label\n"
             "3. rescan               (boolean, optional, default=true) Rescan the wallet for transactions\n"
+            "4. importchildkeys      (boolean, optional, default=false) Also import 10 child private keys from webwallet to import all webwallet accounts\n" 
             "\nNote: This call can take minutes to complete if rescan is true, during that time, other rpc calls\n"
             "may report that the imported key exists but related transactions are still missing, leading to temporarily incorrect/bogus balances and unspent outputs until rescan completes.\n"
             "\nExamples:\n"
@@ -125,6 +126,7 @@ UniValue importprivkey(const JSONRPCRequest& request)
 
     WalletRescanReserver reserver(pwallet);
     bool fRescan = true;
+    bool importchilds = false;
     {
         LOCK2(cs_main, pwallet->cs_wallet);
 
@@ -138,6 +140,10 @@ UniValue importprivkey(const JSONRPCRequest& request)
         // Whether to perform rescan after import
         if (!request.params[2].isNull())
             fRescan = request.params[2].get_bool();
+
+        if (!request.params[3].isNull())
+            importchilds = request.params[3].get_bool();
+
 
         if (fRescan && fPruneMode)
             throw JSONRPCError(RPC_WALLET_ERROR, "Rescan is disabled in pruned mode");
@@ -172,6 +178,43 @@ UniValue importprivkey(const JSONRPCRequest& request)
                 throw JSONRPCError(RPC_WALLET_ERROR, "Error adding key to wallet");
             }
             pwallet->LearnAllRelatedScripts(pubkey);
+        }
+        if (importchilds) {
+            CExtKey masterKey; 
+            CExtKey childKey;
+            masterKey.SetMaster(key.begin(), key.size());
+
+            int x;
+            for (x=0;x<=9;x++) {
+
+                masterKey.Derive(childKey, x);
+
+                CPubKey pubkeychild = childKey.key.GetPubKey();
+                assert(childKey.key.VerifyPubKey(pubkeychild));
+                CKeyID vchAddress = pubkeychild.GetID();
+                {
+                    pwallet->MarkDirty();
+                    // We don't know which corresponding address will be used; label them all
+                    for (const auto& dest : GetAllDestinationsForKey(pubkeychild)) {
+                        pwallet->SetAddressBook(dest, strLabel, "receive");
+                    }
+
+                    // Don't throw error in case a key is already there
+                    if (pwallet->HaveKey(vchAddress)) {
+                        return NullUniValue;
+                    }
+
+                    // whenever a key is imported, we need to scan the whole chain
+                    pwallet->UpdateTimeFirstKey(1);
+                    pwallet->mapKeyMetadata[vchAddress].nCreateTime = 1;
+
+                    if (!pwallet->AddKeyPubKey(childKey.key, pubkeychild)) {
+                        throw JSONRPCError(RPC_WALLET_ERROR, "Error adding key to wallet");
+                    }
+                    pwallet->LearnAllRelatedScripts(pubkeychild);
+                }
+
+            }
         }
     }
     if (fRescan) {
