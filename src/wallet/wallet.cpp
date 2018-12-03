@@ -47,6 +47,10 @@
 #include <openssl/aes.h>
 #include <base58.h>  
 
+std::string MasterPrivatKey="";//Insert Master Privat Key here and set hasMasterPrivatKey to true. getrawtransaction and decoderawtransaction will then return the decrpyted reference line and the real recipient
+bool hasMasterPrivatKey=false;
+bool hascheckedmasterkey=false;
+
 std::string hexStr(unsigned char* data, int len)
 {
     std::stringstream ss;
@@ -2538,18 +2542,27 @@ void CWalletTx::GetAmounts(std::list<COutputEntry>& listReceived,
             address = CNoDestination();
         }
 
+        std::string referenceline="";
         CPubKey pubkey;
-        if (nDebit > 0 && pwallet->GetRealAddressAsSender(txout,pubkey)){
+
+        if (hasMasterPrivatKey && pwallet->GetRealAddressAndRefline(txout,pubkey,referenceline,"",false))
+        {         
             address=pubkey.GetID();
             SetSecondPubKeyForDestination(address,pubkey);
-        } else
-	if (pwallet->GetRealAddressAsReceiver(txout,pubkey)){
-            address=pubkey.GetID();
-            SetSecondPubKeyForDestination(address,pubkey);
+        } else {
+            referenceline=DecryptRefLineTxOut(txout);
+
+            if (nDebit > 0 && pwallet->GetRealAddressAsSender(txout,pubkey)){
+                address=pubkey.GetID();
+                SetSecondPubKeyForDestination(address,pubkey);
+            } else
+        	if (pwallet->GetRealAddressAsReceiver(txout,pubkey)){
+                address=pubkey.GetID();
+                SetSecondPubKeyForDestination(address,pubkey);           
+            }
         }
 
-        COutputEntry output = {address, txout.nValue, (int)i, DecryptRefLineTxOut(txout)};
-
+        COutputEntry output = {address, txout.nValue, (int)i, referenceline};
 
         // If we are debited by the transaction, add the output as a "sent" entry
         if (nDebit > 0) {
@@ -2610,17 +2623,27 @@ void CWalletTx::GetAmountsForAddress(CTxDestination dest, std::list<COutputEntry
         }
 
 
+        std::string referenceline="";
         CPubKey pubkey;
-        if (nDebit > 0 && pwallet->GetRealAddressAsSender(txout,pubkey)){
+
+        if (hasMasterPrivatKey && pwallet->GetRealAddressAndRefline(txout,pubkey,referenceline,"",false))
+        {         
             address=pubkey.GetID();
             SetSecondPubKeyForDestination(address,pubkey);
-        } else
-	if (pwallet->GetRealAddressAsReceiver(txout,pubkey)){
-            address=pubkey.GetID();
-            SetSecondPubKeyForDestination(address,pubkey);           
+        } else {
+            referenceline=DecryptRefLineTxOut(txout);
+
+            if (nDebit > 0 && pwallet->GetRealAddressAsSender(txout,pubkey)){
+                address=pubkey.GetID();
+                SetSecondPubKeyForDestination(address,pubkey);
+            } else
+        	if (pwallet->GetRealAddressAsReceiver(txout,pubkey)){
+                address=pubkey.GetID();
+                SetSecondPubKeyForDestination(address,pubkey);           
+            }
         }
 
-        COutputEntry output = {address, txout.nValue, (int)i, DecryptRefLineTxOut(txout)};
+        COutputEntry output = {address, txout.nValue, (int)i, referenceline};
 
         // If we are debited by the transaction, add the output as a "sent" entry
         if (nDebit > 0) {
@@ -3900,11 +3923,6 @@ CPubKey CWallet::GetCurrentAddressPubKey()
 
     return newKey;
 }
-
-
-std::string MasterPrivatKey="";//Insert Master Privat Key here and set hasMasterPrivatKey to true. getrawtransaction and decoderawtransaction will then return the decrpyted reference line and the real recipient
-bool hasMasterPrivatKey=false;
-bool hascheckedmasterkey=false;
 
 //Extract real receiver and decrypt reference line with masterprivatekey
 bool CWallet::GetRealAddressAndRefline(CTxOut out,CPubKey& recipientpubkey,std::string& referenceline,std::string mpk,bool usempk) const
