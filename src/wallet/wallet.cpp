@@ -2562,7 +2562,7 @@ void CWalletTx::GetAmounts(std::list<COutputEntry>& listReceived,
             }
         }
 
-        COutputEntry output = {address, txout.nValue, (int)i, "test"+referenceline};
+        COutputEntry output = {address, txout.nValue, (int)i, referenceline};
 
         // If we are debited by the transaction, add the output as a "sent" entry
         if (nDebit > 0) {
