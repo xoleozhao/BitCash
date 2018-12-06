@@ -235,6 +235,16 @@ SendForm {
     amountEditan.validator: amountCheckVal
     amountEditan.onTextChanged: calcleftbalancean()
     paytoEdit.validator: destCheckVal
+    paytoEdit.onTextChanged: {
+        if (paytoEdit.acceptableInput) {
+            paytoEdit.ToolTip.visible = true
+            paytoEdit.ToolTip.text = qsTr("This is a valid BitCash address.")
+            paytoEdit.ToolTip.delay = 100
+            paytoEdit.ToolTip.timeout = 5000
+        } else {
+            paytoEdit.ToolTip.visible = false
+        }
+    }
 /***********************************/
     /*paytoEdittw.validator: destCheckVal2
     amountEdittw.validator: amountCheckVal
