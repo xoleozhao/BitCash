@@ -4691,6 +4691,9 @@ bool CWallet::CommitTransaction(CTransactionRef tx, mapValue_t mapValue, std::ve
         {
             // Take key pair from key pool so it won't be used again
             if (keepkey) reservekey.KeepKey();
+            //Add private keys for stealth address
+            const CTransaction& txadd = *wtxNew.tx;
+            IsMineForScanningBlockchain(txadd);
             // Add tx to wallet, because if it has change it's also ours,
             // otherwise just for transaction history.
             AddToWallet(wtxNew);

@@ -607,24 +607,16 @@ static UniValue divideutxos(const JSONRPCRequest& request)
 
     nValue=curBalance/1001;
 
- // Generate a new key that is added to wallet
+    // Generate a new key that is added to wallet
     OutputType output_type = pwallet->m_default_address_type;
-    CPubKey newKey;
-    if (!pwallet->GetKeyFromPool(newKey)) {
-        throw JSONRPCError(RPC_WALLET_KEYPOOL_RAN_OUT, "Error: Keypool ran out, please call keypoolrefill first");
-    }
-
-    pwallet->LearnRelatedScripts(newKey, output_type);
   
-    CTxDestination dest = GetDestinationForKey(newKey, output_type);
-
-    pwallet->SetAddressBook(dest, "", "receive");
+    CTxDestination dest = GetDestinationForKey(pwallet->GetCurrentAddressPubKey(), output_type);
 
     CScript scriptPubKey = GetScriptForDestination(dest);
     
     for (int i=0;i<=999;i++)
     {
-        CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount,"", secondkey};
+        CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount,"", GetSecondPubKeyForDestination(dest)};
         vecSend.push_back(recipient);
     }
 
