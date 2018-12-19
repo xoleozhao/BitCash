@@ -62,6 +62,10 @@ void OptionsModel::Init(bool resetSettings)
         settings.setValue("fMinimizeToTray", false);
     fMinimizeToTray = settings.value("fMinimizeToTray").toBool() && !fHideTrayIcon;
 
+    if (!settings.contains("fAskForPassword"))
+        settings.setValue("fAskForPassword", false);
+    fAskForPassword = settings.value("fAskForPassword").toBool();
+
     if (!settings.contains("fMinimizeOnClose"))
         settings.setValue("fMinimizeOnClose", false);
     fMinimizeOnClose = settings.value("fMinimizeOnClose").toBool();
@@ -188,6 +192,9 @@ void OptionsModel::Reset()
     // Set that this was reset
     settings.setValue("fReset", true);
 
+    // Do not ask for password
+    settings.setValue("fAskForPassword", false);
+
     // default setting for OptionsModel::StartAtStartup - disabled
     if (GUIUtil::GetStartOnSystemStartup())
         GUIUtil::SetStartOnSystemStartup(false);
@@ -250,6 +257,9 @@ QVariant OptionsModel::data(const QModelIndex & index, int role) const
 #else
             return false;
 #endif
+        case AskForPassword:
+            return fAskForPassword;
+
         case MinimizeOnClose:
             return fMinimizeOnClose;
 
@@ -322,6 +332,10 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
         case MinimizeOnClose:
             fMinimizeOnClose = value.toBool();
             settings.setValue("fMinimizeOnClose", fMinimizeOnClose);
+            break;
+        case AskForPassword:
+            fAskForPassword = value.toBool();
+            settings.setValue("fAskForPassword", fAskForPassword);
             break;
 
         // default proxy

@@ -689,6 +689,7 @@ void BitcashGUI::ClaimLinksBtnClicked(const QString &strlinkqt)
 
 void BitcashGUI::SendLinksBtnClicked(const QString &description, double amount) 
 {
+    if (!UserKnowsPassword()) return;
     WalletModel * const walletModel = getCurrentWalletModel();
     if (!walletModel) return;
 
@@ -979,6 +980,7 @@ void BitcashGUI::recurringpayments()
 
 void BitcashGUI::SendToTwitterBtnClicked(const QString &destination, const QString &description, double amount) 
 {
+    if (!UserKnowsPassword()) return;
     WalletModel * const walletModel = getCurrentWalletModel();
     if (!walletModel) return;
 
@@ -1014,6 +1016,7 @@ void BitcashGUI::SendToTwitterBtnClicked(const QString &destination, const QStri
 
 void BitcashGUI::SendToInstaBtnClicked(const QString &destination, const QString &description, double amount) 
 {
+    if (!UserKnowsPassword()) return;
     WalletModel * const walletModel = getCurrentWalletModel();
     if (!walletModel) return;
 
@@ -1049,6 +1052,7 @@ void BitcashGUI::SendToInstaBtnClicked(const QString &destination, const QString
 
 void BitcashGUI::SendToRedditBtnClicked(const QString &destination, const QString &description, double amount) 
 {
+    if (!UserKnowsPassword()) return;
     WalletModel * const walletModel = getCurrentWalletModel();
     if (!walletModel) return;
 
@@ -1234,6 +1238,7 @@ void BitcashGUI::SendConfirmedToRedditBtnClicked(const QString &destination, con
 
 bool BitcashGUI::SendBtnClickedIntern(const QString &destination, const QString &label, const QString &description, double amount, bool substractfee, bool dialog) 
 {
+    if (!UserKnowsPassword()) return false;
     WalletModel * const model = getCurrentWalletModel();
     if (!model) return false;
 
@@ -2324,14 +2329,35 @@ void BitcashGUI::trayIconActivated(QSystemTrayIcon::ActivationReason reason)
 }
 #endif
 
+extern SecureString thewalletpassword;
+
+bool BitcashGUI::UserKnowsPassword()
+{
+    if(!clientModel || !clientModel->getOptionsModel())
+        return false;
+
+  if (!walletFrame) {
+        return false;
+    }
+    WalletView * const walletView = walletFrame->currentWalletView();
+    if (!walletView) {
+        return false;
+    }
+    WalletModel * const walletModel = walletView->getWalletModel();
+    return !clientModel->getOptionsModel()->getAskForPassword() || thewalletpassword == "" || walletModel->requestPassword();
+}
+
+
 void BitcashGUI::optionsClicked()
 {
     if(!clientModel || !clientModel->getOptionsModel())
         return;
 
-    OptionsDialog dlg(this, enableWallet);
-    dlg.setModel(clientModel->getOptionsModel());
-    dlg.exec();
+    if (UserKnowsPassword()) {
+      OptionsDialog dlg(this, enableWallet);
+      dlg.setModel(clientModel->getOptionsModel());
+      dlg.exec();
+    }
 }
 
 void BitcashGUI::aboutClicked()
@@ -2345,10 +2371,12 @@ void BitcashGUI::aboutClicked()
 
 void BitcashGUI::showDebugWindow()
 {
-    rpcConsole->showNormal();
-    rpcConsole->show();
-    rpcConsole->raise();
-    rpcConsole->activateWindow();
+    if (UserKnowsPassword()) {
+        rpcConsole->showNormal();
+        rpcConsole->show();
+        rpcConsole->raise();
+        rpcConsole->activateWindow();
+    }
 }
 
 void BitcashGUI::showDebugWindowActivateConsole()

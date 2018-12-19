@@ -191,6 +191,7 @@ public:
     };
 
     UnlockContext requestUnlock();
+    bool requestPassword();
 
     void loadReceiveRequests(std::vector<std::string>& vReceiveRequests);
     bool saveReceiveRequest(const std::string &sAddress, const int64_t nId, const std::string &sRequest);
@@ -249,6 +250,7 @@ Q_SIGNALS:
     // It is valid behaviour for listeners to keep the wallet locked after this signal;
     // this means that the unlocking failed or was cancelled.
     void requireUnlock();
+    bool requirePassword();
 
     // Fired when a message should be reported to the user
     void message(const QString &title, const QString &message, unsigned int style);

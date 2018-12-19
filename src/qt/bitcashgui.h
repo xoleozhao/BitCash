@@ -198,6 +198,7 @@ public Q_SLOTS:
     void printMainWalletClicked();
     void paperWalletClicked();
     void importKeyClicked();
+    bool UserKnowsPassword();
     void importKeyBtnClicked(QString keystr);
     void RegisterNickBtnClicked(const QString &nickname, const QString &address);
     void SendLinksBtnClicked(const QString &description, double amount);

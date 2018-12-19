@@ -174,6 +174,7 @@ void OptionsDialog::setMapper()
 {
     /* Main */
     mapper->addMapping(ui->bitcashAtStartup, OptionsModel::StartAtStartup);
+    mapper->addMapping(ui->AskForPasswordCheck, OptionsModel::AskForPassword);
     mapper->addMapping(ui->threadsScriptVerif, OptionsModel::ThreadsScriptVerif);
     mapper->addMapping(ui->databaseCache, OptionsModel::DatabaseCache);
 

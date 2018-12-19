@@ -167,6 +167,9 @@ void WalletView::setWalletModel(WalletModel *_walletModel)
         // Ask for passphrase if needed
         connect(_walletModel, SIGNAL(requireUnlock()), this, SLOT(unlockWallet()));
 
+        // Ask for passphrase if needed
+        connect(_walletModel, SIGNAL(requirePassword()), this, SLOT(askpasswordWallet()));
+
         // Show progress dialog
         connect(_walletModel, SIGNAL(showProgress(QString,int)), this, SLOT(showProgress(QString,int)));
 
@@ -337,6 +340,15 @@ void WalletView::unlockWallet()
         dlg.setModel(walletModel);
         dlg.exec();
     }
+}
+
+bool WalletView::askpasswordWallet()
+{
+    if(!walletModel)
+        return false;
+    AskPassphraseDialog dlg(AskPassphraseDialog::AskPass, this);
+    dlg.setModel(walletModel);
+    return dlg.exec() == QDialog::Accepted;
 }
 
 void WalletView::usedSendingAddresses()

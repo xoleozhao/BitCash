@@ -444,6 +444,13 @@ WalletModel::UnlockContext WalletModel::requestUnlock()
     return UnlockContext(this, valid, false);//do not lock wallet again
 }
 
+bool WalletModel::requestPassword()
+{
+    // Request UI to unlock wallet
+    bool b=Q_EMIT requirePassword();
+    return b;
+}
+
 WalletModel::UnlockContext::UnlockContext(WalletModel *_wallet, bool _valid, bool _relock):
         wallet(_wallet),
         valid(_valid),

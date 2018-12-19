@@ -35,6 +35,7 @@ public:
 
     enum OptionID {
         StartAtStartup,         // bool
+        AskForPassword,         // bool
         HideTrayIcon,           // bool
         MinimizeToTray,         // bool
         MapPortUPnP,            // bool
@@ -69,6 +70,7 @@ public:
     bool getHideTrayIcon() const { return fHideTrayIcon; }
     bool getMinimizeToTray() const { return fMinimizeToTray; }
     bool getMinimizeOnClose() const { return fMinimizeOnClose; }
+    bool getAskForPassword() const { return fAskForPassword; }
     int getDisplayUnit() const { return nDisplayUnit; }
     QString getThirdPartyTxUrls() const { return strThirdPartyTxUrls; }
     bool getProxySettings(QNetworkProxy& proxy) const;
@@ -87,6 +89,7 @@ private:
     bool fHideTrayIcon;
     bool fMinimizeToTray;
     bool fMinimizeOnClose;
+    bool fAskForPassword;
     QString language;
     int nDisplayUnit;
     QString strThirdPartyTxUrls;
