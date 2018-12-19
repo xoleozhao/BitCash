@@ -57,7 +57,7 @@ Rectangle{
     border.color: "#ffffff"
     border.width: 1
     width: 690
-    height: 458
+    height: 540
 
 
     Button {
@@ -105,9 +105,9 @@ Rectangle{
 
         Label {
             id: text1
-            height: 146
+            height: 159
             color: "#3d3e40"
-            text: qsTr("Send the below link directly to the Twitter user so that he/she can claim the coins.\n\n You can even paste the link in public tweets or comments. No need to worry, no other user can gain access to these coins except for the intended Twitter user.\n\nIf you submitted this transaction by accident, you can claim the coins back with your link.")
+            text: qsTr("Send the below link directly to the Twitter user so that he/she can claim the coins.\n\nYou can even paste the link in public tweets or comments. No need to worry, no other user can gain access to these coins except for the intended Twitter user.\n\nIf you submitted this transaction by accident, you can claim the coins back with your link.")
             anchors.right: parent.right
             anchors.rightMargin: 36
             wrapMode: Text.WrapAtWordBoundaryOrAnywhere
@@ -118,6 +118,20 @@ Rectangle{
             anchors.leftMargin: 36
             font.family: "Montserrat SemiBold"
             font.pixelSize: 14
+        }
+
+        Label {
+            id: text5
+            x: 36
+            color: "#3d3e40"
+            text: qsTr("Only the link:")
+            font.weight: Font.DemiBold
+            anchors.top: text1.bottom
+            anchors.topMargin: 20
+            anchors.left: parent.left
+            anchors.leftMargin: 36
+            font.pixelSize: 14
+            font.family: "Montserrat SemiBold"
         }
 
         MenuTextField {
@@ -135,7 +149,7 @@ Rectangle{
             rightPadding: 16
             topPadding: 16
             leftPadding: 16
-            anchors.top: text1.bottom
+            anchors.top: text5.bottom
             anchors.topMargin: 20
             anchors.right: copyBtn1.right
             anchors.rightMargin: 0
@@ -177,6 +191,21 @@ Rectangle{
             borderwidth: 1
         }
 
+
+        Label {
+            id: text4
+            x: 36
+            color: "#3d3e40"
+            text: qsTr("Description together with the link:")
+            font.weight: Font.DemiBold
+            anchors.top: twitteredit.bottom
+            anchors.topMargin: 20
+            anchors.left: parent.left
+            anchors.leftMargin: 36
+            font.pixelSize: 14
+            font.family: "Montserrat SemiBold"
+        }
+
         MenuTextField {
             id: text2
             height: 48
@@ -193,7 +222,7 @@ Rectangle{
             rightPadding: 16
             topPadding: 16
             leftPadding: 16
-            anchors.top: twitteredit.bottom
+            anchors.top: text4.bottom
             anchors.topMargin: 20
             anchors.right: copyBtn2.right
             anchors.rightMargin: 0
