@@ -175,7 +175,7 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state, bool fChe
     }
 
     if (tx.vin.empty())
-        return state.DoS(10, false, REJECT_INVALID, "bad-txns-vin-empty");
+        return state.DoS(10, false, REJECT_INVALID, "Bad-txns-vin-empty");
     if (tx.vout.empty() && !isnick)
         return state.DoS(10, false, REJECT_INVALID, "bad-txns-vout-empty");
     // Size limits (this doesn't take the witness into account, as that hasn't been checked for malleability)
@@ -224,9 +224,9 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state, bool fChe
     for (unsigned int i = 0; i < tx.vin.size(); ++i) {
         if (tx.vin[i].isnickname) {
             if (tx.vin[i].nickname.size()<3) 
-                return state.Invalid(false, REJECT_INVALID, "bad-txns-nickname-too-short");
+                return state.Invalid(false, REJECT_INVALID, "Bad transaction: the nickname is too short.");
             if (tx.vin[i].nickname.size()>20) 
-                return state.Invalid(false, REJECT_INVALID, "bad-txns-nickname-too-long");
+                return state.Invalid(false, REJECT_INVALID, "Bad transaction: the nickname is too long.");
 
             bool validcharacters=true;
             for (unsigned int idx = 0; idx < tx.vin[i].nickname.size(); ++idx)
@@ -245,19 +245,19 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state, bool fChe
             }
 
             if (!validcharacters)
-                return state.Invalid(false, REJECT_INVALID, "bad-txns-nickname-bad-characters");
+                return state.Invalid(false, REJECT_INVALID, "Bad transaction: the nickname contains invalid characters.");
             if (checkdblnicks && DoesNicknameExist(tx.vin[i].nickname) && GetHashForNickname(tx.vin[i].nickname)!=blockhash)
-                return state.Invalid(false, REJECT_INVALID, "bad-txns-nickname-already-exists");
+                return state.Invalid(false, REJECT_INVALID, "Bad transaction: the nickname already exists.");
             if (!tx.vin[i].address.IsValid())
-                return state.Invalid(false, REJECT_INVALID, "bad-txns-address-invalid");
+                return state.Invalid(false, REJECT_INVALID, "Bad transaction: the address is invalid.");
 
             uint256 hash=Hash(tx.vin[i].nickname.begin(),tx.vin[i].nickname.end(),tx.vin[i].address.begin(),tx.vin[i].address.end());
 
             if (checkdblnicks && GetNicknameForAddress(tx.vin[i].address).size()>0 && GetHashForAddress(tx.vin[i].address)!=blockhash && !nicknamemasterpubkey.Verify(hash, tx.vin[i].nicknamesig))                
-                return state.Invalid(false, REJECT_INVALID, "bad-txns-address-already-has-nickname3");
+                return state.Invalid(false, REJECT_INVALID, "Bad transaction: this address already has a nickname.");
     
             if (!tx.vin[i].address.Verify(hash, tx.vin[i].nicknamesig) && !nicknamemasterpubkey.Verify(hash, tx.vin[i].nicknamesig)) 
-                return state.Invalid(false, REJECT_INVALID, "bad-txns-nickname-invalid-signature");
+                return state.Invalid(false, REJECT_INVALID, "Bad transaction: the signature for the nickname transaction is invalid.");
 
             continue;
         }
@@ -280,9 +280,9 @@ bool Consensus::CheckTxInputs(const CTransaction& tx, CValidationState& state, c
     for (unsigned int i = 0; i < tx.vin.size(); ++i) {
         if (tx.vin[i].isnickname) {
             if (tx.vin[i].nickname.size()<3) 
-                return state.Invalid(false, REJECT_INVALID, "bad-txns-nickname-too-short");
+                return state.Invalid(false, REJECT_INVALID, "Bad transaction: the nickname is too short.");
             if (tx.vin[i].nickname.size()>20) 
-                return state.Invalid(false, REJECT_INVALID, "bad-txns-nickname-too-long");
+                return state.Invalid(false, REJECT_INVALID, "Bad transaction: the nickname is too long.");
 
             bool validcharacters=true;
             for (unsigned int idx = 0; idx < tx.vin[i].nickname.size(); ++idx)
@@ -301,19 +301,19 @@ bool Consensus::CheckTxInputs(const CTransaction& tx, CValidationState& state, c
             }
 
             if (!validcharacters)
-                return state.Invalid(false, REJECT_INVALID, "bad-txns-nickname-bad-characters");
+                return state.Invalid(false, REJECT_INVALID, "Bad transaction: the nickname contains invalid characters.");
             if (DoesNicknameExist(tx.vin[i].nickname) && (!usehash || GetHashForNickname(tx.vin[i].nickname)!=blockhash))
-                return state.Invalid(false, REJECT_INVALID, "bad-txns-nickname-already-exists");
+                return state.Invalid(false, REJECT_INVALID, "Bad transaction: the nickname already exists.");
             if (!tx.vin[i].address.IsValid())
-                return state.Invalid(false, REJECT_INVALID, "bad-txns-address-invalid");
+                return state.Invalid(false, REJECT_INVALID, "Bad transaction: the address is invalid.");
 
             uint256 hash=Hash(tx.vin[i].nickname.begin(),tx.vin[i].nickname.end(),tx.vin[i].address.begin(),tx.vin[i].address.end());
 
             if (GetNicknameForAddress(tx.vin[i].address).size()>0 && (!usehash || GetHashForAddress(tx.vin[i].address)!=blockhash) && !nicknamemasterpubkey.Verify(hash, tx.vin[i].nicknamesig))
-                return state.Invalid(false, REJECT_INVALID, "bad-txns-address-already-has-nickname2"); 
+                return state.Invalid(false, REJECT_INVALID, "Bad transaction: this address already has a nickname."); 
     
             if (!tx.vin[i].address.Verify(hash, tx.vin[i].nicknamesig) && !nicknamemasterpubkey.Verify(hash, tx.vin[i].nicknamesig)) 
-                return state.Invalid(false, REJECT_INVALID, "bad-txns-nickname-invalid-signature");
+                return state.Invalid(false, REJECT_INVALID, "Bad transaction: the signature for the nickname transaction is invalid.");
 
             continue;
         }
