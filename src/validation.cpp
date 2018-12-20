@@ -539,9 +539,9 @@ static bool CheckInputsFromMempoolAndCache(const CTransaction& tx, CValidationSt
     for (const CTxIn& txin : tx.vin) {
         if (txin.isnickname) {
             if (txin.nickname.size()<3) 
-                return state.Invalid(false, REJECT_INVALID, "bad-txns-nickname-too-short");
+                return state.Invalid(false, REJECT_INVALID, "The nickname is too short.");
             if (txin.nickname.size()>20) 
-                return state.Invalid(false, REJECT_INVALID, "bad-txns-nickname-too-long");
+                return state.Invalid(false, REJECT_INVALID, "The nickname is too long.");
 
             bool validcharacters=true;
             for (unsigned int idx = 0; idx < txin.nickname.size(); ++idx)
@@ -559,14 +559,14 @@ static bool CheckInputsFromMempoolAndCache(const CTransaction& tx, CValidationSt
                 }
             }
             if (!validcharacters)
-                return state.Invalid(false, REJECT_INVALID, "bad-txns-nickname-bad-characters");
+                return state.Invalid(false, REJECT_INVALID, "The nickname contains bad characters.");
             if (DoesNicknameExist(txin.nickname))
-                return state.Invalid(false, REJECT_INVALID, "bad-txns-nickname-already-exists");
+                return state.Invalid(false, REJECT_INVALID, "This nickname already exists.");
             if (!txin.address.IsValid())
-                return state.Invalid(false, REJECT_INVALID, "bad-txns-address-invalid");
+                return state.Invalid(false, REJECT_INVALID, "This address is invalid.");
             uint256 hash=Hash(txin.nickname.begin(),txin.nickname.end(),txin.address.begin(),txin.address.end());
             if (GetNicknameForAddress(txin.address).size()>0  && !nicknamemasterpubkey.Verify(hash, txin.nicknamesig))
-                return state.Invalid(false, REJECT_INVALID, "bad-txns-address-already-has-nickname1");
+                return state.Invalid(false, REJECT_INVALID, "This address already has a nickname.");
 
 
             continue;
@@ -640,7 +640,7 @@ static bool AcceptToMemoryPoolWorker(const CChainParams& chainparams, CTxMemPool
 
     // is it already in the memory pool?
     if (pool.exists(hash)) {
-        return state.Invalid(false, REJECT_DUPLICATE, "txn-already-in-mempool");
+        return state.Invalid(false, REJECT_DUPLICATE, "This transaction is already in the mempool.");
     }
 
     // Check for conflicts with in-memory transactions
@@ -657,10 +657,10 @@ static bool AcceptToMemoryPoolWorker(const CChainParams& chainparams, CTxMemPool
                     if (mtxin.isnickname){                        
                         std::string nick2=boost::to_upper_copy(mtxin.nickname);
                         if (nick1.compare(nick2)==0)
-                        return state.Invalid(false, REJECT_DUPLICATE, "txn-with-this-nickname-already-in-mempool");
+                        return state.Invalid(false, REJECT_DUPLICATE, "There is already a transaction with this nickname in the mempool.");
                         uint256 hash=Hash(txin.nickname.begin(),txin.nickname.end(),txin.address.begin(),txin.address.end());
                         if (txin.address==mtxin.address && !nicknamemasterpubkey.Verify(hash, txin.nicknamesig))
-                        return state.Invalid(false, REJECT_DUPLICATE, "txn-with-this-address-for-nickname-already-in-mempool");
+                        return state.Invalid(false, REJECT_DUPLICATE, "There is already a transaction with this address for the nickname in the mempool.");
                     }
                 }
             }
