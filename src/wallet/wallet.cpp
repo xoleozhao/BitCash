@@ -3559,14 +3559,16 @@ void CWallet::AvailableCoins(std::vector<COutput> &vCoins, bool fOnlySafe, const
 
             isminetype mine = IsMineConst(pcoin->tx->vout[i],53);
 
-            if (onlyforonedest) {            
-                mine = IsMineForOneDestination(pcoin->tx->vout[i], dest);
-            }
-
             if (mine == ISMINE_NO) {
                 continue;
             }
 
+            if (onlyforonedest) {            
+                mine = IsMineForOneDestination(pcoin->tx->vout[i], dest);
+                if (mine == ISMINE_NO) {
+                    continue;
+                }
+            }
 
             bool fSpendableIn = ((mine & ISMINE_SPENDABLE) != ISMINE_NO) || (coinControl && coinControl->fAllowWatchOnly && (mine & ISMINE_WATCH_SOLVABLE) != ISMINE_NO);
             bool fSolvableIn = (mine & (ISMINE_SPENDABLE | ISMINE_WATCH_SOLVABLE)) != ISMINE_NO;

@@ -4871,7 +4871,7 @@ static UniValue listunspentforaddress(const JSONRPCRequest& request)
 
     if (request.fHelp || request.params.size() > 6 || request.params.size()<1)
         throw std::runtime_error(
-            "listunspentfordestination address ( minconf maxconf  [\"addresses\",...] [include_unsafe] [query_options])\n"
+            "listunspentforaddress address ( minconf maxconf  [\"addresses\",...] [include_unsafe] [query_options])\n"
             "\nReturns array of unspent transaction outputs for the given BitCash address\n"
             "with between minconf and maxconf (inclusive) confirmations.\n"
             "Optionally filter to only include txouts paid to specified addresses.\n"
@@ -4915,11 +4915,11 @@ static UniValue listunspentforaddress(const JSONRPCRequest& request)
             "]\n"
 
             "\nExamples\n"
-            + HelpExampleCli("listunspentfordestination", "\"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\"")
-            + HelpExampleCli("listunspentfordestination", "\"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 6 9999999 \"[\\\"1PGFqEzfmQch1gKD3ra4k18PNj3tTUUSqg\\\",\\\"1LtvqCaApEdUGFkpKMM4MstjcaL4dKg8SP\\\"]\"")
-            + HelpExampleRpc("listunspentfordestination", "\"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 6, 9999999 \"[\\\"1PGFqEzfmQch1gKD3ra4k18PNj3tTUUSqg\\\",\\\"1LtvqCaApEdUGFkpKMM4MstjcaL4dKg8SP\\\"]\"")
-            + HelpExampleCli("listunspentfordestination", "\"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 6 9999999 '[]' true '{ \"minimumAmount\": 0.005 }'")
-            + HelpExampleRpc("listunspentfordestination", "\"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 6, 9999999, [] , true, { \"minimumAmount\": 0.005 } ")
+            + HelpExampleCli("listunspentforaddress", "\"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\"")
+            + HelpExampleCli("listunspentforaddress", "\"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 6 9999999 \"[\\\"1PGFqEzfmQch1gKD3ra4k18PNj3tTUUSqg\\\",\\\"1LtvqCaApEdUGFkpKMM4MstjcaL4dKg8SP\\\"]\"")
+            + HelpExampleRpc("listunspentforaddress", "\"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 6, 9999999 \"[\\\"1PGFqEzfmQch1gKD3ra4k18PNj3tTUUSqg\\\",\\\"1LtvqCaApEdUGFkpKMM4MstjcaL4dKg8SP\\\"]\"")
+            + HelpExampleCli("listunspentforaddress", "\"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 6 9999999 '[]' true '{ \"minimumAmount\": 0.005 }'")
+            + HelpExampleRpc("listunspentforaddress", "\"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 6, 9999999, [] , true, { \"minimumAmount\": 0.005 } ")
         );
 
     CTxDestination dest = DecodeDestination(request.params[0].get_str());
