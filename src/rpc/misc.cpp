@@ -335,6 +335,57 @@ static UniValue signmessagewithprivkey(const JSONRPCRequest& request)
     return EncodeBase64(vchSig.data(), vchSig.size());
 }
 
+static UniValue signpricewithprivkey(const JSONRPCRequest& request)
+{
+    if (request.fHelp || request.params.size() != 2)
+        throw std::runtime_error(
+            "signpricewithprivkey \"privkey\" \"price\"\n"
+            "\nSign a price information with a private key\n"
+            "\nArguments:\n"
+            "1. \"privkey\"         (string, required) The private key to sign the message with.\n"
+            "2. \"price\"           (numeric or string, required) The price in USD.\n"
+
+            "\nResult:\n"
+            "\"priceinfo\"          (string) The time stamped price information message HEX encoded\n"
+            "\"signature\"          (string) The signature of the price information message encoded in base 64\n"
+            "\nExamples:\n"
+            "\nCreate the signature\n"
+            + HelpExampleCli("signpricewithprivkey", "\"privkey\" \"1.50\"") +
+            "\nAs json rpc\n"
+            + HelpExampleRpc("signpricewithprivkey", "\"privkey\", \"1.50\"")
+        );
+
+    std::string strPrivkey = request.params[0].get_str();
+    CAmount priceusd = AmountFromValue(request.params[1]);
+    if (priceusd <= 0)
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for send");
+
+    CPriceInfo pinfo;
+    pinfo.priceTime = GetAdjustedTime();
+    pinfo.priceCount = 1;
+    pinfo.prices[0] = priceusd;
+
+    CKey key = DecodeSecret(strPrivkey);
+    if (!key.IsValid()) {
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid private key");
+    }
+
+    CDataStream ssPrice(SER_NETWORK, PROTOCOL_VERSION);
+    ssPrice << pinfo;
+
+    CHashWriter ss(SER_GETHASH, 0);
+    ss << pinfo;
+
+    std::vector<unsigned char> vchSig;
+    if (!key.SignCompact(ss.GetHash(), vchSig))
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Sign failed");
+
+    UniValue obj(UniValue::VOBJ);
+    obj.pushKV("priceinfo", HexStr(ssPrice.begin(), ssPrice.end()));
+    obj.pushKV("signature", EncodeBase64(vchSig.data(), vchSig.size()));
+    return obj;
+}
+
 static UniValue setmocktime(const JSONRPCRequest& request)
 {
     if (request.fHelp || request.params.size() != 1)
@@ -552,6 +603,7 @@ static const CRPCCommand commands[] =
     { "util",               "createmultisig",         &createmultisig,         {"nrequired","keys"} },
     { "util",               "verifymessage",          &verifymessage,          {"address","signature","message"} },
     { "util",               "signmessagewithprivkey", &signmessagewithprivkey, {"privkey","message"} },
+    { "util",               "signpricewithprivkey",   &signpricewithprivkey,   {"privkey","price"} },
 
     /* Not shown in help */
     { "hidden",             "setmocktime",            &setmocktime,            {"timestamp"}},

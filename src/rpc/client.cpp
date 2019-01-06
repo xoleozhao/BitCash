@@ -67,6 +67,7 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "sendtoaddresswithprivkey", 7 , "replaceable" },
     { "sendtoaddresswithprivkey", 8 , "conf_target" },
     { "settxfee", 0, "amount" },
+    { "signpricewithprivkey", 2, "amount" },
     { "getreceivedbyaddress", 1, "minconf" },
     { "getreceivedbyaccount", 1, "minconf" },
     { "getreceivedbylabel", 1, "minconf" },

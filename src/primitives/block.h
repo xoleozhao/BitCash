@@ -11,6 +11,53 @@
 #include <uint256.h>
 #include <set>
 
+//Stores a signed price information
+class CPriceInfo
+{
+public:
+    uint32_t priceTime;//Time of price information
+    unsigned char priceCount;//number of stored price information
+    CAmount prices[256];
+
+    CPriceInfo()
+    {
+        SetNull();
+    }
+
+    ADD_SERIALIZE_METHODS;
+
+    template <typename Stream, typename Operation>
+    inline void SerializationOp(Stream& s, Operation ser_action) {
+        READWRITE(priceTime);
+        READWRITE(priceCount);
+        unsigned char i;
+        for (i=0;i<priceCount;i++) {
+	    READWRITE(prices[i]);
+        }
+    }
+
+    void SetNull()
+    {
+	priceTime = 0;
+        priceCount = 1;
+        unsigned char i;
+        for (i=0;i<priceCount;i++) {
+	    prices[i]=0;
+        }
+    }
+
+    bool IsNull() const
+    {
+        return (priceTime == 0);
+    }
+
+    int64_t GetPriceTime() const
+    {
+        return (int64_t)priceTime;
+    }
+};
+
+
 /** Nodes collect new transactions into a block, hash them into a hash tree,
  * and scan through nonce values to make the block's hash satisfy proof-of-work
  * requirements.  When they solve the proof-of-work, they broadcast the block
