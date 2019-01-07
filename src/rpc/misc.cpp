@@ -382,7 +382,7 @@ static UniValue signpricewithprivkey(const JSONRPCRequest& request)
 
     UniValue obj(UniValue::VOBJ);
     obj.pushKV("priceinfo", HexStr(ssPrice.begin(), ssPrice.end()));
-    obj.pushKV("signature", EncodeBase64(vchSig.data(), vchSig.size()));
+    obj.pushKV("signature", HexStr(vchSig.begin(), vchSig.end()));
     return obj;
 }
 
