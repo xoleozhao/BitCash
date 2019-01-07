@@ -377,7 +377,7 @@ static UniValue signpricewithprivkey(const JSONRPCRequest& request)
     ss << pinfo;
 
     std::vector<unsigned char> vchSig;
-    if (!key.SignCompact(ss.GetHash(), vchSig))
+    if (!key.Sign(ss.GetHash(), vchSig))
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Sign failed");
 
     UniValue obj(UniValue::VOBJ);
