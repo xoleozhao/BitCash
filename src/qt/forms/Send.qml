@@ -42,7 +42,7 @@ SendForm {
     function gotosendtoanyone()
     {
         /**************************************/
-        tabBar.currentIndex=1
+        tabBar.currentIndex=2
         /**************************************/
     }
 
@@ -120,13 +120,13 @@ SendForm {
 
     function clearsendentriesinterntw(msg) {
         /************************/
-        /*paytoEdittw.text=""
+        paytoEdittw.text=""
         labelEdittw.text=""
         descriptionEdittw.text=""
         amountEdittw.text=""
         whitebox2.visible=false
         whitebox.visible=true
-        whitebox3.visible=false*/
+        whitebox3.visible=false
         /*****************/
     }
 
@@ -176,9 +176,9 @@ SendForm {
     function calcleftbalancetw()
     {
         /****************************/
-        /*leftbalancetw=maxbalancenum-amountEdittw.text
+        leftbalancetw=maxbalancenum-amountEdittw.text
         if (leftbalancetw<0)leftbalancetw=0
-        leftamountlabeltw.text=leftbalancetw*/
+        leftamountlabeltw.text=leftbalancetw
         /*****************************/
     }
 
@@ -246,13 +246,13 @@ SendForm {
         }
     }
 /***********************************/
-    /*paytoEdittw.validator: destCheckVal2
+    paytoEdittw.validator: destCheckVal2
     amountEdittw.validator: amountCheckVal
     amountEdittw.onTextChanged: calcleftbalancetw()
     sendBtntw.onClicked: {
         sendBtntwSignalIntern(paytoEdittw.text,descriptionEdittw.text,amountEdittw.text)
     }
-
+/*
     paytoEditin.validator: destCheckVal2
     amountEditin.validator: amountCheckVal
     amountEditin.onTextChanged: calcleftbalancein()

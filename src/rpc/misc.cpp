@@ -347,7 +347,7 @@ static UniValue signpricewithprivkey(const JSONRPCRequest& request)
 
             "\nResult:\n"
             "\"priceinfo\"          (string) The time stamped price information message HEX encoded\n"
-            "\"signature\"          (string) The signature of the price information message encoded in base 64\n"
+            "\"signature\"          (string) The signature of the price information message HEX encoded\n"
             "\nExamples:\n"
             "\nCreate the signature\n"
             + HelpExampleCli("signpricewithprivkey", "\"privkey\" \"1.50\"") +

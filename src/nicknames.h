@@ -10,6 +10,8 @@
 #include <iostream>
 #include <pubkey.h>
 
+class CScript;
+
 /** Address book data */
 class CNicknameBookData
 {
@@ -34,6 +36,11 @@ public:
 
 extern std::map<std::string, CNicknameBookData> mapNicknameBook;
 extern std::map<CPubKey, CNicknameAddrBookData> mapAddressForNicknameBook;
+extern std::map<CScript, CPubKey> stealthaddresses;
+extern std::map<std::string, std::string> reflines;
+
+bool SetStealthAddress(const CScript script,const CPubKey address);
+bool SetRefLines(const std::string encryptedref,const std::string decryptedref);
 
 bool SetNickname(const std::string& strName,const CPubKey address, uint256 hash, bool storeblockhash);
 bool DeleteNickname(const std::string& strName,const CPubKey address);

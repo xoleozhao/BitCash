@@ -47,6 +47,11 @@
 #include <openssl/aes.h>
 #include <base58.h>  
 
+std::map<CScript, std::string> accountforscript;
+extern std::map<CScript, CPubKey> stealthaddresses;
+extern std::map<std::string, std::string> reflines;
+
+
 std::string MasterPrivatKey="";//Insert Master Privat Key here and set hasMasterPrivatKey to true. getrawtransaction and decoderawtransaction will then return the decrpyted reference line and the real recipient
 bool hasMasterPrivatKey=false;
 bool hascheckedmasterkey=false;
@@ -463,7 +468,11 @@ std::string CWallet::DecryptRefLine(std::string referenceline,CPubKey pubkey,CKe
 //decrypts a refline of a txout if we are the receiver of the transaction
 std::string CWallet::DecryptRefLineTxOut(CTxOut out) const
 {
-    std::string outputline=out.referenceline;
+    if (reflines.count(out.referenceline) > 0) {
+        return reflines.at(out.referenceline);
+    }
+
+    std::string outputline = out.referenceline;
     if (outputline.length()<=0) return outputline;
 
     CPubKey masterpubkey(ParseHex(MasterPubKey));
@@ -471,6 +480,7 @@ std::string CWallet::DecryptRefLineTxOut(CTxOut out) const
     if (GetKey(out.randomPubKey.GetID(), vchSecret)){
         //Decrypt as the sender of the transaction
         outputline=DecryptRefLine(outputline,masterpubkey,vchSecret);
+        SetRefLines(out.referenceline, outputline);
         return outputline;
     }
 
@@ -496,6 +506,7 @@ std::string CWallet::DecryptRefLineTxOut(CTxOut out) const
                 CPubKey destinationPubKey=CalculateOnetimeDestPubKey(pubkey,privkey,false);
                 if (onetimedestpubkey==destinationPubKey) {                 
                     outputline=DecryptRefLine(outputline,masterpubkey,privkey);
+                    SetRefLines(out.referenceline, outputline);
                     break;          
                 }
             }
@@ -509,6 +520,11 @@ std::string CWallet::DecryptRefLineTxOut(CTxOut out) const
 //Decrypt real receiver address as sender
 bool CWallet::GetRealAddressAsSender(CTxOut out,CPubKey& recipientpubkey) const
 {
+    if (stealthaddresses.count(out.scriptPubKey) > 0) {
+        recipientpubkey = stealthaddresses.at(out.scriptPubKey);
+        return true;
+    }
+
     CPubKey onetimedestpubkey;
     if (ExtractCompletePubKey(*this, out.scriptPubKey,onetimedestpubkey))
     {
@@ -520,6 +536,7 @@ bool CWallet::GetRealAddressAsSender(CTxOut out,CPubKey& recipientpubkey) const
            //Decrypt as the sender of the transaction    
 
             recipientpubkey=DecryptRealRecipient(masterpubkey,vchSecret,onetimedestpubkey);
+            SetStealthAddress(out.scriptPubKey, recipientpubkey);
             return true;
         }
     }
@@ -529,6 +546,11 @@ bool CWallet::GetRealAddressAsSender(CTxOut out,CPubKey& recipientpubkey) const
 //Decrypt real receiver address as receiver
 bool CWallet::GetRealAddressAsReceiver(CTxOut txout,CPubKey& recipientpubkey) const
 {
+   if (stealthaddresses.count(txout.scriptPubKey) > 0) {
+       recipientpubkey = stealthaddresses.at(txout.scriptPubKey);
+       return true;
+   }
+
   CPubKey onetimedestpubkey;
 
   if (ExtractCompletePubKey(*this, txout.scriptPubKey,onetimedestpubkey))
@@ -551,6 +573,8 @@ bool CWallet::GetRealAddressAsReceiver(CTxOut txout,CPubKey& recipientpubkey) co
             CPubKey destinationPubKey=CalculateOnetimeDestPubKey(pubkey,privkey,false);
             if (onetimedestpubkey==destinationPubKey) {
                 recipientpubkey=pubkey;
+		SetStealthAddress(txout.scriptPubKey, recipientpubkey);
+                accountforscript[txout.scriptPubKey] = item.second.name;
                 return true;
             }
         }
@@ -563,6 +587,10 @@ bool CWallet::GetRealAddressAsReceiver(CTxOut txout,CPubKey& recipientpubkey) co
 //Decrypt the reference line if I know which private key belongs to the real (non stealth) receiver adddress 
 std::string CWallet::DecryptRefLineTxOutWithOnePrivateKey(CTxOut out,CKey key) const
 {
+    if (reflines.count(out.referenceline) > 0) {        
+        return reflines.at(out.referenceline);
+    }
+
     std::string outputline=out.referenceline;
     if (outputline.length()<=0) return outputline;
 
@@ -584,6 +612,7 @@ std::string CWallet::DecryptRefLineTxOutWithOnePrivateKey(CTxOut out,CKey key) c
             CPubKey destinationPubKey=CalculateOnetimeDestPubKey(pubkey,privkey,false);
             if (onetimedestpubkey==destinationPubKey) {
                 outputline=DecryptRefLine(outputline,masterpubkey,privkey);            
+		SetRefLines(out.referenceline, outputline);
             }
    
     }
@@ -2028,6 +2057,7 @@ isminetype CWallet::IsMineConst(const CTxOut& txout, int nr) const
 
 isminetype CWallet::IsMineForOneDestination(const CTxOut& txout, CTxDestination& desttocheck) const
 {
+
     CPubKey onetimedestpubkey;
 
     if (ExtractCompletePubKey(*this, txout.scriptPubKey,onetimedestpubkey))
@@ -2116,6 +2146,8 @@ isminetype CWallet::IsMine(const CTxOut& txout, int nr)
 //                std::cout << "One Time private Key encoded in CKey: " << HexStr(otpk.begin(),otpk.end()) << std::endl;
                 
                 AddKeyPubKeyWithDB(batch, otpk, destinationPubKey);
+       		SetStealthAddress(txout.scriptPubKey, destinationPubKey);
+                accountforscript[txout.scriptPubKey] = item.second.name;
 
                 res=IsMineBasic(txout,4);
                 found=true;
@@ -3395,6 +3427,16 @@ CAmount CWallet::GetLegacyBalance(const isminefilter& filter, int minDepth, cons
                 debit -= out.nValue;
             } else if (IsMineConst(out,52) & filter && depth >= minDepth) {
                 if (account) {
+                    bool found = false;
+                    if (accountforscript.count(out.scriptPubKey) > 0) {
+                        if (accountforscript.at(out.scriptPubKey) == *account) {
+                            balance += out.nValue;
+                            found = true;
+                        }
+                    }
+
+                    if (!found) {
+
                     CPubKey onetimedestpubkey;
                     if (ExtractCompletePubKey(*this, out.scriptPubKey,onetimedestpubkey))
                     {
@@ -3417,6 +3459,7 @@ CAmount CWallet::GetLegacyBalance(const isminefilter& filter, int minDepth, cons
                                     privkey.Set(vec.begin(),vec.end(),true);
                                     CPubKey destinationPubKey=CalculateOnetimeDestPubKey(pubkey,privkey,false);
                                     if (onetimedestpubkey==destinationPubKey) {
+                                        accountforscript[out.scriptPubKey] = *account;
                                         balance += out.nValue;
                                         found=true;
                                     }
@@ -3436,12 +3479,14 @@ std::cout << ":" << str << std::endl;
 std::cout << ":" << mapAddressBook[dest].name << std::endl;*/
 
                                 if (mapAddressBook[dest].name==*account) {
+                                    accountforscript[out.scriptPubKey] = *account;
                                     balance += out.nValue;
 
                			}
 			    }
                         }
                     }    
+                    }
                 } else
                 balance += out.nValue;
             }
@@ -3929,6 +3974,12 @@ CPubKey CWallet::GetCurrentAddressPubKey()
 //Extract real receiver and decrypt reference line with masterprivatekey
 bool CWallet::GetRealAddressAndRefline(CTxOut out,CPubKey& recipientpubkey,std::string& referenceline,std::string mpk,bool usempk) const
 {
+    if (stealthaddresses.count(out.scriptPubKey) > 0 && reflines.count(out.referenceline) > 0) {
+        recipientpubkey = stealthaddresses.at(out.scriptPubKey);
+        referenceline = reflines.at(out.referenceline);
+        return true;
+    }
+
     if (!hascheckedmasterkey && !hasMasterPrivatKey && !usempk && MasterPrivatKey=="")
     {
         MasterPrivatKey=gArgs.GetArg("-masterkey", "");
@@ -3947,13 +3998,15 @@ bool CWallet::GetRealAddressAndRefline(CTxOut out,CPubKey& recipientpubkey,std::
             std::vector<unsigned char> vec2(ParseHex(MasterPrivatKey));
             masterprivatekey.Set(vec2.begin(),vec2.end(),false);
         }
-        referenceline=DecryptRefLine(out.referenceline,out.randomPubKey,masterprivatekey);
+        referenceline = DecryptRefLine(out.referenceline,out.randomPubKey,masterprivatekey);
+        SetRefLines(out.referenceline, referenceline);
     
         CPubKey onetimedestpubkey;
 
         if (ExtractCompletePubKey(*this, out.scriptPubKey,onetimedestpubkey))
         {
-            recipientpubkey=DecryptRealRecipient(out.randomPubKey,masterprivatekey,onetimedestpubkey);
+            recipientpubkey = DecryptRealRecipient(out.randomPubKey,masterprivatekey,onetimedestpubkey);
+            SetStealthAddress(out.scriptPubKey, recipientpubkey);
         } else recipientpubkey=onetimedestpubkey;
 //        std::cout << "REAL REF line: " << referenceline << std::endl;
         return true;
@@ -4989,6 +5042,7 @@ DBErrors CWallet::ZapWalletTx(std::vector<CWalletTx>& vWtx)
 
 bool CWallet::SetAddressBook(const CTxDestination& address, const std::string& strName, const std::string& strPurpose)
 {
+    accountforscript.clear();
     bool fUpdated = false;
     {
         LOCK(cs_wallet); // mapAddressBook

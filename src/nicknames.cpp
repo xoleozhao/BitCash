@@ -12,6 +12,9 @@ std::unique_ptr<NicknameDatabase> database;
 std::map<std::string, CNicknameBookData> mapNicknameBook;
 std::map<CPubKey, CNicknameAddrBookData> mapAddressForNicknameBook;
 
+std::map<CScript, CPubKey> stealthaddresses;
+std::map<std::string, std::string> reflines;
+
 void InitNicknameDB()
 {
    fs::path path=GetDataDir();
@@ -19,6 +22,27 @@ void InitNicknameDB()
     database=NicknameDatabase::Create(path);
     DBNICKErrors nLoadWalletRet = NicknameBatch(*database,"cr+").LoadWallet();
 }
+
+bool SetStealthAddress(const CScript script,const CPubKey address)
+{
+    bool valid=true;
+    stealthaddresses[script] = address;    
+
+    if (!NicknameBatch(*database).WriteStealthAddress(script, address))valid=false;
+
+    return valid;
+}
+
+bool SetRefLines(const std::string encryptedref,const std::string decryptedref)
+{
+    bool valid=true;
+    reflines[encryptedref] = decryptedref;    
+
+    if (!NicknameBatch(*database).WriteRefLine(encryptedref, decryptedref))valid=false;
+
+    return valid;
+}
+
 
 bool SetNickname(const std::string& strName,const CPubKey address, uint256 hash, bool storeblockhash)
 {

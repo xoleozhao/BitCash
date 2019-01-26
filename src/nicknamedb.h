@@ -98,6 +98,8 @@ public:
     bool WriteInvalidForNameNick(const std::string& strNick,bool invalid);
     bool WriteHashForNameNick(const std::string& strNick,const uint256 hash);
     bool WriteHashForNameNickAddr(const CPubKey Addr,const uint256 hash);
+    bool WriteRefLine(const std::string encryptedref,const std::string decryptedref);
+    bool WriteStealthAddress(const CScript script,const CPubKey address);
 
 
     bool EraseName(const std::string& strAddress);

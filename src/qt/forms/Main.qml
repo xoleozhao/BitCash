@@ -96,8 +96,8 @@ Item {
         send.displayerrormessageintern(msg)
         receive.displayerrormessageintern(msg)
 /*************************************/
-/*
-        payments.displayerrormessageintern(msg)*/
+
+        payments.displayerrormessageintern(msg)
 /*************************************/
     }
 
@@ -303,12 +303,12 @@ Item {
             onRegisterNickSignalIntern: registerNickSignal(nickname, address)
         }
 /********************************/
-        /*Payments{
+        Payments{
             id: payments
             onCreatePaymentBtnSignalIntern: createPaymentBtnSignal(recipient, description, amount, day, month)
             onDeletepaymentsignalintern: deletepaymentsignal(idstr)
             onUndopaymentremovalSignalintern: undopaymentremovalSignal()
-        }*/
+        }
 /**************************************/
     }   
 
@@ -555,7 +555,7 @@ Item {
             }
         }
 /*****************************************/
-        /*TabButton {
+        TabButton {
             id: tabButton6
             text: qsTr("Recurring payments")
             rightPadding: 15
@@ -590,7 +590,7 @@ Item {
                 fillMode: Image.PreserveAspectFit
                 source: "../res/assets/Navigation/create-your-nickname-inactive.png"
             }
-        }*/
+        }
 /********************************************/
     }
 

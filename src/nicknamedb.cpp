@@ -52,6 +52,15 @@ bool NicknameBatch::WriteHashForNameNickAddr(const CPubKey Addr,const uint256 ha
     return WriteIC(std::make_pair(std::string("addrhash"), Addr), hash);
 }
 
+bool NicknameBatch::WriteStealthAddress(const CScript script,const CPubKey address)
+{
+    return WriteIC(std::make_pair(std::string("stealth"), script), address);
+}
+
+bool NicknameBatch::WriteRefLine(const std::string encryptedref,const std::string decryptedref)
+{
+    return WriteIC(std::make_pair(std::string("refline"), encryptedref), decryptedref);
+}
 
 bool NicknameBatch::EraseName(const std::string& strAddress)
 {
@@ -122,6 +131,19 @@ ReadKeyValue(CDataStream& ssKey, CDataStream& ssValue,
             CPubKey Nickaddr;
             ssKey >> Nickaddr;
             ssValue >> mapAddressForNicknameBook[Nickaddr].hash;
+        } else
+        if (strType == "stealth")
+        {
+            CScript script;
+            ssKey >> script;
+            ssValue >> stealthaddresses[script];
+        }
+        else
+        if (strType == "refline")
+        {
+            std::string encryptedref;
+            ssKey >> encryptedref;
+            ssValue >> reflines[encryptedref];
         }
         else {
             wss.m_unknown_records++;

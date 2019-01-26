@@ -30,7 +30,7 @@ Item {
     property alias leftamountlabel: leftamountlabel
 
     /*********************************/
-/*    property alias paytoEdittw: paytoEdittw
+    property alias paytoEdittw: paytoEdittw
     property alias labelEdittw: labelEdittw
     property alias descriptionEdittw: descriptionEdittw
     property alias amountEdittw: amountEdittw
@@ -39,7 +39,7 @@ Item {
     property alias maxbalancetw: maxbalancetw
     property alias pasteaddresstw: pasteaddresstw
     property alias leftamountlabeltw: leftamountlabeltw
-
+/*
     property alias paytoEditin: paytoEditin
     property alias labelEditin: labelEditin
     property alias descriptionEditin: descriptionEditin
@@ -301,7 +301,7 @@ Item {
             }
 
             /***************************************/
-            /*TabButton {
+            TabButton {
                 id: tabButton2
                 text: qsTr("Twitter")
                 rightPadding: 15
@@ -329,7 +329,7 @@ Item {
                     source: "../res/assets/Miscellaneous/twittericon.png"
                 }
             }
-            TabButton {
+            /*TabButton {
                 id: tabButton4
                 text: qsTr("Instagram")
                 rightPadding: 15
@@ -698,7 +698,7 @@ Item {
             }
             //Twitter
             /******************************************/
-            /*Item {
+            Item {
                 id: twitter
 
                 Label {
@@ -983,7 +983,7 @@ Item {
                 }
             }
             ////////////////////// INSTAGRAM /////////////////////////////////////////
-            Item {
+            /*Item {
                 id: instagram
 
                 Label {
