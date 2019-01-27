@@ -250,6 +250,8 @@ Item {
         anchors.bottom: parent.bottom
         anchors.left: parent.left
         currentIndex: tabBar.currentIndex
+
+
         Overview {
             id: overview
             onStartMiningSignalInternoverview: tabBar.currentIndex=tabBar.currentIndex+1
@@ -262,31 +264,55 @@ Item {
             onMinereducedSignalIntern: minereducedSignal(isreduced)
         }
 
-        Send{
-            id: send            
-            onSendBtnSignalIntern: sendBtnSignal(destination,label,description,amount,substractfee)
-            onSendBtntwSignalIntern: sendBtntwSignal(destination,description,amount)
-            onSendconfirmedBtntwSignalIntern: sendconfirmedBtntwSignal(destination,description,amount)
-            onSendBtninSignalIntern: sendBtninSignal(destination,description,amount)
-            onSendconfirmedBtninSignalIntern: sendconfirmedBtninSignal(destination,description,amount)
-            onSendBtnreSignalIntern: sendBtnreSignal(destination,description,amount)
-            onSendconfirmedBtnreSignalIntern: sendconfirmedBtnreSignal(destination,description,amount)
-            onSendlinkBtnSignalIntern: sendlinkBtnSignal(description, amount)
-            onSendtoanyoneSignalIntern: gotosendtoanyone()
-            onViewaccounthistorysignal:{
-                tabBar.currentIndex=tabBar.currentIndex+2
+        Flickable {
+            contentWidth: width
+            contentHeight: 1024
+            ScrollBar.vertical: ScrollBar {
+                active: true;
+                width: 10
+                onActiveChanged: {
+                    if (!active)
+                    active = true;
+                }
             }
-            onGotooverviewsignal: {
-                tabBar.currentIndex=tabBar.currentIndex-2
+            Send{
+                id: send
+                onSendBtnSignalIntern: sendBtnSignal(destination,label,description,amount,substractfee)
+                onSendBtntwSignalIntern: sendBtntwSignal(destination,description,amount)
+                onSendconfirmedBtntwSignalIntern: sendconfirmedBtntwSignal(destination,description,amount)
+                onSendBtninSignalIntern: sendBtninSignal(destination,description,amount)
+                    onSendconfirmedBtninSignalIntern: sendconfirmedBtninSignal(destination,description,amount)
+                onSendBtnreSignalIntern: sendBtnreSignal(destination,description,amount)
+                onSendconfirmedBtnreSignalIntern: sendconfirmedBtnreSignal(destination,description,amount)
+                onSendlinkBtnSignalIntern: sendlinkBtnSignal(description, amount)
+                onSendtoanyoneSignalIntern: gotosendtoanyone()
+                onViewaccounthistorysignal:{
+                    tabBar.currentIndex=tabBar.currentIndex+2
+                    }
+                onGotooverviewsignal: {
+                    tabBar.currentIndex=tabBar.currentIndex-2
+                }
             }
         }
 
-        Receive{
-            id: receive
-            onGotocreatenicksignal:tabBar.currentIndex=tabBar.currentIndex+2
-            onClaimlinkBtnSignalIntern: claimlinkBtnSignal(link)
-
+        Flickable {
+            contentWidth: width
+            contentHeight: 1024
+            ScrollBar.vertical: ScrollBar {
+                active: true;
+                width: 10
+                onActiveChanged: {
+                    if (!active)
+                    active = true;
+                }
+            }
+            Receive{
+                id: receive
+                onGotocreatenicksignal:tabBar.currentIndex=tabBar.currentIndex+2
+                onClaimlinkBtnSignalIntern: claimlinkBtnSignal(link)
+            }
         }
+
 
         Transactions{
             id: transactions
@@ -303,11 +329,24 @@ Item {
             onRegisterNickSignalIntern: registerNickSignal(nickname, address)
         }
 /********************************/
-        Payments{
-            id: payments
-            onCreatePaymentBtnSignalIntern: createPaymentBtnSignal(recipient, description, amount, day, month)
-            onDeletepaymentsignalintern: deletepaymentsignal(idstr)
-            onUndopaymentremovalSignalintern: undopaymentremovalSignal()
+
+        Flickable {
+            contentWidth: width
+            contentHeight: 1024
+            ScrollBar.vertical: ScrollBar {
+                active: true;
+                width: 10
+                onActiveChanged: {
+                    if (!active)
+                    active = true;
+                }
+            }
+            Payments{
+                id: payments
+                onCreatePaymentBtnSignalIntern: createPaymentBtnSignal(recipient, description, amount, day, month)
+                onDeletepaymentsignalintern: deletepaymentsignal(idstr)
+                onUndopaymentremovalSignalintern: undopaymentremovalSignal()
+            }
         }
 /**************************************/
     }   
@@ -623,7 +662,7 @@ Item {
         onPrintpaperwalletSignalintern: printpaperwalletSignal()
         onBackupwalletfileSignalintern: backupwalletfileSignal()
         onImportkeySignalintern: importkeySignal(key)
-    }        
+    }
     TwitterSuccess
     {
         id: twittersuccess

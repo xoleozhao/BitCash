@@ -9,7 +9,6 @@ Item {
     width: parent.width
     height: parent.height
 
-
     property alias privatekeyEdit: privatekeyEdit
     property alias publicaddressEdit: publicaddressEdit
     property alias printBtn: printBtn
@@ -44,6 +43,21 @@ Item {
             infoboxerror.visible=false
         }, 5000);
     }
+
+    Flickable {
+        width: parent.width
+        height: parent.height
+        contentWidth: width
+        contentHeight: 1024
+        ScrollBar.vertical: ScrollBar {
+            active: true;
+            width: 10
+            onActiveChanged: {
+                if (!active)
+                active = true;
+            }
+        }
+
 
 Rectangle{
     id: screen
@@ -722,5 +736,5 @@ Rectangle{
         }
     }
 
-
+}
 }
