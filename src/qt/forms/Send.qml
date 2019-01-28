@@ -4,7 +4,7 @@ import DestCheckValidator 1.0
 import AmountEntryValidator 1.0
 import DestCheckValidator2 1.0
 
-SendForm {    
+SendForm {      
     signal sendBtnSignalIntern(string destination, string label, string description, double amount, bool substractfee)
     signal sendBtntwSignalIntern(string destination, string description, double amount)
     signal sendBtninSignalIntern(string destination, string description, double amount)

@@ -45,6 +45,7 @@ Item {
     }
 
     Flickable {
+        clip: true
         width: parent.width
         height: parent.height
         contentWidth: width

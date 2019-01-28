@@ -96,8 +96,8 @@ Item {
         send.displayerrormessageintern(msg)
         receive.displayerrormessageintern(msg)
 /*************************************/
-
-        payments.displayerrormessageintern(msg)
+/*
+        payments.displayerrormessageintern(msg)*/
 /*************************************/
     }
 
@@ -251,6 +251,14 @@ Item {
         anchors.left: parent.left
         currentIndex: tabBar.currentIndex
 
+        onWidthChanged: {
+            send.width = width
+            receive.width = width
+/*****************************************
+            payments.width = width
+***********************************************/
+        }
+
 
         Overview {
             id: overview
@@ -264,8 +272,9 @@ Item {
             onMinereducedSignalIntern: minereducedSignal(isreduced)
         }
 
-        Flickable {
-            contentWidth: width
+        Flickable {            
+            clip: true
+            contentWidth: parent
             contentHeight: 1024
             ScrollBar.vertical: ScrollBar {
                 active: true;
@@ -296,6 +305,9 @@ Item {
         }
 
         Flickable {
+            clip: true
+            width: parent
+            height: parent
             contentWidth: width
             contentHeight: 1024
             ScrollBar.vertical: ScrollBar {
@@ -329,8 +341,11 @@ Item {
             onRegisterNickSignalIntern: registerNickSignal(nickname, address)
         }
 /********************************/
-
+/*
         Flickable {
+            clip: true
+            width: parent
+            height: parent
             contentWidth: width
             contentHeight: 1024
             ScrollBar.vertical: ScrollBar {
@@ -347,7 +362,7 @@ Item {
                 onDeletepaymentsignalintern: deletepaymentsignal(idstr)
                 onUndopaymentremovalSignalintern: undopaymentremovalSignal()
             }
-        }
+        }*/
 /**************************************/
     }   
 
@@ -594,7 +609,7 @@ Item {
             }
         }
 /*****************************************/
-        TabButton {
+/*        TabButton {
             id: tabButton6
             text: qsTr("Recurring payments")
             rightPadding: 15
@@ -629,7 +644,7 @@ Item {
                 fillMode: Image.PreserveAspectFit
                 source: "../res/assets/Navigation/create-your-nickname-inactive.png"
             }
-        }
+        }*/
 /********************************************/
     }
 
