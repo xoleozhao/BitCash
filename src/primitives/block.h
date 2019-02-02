@@ -11,6 +11,10 @@
 #include <uint256.h>
 #include <set>
 
+#define hashx16Ractive ((uint32_t)1) << 3
+
+extern bool isX16Ractive(int32_t nVersion);
+
 //Stores a signed price information
 class CPriceInfo
 {
@@ -89,13 +93,12 @@ public:
     template <typename Stream, typename Operation>
     inline void SerializationOp(Stream& s, Operation ser_action) {
         READWRITE(this->nVersion);
-        const bool x16ractive = (this->nVersion & ((uint32_t)1) << 3) != 0;
         READWRITE(hashPrevBlock);
         READWRITE(hashMerkleRoot);
         READWRITE(nTime);
         READWRITE(nBits);
         READWRITE(nNonce);
-        if (!x16ractive) {
+        if (!isX16Ractive(this->nVersion)) {
             READWRITE(nEdgeBits);
             if (!(s.GetType() & SER_GETHASH)) {
                 READWRITE(sCycle);

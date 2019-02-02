@@ -1216,9 +1216,7 @@ bool ReadBlockFromDisk(CBlock& block, const CDiskBlockPos& pos, const Consensus:
     }
 
     // Check the header
-    const bool x16ractive = (block.nVersion & ((uint32_t)1) << 3) != 0;
-
-    if (x16ractive) {
+    if (isX16Ractive(block.nVersion)) {
         if (!CheckProofOfWork(block.GetHash(), block.nBits, consensusParams))
             return error("ReadBlockFromDisk: Errors in block header at %s", pos.ToString());
     } else {
@@ -1847,7 +1845,7 @@ int32_t ComputeBlockVersion(const CBlockIndex* pindexPrev, const Consensus::Para
     }
 
     if (pindexPrev->nTime > params.X16RTIME)
-       nVersion |= ((uint32_t)1) << 3;
+       nVersion |= hashx16Ractive;
 
     return nVersion;
 }
@@ -3235,9 +3233,8 @@ static bool FindUndoPos(CValidationState &state, int nFile, CDiskBlockPos &pos, 
 static bool CheckBlockHeader(const CBlockHeader& block, CValidationState& state, const Consensus::Params& consensusParams, bool fCheckPOW = true)
 {
     // Check proof of work matches claimed amount
-    const bool x16ractive = (block.nVersion & ((uint32_t)1) << 3) != 0;
 
-    if (x16ractive) {
+    if (isX16Ractive(block.nVersion)) {
         if (fCheckPOW && !CheckProofOfWork(block.GetHash(), block.nBits, consensusParams))
             return state.DoS(50, false, REJECT_INVALID, "high-hash", false, "proof of work failed"); 
     } else {
@@ -3258,7 +3255,7 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
     if (block.fChecked)
         return true;
 
-    const bool x16ractive = (block.nVersion & ((uint32_t)1) << 3) != 0;
+    const bool x16ractive = (isX16Ractive(block.nVersion));
 
     //Check that the correct block version with the hashing algo is used     
     if (x16ractive != block.nTime > consensusParams.X16RTIME) {
@@ -3444,7 +3441,7 @@ static bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationSta
         }
     }
 
-    const bool x16ractive = (block.nVersion & ((uint32_t)1) << 3) != 0;
+    const bool x16ractive = (isX16Ractive(block.nVersion));
 
     if (!x16ractive && block.nEdgeBits != pow.nEdgeBits) {
         return state.DoS(100, false, REJECT_INVALID, "bad-nodesbits", false, "incorrect proof of work");

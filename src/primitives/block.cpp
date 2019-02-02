@@ -10,10 +10,14 @@
 #include <utilstrencodings.h>
 #include <crypto/common.h>
 
+bool isX16Ractive(int32_t nVersion)
+{
+    return ((nVersion & hashx16Ractive) != 0);
+}
+
 uint256 CBlockHeader::GetHash() const
 {
-    const bool x16ractive = (this->nVersion & ((uint32_t)1) << 3) != 0;
-    if ( x16ractive) {
+    if ( isX16Ractive(this->nVersion)) {
         return HashX16R(BEGIN(nVersion), END(nNonce), hashPrevBlock);
     } else {
         return SerializeHash(*this);    

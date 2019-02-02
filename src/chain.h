@@ -410,13 +410,12 @@ public:
 
         // block header
         READWRITE(this->nVersion);
-        const bool x16ractive = (this->nVersion & ((uint32_t)1) << 3) != 0;
         READWRITE(hashPrev);
         READWRITE(hashMerkleRoot);
         READWRITE(nTime);
         READWRITE(nBits);
         READWRITE(nNonce);
-        if (!x16ractive) {
+        if (!isX16Ractive(this->nVersion)) {
             READWRITE(nEdgeBits);
             READWRITE(sCycle);
         }
