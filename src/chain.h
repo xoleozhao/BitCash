@@ -398,6 +398,7 @@ public:
         if (!(s.GetType() & SER_GETHASH))
             READWRITE(VARINT(_nVersion, VarIntMode::NONNEGATIVE_SIGNED));
 
+        const bool x16ractive = (_nVersion & ((uint32_t)1) << 3) != 0;
         READWRITE(VARINT(nHeight, VarIntMode::NONNEGATIVE_SIGNED));
         READWRITE(VARINT(nStatus));
         READWRITE(VARINT(nTx));
@@ -415,8 +416,10 @@ public:
         READWRITE(nTime);
         READWRITE(nBits);
         READWRITE(nNonce);
-        READWRITE(nEdgeBits);
-        READWRITE(sCycle);
+        if (!x16ractive) {
+            READWRITE(nEdgeBits);
+            READWRITE(sCycle);
+        }
     }
 
     uint256 GetBlockHash() const
