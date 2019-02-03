@@ -62,7 +62,7 @@ int64_t UpdateTime(CBlockHeader* pblock, const Consensus::Params& consensusParam
         pblock->nBits = GetNextWorkRequired(pindexPrev, pblock, consensusParams).nBits;
 
     if (pblock->nTime > consensusParams.X16RTIME)
-       pblock->nVersion |= ((uint32_t)1) << 3;
+       pblock->nVersion |= hashx16Ractive;
 
     return nNewTime - nOldTime;
 }
@@ -141,7 +141,7 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlockWithScriptPubKey(c
 
     pblock->nTime = GetAdjustedTime();
     if (pblock->nTime > chainparams.GetConsensus().X16RTIME)
-       pblock->nVersion |= ((uint32_t)1) << 3;
+       pblock->nVersion |= hashx16Ractive;
 
     const int64_t nMedianTimePast = pindexPrev->GetMedianTimePast();
 
@@ -239,7 +239,7 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(interfaces::Walle
 
     pblock->nTime = GetAdjustedTime();
     if (pblock->nTime > chainparams.GetConsensus().X16RTIME)
-       pblock->nVersion |= ((uint32_t)1) << 3;
+       pblock->nVersion |= hashx16Ractive;
     const int64_t nMedianTimePast = pindexPrev->GetMedianTimePast();
 
     nLockTimeCutoff = (STANDARD_LOCKTIME_VERIFY_FLAGS & LOCKTIME_MEDIAN_TIME_PAST)
@@ -709,7 +709,7 @@ void MinerWorker(int thread_id, MinerContext& ctx)
         uint256 hash;
         std::set<uint32_t> cycle;
 
-        const bool x16ractive = (pblock->nVersion & ((uint32_t)1) << 3) != 0;
+        const bool x16ractive = isX16Ractive(pblock->nVersion);
 
         while (ctx.alive) {
             // Check if something found

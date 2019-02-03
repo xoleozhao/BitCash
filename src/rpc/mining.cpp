@@ -145,7 +145,7 @@ UniValue generateBlocks(
         bool trygpumining = false;
         bool gpuminingfailed = false;
 
-        const bool x16ractive = (pblock->nVersion & ((uint32_t)1) << 3) != 0;
+        const bool x16ractive = isX16Ractive(pblock->nVersion);
 
         if (x16ractive) {
             while (nMaxTries > 0 && pblock->nNonce < nInnerLoopCount && !CheckProofOfWork(pblock->GetHash(), pblock->nBits, Params().GetConsensus())) {

@@ -416,7 +416,7 @@ public:
         READWRITE(nTime);
         READWRITE(nBits);
         READWRITE(nNonce);
-        if (!x16ractive) {
+        if (!isX16Ractive(this->nVersion)) {
             READWRITE(nEdgeBits);
             READWRITE(sCycle);
         }

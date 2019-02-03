@@ -141,7 +141,7 @@ UniValue blockheaderToJSON(const CBlockIndex* blockindex)
     result.pushKV("confirmations", confirmations);
     result.pushKV("height", blockindex->nHeight);
     result.pushKV("version", blockindex->nVersion);
-    const bool x16ractive = (blockindex->nVersion & ((uint32_t)1) << 3) != 0;
+    const bool x16ractive = isX16Ractive(blockindex->nVersion);
     result.pushKV("versionHex", strprintf("%08x", blockindex->nVersion));
     result.pushKV("merkleroot", blockindex->hashMerkleRoot.GetHex());
     result.pushKV("time", (int64_t)blockindex->nTime);

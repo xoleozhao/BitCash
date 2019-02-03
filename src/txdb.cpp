@@ -293,9 +293,7 @@ bool CBlockTreeDB::LoadBlockIndexGuts(const Consensus::Params& consensusParams, 
                 pindexNew->sCycle       = diskindex.sCycle;
 
 
-                const bool x16ractive = (diskindex.nVersion & ((uint32_t)1) << 3) != 0;
-
-                if (x16ractive) {
+                if (isX16Ractive(diskindex.nVersion)) {
                     if (!CheckProofOfWork(pindexNew->GetBlockHash(), pindexNew->nBits, consensusParams))
                         return error("%s: CheckProofOfWork failed: %s", __func__, pindexNew->ToString());
                 } else {
