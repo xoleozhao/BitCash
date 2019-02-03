@@ -3431,6 +3431,22 @@ static bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationSta
     assert(pindexPrev != nullptr);
     const int nHeight = pindexPrev->nHeight + 1;
 
+    //If this is a reorg, check that it is not too deep
+    int nMaxReorgDepth = 60;
+    int nMinReorgPeers = 4;
+    int nMinReorgAge = 60 * 60 * 12; // 12 hours
+    bool fGreaterThanMaxReorg = chainActive.Height() - (nHeight - 1) >= nMaxReorgDepth;
+    if (fGreaterThanMaxReorg && g_connman) {
+        int nCurrentNodeCount = g_connman->GetNodeCount(CConnman::CONNECTIONS_ALL);
+        bool bIsCurrentChainCaughtUp = (GetTime() - pindexPrev->nTime) <= nMinReorgAge;
+        if ((nCurrentNodeCount >= nMinReorgPeers) && bIsCurrentChainCaughtUp)
+            return state.DoS(1,
+                             error("%s: forked chain older than max reorganization depth (height %d), with connections (count %d), and caught up with active chain (%s)",
+                                   __func__, nHeight, nCurrentNodeCount, bIsCurrentChainCaughtUp ? "true" : "false"),
+                             REJECT_INVALID, "bad-fork-prior-to-maxreorgdepth");
+    }
+
+
     // Check proof of work
     const Consensus::Params& consensusParams = params.GetConsensus();
     auto pow = GetNextWorkRequired(pindexPrev, &block, consensusParams);
