@@ -259,7 +259,7 @@ QValidator::State BitcashAddressCheckValidator2::validate(QString &input, int &p
 
         if (((ch >= '0' && ch<='9') ||
             (ch >= 'a' && ch<='z') ||
-            (ch >= 'A' && ch<='Z'))/* &&
+            (ch >= 'A' && ch<='Z') || ch =='_')/* &&
             ch != 'I' && ch != 'O'*/) // Characters invalid in both Base58 and Bech32
         {
             // Alphanumeric and not a 'forbidden' character
