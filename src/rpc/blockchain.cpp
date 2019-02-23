@@ -61,15 +61,20 @@ double GetNextDifficulty(const CChain& chain, const CBlockIndex* blockindex)
     }
 
     auto pow = GetNextWorkRequired(blockindex, NULL, Params().GetConsensus());
-    int nShift = (pow.nBits >> 24) & 0xff;
+    int nShift = (blockindex->nBits >> 24) & 0xff;
 
     double dDiff =
-        (double)0x007fff80 / (double)(pow.nBits & 0x00ffffff);
+        (double)0x0000ffff / (double)(pow.nBits & 0x00ffffff);
 
-    while (nShift < 32)
+    while (nShift < 29)
     {
         dDiff *= 256.0;
         nShift++;
+    }
+    while (nShift > 29)
+    {
+        dDiff /= 256.0;
+        nShift--;
     }
 
     return dDiff;
@@ -97,12 +102,17 @@ double GetDifficulty(const CChain& chain, const CBlockIndex* blockindex)
     int nShift = (blockindex->nBits >> 24) & 0xff;
 
     double dDiff =
-        (double)0x007fff80 / (double)(blockindex->nBits & 0x00ffffff);
+        (double)0x0000ffff / (double)(blockindex->nBits & 0x00ffffff);
 
-    while (nShift < 32)
+    while (nShift < 29)
     {
         dDiff *= 256.0;
         nShift++;
+    }
+    while (nShift > 29)
+    {
+        dDiff /= 256.0;
+        nShift--;
     }
 
     return dDiff;

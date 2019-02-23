@@ -227,18 +227,6 @@ Item {
         height: 130
     }
 
-    Rectangle {
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.top: whitebox.top
-        anchors.topMargin: 30
-        anchors.bottom: whitebox.bottom
-        anchors.bottomMargin: 30
-        border.color: "#00000000"
-        border.width: 0
-        width: 1
-        color: "#e3e3e3"
-    }
-
     Image {
         id: miningicon
         y: 74
@@ -295,7 +283,6 @@ Item {
     }
 
     property alias labelgraphs: labelgraphs
-    property alias labelcycles: labelcycles
 
     Label {
         id: labelgraphs
@@ -304,21 +291,7 @@ Item {
         anchors.leftMargin: 36
         anchors.top: whitebox.top
         anchors.topMargin: 36
-        text: qsTr("Graphs per second")
-        font.weight: Font.DemiBold
-        font.pixelSize: 13
-        font.family: "Montserrat SemiBold"
-        opacity: 0.5
-    }
-
-    Label {
-        id: labelcycles
-        color: "#4d505e"
-        anchors.left: whitebox.horizontalCenter
-        anchors.leftMargin: 30
-        anchors.top: whitebox.top
-        anchors.topMargin: 36
-        text: qsTr("Cycles per second")
+        text: qsTr("Hashs per second")
         font.weight: Font.DemiBold
         font.pixelSize: 13
         font.family: "Montserrat SemiBold"
@@ -326,7 +299,6 @@ Item {
     }
 
     property alias graphsstat: graphsstat
-    property alias cyclesstat: cyclesstat
     property alias minereduced: minereduced
     property alias stopanimation: stopanimation
 
@@ -335,18 +307,6 @@ Item {
         color: "#3e45ac"
         anchors.left: labelgraphs.left
         anchors.top: labelgraphs.bottom
-        anchors.topMargin: 10
-        text: qsTr("0.000000")
-        font.pixelSize: 18
-        font.family: "Montserrat"
-        opacity: 0.5
-    }
-
-    Label {
-        id: cyclesstat
-        color: "#3e45ac"
-        anchors.left: labelcycles.left
-        anchors.top: labelcycles.bottom
         anchors.topMargin: 10
         text: qsTr("0.000000")
         font.pixelSize: 18

@@ -212,7 +212,6 @@ UniValue getmininginfo(const JSONRPCRequest& request)
             "  \"currentblocktx\": nnn,     (numeric) The last block transaction\n"
             "  \"currentblockref\": nnn,    (numeric) The last block referrals\n"
             "  \"difficulty\": xxx.xxxxx    (numeric) The current difficulty\n"
-            "  \"difficultyedgebits\": xxx  (numeric) The current edgeBits difficulty\n"
             "  \"errors\": \"...\"          (string) Current errors\n"
             "  \"mining\": true|false       (boolean) If the mining is on or off (see getmining or setmining calls)\n"
             "  \"mineproclimit\": n         (numeric) The processor limit for mining. -1 if no generation. (see getmining or setmining calls)\n"
@@ -239,7 +238,6 @@ UniValue getmininginfo(const JSONRPCRequest& request)
     obj.push_back(Pair("currentblocktx",     (uint64_t)nLastBlockTx));
 //    obj.push_back(Pair("currentblockref",    (uint64_t)nLastBlockRef));
     obj.push_back(Pair("difficulty",         (double)GetDifficulty()));
-    obj.push_back(Pair("difficultyedgebits", pindexPrev->nEdgeBits));
     obj.push_back(Pair("mining",             gArgs.GetBoolArg("-mine", DEFAULT_MINING)));
     obj.push_back(Pair("reduced power",      minerreduced));
     obj.push_back(Pair("minepowthreads",     gArgs.GetArg("-minepowthreads", DEFAULT_MINING_POW_THREADS)));
@@ -247,8 +245,8 @@ UniValue getmininginfo(const JSONRPCRequest& request)
     obj.push_back(Pair("minebucketthreads",  gArgs.GetArg("-minebucketthreads", DEFAULT_MINING_BUCKET_THREADS)));
     obj.push_back(Pair("errors",             GetWarnings("statusbar")));
     obj.push_back(Pair("networkcyclesps",    getnetworkhashps(request)));
-    obj.push_back(Pair("graphsps",           g_connman->GetGraphPower()));
-    obj.push_back(Pair("cyclesps",           g_connman->GetCyclePower()));
+    obj.push_back(Pair("networkhashps",      getnetworkhashps(request)));	
+    obj.push_back(Pair("nodehashps",         g_connman->GetGraphPower()));
     obj.push_back(Pair("pooledtx",           (uint64_t)mempool.size()));
 //    obj.push_back(Pair("pooledref",          (uint64_t)mempoolReferral.Size()));
     obj.push_back(Pair("chain",              Params().NetworkIDString()));

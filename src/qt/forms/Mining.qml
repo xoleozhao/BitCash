@@ -18,10 +18,8 @@ MiningForm {
      function startminingintern(msg) {
          startminingbutton.visible=false
          stopminingbutton.visible=true         
-         graphsstat.opacity=1
-         cyclesstat.opacity=1
-         labelgraphs.opacity=1
-         labelcycles.opacity=1
+         graphsstat.opacity=1         
+         labelgraphs.opacity=1         
          setminingstatsintern(0,0)         
          if (!stopanimation.checked) {
              animation1.currentFrame=0
@@ -50,10 +48,8 @@ MiningForm {
      function stopminingintern(msg) {
          startminingbutton.visible=true
          stopminingbutton.visible=false
-         graphsstat.opacity=0.5
-         cyclesstat.opacity=0.5
-         labelgraphs.opacity=0.5
-         labelcycles.opacity=0.5
+         graphsstat.opacity=0.5         
+         labelgraphs.opacity=0.5         
          setminingstatsintern(0,0)
          toolBar2.visible=true
          toolBar.visible=false

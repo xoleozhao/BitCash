@@ -741,7 +741,6 @@ static bool AcceptToMemoryPoolWorker(const CChainParams& chainparams, CTxMemPool
                 if (pfMissingInputs) {
                     *pfMissingInputs = true;
                 }
-                LogPrintf("Input does not exist.\n");
                 return false; // fMissingInputs and !state.IsInvalid() is used to detect this condition, don't set state.Invalid()
             }
         }

@@ -490,6 +490,7 @@ std::string CWallet::DecryptRefLineTxOut(CTxOut out) const
     {
 
         //Decrypt as receiver of the transaction...
+//        LogPrintf("DecryptRefLineTxOut anz: %i time: %i.\n",mapAddressBook.size(),GetTimeMillis());
         for (const std::pair<CTxDestination, CAddressBookData>& item : mapAddressBook) {
             CPubKey pubkey=GetSecondPubKeyForDestination(item.first);
 
@@ -511,6 +512,7 @@ std::string CWallet::DecryptRefLineTxOut(CTxOut out) const
                 }
             }
         }
+//        LogPrintf("END DecryptRefLineTxOut anz: %i time: %i.\n",mapAddressBook.size(),GetTimeMillis());
    
     }
 
@@ -555,6 +557,7 @@ bool CWallet::GetRealAddressAsReceiver(CTxOut txout,CPubKey& recipientpubkey) co
 
   if (ExtractCompletePubKey(*this, txout.scriptPubKey,onetimedestpubkey))
   {
+//    LogPrintf("GetRealAddressAsReceiver anz: %i time: %i.\n",mapAddressBook.size(),GetTimeMillis());
     for (const std::pair<CTxDestination, CAddressBookData>& item : mapAddressBook) {
         CPubKey pubkey=GetSecondPubKeyForDestination(item.first);
 
@@ -579,6 +582,7 @@ bool CWallet::GetRealAddressAsReceiver(CTxOut txout,CPubKey& recipientpubkey) co
             }
         }
      }
+//     LogPrintf("END GetRealAddressAsReceiver anz: %i time: %i.\n",mapAddressBook.size(),GetTimeMillis());
   }
   return false;
 
@@ -2113,6 +2117,7 @@ isminetype CWallet::IsMine(const CTxOut& txout, int nr)
 //             std::cout << "Check this destination: " << HexStr(onetimedestpubkey.begin(),onetimedestpubkey.end()) << std::endl;
 
     bool found=false;
+//    LogPrintf("IsMine anz: %i time: %i.\n",mapAddressBook.size(),GetTimeMillis());
     for (const std::pair<CTxDestination, CAddressBookData>& item : mapAddressBook) {
         CPubKey pubkey=GetSecondPubKeyForDestination(item.first);
 
@@ -2181,6 +2186,7 @@ isminetype CWallet::IsMine(const CTxOut& txout, int nr)
 
         }
     }
+//    LogPrintf("END IsMine anz: %i time: %i.\n",mapAddressBook.size(),GetTimeMillis());
 
     }    
     }
@@ -3442,6 +3448,7 @@ CAmount CWallet::GetLegacyBalance(const isminefilter& filter, int minDepth, cons
                     {
                 
                         bool found=false;
+//                        LogPrintf("GetLegacyBalance anz: %i time: %i.\n",mapAddressBook.size(),GetTimeMillis());
                         for (const std::pair<CTxDestination, CAddressBookData>& item : mapAddressBook) {
                             if (item.second.name==*account) {
                                 CPubKey pubkey=GetSecondPubKeyForDestination(item.first);
@@ -3465,7 +3472,8 @@ CAmount CWallet::GetLegacyBalance(const isminefilter& filter, int minDepth, cons
                                     }
                                 }
                             }
-                        }                
+                        }    
+//                        LogPrintf("END GetLegacyBalance anz: %i time: %i.\n",mapAddressBook.size(),GetTimeMillis());            
                         if (!found && filter & ISMINE_WATCH_ONLY) {
                             //If we have the master private key we can decode the transactions for the Watch-Only addresses
                             CPubKey recipientpubkey;
