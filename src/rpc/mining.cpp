@@ -140,34 +140,9 @@ UniValue generateBlocks(
             IncrementExtraNonce(pblock, chainActive.Tip(), nExtraNonce);
         }
 
-        bool cycle_found = false;
-        std::set<uint32_t> cycle;
-        bool trygpumining = false;
-        bool gpuminingfailed = false;
-
-        const bool x16ractive = isX16Ractive(pblock->nVersion);
-
-        if (x16ractive) {
-            while (nMaxTries > 0 && pblock->nNonce < nInnerLoopCount && !CheckProofOfWork(pblock->GetHash(), pblock->nBits, Params().GetConsensus())) {
-                ++pblock->nNonce;
-                --nMaxTries;
-            }
-        } else {
-            while (nMaxTries > 0
-                    && pblock->nNonce < nInnerLoopCount
-                    && !cuckoo::FindProofOfWorkAdvanced(
-                        pblock->GetHash(),
-                        pblock->nBits,
-                        pblock->nEdgeBits,
-                        cycle,
-                        consensusParams,
-                        nThreads,
-                        cycle_found,
-                        &pool, trygpumining, gpuminingfailed, 0, false, false)) {
-    
-                ++pblock->nNonce;
-                --nMaxTries;
-            }
+        while (nMaxTries > 0 && pblock->nNonce < nInnerLoopCount && !CheckProofOfWork(pblock->GetHash(), pblock->nBits, Params().GetConsensus())) {
+            ++pblock->nNonce;
+            --nMaxTries;        
         }
 
         if (nMaxTries == 0) {
@@ -177,12 +152,6 @@ UniValue generateBlocks(
         if (pblock->nNonce == nInnerLoopCount) {
             continue;
         }
-
-        if (!x16ractive) {
-            assert(cycle.size() == consensusParams.nCuckooProofSize);
-        }
-
-        pblock->sCycle = cycle;
 
         auto shared_pblock = std::make_shared<const CBlock>(*pblock);
 
