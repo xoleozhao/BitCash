@@ -44,7 +44,7 @@ bool SetRefLines(const std::string encryptedref,const std::string decryptedref)
 }
 
 
-bool SetNickname(const std::string& strName,const CPubKey address, uint256 hash, bool storeblockhash)
+bool SetNickname(const std::string& strName,const CPubKey address, uint256 hash, bool storeblockhash, bool isnonprivate)
 {
     bool valid=true;
     std::string oldnick=GetNicknameForAddress(address);
@@ -59,6 +59,7 @@ bool SetNickname(const std::string& strName,const CPubKey address, uint256 hash,
     mapNicknameBook[nick].pubkey = address;
     mapNicknameBook[nick].hash=hash;
     mapNicknameBook[nick].invalid = false;
+    mapNicknameBook[nick].isnonprivate = isnonprivate;
     mapAddressForNicknameBook[address].name=strName;
 
     if (storeblockhash) mapAddressForNicknameBook[address].hash=hash;
@@ -67,6 +68,7 @@ bool SetNickname(const std::string& strName,const CPubKey address, uint256 hash,
     if (!NicknameBatch(*database).WriteNameNickAddr(address, strName))valid=false;
     if (!NicknameBatch(*database).WriteHashForNameNick(nick, hash))valid=false;
     if (!NicknameBatch(*database).WriteInvalidForNameNick(nick, false))valid=false;
+    if (!NicknameBatch(*database).WriteIsNonPrivateForNameNick(nick, isnonprivate))valid=false;
     if (storeblockhash){
         if (!NicknameBatch(*database).WriteHashForNameNickAddr(address, hash))valid=false;
     }
@@ -87,6 +89,7 @@ bool DeleteNickname(const std::string& strName,CPubKey address)
     bool valid=true;
     if (!NicknameBatch(*database).WriteNameNick(nick, CPubKey()))valid=false;
     if (!NicknameBatch(*database).WriteNameNickAddr(address, ""))valid=false;
+    if (!NicknameBatch(*database).WriteIsNonPrivateForNameNick(nick, false))valid=false;
     if (!NicknameBatch(*database).WriteHashForNameNick(nick, uint256S("0x0")))valid=false;
     if (!NicknameBatch(*database).WriteHashForNameNickAddr(address, uint256S("0x0")))valid=false;
 
@@ -130,6 +133,11 @@ uint256 GetHashForNickname(std::string nick)
     return mapNicknameBook[nick].hash;
 }
 
+bool IsNonPrivateNickname(std::string nick) 
+{
+    boost::to_upper(nick); 
+    return mapNicknameBook[nick].isnonprivate;
+}
 
 uint256 GetHashForAddress(CPubKey address) 
 {

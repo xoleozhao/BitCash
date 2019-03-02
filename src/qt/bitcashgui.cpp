@@ -562,11 +562,7 @@ void BitcashGUI::updateminingstats()
        mininginfodisplayed=true;
 
        QVariant returnedValue;
-       if (trygpumining) {
-           msg=QString::fromStdString("GPU mining on Nvidia graphics card started.");
-       } else {
-           msg=QString::fromStdString("CPU mining started.");
-       }
+       msg=QString::fromStdString("CPU mining started.");
        QMetaObject::invokeMethod(qmlrootitem, "displaymininginfo", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, msg));
        
     }    

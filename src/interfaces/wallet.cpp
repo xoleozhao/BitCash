@@ -162,7 +162,7 @@ public:
     bool GetRealAddressAsSender(CTxOut out,CPubKey& recipientpubkey) override { return m_wallet.GetRealAddressAsSender(out, recipientpubkey); }
     std::string DecryptRefLineTxOutWithOnePrivateKey(CTxOut out,CKey key) override { return m_wallet.DecryptRefLineTxOutWithOnePrivateKey(out,key); }
 
-    bool FillTxOutForTransaction(CTxOut& out,CPubKey recipientpubkey,std::string referenceline) override { return m_wallet. FillTxOutForTransaction(out,recipientpubkey,referenceline); }
+    bool FillTxOutForTransaction(CTxOut& out,CPubKey recipientpubkey,std::string referenceline, bool nonprivate) override { return m_wallet. FillTxOutForTransaction(out, recipientpubkey, referenceline, nonprivate); }
 
     bool DoesTxOutBelongtoPrivKeyCalcOneTimePrivate(const CTxOut& txout, CKey key, CKey& otpk) override { return m_wallet.DoesTxOutBelongtoPrivKeyCalcOneTimePrivate(txout,key,otpk); }
     bool getPubKey(const CKeyID& address, CPubKey& pub_key) override { return m_wallet.GetPubKey(address, pub_key); }

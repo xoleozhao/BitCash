@@ -112,6 +112,7 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
         consensus.nCuckooProofSize = 42;
         consensus.X16RTIME = 1550923200;//Time of X16R fork
+        consensus.NONPRIVACY = 1552176000;//Time of nonprivacy
 
         // The best chain should have at least this much work.                                                
         consensus.nMinimumChainWork = uint256S("0x00");
@@ -229,10 +230,12 @@ copy merkle root
         vSeeds.emplace_back("dnsseed.choosebitcash.com");
         vSeeds.emplace_back("dnsseed2.choosebitcash.com");  
 
-        base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,0);
-        base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,5);
-        base58Prefixes[PUBKEY_ADDRESSTREZOR] = std::vector<unsigned char>(1,230);
-        base58Prefixes[SCRIPT_ADDRESSTREZOR] = std::vector<unsigned char>(1,235);
+        base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,230);//new BitCash address format
+        base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,235);
+        base58Prefixes[PUBKEY_ADDRESSNONPRIVATE] = std::vector<unsigned char>(1,130);//format for mobile and lite wallet to receive without stealth addresses
+        base58Prefixes[SCRIPT_ADDRESSNONPRIVATE] = std::vector<unsigned char>(1,135);
+        base58Prefixes[PUBKEY_ADDRESSTREZOR] = std::vector<unsigned char>(1,0);//old BitCash address format = Bitcoin format
+        base58Prefixes[SCRIPT_ADDRESSTREZOR] = std::vector<unsigned char>(1,5);
         base58Prefixes[SECRET_KEY] =     std::vector<unsigned char>(1,60+128);
         base58Prefixes[SECRET_KEYBTC] =     std::vector<unsigned char>(1,128);
         base58Prefixes[EXT_PUBLIC_KEY] = {0x04, 0x88, 0xB2, 0x1E};
@@ -247,7 +250,6 @@ copy merkle root
         fRequireStandard = true;
         fMineBlocksOnDemand = false;
 
-        //checkpoints are the merkle roots of these blocks
         checkpointData = {
             {
                 { 0, uint256S("0x7d57d87ff3c15a521530af60edee1887fba9c193eb518face926785c4cd8f4f1")},
@@ -259,7 +261,9 @@ copy merkle root
         		{ 70000, uint256S("0xd7b3f34e0a7c5cf1b781dd8ce38f146a40bf58074fa7f0977137ac5397b215b4")},
 		        { 100000, uint256S("0x4dcc1d2efb17b25b57d1d9430751b809338c68db9164fb09f221daf8e1ca26ce")},
                 { 130000, uint256S("0xc00a7ab6ca796be8757246a353436031908943b1108dac52879e0506b09c3be0")},
-
+                { 200000, uint256S("0x5cf251696d27e34b8b818b00b5613d2ca662677f924423872b58e88fafdd8b29")},
+                { 250000, uint256S("0xa883a07a7dbae7286fc664edfe488c433325003efcdfd803f09e6a30021dd449")},
+                { 300000, uint256S("0x6fc9ac59a21b8722df1bd650c05cff490d8e2d39814b1ea0bc9bc4892f3e99c8")},
             }
         };
 
@@ -321,6 +325,7 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
         consensus.nCuckooProofSize = 42;
         consensus.X16RTIME = 1549108800;//Time of X16R fork
+        consensus.NONPRIVACY = 1552176000;//Time of nonprivacy
 
         // The best chain should have at least this much work.
         consensus.nMinimumChainWork = uint256S("0x00");
@@ -418,6 +423,8 @@ if (cuckoo::VerifyProofOfWork(genesis.GetHash(), genesis.nBits, genesis.nEdgeBit
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,111);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,196);
+        base58Prefixes[PUBKEY_ADDRESSNONPRIVATE] = std::vector<unsigned char>(1,55);//format for mobile and lite wallet to receive without stealth addresses
+        base58Prefixes[SCRIPT_ADDRESSNONPRIVATE] = std::vector<unsigned char>(1,60);
         base58Prefixes[PUBKEY_ADDRESSTREZOR] = std::vector<unsigned char>(1,111);
         base58Prefixes[SCRIPT_ADDRESSTREZOR] = std::vector<unsigned char>(1,196);
         base58Prefixes[SECRET_KEY] =     std::vector<unsigned char>(1,239);
@@ -488,6 +495,7 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
         consensus.nCuckooProofSize = 42;
         consensus.X16RTIME = 1549108800;//Time of X16R fork
+        consensus.NONPRIVACY = 1551299320;//Time of nonprivacy
 
         // The best chain should have at least this much work.
         consensus.nMinimumChainWork = uint256S("0x00");
@@ -532,6 +540,8 @@ public:
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,111);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,196);
+        base58Prefixes[PUBKEY_ADDRESSNONPRIVATE] = std::vector<unsigned char>(1,55);//format for mobile and lite wallet to receive without stealth addresses
+        base58Prefixes[SCRIPT_ADDRESSNONPRIVATE] = std::vector<unsigned char>(1,60);
         base58Prefixes[PUBKEY_ADDRESSTREZOR] = std::vector<unsigned char>(1,111);
         base58Prefixes[SCRIPT_ADDRESSTREZOR] = std::vector<unsigned char>(1,196);
         base58Prefixes[SECRET_KEY] =     std::vector<unsigned char>(1,239);
@@ -551,6 +561,10 @@ static std::unique_ptr<CChainParams> globalChainParams;
 const CChainParams &Params() {
     assert(globalChainParams);
     return *globalChainParams;
+}
+
+bool ExistParams() {
+    return (globalChainParams != nullptr);
 }
 
 std::unique_ptr<CChainParams> CreateChainParams(const std::string& chain)

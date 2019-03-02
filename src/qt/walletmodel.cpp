@@ -178,7 +178,10 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
             ++nAddresses;
 
             CScript scriptPubKey = GetScriptForDestination(DecodeDestination(rcp.address.toStdString()));
-            CRecipient recipient = {scriptPubKey, rcp.amount, rcp.fSubtractFeeFromAmount, rcp.referenceline.toUtf8().constData(),GetSecondPubKeyForDestination(DecodeDestination(rcp.address.toStdString()))};
+            CRecipient recipient = {scriptPubKey, rcp.amount, rcp.fSubtractFeeFromAmount,
+                rcp.referenceline.toUtf8().constData(),
+                GetNonPrivateForDestination(DecodeDestination(rcp.address.toStdString())),
+                GetSecondPubKeyForDestination(DecodeDestination(rcp.address.toStdString())) };
             vecSend.push_back(recipient);
 
             total += rcp.amount;

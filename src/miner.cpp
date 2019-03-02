@@ -163,8 +163,6 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlockWithScriptPubKey(c
     int nDescendantsUpdated = 0;
     addPackageTxs(nPackagesSelected, nDescendantsUpdated);
 
-    int64_t nTime1 = GetTimeMicros();
-
     nLastBlockTx = nBlockTx;
     nLastBlockWeight = nBlockWeight;
 
@@ -200,9 +198,6 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlockWithScriptPubKey(c
     if (!TestBlockValidity(state, chainparams, *pblock, pindexPrev, false, false)) {
         throw std::runtime_error(strprintf("%s: TestBlockValidity failed: %s", __func__, FormatStateMessage(state)));
     }
-    int64_t nTime2 = GetTimeMicros();
-
-  //  LogPrint(BCLog::BENCH, "CreateNewBlock() packages: %.2fms (%d packages, %d updated descendants), validity: %.2fms (total %.2fms)\n", 0.001 * (nTime1 - nTimeStart), nPackagesSelected, nDescendantsUpdated, 0.001 * (nTime2 - nTime1), 0.001 * (nTime2 - nTimeStart));
 
     return std::move(pblocktemplate);
 }
@@ -260,8 +255,6 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(interfaces::Walle
     int nDescendantsUpdated = 0;
     addPackageTxs(nPackagesSelected, nDescendantsUpdated);
 
-    int64_t nTime1 = GetTimeMicros();
-
     nLastBlockTx = nBlockTx;
     nLastBlockWeight = nBlockWeight;
 
@@ -272,10 +265,10 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(interfaces::Walle
     coinbaseTx.vout.resize(2);
     coinbaseTx.vout[0].nValue = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus());
     if (useinterface){
-        iwallet->FillTxOutForTransaction(coinbaseTx.vout[0],iwallet->GetCurrentAddressPubKey(),"");
+        iwallet->FillTxOutForTransaction(coinbaseTx.vout[0],iwallet->GetCurrentAddressPubKey(),"", false);
     } else
     {
-        wallet->FillTxOutForTransaction(coinbaseTx.vout[0],wallet->GetCurrentAddressPubKey(),"");
+        wallet->FillTxOutForTransaction(coinbaseTx.vout[0],wallet->GetCurrentAddressPubKey(),"", false);
     }
     //Pay to the development fund....
     coinbaseTx.vout[1].scriptPubKey = GetScriptForRawPubKey(CPubKey(ParseHex(Dev1scriptPubKey)));
@@ -306,9 +299,6 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(interfaces::Walle
     if (!TestBlockValidity(state, chainparams, *pblock, pindexPrev, false, false)) {
         throw std::runtime_error(strprintf("%s: TestBlockValidity failed: %s", __func__, FormatStateMessage(state)));
     }
-    int64_t nTime2 = GetTimeMicros();
-
-  //  LogPrint(BCLog::BENCH, "CreateNewBlock() packages: %.2fms (%d packages, %d updated descendants), validity: %.2fms (total %.2fms)\n", 0.001 * (nTime1 - nTimeStart), nPackagesSelected, nDescendantsUpdated, 0.001 * (nTime2 - nTime1), 0.001 * (nTime2 - nTimeStart));
 
     CDataStream stream(SER_NETWORK, PROTOCOL_VERSION | SERIALIZE_TRANSACTION_NO_WITNESS);
     stream << pblock->vtx[0];
@@ -709,79 +699,39 @@ void MinerWorker(int thread_id, MinerContext& ctx)
         uint256 hash;
         std::set<uint32_t> cycle;
 
-        const bool x16ractive = isX16Ractive(pblock->nVersion);
+        // Check if something found
+        graphs_checked++;
+        bool cycle_found = false;           
 
-        while (ctx.alive) {
-            // Check if something found
-            graphs_checked++;
-            bool cycle_found = false;           
+        unsigned int nMaxTries = 1000;
+        while (nMaxTries > 0 && ctx.alive) {                    
+            cycles_found++;
+            if (CheckProofOfWork(pblock->GetHash(), pblock->nBits, Params().GetConsensus()))
+            {                        
+                LogPrintf("%d: BitCash Miner:\n", thread_id);
+                LogPrintf(
+                    "\n\n\nproof-of-work found within %8.3f seconds \n"
+                    "\tblock hash: %s\n\tnonce: %d\n\ttarget: %s\n\n\n",
+                static_cast<double>(GetTimeMillis() - nStart) / 1e3,
+                pblock->GetHash().GetHex(),
+                pblock->nNonce,
+                hashTarget.GetHex());                    
 
-            if (x16ractive) {
-                unsigned int nMaxTries = 1000;
-                while (nMaxTries > 0 && ctx.alive) {                    
-                    cycles_found++;
-                    if (CheckProofOfWork(pblock->GetHash(), pblock->nBits, Params().GetConsensus()))
-                    {                        
-                        LogPrintf("%d: BitCash Miner:\n", thread_id);
-                        LogPrintf(
-                            "\n\n\nproof-of-work found within %8.3f seconds \n"
-                            "\tblock hash: %s\n\tnonce: %d\n\ttarget: %s\n\n\n",
-                        static_cast<double>(GetTimeMillis() - nStart) / 1e3,
-                        pblock->GetHash().GetHex(),
-                        pblock->nNonce,
-                        hashTarget.GetHex());                    
+                if (ProcessBlockFound(pblock, ctx.chainparams)) minedcoins+=19350000000;
 
-                        if (ProcessBlockFound(pblock, ctx.chainparams)) minedcoins+=19350000000;
+                // In regression test mode, stop mining after a block is found.
+                if (ctx.chainparams.MineBlocksOnDemand())
+                    throw boost::thread_interrupted();
 
-                        // In regression test mode, stop mining after a block is found.
-                        if (ctx.chainparams.MineBlocksOnDemand())
-                            throw boost::thread_interrupted();
-
-                        break;
-                    }
-                    graphs_checked++;
-                    ++pblock->nNonce;
-                    --nMaxTries;
-                    if (pblock->nNonce % ctx.nonces_per_thread == 0) {
-                        pblock->nNonce += ctx.nonces_per_thread * (ctx.threads_number - 1);
-                    }
-                }
-            } else {
-                if (cuckoo::FindProofOfWorkAdvanced(
-                            pblock->GetHash(),
-                            pblock->nBits,
-                            pblock->nEdgeBits,
-                            cycle,
-                            ctx.chainparams.GetConsensus(),
-                            ctx.pow_threads,
-                            cycle_found,
-                            ctx.pool, trygpumining, gpuminingfailed, ctx.gpuid, ctx.selectgpucpu, ctx.gpumining)) {
-                    cycles_found++;
-
-                    // Found a solution
-                    pblock->sCycle = cycle;
-
-                    auto cycleHash = SerializeHash(cycle);
-
-                    LogPrintf("%d: BitCash Miner:\n", thread_id);
-                    LogPrintf(
-                            "\n\n\nproof-of-work found within %8.3f seconds \n"
-                            "\tblock hash: %s\n\tnonce: %d\n\tcycle hash: %s\n\ttarget: %s\n\n\n",
-                        static_cast<double>(GetTimeMillis() - nStart) / 1e3,
-                        pblock->GetHash().GetHex(),
-                        pblock->nNonce,
-                        cycleHash.GetHex(),
-                        hashTarget.GetHex());                    
-
-                        if (ProcessBlockFound(pblock, ctx.chainparams)) minedcoins+=19350000000;
-
-                    // In regression test mode, stop mining after a block is found.
-                    if (ctx.chainparams.MineBlocksOnDemand())
-                        throw boost::thread_interrupted();
-
-                    break;
-                }
+                break;
             }
+            graphs_checked++;
+            ++pblock->nNonce;
+            --nMaxTries;
+            if (pblock->nNonce % ctx.nonces_per_thread == 0) {
+                pblock->nNonce += ctx.nonces_per_thread * (ctx.threads_number - 1);
+            }
+        
             triedoneproofofwork = true;
 
             if(cycle_found) {

@@ -6,10 +6,12 @@
 #include <primitives/transaction.h>
 
 #include <hash.h>
+#include <chainparams.h>
 #include <tinyformat.h>
 #include <utilstrencodings.h>
 
 bool userefline;
+bool usenonprivacy;
 
 std::string COutPoint::ToString() const
 {
@@ -19,6 +21,7 @@ std::string COutPoint::ToString() const
 CTxIn::CTxIn(COutPoint prevoutIn, CScript scriptSigIn, uint32_t nSequenceIn)
 {
     isnickname = false;
+    isnonprivatenickname = false;
     prevout = prevoutIn;
     scriptSig = scriptSigIn;
     nSequence = nSequenceIn;
@@ -31,6 +34,7 @@ CTxIn::CTxIn(COutPoint prevoutIn, CScript scriptSigIn, uint32_t nSequenceIn)
 CTxIn::CTxIn(uint256 hashPrevTx, uint32_t nOut, CScript scriptSigIn, uint32_t nSequenceIn)
 {
     isnickname = false;
+    isnonprivatenickname = false;
     prevout = COutPoint(hashPrevTx, nOut);
     scriptSig = scriptSigIn;
     nSequence = nSequenceIn;
@@ -39,9 +43,10 @@ CTxIn::CTxIn(uint256 hashPrevTx, uint32_t nOut, CScript scriptSigIn, uint32_t nS
     address = CPubKey();
 }
 
-CTxIn::CTxIn(std::string nick,CPubKey addr)
+CTxIn::CTxIn(std::string nick,CPubKey addr, bool isnonprivate)
 {
-    isnickname = true;
+    isnickname = true;   
+    isnonprivatenickname = isnonprivate;
     prevout.hash=uint256S("0x0");
     prevout.n=0;
     scriptSig = CScript();
@@ -72,6 +77,10 @@ CTxOut::CTxOut(const CAmount& nValueIn, CScript scriptPubKeyIn)
 {
     nValue = nValueIn;
     scriptPubKey = scriptPubKeyIn;
+    isnonprivate = false;
+    hasrecipientid = false;
+    recipientid1 = 0;
+    recipientid2 = 0;
   //  referenceline = refererencelineIn;
   //  senderPubKey = senderPubKeyIn;
   //  receiverPubKey = receiverPubKeyIn;
@@ -82,7 +91,10 @@ std::string CTxOut::ToString() const
     return strprintf("CTxOut(nValue=%d.%08d, scriptPubKey=%s)", nValue / COIN, nValue % COIN, HexStr(scriptPubKey).substr(0, 30));
 }
 
-CMutableTransaction::CMutableTransaction() : nVersion(CTransaction::CURRENT_VERSION), nLockTime(0) {}
+CMutableTransaction::CMutableTransaction() : nVersion(CTransaction::CURRENT_VERSION), nLockTime(0) {
+    //Do not create transactions with nonprivacy information before the fork
+    if (!ExistParams() || time(nullptr) < Params().GetConsensus().NONPRIVACY) nVersion = CTransaction::OLD_VERSION;
+}
 CMutableTransaction::CMutableTransaction(const CTransaction& tx) : vin(tx.vin), vout(tx.vout), nVersion(tx.nVersion), nLockTime(tx.nLockTime) {}
 
 uint256 CMutableTransaction::GetHash() const

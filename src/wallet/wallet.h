@@ -94,6 +94,7 @@ enum WalletFeature
 
 enum class OutputType {
     LEGACY,
+    NONPRIVATE,
     P2SH_SEGWIT,
     BECH32,
 
@@ -167,6 +168,7 @@ struct CRecipient
     CAmount nAmount;
     bool fSubtractFeeFromAmount;
     std::string refline;
+    bool nonprivate;
     CPubKey cpkey;
 
 };
@@ -198,6 +200,7 @@ struct COutputEntry
     CAmount amount;
     int vout;
     std::string referenceline;
+    bool isnonprivate;
 };
 
 /** A transaction with a merkle branch linking it to the block chain. */
@@ -882,8 +885,8 @@ public:
     bool DoesTxOutBelongtoPrivKeyCalcOneTimePrivate(const CTxOut& txout, CKey key, CKey& otpk);
     void DecryptPrivateKey(unsigned char *privatekey,CPubKey pubkey,CKey privkey) const;
     void EncryptPrivateKey(unsigned char *privatekey,CPubKey pubkey,CKey privkey) const;
-    bool FillTxOutForTransaction(CTxOut& out,CPubKey recipientpubkey,std::string referenceline);
-    bool FillTxOutForTransaction(CTxOut& out,CTxDestination destination,std::string referenceline);
+    bool FillTxOutForTransaction(CTxOut& out,CPubKey recipientpubkey,std::string referenceline, bool nonprivate);
+    bool FillTxOutForTransaction(CTxOut& out,CTxDestination destination,std::string referenceline, bool nonprivate);
     bool GetRealAddressAndRefline(CTxOut out,CPubKey& recipientpubkey,std::string& referenceline,std::string mpk,bool usempk) const;
     bool GetRealAddressAsSender(CTxOut out,CPubKey& recipientpubkey) const;
     bool GetRealAddressAsReceiver(CTxOut txout,CPubKey& recipientpubkey) const;
@@ -987,7 +990,7 @@ public:
     bool FundTransaction(CMutableTransaction& tx, CAmount& nFeeRet, int& nChangePosInOut, std::string& strFailReason, bool lockUnspents, const std::set<int>& setSubtractFeeFromOutputs, CCoinControl);
     bool SignTransaction(CMutableTransaction& tx);
 
-    bool CreateNicknameTransaction(std::string nickname, std::string address, CTransactionRef& tx, std::string& strFailReason, bool sign = true, CKey masterkey=CKey(), bool usemasterkey=false);
+    bool CreateNicknameTransaction(std::string nickname, std::string address, CTransactionRef& tx, std::string& strFailReason, bool sign = true, CKey masterkey=CKey(), bool usemasterkey=false, bool isnonprivate = false);
     /**
      * Create a new transaction paying the recipients with a set of coins
      * selected by SelectCoins(); Also create the change output, when needed
@@ -1300,6 +1303,8 @@ CTxDestination GetDestinationForKeyInner(const CPubKey& key, OutputType type);
 CTxDestination GetDestinationForKey(const CPubKey& key, OutputType);
 CPubKey GetSecondPubKeyForDestination(const CTxDestination& dest);
 void SetSecondPubKeyForDestination(CTxDestination& dest, const CPubKey& key2);
+bool GetNonPrivateForDestination(const CTxDestination& dest);
+void SetNonPrivateForDestination(CTxDestination& dest, const unsigned char key2);
 
 /** Get all destinations (potentially) supported by the wallet for the given key. */
 std::vector<CTxDestination> GetAllDestinationsForKey(const CPubKey& key);
