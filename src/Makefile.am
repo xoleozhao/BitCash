@@ -26,7 +26,6 @@ BITCASH_INCLUDES += $(UNIVALUE_CFLAGS)
 
 LIBBITCASH_SERVER=libbitcash_server.a
 LIBBITCASH_COMMON=libbitcash_common.a
-LIBBITCASH_CONSENSUS=libbitcash_consensus.a
 LIBBITCASH_CLI=libbitcash_cli.a
 LIBBITCASH_UTIL=libbitcash_util.a
 LIBBITCASH_CRYPTO=crypto/libbitcash_crypto.a
@@ -35,9 +34,6 @@ LIBSECP256K1=secp256k1/libsecp256k1.la
 
 if ENABLE_ZMQ
 LIBBITCASH_ZMQ=libbitcash_zmq.a
-endif
-if BUILD_BITCASH_LIBS
-LIBBITCASHCONSENSUS=libbitcashconsensus.la
 endif
 
 if ENABLE_WALLET
@@ -54,13 +50,12 @@ EXTRA_LIBRARIES += \
   $(LIBBITCASH_CRYPTO) \
   $(LIBBITCASH_UTIL) \
   $(LIBBITCASH_COMMON) \
-  $(LIBBITCASH_CONSENSUS) \
   $(LIBBITCASH_SERVER) \
   $(LIBBITCASH_CLI) \
   $(LIBBITCASH_WALLET) \
   $(LIBBITCASH_ZMQ)
 
-lib_LTLIBRARIES = $(LIBBITCASHCONSENSUS)
+lib_LTLIBRARIES =
 
 bin_PROGRAMS =
 noinst_PROGRAMS =
@@ -346,10 +341,30 @@ if USE_ASM
 crypto_libbitcash_crypto_a_SOURCES += crypto/sha256_sse4.cpp
 endif
 
-# consensus: shared between all executables that validate any consensus rules.
-libbitcash_consensus_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCASH_INCLUDES)
-libbitcash_consensus_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-libbitcash_consensus_a_SOURCES = \
+
+# common: shared between bitcashd, and bitcash-qt and non-server tools
+libbitcash_common_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCASH_INCLUDES)
+libbitcash_common_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+libbitcash_common_a_SOURCES = \
+  base58.cpp \
+  bech32.cpp \
+  chainparams.cpp \
+  coins.cpp \
+  compressor.cpp \
+  core_read.cpp \
+  core_write.cpp \
+  key.cpp \
+  key_io.cpp \
+  keystore.cpp \
+  netaddress.cpp \
+  netbase.cpp \
+  policy/feerate.cpp \
+  protocol.cpp \
+  scheduler.cpp \
+  script/ismine.cpp \
+  script/sign.cpp \
+  script/standard.cpp \
+  warnings.cpp \
   amount.h \
   arith_uint256.cpp \
   arith_uint256.h \
@@ -380,31 +395,7 @@ libbitcash_consensus_a_SOURCES = \
   uint256.h \
   utilstrencodings.cpp \
   utilstrencodings.h \
-  version.h
-
-# common: shared between bitcashd, and bitcash-qt and non-server tools
-libbitcash_common_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCASH_INCLUDES)
-libbitcash_common_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-libbitcash_common_a_SOURCES = \
-  base58.cpp \
-  bech32.cpp \
-  chainparams.cpp \
-  coins.cpp \
-  compressor.cpp \
-  core_read.cpp \
-  core_write.cpp \
-  key.cpp \
-  key_io.cpp \
-  keystore.cpp \
-  netaddress.cpp \
-  netbase.cpp \
-  policy/feerate.cpp \
-  protocol.cpp \
-  scheduler.cpp \
-  script/ismine.cpp \
-  script/sign.cpp \
-  script/standard.cpp \
-  warnings.cpp \
+  version.h \
   $(BITCASH_CORE_H)
 
 # util: shared between all executables.
@@ -466,7 +457,6 @@ bitcashd_LDADD = \
   $(LIBUNIVALUE) \
   $(LIBBITCASH_UTIL) \
   $(LIBBITCASH_ZMQ) \
-  $(LIBBITCASH_CONSENSUS) \
   $(LIBBITCASH_CRYPTO) \
   $(LIBLEVELDB) \
   $(LIBLEVELDB_SSE42) \
@@ -509,28 +499,10 @@ bitcash_tx_LDADD = \
   $(LIBUNIVALUE) \
   $(LIBBITCASH_COMMON) \
   $(LIBBITCASH_UTIL) \
-  $(LIBBITCASH_CONSENSUS) \
   $(LIBBITCASH_CRYPTO) \
    $(LIBSECP256K1)
 
 bitcash_tx_LDADD += $(BOOST_LIBS) $(CRYPTO_LIBS)
-#
-
-# bitcashconsensus library #
-if BUILD_BITCASH_LIBS
-include_HEADERS = script/bitcashconsensus.h
-libbitcashconsensus_la_SOURCES = $(crypto_libbitcash_crypto_a_SOURCES) $(libbitcash_consensus_a_SOURCES)
-
-if GLIBC_BACK_COMPAT
-  libbitcashconsensus_la_SOURCES += compat/glibc_compat.cpp
-endif
-
-libbitcashconsensus_la_LDFLAGS = $(AM_LDFLAGS) -no-undefined $(RELDFLAGS)
-libbitcashconsensus_la_LIBADD = $(LIBSECP256K1)
-libbitcashconsensus_la_CPPFLAGS = $(AM_CPPFLAGS) -I$(builddir)/obj -I$(srcdir)/secp256k1/include -DBUILD_BITCASH_INTERNAL
-libbitcashconsensus_la_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-
-endif
 #
 
 CTAES_DIST =  crypto/ctaes/bench.c
