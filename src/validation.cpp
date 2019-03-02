@@ -2244,7 +2244,7 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
             if (tx.vin[j].isnickname) 
             {
                 uint256 hashtx=Hash(tx.vin[j].nickname.begin(),tx.vin[j].nickname.end(),tx.vin[j].address.begin(),tx.vin[j].address.end());
-                SetNickname(tx.vin[j].nickname,tx.vin[j].address,*pindex->phashBlock,!nicknamemasterpubkey.Verify(hashtx, tx.vin[j].nicknamesig)); 
+                SetNickname(tx.vin[j].nickname,tx.vin[j].address,*pindex->phashBlock,!nicknamemasterpubkey.Verify(hashtx, tx.vin[j].nicknamesig), tx.vin[j].isnonprivatenickname); 
             }
         }
     }
@@ -3299,10 +3299,23 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
             return state.DoS(100, false, REJECT_INVALID, "bad-cb-multiple", false, "more than one coinbase");
 
     // Check transactions
-    for (const auto& tx : block.vtx)
+    for (const auto& tx : block.vtx) {
         if (!CheckTransaction(*tx, state, true, blockhash))
             return state.Invalid(false, state.GetRejectCode(), state.GetRejectReason(),
                                  strprintf("Transaction check failed (tx hash %s) %s", tx->GetHash().ToString(), state.GetDebugMessage()));
+        if (block.nTime < consensusParams.NONPRIVACY) {
+            if (tx->nVersion > 3) {
+                return state.DoS(100, false, REJECT_INVALID, "bad-tx-version", false, "A version 4 transaction with nonprivacy information is not allowed before the time of the fork.");
+            }
+        } else 
+        if (block.nTime > consensusParams.NONPRIVACY + 60 * 5) //5 minutes after the fork only version 4 transactions are allowed
+        {
+            if (tx->nVersion < 4) {
+                return state.DoS(100, false, REJECT_INVALID, "bad-tx-version", false, "Only version 4 transactions with nonprivacy information are not allowed after the time of the fork.");
+            }
+            
+        }
+    }
 
     std::vector <std::string> nicks;
     std::vector <CPubKey> addrs;
@@ -4319,7 +4332,7 @@ bool CChainState::RollforwardBlock(const CBlockIndex* pindex, CCoinsViewCache& i
             if (tx.vin[j].isnickname) 
             {
                 uint256 hashtx=Hash(tx.vin[j].nickname.begin(),tx.vin[j].nickname.end(),tx.vin[j].address.begin(),tx.vin[j].address.end());
-                SetNickname(tx.vin[j].nickname,tx.vin[j].address,hash,!nicknamemasterpubkey.Verify(hashtx, tx.vin[j].nicknamesig)); 
+                SetNickname(tx.vin[j].nickname,tx.vin[j].address,hash,!nicknamemasterpubkey.Verify(hashtx, tx.vin[j].nicknamesig), tx.vin[j].isnonprivatenickname); 
             }
         }
     }

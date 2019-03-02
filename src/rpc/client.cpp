@@ -45,6 +45,7 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "generatetoaddress", 3, "nthreads" },
     { "getnetworkhashps", 0, "nblocks" },
     { "getnetworkhashps", 1, "height" },
+    { "registernickname", 2, "nonprivate" },
     { "sendaslink", 4, "subtractfeefromamount" },
     { "sendaslink", 5 , "replaceable" },
     { "sendaslink", 6 , "conf_target" },

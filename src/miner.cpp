@@ -265,10 +265,10 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(interfaces::Walle
     coinbaseTx.vout.resize(2);
     coinbaseTx.vout[0].nValue = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus());
     if (useinterface){
-        iwallet->FillTxOutForTransaction(coinbaseTx.vout[0],iwallet->GetCurrentAddressPubKey(),"");
+        iwallet->FillTxOutForTransaction(coinbaseTx.vout[0],iwallet->GetCurrentAddressPubKey(),"", false);
     } else
     {
-        wallet->FillTxOutForTransaction(coinbaseTx.vout[0],wallet->GetCurrentAddressPubKey(),"");
+        wallet->FillTxOutForTransaction(coinbaseTx.vout[0],wallet->GetCurrentAddressPubKey(),"", false);
     }
     //Pay to the development fund....
     coinbaseTx.vout[1].scriptPubKey = GetScriptForRawPubKey(CPubKey(ParseHex(Dev1scriptPubKey)));

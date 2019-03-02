@@ -129,8 +129,15 @@ std::string EncodeHexTx(const CTransaction& tx, const int serializeFlags)
     return HexStr(ssTx.begin(), ssTx.end());
 }
 
+void LocalSetNonPrivateForDestination(CTxDestination& dest, bool isnonprivate)
+{
+    if (auto id = boost::get<CKeyID>(&dest)) {
+        id->nonprivate = isnonprivate;
+    }
+}
+
 void ScriptPubKeyToUniv(const CScript& scriptPubKey,
-                        UniValue& out, bool fIncludeHex)
+                        UniValue& out, bool fIncludeHex, bool isnonprivate)
 {
     txnouttype type;
     std::vector<CTxDestination> addresses;
@@ -150,7 +157,15 @@ void ScriptPubKeyToUniv(const CScript& scriptPubKey,
 
     UniValue a(UniValue::VARR);
     for (const CTxDestination& addr : addresses) {
-        a.push_back(EncodeDestinationHasSecondKey(addr));
+        if (isnonprivate)
+        {            
+            CTxDestination addr2 = addr;
+            LocalSetNonPrivateForDestination(addr2, true);
+            a.push_back(EncodeDestinationHasSecondKey(addr2));
+        } else
+        {
+            a.push_back(EncodeDestinationHasSecondKey(addr));
+        }
     }
     out.pushKV("addresses", a);
 }
@@ -207,7 +222,7 @@ void TxToUniv(const CTransaction& tx, const uint256& hashBlock, UniValue& entry,
         out.pushKV("n", (int64_t)i);
 
         UniValue o(UniValue::VOBJ);
-        ScriptPubKeyToUniv(txout.scriptPubKey, o, true);
+        ScriptPubKeyToUniv(txout.scriptPubKey, o, true, txout.isnonprivate);
         out.pushKV("scriptPubKey", o);
         vout.push_back(out);
     }

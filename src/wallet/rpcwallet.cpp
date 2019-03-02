@@ -169,7 +169,8 @@ static UniValue createcoinbaseforaddress(const JSONRPCRequest& request)
     }
     int nHeight = request.params[1].get_int();
 
-    CPubKey addr=GetSecondPubKeyForDestination(destination);
+    CPubKey addr = GetSecondPubKeyForDestination(destination);
+    bool nonprivate = GetNonPrivateForDestination(destination);
 
     // Create coinbase transaction.
     CMutableTransaction coinbaseTx;
@@ -177,7 +178,7 @@ static UniValue createcoinbaseforaddress(const JSONRPCRequest& request)
     coinbaseTx.vin[0].prevout.SetNull();
     coinbaseTx.vout.resize(2);
     coinbaseTx.vout[0].nValue = GetBlockSubsidy(nHeight, Params().GetConsensus());
-    pwallet->FillTxOutForTransaction(coinbaseTx.vout[0],addr,"");
+    pwallet->FillTxOutForTransaction(coinbaseTx.vout[0], addr, "", nonprivate);
 
     //Pay to the development fund....
     coinbaseTx.vout[1].scriptPubKey = GetScriptForRawPubKey(CPubKey(ParseHex(Dev1scriptPubKey)));
@@ -247,6 +248,8 @@ static UniValue createcoinbaseforaddresswithpoolfee(const JSONRPCRequest& reques
 
     CPubKey addr=GetSecondPubKeyForDestination(destination);
     CPubKey addr2=GetSecondPubKeyForDestination(destination2);
+    bool nonprivate = GetNonPrivateForDestination(destination);
+    bool nonprivate2 = GetNonPrivateForDestination(destination2);
 
     // Create coinbase transaction.
     CMutableTransaction coinbaseTx;
@@ -259,10 +262,10 @@ static UniValue createcoinbaseforaddresswithpoolfee(const JSONRPCRequest& reques
     amount-=poolfee;
 
     coinbaseTx.vout[0].nValue = amount;
-    pwallet->FillTxOutForTransaction(coinbaseTx.vout[0],addr,"");
+    pwallet->FillTxOutForTransaction(coinbaseTx.vout[0],addr,"", nonprivate);
 
     coinbaseTx.vout[1].nValue = poolfee;
-    pwallet->FillTxOutForTransaction(coinbaseTx.vout[1],addr2,"Pool fee");
+    pwallet->FillTxOutForTransaction(coinbaseTx.vout[1],addr2,"Pool fee", nonprivate2);
 
     //Pay to the development fund....
     coinbaseTx.vout[2].scriptPubKey = GetScriptForRawPubKey(CPubKey(ParseHex(Dev1scriptPubKey)));
@@ -303,7 +306,7 @@ static UniValue getnewaddress(const JSONRPCRequest& request)
             "so payments received with the address will be associated with 'label'.\n"
             "\nArguments:\n"
             "1. \"label\"          (string, optional) The label name for the address to be linked to. If not provided, the default label \"\" is used. It can also be set to the empty string \"\" to represent the default label. The label does not need to exist, it will be created if there is no label by the given name.\n"
-            "2. \"address_type\"   (string, optional) The address type to use. Options are \"legacy\", \"p2sh-segwit\". Default is set by -addresstype.\n"
+            "2. \"address_type\"   (string, optional) The address type to use. Options are \"legacy\" and \"nonprivate\". Default is set by -addresstype. A nonprivate address will not use steath addresses when   receiving coins.\n"
             "\nResult:\n"
             "\"address\"    (string) The new bitcash address\n"
             "\nExamples:\n"
@@ -616,7 +619,7 @@ static UniValue divideutxos(const JSONRPCRequest& request)
     
     for (int i=0;i<=999;i++)
     {
-        CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount,"", GetSecondPubKeyForDestination(dest)};
+        CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount,"", false, GetSecondPubKeyForDestination(dest)};
         vecSend.push_back(recipient);
     }
 
@@ -968,6 +971,7 @@ static CTransactionRef SendMoney(CWallet * const pwallet, const CTxDestination &
 
     // Parse Bitcash address
     CScript scriptPubKey = GetScriptForDestination(address);
+    bool nonprivate = GetNonPrivateForDestination(address);
 
     // Create and send the transaction
     CReserveKey reservekey(pwallet);
@@ -975,7 +979,7 @@ static CTransactionRef SendMoney(CWallet * const pwallet, const CTxDestination &
     std::string strError;
     std::vector<CRecipient> vecSend;
     int nChangePosRet = -1;
-    CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount,referenceline, GetSecondPubKeyForDestination(address)};
+    CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount, referenceline, nonprivate, GetSecondPubKeyForDestination(address)};  
     vecSend.push_back(recipient);
     CTransactionRef tx;
     if (!pwallet->CreateTransaction(vecSend, tx, reservekey, nFeeRequired, nChangePosRet, strError, coin_control, true, onlyfromoneaddress, fromaddress, provideprivatekey, privatekey)) {
@@ -991,7 +995,7 @@ static CTransactionRef SendMoney(CWallet * const pwallet, const CTxDestination &
     return tx;
 }
 
-static CTransactionRef RegisterNickname(CWallet * const pwallet, std::string nick,std::string address, CKey masterkey, bool usemasterkey)
+static CTransactionRef RegisterNickname(CWallet * const pwallet, std::string nick,std::string address, CKey masterkey, bool usemasterkey, bool isnonprivate)
 {
 
     if (!g_connman || g_connman->GetNodeCount(CConnman::CONNECTIONS_ALL) == 0)
@@ -1006,7 +1010,7 @@ static CTransactionRef RegisterNickname(CWallet * const pwallet, std::string nic
     std::string fromAccount="";
     std::string strError;
     CTransactionRef tx;
-        if (!pwallet->CreateNicknameTransaction(nick,address, tx, strError, true, masterkey, usemasterkey)) {
+        if (!pwallet->CreateNicknameTransaction(nick,address, tx, strError, true, masterkey, usemasterkey, isnonprivate)) {
         throw JSONRPCError(RPC_WALLET_ERROR, strError);
     }
     
@@ -1062,7 +1066,7 @@ static UniValue registernicknamewithmasterkey(const JSONRPCRequest& request)
 
     EnsureWalletIsUnlocked(pwallet);
 
-    CTransactionRef tx = RegisterNickname(pwallet, nick, address, key, true);
+    CTransactionRef tx = RegisterNickname(pwallet, nick, address, key, true, false);
 
     return tx->GetHash().GetHex();
 }
@@ -1104,7 +1108,7 @@ static UniValue registernicknamewithprivatekey(const JSONRPCRequest& request)
 
     EnsureWalletIsUnlocked(pwallet);
 
-    CTransactionRef tx = RegisterNickname(pwallet, nick, address, key, true);
+    CTransactionRef tx = RegisterNickname(pwallet, nick, address, key, true, false);
 
     return tx->GetHash().GetHex();
 }
@@ -1116,14 +1120,15 @@ static UniValue registernickname(const JSONRPCRequest& request)
         return NullUniValue;
     }
 
-    if (request.fHelp || request.params.size() < 2 || request.params.size() > 2)
+    if (request.fHelp || request.params.size() < 2 || request.params.size() > 3)
         throw std::runtime_error(
-            "registernickname \"nickname\" \"address\"\n"
+            "registernickname \"nickname\" \"address\" (nonprivate)\n"
             "\nRegister a nickname for a given address.\n"
             + HelpRequiringPassphrase(pwallet) +
             "\nArguments:\n"
             "1. \"nickname\"           (string, required) The nickname to register.\n"
             "2. \"address\"            (string, required) The bitcash address.\n"
+            "3. nonprivate             (boolean, optional, default=false) A nonprivate nickname will not use stealth addresses to receive coins.\n"
             "\nResult:\n"
             "\"txid\"                  (string) The transaction id.\n"
             "\nExamples:\n"
@@ -1138,10 +1143,14 @@ static UniValue registernickname(const JSONRPCRequest& request)
 
     std::string nick = request.params[0].get_str();
     std::string address = request.params[1].get_str();
+    bool isnonprivate = false;
+    if (!request.params[2].isNull()) {
+        isnonprivate = request.params[2].get_bool();
+    }
 
     EnsureWalletIsUnlocked(pwallet);
 
-    CTransactionRef tx = RegisterNickname(pwallet, nick, address, CKey(), false);
+    CTransactionRef tx = RegisterNickname(pwallet, nick, address, CKey(), false, isnonprivate);
 
     return tx->GetHash().GetHex();
 }
@@ -2727,7 +2736,7 @@ static UniValue sendmany(const JSONRPCRequest& request)
                 fSubtractFeeFromAmount = true;
         }
 
-        CRecipient recipient = {scriptPubKey, nAmount, fSubtractFeeFromAmount, referenceline, GetSecondPubKeyForDestination(dest)};
+        CRecipient recipient = {scriptPubKey, nAmount, fSubtractFeeFromAmount, referenceline, GetNonPrivateForDestination(dest), GetSecondPubKeyForDestination(dest)};
         vecSend.push_back(recipient);
     }
 
@@ -3242,10 +3251,25 @@ static UniValue listreceivedbylabel(const JSONRPCRequest& request)
     return ListReceived(pwallet, request.params, true);
 }
 
-static void MaybePushAddress(UniValue & entry, const CTxDestination &dest)
+void LocalSetNonPrivateForDestination2(CTxDestination& dest, bool isnonprivate)
+{
+    if (auto id = boost::get<CKeyID>(&dest)) {
+        id->nonprivate = isnonprivate;
+    }
+}
+
+static void MaybePushAddress(UniValue & entry, const CTxDestination &dest, bool nonprivate)
 {
     if (IsValidDestination(dest)) {
-        entry.pushKV("address", EncodeDestinationHasSecondKey(dest));
+        if (nonprivate) {
+            CTxDestination addr2 = dest;
+            LocalSetNonPrivateForDestination2(addr2, true);
+            entry.pushKV("address", EncodeDestinationHasSecondKey(addr2));
+        } 
+        else
+        {
+            entry.pushKV("address", EncodeDestinationHasSecondKey(dest));
+        }
     }
 }
 
@@ -3284,7 +3308,7 @@ static void ListTransactions(CWallet* const pwallet, const CWalletTx& wtx, const
                 entry.pushKV("involvesWatchonly", true);
             }
             if (!onlyforonedest && IsDeprecatedRPCEnabled("accounts")) entry.pushKV("account", strSentAccount);
-            MaybePushAddress(entry, s.destination);
+            MaybePushAddress(entry, s.destination, s.isnonprivate);
             entry.pushKV("category", "send");
             entry.pushKV("referenceline", s.referenceline);
             entry.pushKV("amount", ValueFromAmount(-s.amount));
@@ -3317,7 +3341,7 @@ static void ListTransactions(CWallet* const pwallet, const CWalletTx& wtx, const
                     entry.pushKV("involvesWatchonly", true);
                 }
                 if (!onlyforonedest && IsDeprecatedRPCEnabled("accounts")) entry.pushKV("account", account);
-                MaybePushAddress(entry, r.destination);
+                MaybePushAddress(entry, r.destination, r.isnonprivate);
                 if (wtx.IsCoinBase())
                 {
                     if (wtx.GetDepthInMainChain() < 1)
@@ -5975,7 +5999,7 @@ static UniValue decodescript(const JSONRPCRequest& request)
     } else {
         // Empty scripts are valid
     }
-    ScriptPubKeyToUniv(script, r, false);
+    ScriptPubKeyToUniv(script, r, false, false);
 
     UniValue type;
     type = find_value(r, "type");
@@ -6012,7 +6036,7 @@ static UniValue decodescript(const JSONRPCRequest& request)
                 CSHA256().Write(script.data(), script.size()).Finalize(scriptHash.begin());
                 segwitScr = GetScriptForDestination(WitnessV0ScriptHash(scriptHash));
             }
-            ScriptPubKeyToUniv(segwitScr, sr, true);
+            ScriptPubKeyToUniv(segwitScr, sr, true, false);
             sr.pushKV("p2sh-segwit", EncodeDestination(CScriptID(segwitScr),newkey));
             r.pushKV("segwit", sr);
         }
@@ -6192,7 +6216,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "lockunspent",                      &lockunspent,                   {"unlock","transactions"} },
     { "wallet",             "sendfrom",                         &sendfrom,                      {"fromaccount","toaddress","amount","minconf","comment","comment_to"} },
     { "wallet",             "sendmany",                         &sendmany,                      {"fromaccount|dummy","amounts","minconf","comment","subtractfeefrom","replaceable","conf_target","estimate_mode"} },
-    { "wallet",             "registernickname",                 &registernickname,              {"nickname","address"} },
+    { "wallet",             "registernickname",                 &registernickname,              {"nickname","address", "nonprivate"} },
     { "wallet",             "registernicknamewithmasterkey",    &registernicknamewithmasterkey, {"nickname","address","masterkey"} },
     { "wallet",             "registernicknamewithprivatekey",   &registernicknamewithprivatekey, {"nickname","address","privatekey"} },   
     { "wallet",             "sendaslink",                       &sendaslink,                    {"amount","comment","comment_to","subtractfeefromamount","replaceable","conf_target","estimate_mode"} },

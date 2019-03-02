@@ -19,6 +19,7 @@ public:
     CPubKey pubkey;
     uint256 hash;
     bool invalid;
+    bool isnonprivate;
 
     CNicknameBookData() {}
 
@@ -42,12 +43,13 @@ extern std::map<std::string, std::string> reflines;
 bool SetStealthAddress(const CScript script,const CPubKey address);
 bool SetRefLines(const std::string encryptedref,const std::string decryptedref);
 
-bool SetNickname(const std::string& strName,const CPubKey address, uint256 hash, bool storeblockhash);
+bool SetNickname(const std::string& strName,const CPubKey address, uint256 hash, bool storeblockhash, bool isnonprivate);
 bool DeleteNickname(const std::string& strName,const CPubKey address);
 CPubKey GetAddressForNickname(std::string nick);
 bool DoesNicknameExist(std::string nick);
 std::string GetNicknameForAddress(CPubKey address);
 uint256 GetHashForNickname(std::string nick);
+bool IsNonPrivateNickname(std::string nick);
 uint256 GetHashForAddress(CPubKey address);
 void InitNicknameDB();
 void DeleteAllNicknames();

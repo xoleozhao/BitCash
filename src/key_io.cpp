@@ -32,7 +32,12 @@ public:
 
     std::string operator()(const CKeyID& id) const
     {
-        std::vector<unsigned char> data = m_params.Base58Prefix(CChainParams::PUBKEY_ADDRESS);
+        std::vector<unsigned char> data;
+        if (id.nonprivate) {
+           data = m_params.Base58Prefix(CChainParams::PUBKEY_ADDRESSNONPRIVATE);
+        } else {
+           data = m_params.Base58Prefix(CChainParams::PUBKEY_ADDRESS);
+        }
 //        data.insert(data.end(), id.begin(), id.end());
         data.insert(data.end(), id.recokey.begin(), id.recokey.end());
         return EncodeBase58Check(data);
@@ -89,7 +94,8 @@ CTxDestination DecodeDestinationNoNickname(const std::string& str, const CChainP
         // The data vector contains RIPEMD160(SHA256(pubkey)), where pubkey is the serialized public key.
         const std::vector<unsigned char>& pubkey_prefix = params.Base58Prefix(CChainParams::PUBKEY_ADDRESS);
         const std::vector<unsigned char>& pubkey_prefixtrezor = params.Base58Prefix(CChainParams::PUBKEY_ADDRESSTREZOR);
-        if (data.size() == 33 + /*hash.size() +*/ pubkey_prefix.size() && (std::equal(pubkey_prefix.begin(), pubkey_prefix.end(), data.begin()) || std::equal(pubkey_prefixtrezor.begin(), pubkey_prefixtrezor.end(), data.begin()))) {
+        const std::vector<unsigned char>& pubkey_prefixnonprivate = params.Base58Prefix(CChainParams::PUBKEY_ADDRESSNONPRIVATE);
+        if (data.size() == 33 + /*hash.size() +*/ pubkey_prefix.size() && (std::equal(pubkey_prefix.begin(), pubkey_prefix.end(), data.begin()) || std::equal(pubkey_prefixtrezor.begin(),          pubkey_prefixtrezor.end(), data.begin()) || std::equal(pubkey_prefixnonprivate.begin(), pubkey_prefixnonprivate.end(), data.begin()))) {
             temprecokey.resize(33);
             std::copy(data.begin() + pubkey_prefix.size(), data.begin() + pubkey_prefix.size()+33, temprecokey.begin());
             CPubKey pkey;
@@ -97,7 +103,8 @@ CTxDestination DecodeDestinationNoNickname(const std::string& str, const CChainP
             hash=pkey.GetID();
             CKeyID key;
             key=CKeyID(hash);      
-            key.recokey.resize(33);                
+            key.recokey.resize(33);
+            key.nonprivate = std::equal(pubkey_prefixnonprivate.begin(), pubkey_prefixnonprivate.end(), data.begin());
             std::copy(data.begin() + pubkey_prefix.size(), data.begin() + pubkey_prefix.size()+33, key.recokey.begin());
             return key;
         }
@@ -187,17 +194,25 @@ void LocalSetSecondPubKeyForDestination(CTxDestination& dest, const CPubKey& key
     }
 }
 
+void LocalSetNonPrivateForDestination(CTxDestination& dest, bool nonprivate)
+{
+    if (auto id = boost::get<CKeyID>(&dest)) {
+        id->nonprivate = nonprivate;
+    }
+}
+
 CTxDestination DecodeDestination(const std::string& str, const CChainParams& params)
 {
     CTxDestination dest=DecodeDestinationNoNickname(str,params);
     if (auto id = boost::get<CNoDestination>(&dest)) {
-       //try to search nickname       
-       CPubKey pubkey=GetAddressForNickname(str);
-       if (pubkey.IsValid()) {
-           dest=CTxDestination(pubkey.GetID());
-           LocalSetSecondPubKeyForDestination(dest,pubkey);        
-           return dest;
-       } else return CNoDestination();
+        //try to search nickname       
+        CPubKey pubkey=GetAddressForNickname(str);
+        if (pubkey.IsValid()) {
+            dest=CTxDestination(pubkey.GetID());
+            LocalSetSecondPubKeyForDestination(dest,pubkey);        
+            LocalSetNonPrivateForDestination(dest, IsNonPrivateNickname(str));
+            return dest;
+        } else return CNoDestination();
     } else return dest;
 }
 

@@ -14,6 +14,8 @@
 #include <pubkey.h>
 
 static const int SERIALIZE_TRANSACTION_NO_WITNESS = 0x40000000;
+extern bool userefline;
+extern bool usenonprivacy;
 
 /** An outpoint - a combination of a transaction hash and an index n into its vout */
 class COutPoint
@@ -67,6 +69,7 @@ public:
     uint32_t nSequence;
     CScriptWitness scriptWitness; //! Only serialized through CTransaction
     bool isnickname;
+    bool isnonprivatenickname;
     std::string nickname; 
     CPubKey address;
     std::vector<unsigned char> nicknamesig;
@@ -105,6 +108,7 @@ public:
         scriptSig = CScript();
         nSequence = SEQUENCE_FINAL;
         isnickname = false;
+        isnonprivatenickname = false;
         address = CPubKey();
         nickname = "";
         nicknamesig.clear();
@@ -112,7 +116,7 @@ public:
 
     explicit CTxIn(COutPoint prevoutIn, CScript scriptSigIn=CScript(), uint32_t nSequenceIn=SEQUENCE_FINAL);
     CTxIn(uint256 hashPrevTx, uint32_t nOut, CScript scriptSigIn=CScript(), uint32_t nSequenceIn=SEQUENCE_FINAL);
-    CTxIn(std::string nick,CPubKey addr);
+    CTxIn(std::string nick, CPubKey addr, bool isnonprivate);
 
     ADD_SERIALIZE_METHODS;
 
@@ -124,6 +128,12 @@ public:
                 READWRITE(address);
                 READWRITE(nickname);
                 READWRITE(nicknamesig);
+                if (usenonprivacy) {
+                    READWRITE(isnonprivatenickname);
+                } else
+                {
+                    isnonprivatenickname = false;
+                }
                 prevout.SetNull();
                 scriptSig = CScript();
                 nSequence = SEQUENCE_FINAL;
@@ -132,6 +142,7 @@ public:
                 READWRITE(prevout);
                 READWRITE(scriptSig);
                 READWRITE(nSequence);
+                isnonprivatenickname = false;
                 address = CPubKey();
                 nickname = "";
                 nicknamesig.clear();
@@ -144,6 +155,7 @@ public:
                 a.scriptSig   == b.scriptSig &&
                 a.nSequence   == b.nSequence &&
                 a.isnickname  == b.isnickname &&
+                a.isnonprivatenickname  == b.isnonprivatenickname &&
                 a.address     == b.address &&
                 a.nickname    == b.nickname &&
                 a.nicknamesig == b.nicknamesig);
@@ -157,7 +169,6 @@ public:
     std::string ToString() const;
 };
 
-extern bool userefline;
 /** An output of a transaction.  It contains the public key that the next input
  * must be able to sign with to claim it.
  */
@@ -170,6 +181,10 @@ public:
     std::string referenceline;
     char randomPrivatKey[32];
     CPubKey randomPubKey;
+    bool isnonprivate;
+    bool hasrecipientid;
+    unsigned char recipientid1;
+    unsigned char recipientid2;
 
     CTxOut()
     {
@@ -190,6 +205,17 @@ public:
           READWRITE(randomPubKey);
           READWRITE(randomPrivatKey);
         }
+        if (usenonprivacy) {
+            READWRITE(isnonprivate);
+            READWRITE(recipientid1);
+            READWRITE(recipientid2);
+            hasrecipientid = true;
+        } else {
+            isnonprivate = false;
+            recipientid1 = 0;
+            recipientid2 = 0;
+            hasrecipientid = false;
+        }
     }
 
     void SetNull()
@@ -197,6 +223,10 @@ public:
         nValue = -1;
         referenceline="";
         scriptPubKey.clear();
+        isnonprivate = false;
+        hasrecipientid = false;
+        recipientid1 = 0;
+        recipientid2 = 0;
     }
 
     bool IsNull() const
@@ -210,7 +240,11 @@ public:
                 a.scriptPubKey == b.scriptPubKey && 
                 a.referenceline == b.referenceline/* &&
 		a.randomPubKey == b.randomPubKey &&
-		a.randomPrivatKey == b.randomPrivatKey*/);
+		a.randomPrivatKey == b.randomPrivatKey*/ &&
+                a.isnonprivate == b.isnonprivate &&
+                a.hasrecipientid == b.hasrecipientid &&
+                a.recipientid1 == b.recipientid1 &&
+                a.recipientid2 == b.recipientid2);
     }
 
 
@@ -249,7 +283,8 @@ inline void UnserializeTransaction(TxType& tx, Stream& s) {
     unsigned char flags = 0;
     tx.vin.clear();
     tx.vout.clear();
-    userefline=tx.nVersion>=3;
+    userefline = tx.nVersion >= 3;
+    usenonprivacy = tx.nVersion >= 4;
     /* Try to read the vin. In case the dummy is there, this will be read as an empty vector. */
     s >> tx.vin;
     if (tx.vin.size() == 0 && fAllowWitness) {
@@ -283,6 +318,7 @@ inline void SerializeTransaction(const TxType& tx, Stream& s) {
 
     s << tx.nVersion;
     userefline=tx.nVersion>=3;
+    usenonprivacy=tx.nVersion>=4;
     unsigned char flags = 0;
     // Consistency check
     if (fAllowWitness) {
@@ -314,14 +350,15 @@ inline void SerializeTransaction(const TxType& tx, Stream& s) {
 class CTransaction
 {
 public:
-    // Default transaction version.
-    static const int32_t CURRENT_VERSION=3;
+    // Default transaction version.136
+    static const int32_t OLD_VERSION=3;
+    static const int32_t CURRENT_VERSION=4;
 
     // Changing the default transaction version requires a two step process: first
     // adapting relay policy by bumping MAX_STANDARD_VERSION, and then later date
     // bumping the default CURRENT_VERSION at which point both CURRENT_VERSION and
     // MAX_STANDARD_VERSION will be equal.
-    static const int32_t MAX_STANDARD_VERSION=3;
+    static const int32_t MAX_STANDARD_VERSION=4;
 
     // The local variables are made const to prevent unintended modification
     // without updating the cached hash value. However, CTransaction is not

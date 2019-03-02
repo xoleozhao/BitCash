@@ -52,6 +52,8 @@ public:
         SCRIPT_ADDRESS,
         PUBKEY_ADDRESSTREZOR,
         SCRIPT_ADDRESSTREZOR,
+        PUBKEY_ADDRESSNONPRIVATE,
+        SCRIPT_ADDRESSNONPRIVATE,
         SECRET_KEY,
         SECRET_KEYBTC,
         EXT_PUBLIC_KEY,
@@ -120,6 +122,12 @@ std::unique_ptr<CChainParams> CreateChainParams(const std::string& chain);
  * startup, except for unit tests.
  */
 const CChainParams &Params();
+
+/**
+ * Return true if the Chain Params have been initialized already (used in transaction.cpp)
+ * 
+ */
+bool ExistParams();
 
 /**
  * Sets the params returned by Params() to those for the given BIP70 chain name.

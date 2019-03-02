@@ -115,7 +115,7 @@ void TxToUnivWithWallet(const CWallet* pwallet,const CTransaction& tx, const uin
         out.pushKV("n", (int64_t)i);
 
         UniValue o(UniValue::VOBJ);
-        ScriptPubKeyToUniv(txout.scriptPubKey, o, true);
+        ScriptPubKeyToUniv(txout.scriptPubKey, o, true, txout.isnonprivate);
         out.pushKV("scriptPubKey", o);
         CPubKey recipientpubkey;
         std::string referenceline;
@@ -123,7 +123,12 @@ void TxToUnivWithWallet(const CWallet* pwallet,const CTransaction& tx, const uin
 #ifdef ENABLE_WALLET
         if (pwallet->GetRealAddressAndRefline(txout,recipientpubkey,referenceline,"",false))
         {         
-            out.pushKV("address", EncodeDestinationHasSecondKey(GetDestinationForKey(recipientpubkey, OutputType::LEGACY)));
+            if (txout.isnonprivate) {
+                out.pushKV("address", EncodeDestinationHasSecondKey(GetDestinationForKey(recipientpubkey, OutputType::NONPRIVATE)));
+            } else
+            {
+                out.pushKV("address", EncodeDestinationHasSecondKey(GetDestinationForKey(recipientpubkey, OutputType::LEGACY)));
+            }
             out.pushKV("referenceline", referenceline);
         }
 #endif
@@ -187,14 +192,19 @@ void TxToUnivWithWalletMK(const CWallet* pwallet,std::string masterprivatekey, c
         out.pushKV("n", (int64_t)i);
 
         UniValue o(UniValue::VOBJ);
-        ScriptPubKeyToUniv(txout.scriptPubKey, o, true);
+        ScriptPubKeyToUniv(txout.scriptPubKey, o, true, txout.isnonprivate);
         out.pushKV("scriptPubKey", o);
         CPubKey recipientpubkey;
         std::string referenceline;
 #ifdef ENABLE_WALLET
         if (pwallet->GetRealAddressAndRefline(txout,recipientpubkey,referenceline,masterprivatekey,true))
         {         
-            out.pushKV("address", EncodeDestinationHasSecondKey(GetDestinationForKey(recipientpubkey, OutputType::LEGACY)));
+            if (txout.isnonprivate) {
+                out.pushKV("address", EncodeDestinationHasSecondKey(GetDestinationForKey(recipientpubkey, OutputType::NONPRIVATE)));
+            } else
+            {
+                out.pushKV("address", EncodeDestinationHasSecondKey(GetDestinationForKey(recipientpubkey, OutputType::LEGACY)));
+            }
             out.pushKV("referenceline", referenceline);
         }
 #endif
@@ -671,7 +681,7 @@ static UniValue createrawtransaction(const JSONRPCRequest& request)
             CTxOut out(nAmount, scriptPubKey);
 #ifdef ENABLE_WALLET
             CWallet * const pwallet = GetWalletForJSONRPCRequest(request);
-            pwallet->FillTxOutForTransaction(out,destination,referenceline);
+            pwallet->FillTxOutForTransaction(out, destination, referenceline, false);
 #endif
             rawTx.vout.push_back(out);
 

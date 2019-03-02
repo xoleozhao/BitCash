@@ -36,6 +36,11 @@ CPubKey GetAddressForNickname(std::string nick)
     return CPubKey();
 }
 
+bool IsNonPrivateNickname(std::string nick) 
+{    
+    return false;
+}
+
 //
 // This function returns either one of EXIT_ codes when it's expected to stop the process or
 // CONTINUE_EXECUTION when it's expected to continue further.

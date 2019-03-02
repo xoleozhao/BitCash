@@ -95,7 +95,7 @@ public:
 
     virtual bool DoesTxOutBelongtoPrivKeyCalcOneTimePrivate(const CTxOut& txout, CKey key, CKey& otpk)=0;
     
-    virtual bool FillTxOutForTransaction(CTxOut& out,CPubKey recipientpubkey,std::string referenceline)=0;
+    virtual bool FillTxOutForTransaction(CTxOut& out,CPubKey recipientpubkey,std::string referenceline, bool nonprivate)=0;
 
     //! Get public key.
     virtual bool getPubKey(const CKeyID& address, CPubKey& pub_key) = 0;

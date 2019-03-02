@@ -46,6 +46,10 @@ bool NicknameBatch::WriteInvalidForNameNick(const std::string& strNick,bool inva
     return WriteIC(std::make_pair(std::string("nickinvalid"), strNick), invalid);
 }
 
+bool NicknameBatch::WriteIsNonPrivateForNameNick(const std::string& strNick,bool isnonprivate)
+{
+    return WriteIC(std::make_pair(std::string("nicknonprivate"), strNick), isnonprivate);
+}
 
 bool NicknameBatch::WriteHashForNameNickAddr(const CPubKey Addr,const uint256 hash)
 {
@@ -117,6 +121,13 @@ ReadKeyValue(CDataStream& ssKey, CDataStream& ssValue,
             std::string strNickname;
             ssKey >> strNickname;
             ssValue >> mapNicknameBook[strNickname].hash;
+        }
+        else
+        if (strType == "nicknonprivate")
+        {
+            std::string strNickname;
+            ssKey >> strNickname;
+            ssValue >> mapNicknameBook[strNickname].isnonprivate;
         }
         else
         if (strType == "nickinvalid")
