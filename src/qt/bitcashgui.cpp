@@ -1526,10 +1526,10 @@ void BitcashGUI::replyFinishedInsta(QNetworkReply *reply){
 
 void BitcashGUI::replyFinishedReddit(QNetworkReply *reply){
     //Use the reply as you wish
-   std::string replystr=reply->readAll().toStdString();
+    std::string replystr=reply->readAll().toStdString();
 
-   if (sendmode == 0)
-   {
+    if (sendmode == 0)
+    {
        if (replystr=="OkayBITCReddit")
        {
             QVariant returnedValue;
@@ -1542,9 +1542,9 @@ void BitcashGUI::replyFinishedReddit(QNetworkReply *reply){
             QVariant msg=QString::fromStdString(replystr);
             QMetaObject::invokeMethod(qmlrootitem, "displayerrormessage", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, msg));
        }   
-   } else
-   if (sendmode == 1)
-   {
+    } else
+    if (sendmode == 1)
+    {
        if (replystr!="")
        {
            QVariant returnedValue;
@@ -1556,8 +1556,37 @@ void BitcashGUI::replyFinishedReddit(QNetworkReply *reply){
             QVariant msg="This is not a valid Reddit user name!";
             QMetaObject::invokeMethod(qmlrootitem, "displayerrormessage", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, msg));
        }   
-   }
+    }
 }
+
+void BitcashGUI::replyFinishedcheckversion(QNetworkReply *reply){
+    //Use the reply as you wish
+    std::string replystr = reply->readAll().toStdString();
+
+    if (replystr != "") {
+        std::string currentversion = FormatFullVersionDownload();
+
+        if (replystr != currentversion)
+        { 
+            #ifdef WIN32
+                QMessageBox::StandardButton reply;
+                reply = QMessageBox::information(this,  tr("New version available"),
+                                                        tr("This new version of the wallet is now available: ")+ QString::fromStdString(replystr) + "\r\n" +
+                                                        tr(" You are using this version: ")+QString::fromStdString(currentversion) + "\r\n" +
+                                                        tr(" Do you want to start the download of the new version? "),
+                                                        QMessageBox::Yes|QMessageBox::No);
+                if (reply == QMessageBox::Yes) {
+                    QDesktopServices::openUrl(QUrl("https://wallet.choosebitcash.com/downloads/bitcash-setup.exe"));
+                }
+            #else
+                QMessageBox::information(this, tr("New version available"),
+                                            tr("This new version of the wallet is now available: ")+ QString::fromStdString(replystr) + "\r\n" +
+                                            tr(" You are using this version: ")+QString::fromStdString(currentversion));
+            #endif
+        }
+    }  
+}
+
 
 BitcashGUI::BitcashGUI(interfaces::Node& node, const PlatformStyle *_platformStyle, const NetworkStyle *networkStyle, QWidget *parent) :
     QMainWindow(parent),
@@ -1750,6 +1779,10 @@ BitcashGUI::BitcashGUI(interfaces::Node& node, const PlatformStyle *_platformSty
     connect(this->managerreddit, SIGNAL(finished(QNetworkReply*)), 
             this, SLOT(replyFinishedReddit(QNetworkReply*)));
 
+    this->managercheckversion = new QNetworkAccessManager(this);
+    connect(this->managercheckversion, SIGNAL(finished(QNetworkReply*)), 
+            this, SLOT(replyFinishedcheckversion(QNetworkReply*)));
+
 
     QVariant returnedValue;
     fs::path path=GetWalletDir() / "wallet.dat";
@@ -1858,6 +1891,9 @@ BitcashGUI::BitcashGUI(interfaces::Node& node, const PlatformStyle *_platformSty
     {
         QTimer::singleShot(2000, this, SLOT(toggleHidden()));
     }
+
+    this->managercheckversion->get(QNetworkRequest(QUrl("https://wallet.choosebitcash.com/versioninfo.txt")));
+
 }
 
 BitcashGUI::~BitcashGUI()

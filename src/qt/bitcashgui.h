@@ -86,6 +86,7 @@ public:
     QNetworkAccessManager *manager;
     QNetworkAccessManager *managerinsta;
     QNetworkAccessManager *managerreddit;
+    QNetworkAccessManager *managercheckversion;
 
 protected:
     void changeEvent(QEvent *e);
@@ -217,6 +218,7 @@ public Q_SLOTS:
     void replyFinished(QNetworkReply *reply);
     void replyFinishedInsta(QNetworkReply *reply);
     void replyFinishedReddit(QNetworkReply *reply);
+    void replyFinishedcheckversion(QNetworkReply *reply);
     void ClaimLinksBtnClicked(const QString &strlinkqt);
     void Onminereduced(bool reduced);
     void recurringpayments();
