@@ -619,7 +619,7 @@ static bool AcceptToMemoryPoolWorker(const CChainParams& chainparams, CTxMemPool
         return state.DoS(100, false, REJECT_INVALID, "coinbase");
     }
 
-    // Coinbase is only valid in a block, not as a loose transaction
+    // Only version 4 transactions are allowed in the mempool
     if (tx.nVersion <= 3) {
         LogPrintf("Version 3 transactions are no longer accepted.\n");
         return state.DoS(100, false, REJECT_INVALID, "Old tx version");
