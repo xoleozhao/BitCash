@@ -622,7 +622,7 @@ static bool AcceptToMemoryPoolWorker(const CChainParams& chainparams, CTxMemPool
     // Only version 4 transactions are allowed in the mempool
     if (tx.nVersion <= 3) {
         LogPrintf("Version 3 transactions are no longer accepted.\n");
-        return state.DoS(100, false, REJECT_INVALID, "Old tx version");
+        return state.Invalid(false, REJECT_INVALID, "Old tx version");
     }
 
     // Reject transactions with witness before segregated witness activates (override with -prematurewitness)
@@ -3317,7 +3317,7 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
         if (block.nTime > consensusParams.NONPRIVACY + 60 * 5) //5 minutes after the fork only version 4 transactions are allowed
         {
             if (tx->nVersion < 4) {
-                return state.DoS(100, false, REJECT_INVALID, "bad-tx-version", false, "Only version 4 transactions with nonprivacy information are not allowed after the time of the fork.");
+                return state.DoS(100, false, REJECT_INVALID, "bad-tx-version", false, "Only version 4 transactions with nonprivacy information are allowed after the time of the fork.");
             }
             
         }
