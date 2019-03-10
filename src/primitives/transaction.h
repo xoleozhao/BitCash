@@ -351,7 +351,6 @@ class CTransaction
 {
 public:
     // Default transaction version.136
-    static const int32_t OLD_VERSION=3;
     static const int32_t CURRENT_VERSION=4;
 
     // Changing the default transaction version requires a two step process: first

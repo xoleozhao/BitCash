@@ -91,10 +91,7 @@ std::string CTxOut::ToString() const
     return strprintf("CTxOut(nValue=%d.%08d, scriptPubKey=%s)", nValue / COIN, nValue % COIN, HexStr(scriptPubKey).substr(0, 30));
 }
 
-CMutableTransaction::CMutableTransaction() : nVersion(CTransaction::CURRENT_VERSION), nLockTime(0) {
-    //Do not create transactions with nonprivacy information before the fork
-    if (!ExistParams() || time(nullptr) < Params().GetConsensus().NONPRIVACY) nVersion = CTransaction::OLD_VERSION;
-}
+CMutableTransaction::CMutableTransaction() : nVersion(CTransaction::CURRENT_VERSION), nLockTime(0) {}
 CMutableTransaction::CMutableTransaction(const CTransaction& tx) : vin(tx.vin), vout(tx.vout), nVersion(tx.nVersion), nLockTime(tx.nLockTime) {}
 
 uint256 CMutableTransaction::GetHash() const
