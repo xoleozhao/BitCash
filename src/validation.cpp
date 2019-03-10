@@ -619,6 +619,12 @@ static bool AcceptToMemoryPoolWorker(const CChainParams& chainparams, CTxMemPool
         return state.DoS(100, false, REJECT_INVALID, "coinbase");
     }
 
+    // Coinbase is only valid in a block, not as a loose transaction
+    if (tx.nVersion <= 3) {
+        LogPrintf("Version 3 transactions are no longer accepted.\n");
+        return state.DoS(100, false, REJECT_INVALID, "Old tx version");
+    }
+
     // Reject transactions with witness before segregated witness activates (override with -prematurewitness)
     bool witnessEnabled = IsWitnessEnabled(chainActive.Tip(), chainparams.GetConsensus());
     if (!gArgs.GetBoolArg("-prematurewitness", false) && tx.HasWitness() && !witnessEnabled) {
