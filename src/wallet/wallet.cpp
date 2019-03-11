@@ -504,7 +504,7 @@ std::string CWallet::DecryptRefLineTxOut(CTxOut out) const
                 CPubKey pubkey=GetSecondPubKeyForDestination(item.first);
 
                 if (out.hasrecipientid) {
-                    if (out.recipientid1 != pubkey[10] || out.recipientid2 != pubkey[20]) continue;
+                    if ((out.recipientid1 != 0 || out.recipientid2 != 0) && (out.recipientid1 != pubkey[10] || out.recipientid2 != pubkey[20])) continue;
                 }
 
                 CKey key;
@@ -583,7 +583,7 @@ bool CWallet::GetRealAddressAsReceiver(CTxOut txout, CPubKey& recipientpubkey) c
         CPubKey pubkey=GetSecondPubKeyForDestination(item.first);
 
         if (txout.hasrecipientid) {
-            if (txout.recipientid1 != pubkey[10] || txout.recipientid2 != pubkey[20]) continue;
+            if ((txout.recipientid1 != 0 || txout.recipientid2 != 0) && (txout.recipientid1 != pubkey[10] || txout.recipientid2 != pubkey[20])) continue;
         }
 
         CKey key;
@@ -629,7 +629,7 @@ std::string CWallet::DecryptRefLineTxOutWithOnePrivateKey(CTxOut out,CKey key) c
         CPubKey pubkey = key.GetPubKey();
 
         if (out.hasrecipientid) {
-            if (out.recipientid1 != pubkey[10] || out.recipientid2 != pubkey[20]) {
+            if ((out.recipientid1 != 0 || out.recipientid2 != 0) && (out.recipientid1 != pubkey[10] || out.recipientid2 != pubkey[20])) {
                 return outputline;
             }
         }
@@ -677,7 +677,7 @@ bool CWallet::DoesTxOutBelongtoPrivKeyCalcOneTimePrivate(const CTxOut& txout, CK
         }
 
         if (txout.hasrecipientid) {
-            if (txout.recipientid1 != pubkey[10] || txout.recipientid2 != pubkey[20]) return false;
+            if ((txout.recipientid1 != 0 || txout.recipientid2 != 0) && (txout.recipientid1 != pubkey[10] || txout.recipientid2 != pubkey[20])) return false;
         }
 
         char randprivkey[32];
@@ -2113,7 +2113,7 @@ isminetype CWallet::IsMineForOneDestination(const CTxOut& txout, CTxDestination&
     CPubKey pubkey=GetSecondPubKeyForDestination(desttocheck);
 
     if (txout.hasrecipientid) {
-        if (txout.recipientid1 != pubkey[10] || txout.recipientid2 != pubkey[20]) return ISMINE_NO;
+        if ((txout.recipientid1 != 0 || txout.recipientid2 != 0) && (txout.recipientid1 != pubkey[10] || txout.recipientid2 != pubkey[20])) return ISMINE_NO;
     }
 
     if (ExtractCompletePubKey(*this, txout.scriptPubKey,onetimedestpubkey))
@@ -2177,7 +2177,7 @@ isminetype CWallet::IsMine(const CTxOut& txout, int nr)
                 CPubKey pubkey=GetSecondPubKeyForDestination(item.first);
     
                 if (txout.hasrecipientid) {
-                    if (txout.recipientid1 != pubkey[10] || txout.recipientid2 != pubkey[20]) 
+                    if ((txout.recipientid1 != 0 || txout.recipientid2 != 0) && (txout.recipientid1 != pubkey[10] || txout.recipientid2 != pubkey[20])) 
                         continue;
                 }
 
@@ -3493,7 +3493,7 @@ CAmount CWallet::GetLegacyBalance(const isminefilter& filter, int minDepth, cons
                                 CPubKey pubkey=GetSecondPubKeyForDestination(item.first);
 
                                 if (out.hasrecipientid) {
-                                    if (out.recipientid1 != pubkey[10] || out.recipientid2 != pubkey[20]) continue;
+                                    if ((out.recipientid1 != 0 || out.recipientid2 != 0) && (out.recipientid1 != pubkey[10] || out.recipientid2 != pubkey[20])) continue;
                                 }
 
                                 CKey key;
@@ -3926,8 +3926,11 @@ bool CWallet::FundTransaction(CMutableTransaction& tx, CAmount& nFeeRet, int& nC
     // Turn the txout set into a CRecipient vector.
     for (size_t idx = 0; idx < tx.vout.size(); idx++) {
         const CTxOut& txOut = tx.vout[idx];
-        CRecipient recipient = {txOut.scriptPubKey, txOut.nValue, setSubtractFeeFromOutputs.count(idx) == 1,txOut.referenceline};
-        vecSend.push_back(recipient);
+        CPubKey pubkey;
+        if (ExtractCompletePubKey(*this, txOut.scriptPubKey, pubkey)) {
+            CRecipient recipient = {txOut.scriptPubKey, txOut.nValue, setSubtractFeeFromOutputs.count(idx) == 1, txOut.referenceline, false, pubkey};
+            vecSend.push_back(recipient);
+        }
     }
 
     coinControl.fAllowOtherInputs = true;
@@ -4678,7 +4681,7 @@ bool CWallet::CreateTransactionToMe(uint256& txid,int outnr, CKey key, CAmount n
                 txNew.vin.clear();
                 txNew.vout.clear();
 
-		CTxOut txout(nValue, scriptChange);
+		        CTxOut txout(nValue, scriptChange);
                 if (!FillTxOutForTransaction(txout, pubkeyforchange, refline, false)){
                     strFailReason = _("Can not get private key");
                     return false;

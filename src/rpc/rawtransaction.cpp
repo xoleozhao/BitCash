@@ -113,6 +113,10 @@ void TxToUnivWithWallet(const CWallet* pwallet,const CTransaction& tx, const uin
 
         out.pushKV("value", ValueFromAmount(txout.nValue));
         out.pushKV("n", (int64_t)i);
+        out.pushKV("isnonprivate", txout.isnonprivate);
+        out.pushKV("hasrecipientid", txout.hasrecipientid);
+        out.pushKV("recipientid1", txout.recipientid1);
+        out.pushKV("recipientid2", txout.recipientid2);
 
         UniValue o(UniValue::VOBJ);
         ScriptPubKeyToUniv(txout.scriptPubKey, o, true, txout.isnonprivate);
