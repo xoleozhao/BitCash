@@ -4081,16 +4081,32 @@ bool CWallet::FillTxOutForTransaction(CTxOut& out, CPubKey recipientpubkey, std:
     CKey vchSecret;
 
 //std::cout << "nonprivate" << (int)nonprivate << std::endl;
+    if (nonprivate)
+    {
+        LogPrintf("FillTxOutForTransaction: nonprivate\n");
+    } else
+    {
+        LogPrintf("FillTxOutForTransaction: private\n");
+    }
+
+    LogPrintf("FillTxOutForTransaction: recipientpubkey: %s\n",HexStr(recipientpubkey.begin(),recipientpubkey.end()));
 
     out.isnonprivate = nonprivate;
     
-    GetKeyFromPool(senderpubkey, false);                     
+    if (!GetKeyFromPool(senderpubkey, false)){
+        LogPrintf("FillTxOutForTransaction: GetKeyFromPool failed\n");
+        return false;
+    }
     if (!GetKey(senderpubkey.GetID(), vchSecret)){
+        LogPrintf("FillTxOutForTransaction: GetKey failed\n");
         return false;
     }
     out.randomPubKey = senderpubkey;
    
     memcpy(&out.randomPrivatKey, vchSecret.begin(), vchSecret.size());
+
+    LogPrintf("FillTxOutForTransaction: id1: %i\n",recipientpubkey[10]);
+    LogPrintf("FillTxOutForTransaction: id2: %i\n",recipientpubkey[20]);
 
     out.recipientid1 = recipientpubkey[10];
     out.recipientid2 = recipientpubkey[20];

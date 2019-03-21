@@ -979,6 +979,13 @@ static CTransactionRef SendMoney(CWallet * const pwallet, const CTxDestination &
     std::string strError;
     std::vector<CRecipient> vecSend;
     int nChangePosRet = -1;
+    if (nonprivate)
+    {
+        LogPrintf("SendMoney: nonprivate\n");
+    }else
+    {
+        LogPrintf("SendMoney: private\n");
+    }
     CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount, referenceline, nonprivate, GetSecondPubKeyForDestination(address)};  
     vecSend.push_back(recipient);
     CTransactionRef tx;
@@ -1779,6 +1786,7 @@ static UniValue sendtoaddress(const JSONRPCRequest& request)
         }
     }
 
+LogPrintf("Sendtoaddress: address: %s\n",request.params[0].get_str());
 
     EnsureWalletIsUnlocked(pwallet);
 
