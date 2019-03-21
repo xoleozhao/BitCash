@@ -4084,8 +4084,10 @@ bool CWallet::FillTxOutForTransaction(CTxOut& out, CPubKey recipientpubkey, std:
 
     out.isnonprivate = nonprivate;
     
-    vchSecret.MakeNewKey(true);
-    senderpubkey = vchSecret.GetPubKey();
+    GetKeyFromPool(senderpubkey, false);                     
+    if (!GetKey(senderpubkey.GetID(), vchSecret)){
+        return false;
+    }
     out.randomPubKey = senderpubkey;
    
     memcpy(&out.randomPrivatKey, vchSecret.begin(), vchSecret.size());
@@ -4105,7 +4107,9 @@ bool CWallet::FillTxOutForTransaction(CTxOut& out, CPubKey recipientpubkey, std:
                     
     CPubKey masterpubkey(ParseHex(MasterPubKey));
 
-    out.referenceline = EncryptRefLine(referenceline, masterpubkey, vchSecret);
+    if (GetKey(senderpubkey.GetID(), vchSecret)){
+        out.referenceline = EncryptRefLine(referenceline, masterpubkey, vchSecret);
+    } else out.referenceline = "";
 
     return true;
 }
