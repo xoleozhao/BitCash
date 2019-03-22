@@ -341,7 +341,7 @@ Item {
             onRegisterNickSignalIntern: registerNickSignal(nickname, address)
         }
 /********************************/
-/*
+
         Flickable {
             clip: true
             width: parent
@@ -362,7 +362,7 @@ Item {
                 onDeletepaymentsignalintern: deletepaymentsignal(idstr)
                 onUndopaymentremovalSignalintern: undopaymentremovalSignal()
             }
-        }*/
+        }
 /**************************************/
     }   
 
@@ -609,7 +609,7 @@ Item {
             }
         }
 /*****************************************/
-/*        TabButton {
+        TabButton {
             id: tabButton6
             text: qsTr("Recurring payments")
             rightPadding: 15
@@ -644,7 +644,7 @@ Item {
                 fillMode: Image.PreserveAspectFit
                 source: "../res/assets/Navigation/create-your-nickname-inactive.png"
             }
-        }*/
+        }
 /********************************************/
     }
 
