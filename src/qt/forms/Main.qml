@@ -95,10 +95,7 @@ Item {
     function displayerrormessage(msg) {        
         send.displayerrormessageintern(msg)
         receive.displayerrormessageintern(msg)
-/*************************************/
-/*
-        payments.displayerrormessageintern(msg)*/
-/*************************************/
+        payments.displayerrormessageintern(msg)
     }
 
     function displayerrormessageimportkey(msg) {        
@@ -254,9 +251,7 @@ Item {
         onWidthChanged: {
             send.width = width
             receive.width = width
-/*****************************************
             payments.width = width
-***********************************************/
         }
 
 
@@ -340,8 +335,6 @@ Item {
             id: nicknames
             onRegisterNickSignalIntern: registerNickSignal(nickname, address)
         }
-/********************************/
-
         Flickable {
             clip: true
             width: parent
@@ -363,7 +356,6 @@ Item {
                 onUndopaymentremovalSignalintern: undopaymentremovalSignal()
             }
         }
-/**************************************/
     }   
 
     TabBar {
@@ -608,7 +600,7 @@ Item {
                 source: "../res/assets/Navigation/create-your-nickname-inactive.png"
             }
         }
-/*****************************************/
+
         TabButton {
             id: tabButton6
             text: qsTr("Recurring payments")
@@ -628,12 +620,12 @@ Item {
             }
             onCheckedChanged: {
                 if (checked) {
-                    textnicknames.color="#202124"
-                    imagenicknames.source="../res/assets/Navigation/create-your-nickname-active.png";
+                    texthistory.color="#202124"
+                    imagepayments.source="../res/assets/Navigation/history-active.png";
 
                 }else {
-                    textnicknames.color="#4d505e"
-                    imagenicknames.source="../res/assets/Navigation/create-your-nickname-inactive.png";
+                    texthistory.color="#4d505e"
+                    imagepayments.source="../res/assets/Navigation/history-inactive.png";
                 }
             }
             Image {
@@ -642,10 +634,9 @@ Item {
                 anchors.left: parent.left
                 anchors.leftMargin: 15
                 fillMode: Image.PreserveAspectFit
-                source: "../res/assets/Navigation/create-your-nickname-inactive.png"
+                source: "../res/assets/Navigation/history-inactive.png"
             }
         }
-/********************************************/
     }
 
     Button {

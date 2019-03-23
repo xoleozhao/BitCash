@@ -753,7 +753,7 @@ Item {
                 anchors.verticalCenter: sendcap.verticalCenter
                 anchors.left: layoutrect.left
                 fillMode: Image.PreserveAspectFit
-                source: "../res/assets/Headlines/send.png"
+                source: "../res/assets/Headlines/history.png"
             }
 
             Text {
