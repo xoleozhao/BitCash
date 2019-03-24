@@ -296,8 +296,9 @@ void TransactionView::showtxdetails(int index)
 
     QVariant returnedValue;    
 
-    QVariant msg=theindex.data(TransactionTableModel::LongDescriptionRole).toString();;
-    QMetaObject::invokeMethod(qmlrootitem, "settxdetails", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, msg));
+    QVariant msg = theindex.data(TransactionTableModel::LongDescriptionRole).toString();
+    QVariant txid = theindex.data(TransactionTableModel::TxHashRole).toString();
+    QMetaObject::invokeMethod(qmlrootitem, "settxdetails", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, msg), Q_ARG(QVariant, txid));
 
 }
 

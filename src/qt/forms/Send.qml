@@ -170,7 +170,7 @@ SendForm {
     {
         leftbalance=maxbalancenum-amountEdit.text
         if (leftbalance<0)leftbalance=0
-        leftamountlabel.text=leftbalance
+        leftamountlabel.text=leftbalance.toFixed(9)
     }
 
     function calcleftbalancetw()
@@ -178,7 +178,7 @@ SendForm {
         /****************************/
         leftbalancetw=maxbalancenum-amountEdittw.text
         if (leftbalancetw<0)leftbalancetw=0
-        leftamountlabeltw.text=leftbalancetw
+        leftamountlabeltw.text=leftbalancetw.toFixed(9)
         /*****************************/
     }
 
@@ -187,7 +187,7 @@ SendForm {
         /****************************/
         /*leftbalancein=maxbalancenum-amountEditin.text
         if (leftbalancein<0)leftbalancein=0
-        leftamountlabelin.text=leftbalancein*/
+        leftamountlabelin.text=leftbalancein.toFixed(9)*/
         /*****************************/
     }
 
@@ -196,7 +196,7 @@ SendForm {
         /****************************/
         /*leftbalancere=maxbalancenum-amountEditre.text
         if (leftbalancere<0)leftbalancere=0
-        leftamountlabelre.text=leftbalancere*/
+        leftamountlabelre.text=leftbalancere.toFixed(9)*/
         /*****************************/
     }
 
@@ -204,7 +204,7 @@ SendForm {
     {
         leftbalancean=maxbalancenum-amountEditan.text
         if (leftbalancean<0)leftbalancean=0
-        leftamountlabelan.text=leftbalancean
+        leftamountlabelan.text=leftbalancean.toFixed(9)
     }
 
     function setmaxbalanceintern(avail,availnum) {

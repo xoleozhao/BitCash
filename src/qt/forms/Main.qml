@@ -172,8 +172,8 @@ Item {
     function bitcashexpressclaimed() {        
         receive.bitcashexpressclaimedintern()
     }
-    function settxdetails(text) {
-        transactions.settxdetailsintern(text)
+    function settxdetails(text, txid) {
+        transactions.settxdetailsintern(text, txid)
     }        
     function clearpaymentfields(msg) {
         payments.clearpaymentfieldsintern(msg)

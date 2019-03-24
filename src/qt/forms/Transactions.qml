@@ -20,10 +20,12 @@ Item {
     property int  btnswidth2an : 50
     property int  linkwidthan : 400
     property int  amountwidthan : 220
+    property string txidtext
 
-    function settxdetailsintern(text) {
+    function settxdetailsintern(text, txid) {
         detailarea.text=text
         detaildialog.visible=true
+        txidtext = txid
     }
 
     signal showtxdetailsintern(int index)
@@ -675,10 +677,29 @@ Item {
             }
             Button{
                 text: "Ok"
+                anchors.horizontalCenterOffset: -50
+                id: okBtn
                 anchors.top:detailarea.bottom
                 anchors.topMargin: 10
                 anchors.horizontalCenter: parent.horizontalCenter
                 onClicked: detaildialog.visible=false
+            }
+            Button{
+                text: "Copy TX ID"
+                anchors.left: okBtn.right
+                anchors.leftMargin: 20
+                id: copyTxIdBtn
+                anchors.top:detailarea.bottom
+                anchors.topMargin: 10
+                onClicked: {
+                    copytextfieldlinks.text = txidtext
+                    copytextfieldlinks.selectAll()
+                    copytextfieldlinks.copy()
+                    text = "Copied"
+                    timer.setTimeout(function(){
+                        text = "Copy TX ID"
+                    }, 3000);
+                }
             }
 
         }
