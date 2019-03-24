@@ -410,7 +410,6 @@ public:
 
         // block header
         READWRITE(this->nVersion);
-        const bool x16ractive = (this->nVersion & ((uint32_t)1) << 3) != 0;
         READWRITE(hashPrev);
         READWRITE(hashMerkleRoot);
         READWRITE(nTime);
