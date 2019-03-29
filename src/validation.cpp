@@ -1849,7 +1849,7 @@ int32_t ComputeBlockVersion(const CBlockIndex* pindexPrev, const Consensus::Para
         }
     }
 
-    if (pindexPrev->nTime > params.X16RTIME)
+    if (pindexPrev != nullptr && pindexPrev->nTime > params.X16RTIME)
        nVersion |= hashx16Ractive;
 
     return nVersion;
