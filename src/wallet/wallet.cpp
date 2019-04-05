@@ -4833,21 +4833,15 @@ bool CWallet::CommitTransaction(CTransactionRef tx, mapValue_t mapValue, std::ve
 
         LogPrintf("CommitTransaction:\n%s", wtxNew.tx->ToString()); /* Continued */
         {
-//            LogPrintf("CommitTransaction debug 1\n");
             // Take key pair from key pool so it won't be used again
             if (keepkey) reservekey.KeepKey();
             //Add private keys for stealth address
-//            LogPrintf("CommitTransaction debug 2\n");
             const CTransaction& txadd = *wtxNew.tx;
-//            LogPrintf("CommitTransaction debug 3\n");
             IsMineForScanningBlockchain(txadd);
-//            LogPrintf("CommitTransaction debug 4\n");
             // Add tx to wallet, because if it has change it's also ours,
             // otherwise just for transaction history.
             AddToWallet(wtxNew);
-//            LogPrintf("CommitTransaction debug 5\n");
             if (!frombitcashexpresslink) {
-//                LogPrintf("CommitTransaction debug 6\n");
                 // Notify that old coins are spent
                 for (const CTxIn& txin : wtxNew.tx->vin)
                 {
@@ -4855,29 +4849,22 @@ bool CWallet::CommitTransaction(CTransactionRef tx, mapValue_t mapValue, std::ve
                     coin.BindWallet(this);
                     NotifyTransactionChanged(this, coin.GetHash(), CT_UPDATED);
                 }
-//                LogPrintf("CommitTransaction debug 7\n");
             }
         }
-//        LogPrintf("CommitTransaction debug 8\n");
         // Track how many getdata requests our transaction gets
         mapRequestCount[wtxNew.GetHash()] = 0;
-//        LogPrintf("CommitTransaction debug 9\n");
         // Get the inserted-CWalletTx from mapWallet so that the
         // fInMempool flag is cached properly
         CWalletTx& wtx = mapWallet.at(wtxNew.GetHash());
-//        LogPrintf("CommitTransaction debug 10\n");
         if (fBroadcastTransactions)
         {
-//            LogPrintf("CommitTransaction debug 11\n");
             // Broadcast
             if (!wtx.AcceptToMemoryPool(maxTxFee, state)) {
                 LogPrintf("CommitTransaction(): Transaction cannot be broadcast immediately, %s\n", FormatStateMessage(state));
                 // TODO: if we expect the failure to be long term or permanent, instead delete wtx from the wallet and return failure.
             } else {
-//                LogPrintf("CommitTransaction debug 12\n");
                 wtx.RelayWalletTransaction(connman);        
             }
-//            LogPrintf("CommitTransaction debug 13\n");
         }
     }
     return true;
