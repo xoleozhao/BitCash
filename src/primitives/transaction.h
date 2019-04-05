@@ -200,17 +200,18 @@ public:
     inline void SerializationOp(Stream& s, Operation ser_action) {
         READWRITE(nValue);
         READWRITE(scriptPubKey);	        
-        if (userefline) {
+        if (userefline || (s.GetType() & SER_TXOUTALONE)) {
           READWRITE(referenceline);
           READWRITE(randomPubKey);
           READWRITE(randomPrivatKey);
         }
-        if (usenonprivacy) {
+        if (usenonprivacy || (s.GetType() & SER_TXOUTALONE)) {
             READWRITE(isnonprivate);
             READWRITE(recipientid1);
             READWRITE(recipientid2);
             hasrecipientid = true;
-        } else {
+        } else 
+        if (ser_action.ForRead()) {
             isnonprivate = false;
             recipientid1 = 0;
             recipientid2 = 0;
