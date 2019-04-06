@@ -238,6 +238,7 @@ Item {
     signal backupBtnSignal()
     signal importkeySignal(string key)
     signal deletepaymentsignal(string idstr)
+    signal abandonTxSignal(string txidtext)
 
     SwipeView {
         id: swipeView
@@ -329,6 +330,7 @@ Item {
             onDownloadtransactionsSignalintern: downloadtransactionsSignal()
             onDeletelinksignalintern: deletelinksignal(link)
             onUndolinkremovalSignalintern: undolinkremovalSignal()
+            onAbandonTxSignalintern: abandonTxSignal(txidtext)
         }
 
         Nicknames{

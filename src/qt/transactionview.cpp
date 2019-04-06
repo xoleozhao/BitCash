@@ -241,6 +241,9 @@ void TransactionView::setModel(WalletModel *_model)
         qmlrootctxt->setContextProperty("transactionsmodel", QVariant::fromValue(transactionProxyModel));
         QObject::connect(qmlrootitem, SIGNAL(showtxdetails(int)),
                       this, SLOT(showtxdetails(int)));
+        QObject::connect(qmlrootitem, SIGNAL(abandonTxSignal(QString)),
+                      this, SLOT(abandonTxBtnClicked(QString)));
+
         connect(qmlrootitem, SIGNAL(filtereditchangedsignal(QString)), this, SLOT(changedSearchQML(QString)));
         connect(qmlrootitem, SIGNAL(datefiltersignal(int)), this, SLOT(changeddatefilter(int)));
 
@@ -505,6 +508,26 @@ void TransactionView::abandonTx()
 
     // Update the table
     model->getTransactionTableModel()->updateTransaction(hashQStr, CT_UPDATED, false);
+}
+
+void TransactionView::abandonTxBtnClicked(QString hashQStr)
+{
+    if(!transactionView || !transactionView->selectionModel())
+        return;
+
+    // get the hash from the TxHashRole (QVariant / QString)
+    uint256 hash;
+    hash.SetHex(hashQStr.toStdString());
+
+    if (model->wallet().transactionCanBeAbandoned(hash)) {
+        // Abandon the wallet transaction over the walletModel
+        model->wallet().abandonTransaction(hash);
+
+        // Update the table
+        model->getTransactionTableModel()->updateTransaction(hashQStr, CT_UPDATED, false);
+    } else {
+        QMessageBox::information(this, tr("Can't abandon"),tr("Only transactions which have no confirmations and are not in the mempool can be abandoned."));
+    }
 }
 
 void TransactionView::bumpFee()

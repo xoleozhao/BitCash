@@ -201,9 +201,9 @@ public:
         READWRITE(nValue);
         READWRITE(scriptPubKey);	        
         if (userefline || (s.GetType() & SER_TXOUTALONE)) {
-          READWRITE(referenceline);
-          READWRITE(randomPubKey);
-          READWRITE(randomPrivatKey);
+            READWRITE(referenceline);
+            READWRITE(randomPubKey);
+            READWRITE(randomPrivatKey);
         }
         if (usenonprivacy || (s.GetType() & SER_TXOUTALONE)) {
             READWRITE(isnonprivate);

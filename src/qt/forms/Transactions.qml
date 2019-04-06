@@ -34,6 +34,7 @@ Item {
     signal downloadtransactionsSignalintern()
     signal deletelinksignalintern(string link)
     signal undolinkremovalSignalintern()
+    signal abandonTxSignalintern(string txidtext)
 
     function addbitcashexpresslinkintern(link,desc,amount,date) {
         linksmodel.insert(0,{
@@ -677,10 +678,11 @@ Item {
             }
             Button{
                 text: "Ok"
-                anchors.horizontalCenterOffset: -50
+                anchors.horizontalCenterOffset: -100
                 id: okBtn
                 anchors.top:detailarea.bottom
                 anchors.topMargin: 10
+                background.implicitWidth: 40
                 anchors.horizontalCenter: parent.horizontalCenter
                 onClicked: detaildialog.visible=false
             }
@@ -700,6 +702,15 @@ Item {
                         text = "Copy TX ID"
                     }, 3000);
                 }
+            }
+            Button{
+                text: "Abandon"
+                anchors.left: copyTxIdBtn.right
+                anchors.leftMargin: 20
+                id: removeBtn
+                anchors.top:detailarea.bottom
+                anchors.topMargin: 10
+                onClicked:abandonTxSignalintern(txidtext)
             }
 
         }

@@ -107,6 +107,7 @@ private Q_SLOTS:
     void openThirdPartyTxUrl(QString url);
     void updateWatchOnlyColumn(bool fHaveWatchOnly);
     void abandonTx();
+    void abandonTxBtnClicked(QString hashQStr);
     void bumpFee();
     void showtxdetails(int index);
 
