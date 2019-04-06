@@ -128,10 +128,10 @@ public:
                 READWRITE(address);
                 READWRITE(nickname);
                 READWRITE(nicknamesig);
-                if (usenonprivacy) {
+                if (usenonprivacy || (s.GetType() & SER_TXOUTALONE)) {
                     READWRITE(isnonprivatenickname);
                 } else
-                {
+                if (ser_action.ForRead()) {
                     isnonprivatenickname = false;
                 }
                 prevout.SetNull();

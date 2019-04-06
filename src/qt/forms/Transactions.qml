@@ -682,7 +682,6 @@ Item {
                 id: okBtn
                 anchors.top:detailarea.bottom
                 anchors.topMargin: 10
-                background.implicitWidth: 40
                 anchors.horizontalCenter: parent.horizontalCenter
                 onClicked: detaildialog.visible=false
             }
