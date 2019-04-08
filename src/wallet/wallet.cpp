@@ -491,9 +491,18 @@ std::string CWallet::DecryptRefLineTxOut(CTxOut out) const
 
         if (out.isnonprivate)
         {
-            CKey privkey;
-            if (GetKey(onetimedestpubkey.GetID(), privkey)){
-                //Decrypt as receiver of the transaction...
+            //Decrypt as receiver of the transaction...
+            CKey key;
+            if (GetKey(onetimedestpubkey.GetID(), key)){
+                char randprivkey[32];
+                memcpy(&randprivkey,out.randomPrivatKey,32);
+                DecryptPrivateKey((unsigned char*)&randprivkey, out.randomPubKey, key);
+
+                std::vector<unsigned char> vec(randprivkey, randprivkey + 32);
+
+                CKey privkey;
+                privkey.Set(vec.begin(),vec.end(),true);
+                    
                 outputline = DecryptRefLine(outputline, masterpubkey, privkey);
                 SetRefLines(out.referenceline, outputline);
             }
