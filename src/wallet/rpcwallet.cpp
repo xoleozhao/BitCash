@@ -6208,7 +6208,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "getunconfirmedbalance",            &getunconfirmedbalance,         {} },
     { "wallet",             "getwalletinfo",                    &getwalletinfo,                 {} },
     { "wallet",             "importmulti",                      &importmulti,                   {"requests","options"} },
-    { "wallet",             "importprivkey",                    &importprivkey,                 {"privkey","label","rescan", "importchildkeys"} },
+    { "wallet",             "importprivkey",                    &importprivkey,                 {"privkey","label","rescan", "importchildkeys", "settomainkey"} },
     { "wallet",             "importprivkeysfromfile",           &importprivkeysfromfile,        {"filename","label","rescan"} },
     { "wallet",             "importwallet",                     &importwallet,                  {"filename"} },
     { "wallet",             "importaddress",                    &importaddress,                 {"address","label","rescan","p2sh"} },

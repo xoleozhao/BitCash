@@ -98,16 +98,17 @@ UniValue importprivkey(const JSONRPCRequest& request)
         return NullUniValue;
     }
 
-    if (request.fHelp || request.params.size() < 1 || request.params.size() > 4)
+    if (request.fHelp || request.params.size() < 1 || request.params.size() > 5)
         throw std::runtime_error(
-            "importprivkey \"privkey\" ( \"label\" ) ( rescan ) (importchildkeys)\n"
+            "importprivkey \"privkey\" ( \"label\" ) ( rescan ) (importchildkeys) (settomainkey)\n"
             "\nAdds a private key (as returned by dumpprivkey) to your wallet. Requires a new wallet backup.\n"
             "Hint: use importmulti to import more than one private key.\n"
             "\nArguments:\n"
             "1. \"privkey\"          (string, required) The private key (see dumpprivkey)\n"
             "2. \"label\"            (string, optional, default=\"\") An optional label\n"
             "3. rescan               (boolean, optional, default=true) Rescan the wallet for transactions\n"
-            "4. importchildkeys      (boolean, optional, default=false) Also import 10 child private keys from webwallet to import all webwallet accounts\n" 
+            "4. importchildkeys      (boolean, optional, default=false) Also import 10 child private keys from webwallet to import all webwallet accounts\n"
+            "5. settomainkey         (boolean, optional, default=false) Makes the newly imported address to the main address of the wallet (getcurrentaddress will then return this address)\n"  
             "\nNote: This call can take minutes to complete if rescan is true, during that time, other rpc calls\n"
             "may report that the imported key exists but related transactions are still missing, leading to temporarily incorrect/bogus balances and unspent outputs until rescan completes.\n"
             "\nExamples:\n"
@@ -127,6 +128,7 @@ UniValue importprivkey(const JSONRPCRequest& request)
     WalletRescanReserver reserver(pwallet);
     bool fRescan = true;
     bool importchilds = false;
+    bool settomainkey = false;
     {
         LOCK2(cs_main, pwallet->cs_wallet);
 
@@ -143,6 +145,9 @@ UniValue importprivkey(const JSONRPCRequest& request)
 
         if (!request.params[3].isNull())
             importchilds = request.params[3].get_bool();
+
+        if (!request.params[4].isNull())
+            settomainkey = request.params[4].get_bool();
 
 
         if (fRescan && fPruneMode)
@@ -178,6 +183,9 @@ UniValue importprivkey(const JSONRPCRequest& request)
                 throw JSONRPCError(RPC_WALLET_ERROR, "Error adding key to wallet");
             }
             pwallet->LearnAllRelatedScripts(pubkey);
+            if (settomainkey) {
+                pwallet->SetLabelDestination(pubkey, "");
+            }
         }
         if (importchilds) {
             CExtKey masterKey; 
@@ -215,7 +223,7 @@ UniValue importprivkey(const JSONRPCRequest& request)
                 }
 
             }
-        }
+        }        
     }
     if (fRescan) {
         int64_t scanned_time = pwallet->RescanFromTime(TIMESTAMP_MIN, reserver, true /* update */);

@@ -376,7 +376,8 @@ void BitcashGUI::paperWalletClicked()
 }
 
 extern CCriticalSection cs_main;
-bool inimporting=false;
+bool inimporting = false;
+//The user clicked the Button to restore a backed up private key
 void BitcashGUI::importKeyBtnClicked(QString keystr) 
 {
     CWallet* pwallet = GetWallet("");
@@ -421,7 +422,7 @@ void BitcashGUI::importKeyBtnClicked(QString keystr)
             // Don't throw error in case a key is already there
             if (pwallet->HaveKey(vchAddress)) {
                 QVariant returnedValue;
-                QVariant s=QString::fromStdString("This private key was already in the wallet.");
+                QVariant s = QString::fromStdString("This private key was already in the wallet.");
                 QMetaObject::invokeMethod(qmlrootitem, "displayerrormessageimportkey", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, s));
                 return;
             }
@@ -432,18 +433,28 @@ void BitcashGUI::importKeyBtnClicked(QString keystr)
 
             if (!pwallet->AddKeyPubKey(key, pubkey)) {
                 QVariant returnedValue;
-                QVariant s=QString::fromStdString("Error adding key to wallet.");
+                QVariant s = QString::fromStdString("Error adding key to wallet.");
                 QMetaObject::invokeMethod(qmlrootitem, "displayerrormessageimportkey", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, s));
                 return;
             }
             pwallet->LearnAllRelatedScripts(pubkey);
+            //make the imported address the main address of the wallet
+            pwallet->SetLabelDestination(pubkey, "");
+            //update GUI
+            QVariant address, nick, returnedValue;
+            CTxDestination dest = PubKeyToDestination(pubkey);
+            std::string addr = EncodeDestination(dest, pubkey);
+            address = QString::fromStdString(addr);
+            nick = QString::fromStdString(GetNicknameForAddress(pubkey));
+
+            QMetaObject::invokeMethod(qmlrootitem, "setreceivingaddress", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, address), Q_ARG(QVariant, nick));
         }
     }
-    inimporting=true;
+    inimporting  =true;
     int64_t scanned_time = pwallet->RescanFromTime(TIMESTAMP_MIN, reserver, true /* update */);
-    inimporting=false;
+    inimporting = false;
     QVariant returnedValue;
-    QVariant s=QString::fromStdString("The private key has been successfully imported. You may need to restart the wallet.");
+    QVariant s = QString::fromStdString("The private key has been successfully imported. You may need to restart the wallet.");
     QMetaObject::invokeMethod(qmlrootitem, "displayerrormessageimportkey", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, s));
 
 }

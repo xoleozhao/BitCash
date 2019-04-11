@@ -951,6 +951,7 @@ public:
     DBErrors ReorderTransactions();
     bool AccountMove(std::string strFrom, std::string strTo, CAmount nAmount, std::string strComment = "");
     bool GetLabelDestination(CTxDestination &dest, const std::string& label);
+    void SetLabelDestination(CPubKey &vchPubKey, const std::string& label);
 
     void MarkDirty();
     bool AddToWallet(const CWalletTx& wtxIn, bool fFlushOnClose=true);

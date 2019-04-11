@@ -1616,6 +1616,19 @@ bool CWallet::GetLabelDestination(CTxDestination &dest, const std::string& label
     return true;
 }
 
+// Can be used to set the main pubkey of the wallet (if label == ""). getcurrentaddress will then return the address for this pubkey. 
+// The address and nickname for this pubkey will then also be displayed in the GUI
+void CWallet::SetLabelDestination(CPubKey &vchPubKey, const std::string& label)
+{
+    WalletBatch batch(*database);
+
+    CAccount account;
+    batch.ReadAccount(label, account);
+
+    account.vchPubKey = vchPubKey;
+    batch.WriteAccount(label, account);
+}
+
 void CWallet::MarkDirty()
 {
     {
