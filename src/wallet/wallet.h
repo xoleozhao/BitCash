@@ -1305,7 +1305,7 @@ CTxDestination GetDestinationForKey(const CPubKey& key, OutputType);
 CPubKey GetSecondPubKeyForDestination(const CTxDestination& dest);
 void SetSecondPubKeyForDestination(CTxDestination& dest, const CPubKey& key2);
 bool GetNonPrivateForDestination(const CTxDestination& dest);
-void SetNonPrivateForDestination(CTxDestination& dest, const unsigned char key2);
+void SetNonPrivateForDestination(CTxDestination& dest, bool isnonprivate);
 
 /** Get all destinations (potentially) supported by the wallet for the given key. */
 std::vector<CTxDestination> GetAllDestinationsForKey(const CPubKey& key);

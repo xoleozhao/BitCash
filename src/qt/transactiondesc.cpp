@@ -198,11 +198,21 @@ QString TransactionDesc::toHTML(interfaces::Node& node, interfaces::Wallet& wall
                     CPubKey pubkey;
                     bool found=false;
                     if (wallet.GetRealAddressAsSender(txout,pubkey)){
-                        address=pubkey.GetID();
-                        SetSecondPubKeyForDestination(address,pubkey);
-                        found=true;
+                        if (txout.isnonprivate) {
+                            address = GetDestinationForKey(pubkey, OutputType::NONPRIVATE);
+                        } else
+                        {
+                            address = GetDestinationForKey(pubkey, OutputType::LEGACY);
+                        }
+                        found = true;
                     }
-                    if (found || ExtractDestination(txout.scriptPubKey, address))
+                    if (!found) {
+                        if (ExtractDestination(txout.scriptPubKey, address)) {
+                            SetNonPrivateForDestination(address, txout.isnonprivate);
+                            found = true;
+                        }
+                    }
+                    if (found)
                     {
                         strHTML += "<b>" + tr("To") + ":</b> ";
                         std::string name;
@@ -342,7 +352,7 @@ QString TransactionDesc::toHTML(interfaces::Node& node, interfaces::Wallet& wall
                     CTxDestination address;
                     if (ExtractDestination(vout.scriptPubKey, address))
                     {
-//                        SetSecondPubKeyForDestination(address,vout.receiverPubKey);
+                        SetNonPrivateForDestination(address, vout.isnonprivate);
                         std::string name;
                         if (wallet.getAddress(address, &name, /* is_mine= */ nullptr, /* purpose= */ nullptr) && !name.empty())
                             strHTML += GUIUtil::HtmlEscape(name) + " ";

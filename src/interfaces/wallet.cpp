@@ -84,15 +84,16 @@ WalletTx MakeWalletTx(CWallet& wallet, const CWalletTx& wtx)
     for (unsigned int nOut = 0; nOut < result.tx->vout.size(); nOut++)
     {
         const CTxOut& txout = result.tx->vout[nOut];
-        if (txout.referenceline!=""){ 
+        if (txout.referenceline != ""){ 
             result.reflines.push_back(wtx.DecryptRefLineTxOut(txout));
         } else result.reflines.push_back("");
           
         CPubKey pubkey;
         if (wallet.GetRealAddressAsSender(wtx.tx->vout[nOut],pubkey)){
             CTxDestination address;
-            address=pubkey.GetID();
+            address = pubkey.GetID();
             SetSecondPubKeyForDestination(address,pubkey);
+            SetNonPrivateForDestination(address, wtx.tx->vout[nOut].isnonprivate);
             result.txout_address[nOut] = address;
         }
     }
