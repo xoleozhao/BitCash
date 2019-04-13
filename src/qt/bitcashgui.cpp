@@ -42,6 +42,7 @@
 #include <payments.h>
 #include <ui_interface.h>
 #include <util.h>
+#include <consensus/validation.h>
 #include <validation.h>
 
 #include <iostream>
@@ -373,6 +374,26 @@ void BitcashGUI::paperWalletClicked()
     QVariant returnedValue;
     QVariant msg;
     QMetaObject::invokeMethod(qmlrootitem, "startpaperwallet", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, msg));
+}
+
+//removes the invalid flag from all blocks
+void BitcashGUI::repairSyncIssuesClicked() 
+{
+    CWallet* pwallet = GetWallet("");
+    if (!pwallet) return;
+
+    {
+        LOCK(cs_main);
+        for(auto i : mapBlockIndex)
+        {
+            if (i.second->nStatus & BLOCK_FAILED_MASK) {
+                ResetBlockFailureFlags(i.second);
+            }
+        }
+    }
+
+    CValidationState state;
+    ActivateBestChain(state, Params());
 }
 
 extern CCriticalSection cs_main;
@@ -2036,6 +2057,9 @@ void BitcashGUI::createActions()
     importKeyAction = new QAction(platformStyle->TextColorIcon(":/res/assets/Navigation/receive-active.png"), tr("&Import / Restore from paper wallet"), this);
     importKeyAction->setStatusTip(tr("Import a private key from a paper wallet to add your BitCash to the main wallet"));
 
+    repairSyncAction = new QAction(platformStyle->TextColorIcon(":/icons/debugwindow"), tr("&Try to solve syncing issues"), this);
+    repairSyncAction->setStatusTip(tr("Removes the invalid flag of all blocks. Tries to resolve syncing issues for example after a hard fork. "));
+
     printWalletAction = new QAction(platformStyle->TextColorIcon(":/res/assets/Navigation/receive-active.png"), tr("&Backup wallet"), this);
     printWalletAction->setStatusTip(tr("Make a backup copy of your wallet."));
 
@@ -2086,6 +2110,7 @@ void BitcashGUI::createActions()
     connect(paperWalletAction, SIGNAL(triggered()), this, SLOT(paperWalletClicked()));
     connect(printWalletAction, SIGNAL(triggered()), this, SLOT(printMainWalletClicked()));
     connect(importKeyAction, SIGNAL(triggered()), this, SLOT(importKeyClicked()));
+    connect(repairSyncAction, SIGNAL(triggered()), this, SLOT(repairSyncIssuesClicked()));
 
 #ifdef ENABLE_WALLET
     if(walletFrame)
@@ -2149,6 +2174,12 @@ void BitcashGUI::createMenuBar()
     {
         minimizetotray->addAction(toggleHideAction);
 
+    }
+
+    QMenu *repairwallet = appMenuBar->addMenu(tr("&Repair"));
+    if(walletFrame)
+    {
+        repairwallet->addAction(repairSyncAction);
     }
 
     QMenu *settings = appMenuBar->addMenu(tr("&Settings"));

@@ -116,6 +116,7 @@ private:
     QAction *paperWalletAction;
     QAction *printWalletAction;
     QAction *importKeyAction;
+    QAction *repairSyncAction;
     QAction *overviewAction;
     QAction *miningAction;
     QAction *nicknameAction;
@@ -198,6 +199,7 @@ Q_SIGNALS:
 public Q_SLOTS:
     void printMainWalletClicked();
     void paperWalletClicked();
+    void repairSyncIssuesClicked();
     void importKeyClicked();
     bool UserKnowsPassword();
     void importKeyBtnClicked(QString keystr);

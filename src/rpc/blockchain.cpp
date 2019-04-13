@@ -1580,6 +1580,71 @@ static UniValue invalidateblock(const JSONRPCRequest& request)
     return NullUniValue;
 }
 
+static UniValue listinvalidblocks(const JSONRPCRequest& request)
+{
+    if (request.fHelp || request.params.size() != 0)
+        throw std::runtime_error(
+            "listinvalidblocks\n"
+            "\nReturns a list all known of blocks which are marked invalid.\n"
+            "\nResult:\n"
+            "\nExamples:\n"
+            + HelpExampleCli("listinvalidblocks", "")
+            + HelpExampleRpc("listinvalidblocks", "")
+        );
+
+
+    UniValue ret(UniValue::VOBJ);
+
+    UniValue blocksinvalid(UniValue::VARR);
+
+    {
+        LOCK(cs_main);
+        for(auto i : mapBlockIndex)
+        {
+            if (i.second->nStatus & BLOCK_FAILED_MASK) {
+                blocksinvalid.push_back(i.first.ToString());
+            }
+        }
+    }
+
+    ret.pushKV("invalidblocks", blocksinvalid);
+
+    return ret;
+}
+
+static UniValue reconsiderallblocks(const JSONRPCRequest& request)
+{
+    if (request.fHelp || request.params.size() != 0)
+        throw std::runtime_error(
+            "reconsiderallblocks\n"
+            "\nRemoves invalidity status of all blocks. You can use this command if you have syncing problems after a hard fork for example.\n"
+            "\nResult:\n"
+            "\nExamples:\n"
+            + HelpExampleCli("reconsiderallblocks", "")
+            + HelpExampleRpc("reconsiderallblocks", "")
+        );
+
+
+    {
+        LOCK(cs_main);
+        for(auto i : mapBlockIndex)
+        {
+            if (i.second->nStatus & BLOCK_FAILED_MASK) {
+                ResetBlockFailureFlags(i.second);
+            }
+        }
+    }
+
+    CValidationState state;
+    ActivateBestChain(state, Params());
+
+    if (!state.IsValid()) {
+        throw JSONRPCError(RPC_DATABASE_ERROR, FormatStateMessage(state));
+    }  
+
+    return NullUniValue;
+}
+
 static UniValue reconsiderblock(const JSONRPCRequest& request)
 {
     if (request.fHelp || request.params.size() != 1)
@@ -1743,6 +1808,8 @@ static const CRPCCommand commands[] =
 
     /* Not shown in help */
     { "hidden",             "invalidateblock",        &invalidateblock,        {"blockhash"} },
+    { "hidden",             "listinvalidblocks",      &listinvalidblocks,        {} },
+    { "hidden",             "reconsiderallblocks",    &reconsiderallblocks,        {} },
     { "hidden",             "reconsiderblock",        &reconsiderblock,        {"blockhash"} },
     { "hidden",             "waitfornewblock",        &waitfornewblock,        {"timeout"} },
     { "hidden",             "waitforblock",           &waitforblock,           {"blockhash","timeout"} },
