@@ -170,6 +170,7 @@ struct CRecipient
     std::string refline;
     bool nonprivate;
     CPubKey cpkey;
+    bool isdeposit;
 
 };
 
@@ -1306,6 +1307,8 @@ CPubKey GetSecondPubKeyForDestination(const CTxDestination& dest);
 void SetSecondPubKeyForDestination(CTxDestination& dest, const CPubKey& key2);
 bool GetNonPrivateForDestination(const CTxDestination& dest);
 void SetNonPrivateForDestination(CTxDestination& dest, bool isnonprivate);
+void SetDepositForDestination(CTxDestination& dest, const bool isdeposit);
+bool GetDepositForDestination(const CTxDestination& dest);
 
 /** Get all destinations (potentially) supported by the wallet for the given key. */
 std::vector<CTxDestination> GetAllDestinationsForKey(const CPubKey& key);

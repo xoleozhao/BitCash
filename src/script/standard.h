@@ -23,6 +23,7 @@ class CScriptID : public uint160
 {
 public:
     std::vector<unsigned char> recokey;
+    bool isdeposit;
 
     CScriptID() : uint160() {}
     explicit CScriptID(const CScript& in);
@@ -72,6 +73,7 @@ enum txnouttype
 class CNoDestination {
 public:
     std::vector<unsigned char> recokey;
+    bool isdeposit;
 
     friend bool operator==(const CNoDestination &a, const CNoDestination &b) { return true; }
     friend bool operator<(const CNoDestination &a, const CNoDestination &b) { return true; }
@@ -84,6 +86,7 @@ struct WitnessV0ScriptHash : public uint256
     using uint256::uint256;
 public:
     std::vector<unsigned char> recokey;
+    bool isdeposit;
 };
 
 struct WitnessV0KeyHash : public uint160
@@ -93,6 +96,7 @@ struct WitnessV0KeyHash : public uint160
     using uint160::uint160;
 public:
     std::vector<unsigned char> recokey;
+    bool isdeposit;
 };
 
 //! CTxDestination subtype to encode any future Witness version
@@ -117,6 +121,7 @@ struct WitnessUnknown
     }
 public:
     std::vector<unsigned char> recokey;
+    bool isdeposit;
 };
 
 /**

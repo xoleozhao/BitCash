@@ -3951,7 +3951,7 @@ bool CWallet::FundTransaction(CMutableTransaction& tx, CAmount& nFeeRet, int& nC
         const CTxOut& txOut = tx.vout[idx];
         CPubKey pubkey;
         if (ExtractCompletePubKey(*this, txOut.scriptPubKey, pubkey)) {
-            CRecipient recipient = {txOut.scriptPubKey, txOut.nValue, setSubtractFeeFromOutputs.count(idx) == 1, txOut.referenceline, false, pubkey};
+            CRecipient recipient = {txOut.scriptPubKey, txOut.nValue, setSubtractFeeFromOutputs.count(idx) == 1, txOut.referenceline, false, pubkey, false};
             vecSend.push_back(recipient);
         }
     }
@@ -4351,6 +4351,11 @@ bool CWallet::CreateTransaction(const std::vector<CRecipient>& vecSend, CTransac
                 coin_selection_params.tx_noinputs_size = 11; // Static vsize overhead + outputs vsize. 4 nVersion, 4 nLocktime, 1 input count, 1 output count, 1 witness overhead (dummy, flag, stack size)
                 for (const auto& recipient : vecSend)
                 {
+
+                    if (recipient.isdeposit && recipient.refline.length() < 5) {
+                        strFailReason = _("You need to enter the deposit key/code in the description line field. The exchange has provided to you with the deposit key/code. Without the correct code your coins will not end up on your personal account on the exchange. The key must have a minimum length of 5 characters.");
+                        return false;
+                    }
 
                     CTxOut txout(recipient.nAmount, recipient.scriptPubKey);
                     if (!FillTxOutForTransaction(txout, recipient.cpkey, recipient.refline, recipient.nonprivate)){
@@ -4895,10 +4900,6 @@ bool CWallet::SendAsLink(CAmount nAmount, std::string referenceline, std::string
     CCoinControl coin_control;
     bool fSubtractFeeFromAmount=false;
 
-/*    CTransactionRef tx = SendMoney(pwallet, dest, nAmount, fSubtractFeeFromAmount, coin_control, std::move(mapValue), {} , referenceline);
-
-static CTransactionRef SendMoney(CWallet * const pwallet, const CTxDestination &address, CAmount nValue, bool fSubtractFeeFromAmount, const CCoinControl& coin_control, mapValue_t mapValue, std::string fromAccount, std::string referenceline)
-{*/
     CAmount curBalance = GetBalance();
 
     // Check amount
@@ -4923,7 +4924,7 @@ static CTransactionRef SendMoney(CWallet * const pwallet, const CTxDestination &
     std::string strError;
     std::vector<CRecipient> vecSend;
     int nChangePosRet = -1;
-    CRecipient recipient = {scriptPubKey, nAmount, fSubtractFeeFromAmount, referenceline, GetNonPrivateForDestination(dest), GetSecondPubKeyForDestination(dest)};
+    CRecipient recipient = {scriptPubKey, nAmount, fSubtractFeeFromAmount, referenceline, GetNonPrivateForDestination(dest), GetSecondPubKeyForDestination(dest), false};
     vecSend.push_back(recipient);
     CTransactionRef tx;
     if (!CreateTransaction(vecSend, tx, reservekey, nFeeRequired, nChangePosRet, strerr, coin_control)) {
@@ -6464,6 +6465,53 @@ void SetNonPrivateForDestination(CTxDestination& dest, bool isnonprivate)
     if (auto id = boost::get<CKeyID>(&dest)) {
         id->nonprivate = isnonprivate;
     }
+}
+
+void SetDepositForDestination(CTxDestination& dest, const bool isdeposit)
+{
+    if (auto id = boost::get<CKeyID>(&dest)) {
+        id->isdeposit = isdeposit;
+    }
+    if (auto id = boost::get<WitnessV0ScriptHash>(&dest)) {
+        id->isdeposit = isdeposit;
+    }
+    if (auto id = boost::get<WitnessV0KeyHash>(&dest)) {
+        id->isdeposit = isdeposit;
+    }
+    if (auto id = boost::get<CScriptID>(&dest)) {
+        id->isdeposit = isdeposit;
+    }
+    if (auto id = boost::get<WitnessUnknown>(&dest)) {
+        id->isdeposit = isdeposit;
+    }
+    if (auto id = boost::get<CNoDestination>(&dest)) {
+        id->isdeposit = isdeposit;
+    }
+}
+
+bool GetDepositForDestination(const CTxDestination& dest)
+{
+    bool isdeposit = 0;
+
+    if (auto id = boost::get<CKeyID>(&dest)) {
+        isdeposit = id->isdeposit;
+    }
+    if (auto id = boost::get<WitnessV0ScriptHash>(&dest)) {
+        isdeposit = id->isdeposit;
+    }
+    if (auto id = boost::get<WitnessV0KeyHash>(&dest)) {
+        isdeposit = id->isdeposit;
+    }
+    if (auto id = boost::get<CScriptID>(&dest)) {
+        isdeposit = id->isdeposit;
+    }
+    if (auto id = boost::get<WitnessUnknown>(&dest)) {
+        isdeposit = id->isdeposit;
+    }
+    if (auto id = boost::get<CNoDestination>(&dest)) {
+        isdeposit = id->isdeposit;
+    }
+    return isdeposit;   
 }
 
 std::vector<CTxDestination> GetAllDestinationsForKey(const CPubKey& key)

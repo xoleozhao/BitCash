@@ -619,7 +619,7 @@ static UniValue divideutxos(const JSONRPCRequest& request)
     
     for (int i=0;i<=999;i++)
     {
-        CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount,"", false, GetSecondPubKeyForDestination(dest)};
+        CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount,"", false, GetSecondPubKeyForDestination(dest), false};
         vecSend.push_back(recipient);
     }
 
@@ -972,6 +972,7 @@ static CTransactionRef SendMoney(CWallet * const pwallet, const CTxDestination &
     // Parse Bitcash address
     CScript scriptPubKey = GetScriptForDestination(address);
     bool nonprivate = GetNonPrivateForDestination(address);
+    bool isdeposit = GetDepositForDestination(address);
 
     // Create and send the transaction
     CReserveKey reservekey(pwallet);
@@ -988,7 +989,7 @@ static CTransactionRef SendMoney(CWallet * const pwallet, const CTxDestination &
         LogPrintf("SendMoney: private\n");
     }
 
-    CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount, referenceline, nonprivate, GetSecondPubKeyForDestination(address)};  
+    CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount, referenceline, nonprivate, GetSecondPubKeyForDestination(address), isdeposit};  
     vecSend.push_back(recipient);
     CTransactionRef tx;
     if (!pwallet->CreateTransaction(vecSend, tx, reservekey, nFeeRequired, nChangePosRet, strError, coin_control, true, onlyfromoneaddress, fromaddress, provideprivatekey, privatekey)) {
@@ -2747,7 +2748,7 @@ static UniValue sendmany(const JSONRPCRequest& request)
                 fSubtractFeeFromAmount = true;
         }
 
-        CRecipient recipient = {scriptPubKey, nAmount, fSubtractFeeFromAmount, referenceline, GetNonPrivateForDestination(dest), GetSecondPubKeyForDestination(dest)};
+        CRecipient recipient = {scriptPubKey, nAmount, fSubtractFeeFromAmount, referenceline, GetNonPrivateForDestination(dest), GetSecondPubKeyForDestination(dest), GetDepositForDestination(dest)};
         vecSend.push_back(recipient);
     }
 

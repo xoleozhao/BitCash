@@ -166,6 +166,65 @@ CTxDestination DecodeDestinationNoNickname(const std::string& str, const CChainP
     return CNoDestination();
 }
 
+void LocalSetDepositForDestination(CTxDestination& dest, const bool isdeposit)
+{
+    if (auto id = boost::get<CKeyID>(&dest)) {
+        id->isdeposit = isdeposit;
+    }
+    if (auto id = boost::get<WitnessV0ScriptHash>(&dest)) {
+        id->isdeposit = isdeposit;
+    }
+    if (auto id = boost::get<WitnessV0KeyHash>(&dest)) {
+        id->isdeposit = isdeposit;
+    }
+    if (auto id = boost::get<CScriptID>(&dest)) {
+        id->isdeposit = isdeposit;
+    }
+    if (auto id = boost::get<WitnessUnknown>(&dest)) {
+        id->isdeposit = isdeposit;
+    }
+    if (auto id = boost::get<CNoDestination>(&dest)) {
+        id->isdeposit = isdeposit;
+    }
+}
+
+bool LocalGetDepositForDestination(const CTxDestination& dest)
+{
+    bool isdeposit = 0;
+
+    if (auto id = boost::get<CKeyID>(&dest)) {
+        isdeposit = id->isdeposit;
+    }
+    if (auto id = boost::get<WitnessV0ScriptHash>(&dest)) {
+        isdeposit = id->isdeposit;
+    }
+    if (auto id = boost::get<WitnessV0KeyHash>(&dest)) {
+        isdeposit = id->isdeposit;
+    }
+    if (auto id = boost::get<CScriptID>(&dest)) {
+        isdeposit = id->isdeposit;
+    }
+    if (auto id = boost::get<WitnessUnknown>(&dest)) {
+        isdeposit = id->isdeposit;
+    }
+    if (auto id = boost::get<CNoDestination>(&dest)) {
+        isdeposit = id->isdeposit;
+    }
+    return isdeposit;   
+}
+
+std::string encodedeposit(const CTxDestination& dest,std::string str)
+{
+    bool isdeposit = LocalGetDepositForDestination(dest);
+
+    if (isdeposit) {
+        return "deposit@"+str;
+    }
+
+    return str;    
+}
+
+
 void LocalSetSecondPubKeyForDestination(CTxDestination& dest, const CPubKey& key2)
 {
     if (auto id = boost::get<CKeyID>(&dest)) {
@@ -201,18 +260,28 @@ void LocalSetNonPrivateForDestination(CTxDestination& dest, bool nonprivate)
     }
 }
 
-CTxDestination DecodeDestination(const std::string& str, const CChainParams& params)
+CTxDestination DecodeDestination(const std::string& strinput, const CChainParams& params)
 {
-    CTxDestination dest=DecodeDestinationNoNickname(str,params);
+    bool isdeposit = false;
+    std::string str = strinput;
+
+    if (str.length()>=8 && str[0]=='d' && str[1]=='e' && str[2]=='p' && str[3]=='o' && str[4]=='s' && str[5]=='i' && str[6]=='t' && str[7]=='@') {
+        isdeposit = true;
+        str.erase(0, 8);
+    }
+
+    CTxDestination dest = DecodeDestinationNoNickname(str, params);
+    LocalSetDepositForDestination(dest, isdeposit);
     if (auto id = boost::get<CNoDestination>(&dest)) {
-        //try to search nickname       
-        CPubKey pubkey=GetAddressForNickname(str);
-        if (pubkey.IsValid()) {
-            dest=CTxDestination(pubkey.GetID());
-            LocalSetSecondPubKeyForDestination(dest,pubkey);        
-            LocalSetNonPrivateForDestination(dest, IsNonPrivateNickname(str));
-            return dest;
-        } else return CNoDestination();
+       //try to search nickname       
+       CPubKey pubkey = GetAddressForNickname(str);
+       if (pubkey.IsValid()) {
+           dest=CTxDestination(pubkey.GetID());
+           LocalSetSecondPubKeyForDestination(dest, pubkey);        
+           LocalSetDepositForDestination(dest, isdeposit);
+           LocalSetNonPrivateForDestination(dest, IsNonPrivateNickname(str));
+           return dest;
+       } else return CNoDestination();
     } else return dest;
 }
 
@@ -325,7 +394,7 @@ bool DestinationHasSecondPubKey(const CTxDestination& dest)
 
 std::string EncodeDestinationHasSecondKey(const CTxDestination& dest)
 {    
-    return boost::apply_visitor(DestinationEncoder(Params()), dest);
+    return encodedeposit(dest, boost::apply_visitor(DestinationEncoder(Params()), dest));
 }
 
 
@@ -336,7 +405,7 @@ std::string EncodeDestination(const CTxDestination& dest,const CPubKey& key2)
     if (!DestinationHasSecondPubKey(destnew)){
         LocalSetSecondPubKeyForDestination(destnew,key2);  
     }
-    return boost::apply_visitor(DestinationEncoder(Params()), destnew);
+    return encodedeposit(destnew, boost::apply_visitor(DestinationEncoder(Params()), destnew));
 }
 
 std::string EncodeDestination(const CPubKey& key2)

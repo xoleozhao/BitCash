@@ -22,6 +22,7 @@ class CKeyID : public uint160
 public:
     std::vector<unsigned char> recokey;
     bool nonprivate;
+    bool isdeposit;
 
     CKeyID() : uint160(), nonprivate(0) {}
     explicit CKeyID(const uint160& in) : uint160(in), nonprivate(0) {}
