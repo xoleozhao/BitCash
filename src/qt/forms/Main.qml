@@ -270,7 +270,7 @@ Item {
 
         Flickable {            
             clip: true
-            contentWidth: parent
+            contentWidth: parent.width
             contentHeight: 1024
             ScrollBar.vertical: ScrollBar {
                 active: true;
@@ -302,8 +302,8 @@ Item {
 
         Flickable {
             clip: true
-            width: parent
-            height: parent
+            width: parent.width
+            height: parent.height
             contentWidth: width
             contentHeight: 1024
             ScrollBar.vertical: ScrollBar {
@@ -339,8 +339,8 @@ Item {
         }
         Flickable {
             clip: true
-            width: parent
-            height: parent
+            width: parent.width
+            height: parent.height
             contentWidth: width
             contentHeight: 1024
             ScrollBar.vertical: ScrollBar {
