@@ -106,8 +106,10 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const interface
 
             for (unsigned int nOut = 0; nOut < wtx.tx->vout.size(); nOut++)
             {
-//                const CTxOut& txout = wtx.tx->vout[nOut];
-                parts.last().referenceline = wtx.reflines[nOut];
+                //sometimes the change is the first, sometimes it is the second tx output. So take the reference line from the first output with a reference line
+                if (parts.last().referenceline.size() == 0) {
+                    parts.last().referenceline = wtx.reflines[nOut];
+                }
             }
 
         }
