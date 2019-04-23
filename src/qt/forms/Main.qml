@@ -87,6 +87,11 @@ Item {
         backupwallet.tabBar.currentIndex=1
     }
 
+    function setbacksendbtn()
+    {
+        send.setbacksendbtnintern()
+    }
+
     function setpaperwalletaddresses(address,privatekey) {
         paperwallet.setpaperwalletaddressesintern(address,privatekey)
         backupwallet.setpaperwalletaddressesintern(address,privatekey)
@@ -117,7 +122,7 @@ Item {
         coinsstr=send.amountEdittw.text
 
         twittersuccess.twitteredit.text="https://wallet.choosebitcash.com/twitterlogin.php?sender="+senderstr+"&receiver="+recieverstr+"&coins="+coinsstr
-        twittersuccess.text2.text="Hey @"+recieverstr+", I just sent you "+coinsstr+" BITC to your twitter account as a tip. Click here to claim it: "+twittersuccess.twitteredit.text
+        twittersuccess.text2.text="Hey @"+recieverstr+", I just sent you "+coinsstr+" BITC to your Twitter account as a tip. Click here to claim it: "+twittersuccess.twitteredit.text
         twittersuccess.text1.text=qsTr("Send the below link directly to the Twitter user so that he/she can claim the coins.\n\n You can even paste the link in public tweets or comments. No need to worry, no other user can gain access to these coins except for the intended Twitter user.\n\nIf you submitted this transaction by accident, you can claim the coins back with your link.")
         twittersuccess.sendcap.text= qsTr("Successfully sent the coins to the Twitter user")
         twittersuccess.sendicon.source= "../res/assets/Miscellaneous/twittericon.png"
@@ -127,7 +132,13 @@ Item {
 
     function instalinkokay(msg)
     {
-        twittersuccess.twitteredit.text="https://wallet.choosebitcash.com/instalogin.php"
+        senderstr=receive.receivingnicknameEdit.text
+        if (senderstr==="") senderstr=receive.receivingaddressEdit.text
+        recieverstr=send.paytoEditin.text
+        coinsstr=send.amountEditin.text
+
+        twittersuccess.twitteredit.text="https://wallet.choosebitcash.com/instalogin.php?sender="+senderstr+"&receiver="+recieverstr+"&coins="+coinsstr
+        twittersuccess.text2.text="Hey @"+recieverstr+", I just sent you "+coinsstr+" BITC to your Instagram account as a tip. Click here to claim it: "+twittersuccess.twitteredit.text
         twittersuccess.text1.text=qsTr("Send the below link directly to the Instagram user so that he/she can claim the coins.\n\n You can even paste the link in public posts or comments. No need to worry, no other user can gain access to these coins except for the intended Instagram user.\n\nIf you submitted this transaction by accident, you can claim the coins back with your link.")
         twittersuccess.sendcap.text= qsTr("Successfully sent the coins to the Instagram user")
         twittersuccess.sendicon.source= "../res/assets/Miscellaneous/instaicon.png"
@@ -135,12 +146,18 @@ Item {
         send.clearsendentriesinternin()
     }
 
-    function redditlinkokay(msg)
+    function twitchlinkokay(msg)
     {
-        twittersuccess.twitteredit.text="https://wallet.choosebitcash.com/redditlogin.php"
-        twittersuccess.text1.text=qsTr("Send the below link directly to the Reddit user so that he/she can claim the coins.\n\n You can even paste the link in public posts or comments. No need to worry, no other user can gain access to these coins except for the intended Reddit user.\n\nIf you submitted this transaction by accident, you can claim the coins back with your link.")
-        twittersuccess.sendcap.text= qsTr("Successfully sent the coins to the Reddit user")
-        twittersuccess.sendicon.source= "../res/assets/Miscellaneous/redditicon.png"
+        senderstr=receive.receivingnicknameEdit.text
+        if (senderstr==="") senderstr=receive.receivingaddressEdit.text
+        recieverstr=send.paytoEditre.text
+        coinsstr=send.amountEditre.text
+
+        twittersuccess.twitteredit.text="https://wallet.choosebitcash.com/twitchlogin.php?sender="+senderstr+"&receiver="+recieverstr+"&coins="+coinsstr
+        twittersuccess.text2.text="Hey @"+recieverstr+", I just sent you "+coinsstr+" BITC to your Twitch account as a tip. Click here to claim it: "+twittersuccess.twitteredit.text
+        twittersuccess.text1.text=qsTr("Send the below link directly to the Twitch user so that he/she can claim the coins.\n\n You can even paste the link in public posts or comments. No need to worry, no other user can gain access to these coins except for the intended Twitch user.\n\nIf you submitted this transaction by accident, you can claim the coins back with your link.")
+        twittersuccess.sendcap.text= qsTr("Successfully sent the coins to the Twitch user")
+        twittersuccess.sendicon.source= "../res/assets/Miscellaneous/twitchicon.png"
         twittersuccess.visible=true
         send.clearsendentriesinternre()
     }
@@ -200,9 +217,9 @@ Item {
         send.showconfirminstaintern(msg)
     }
 
-    function showconfirmreddit(msg)
+    function showconfirmtwitch(msg)
     {
-        send.showconfirmredditintern(msg)
+        send.showconfirmtwitchintern(msg)
     }
 
     signal filtereditchangedsignal(string text)
@@ -220,7 +237,7 @@ Item {
     signal downloadtransactionsSignal()
     signal sendtoTwitterSignal(string twitteruser, string linktosend)
     signal sendtoInstaSignal(string twitteruser, string linktosend)
-    signal sendtoRedditSignal(string twitteruser, string linktosend)
+    signal sendtoTwitchSignal(string twitteruser, string linktosend)
     signal createPaymentBtnSignal(string recipient, string description, double amount, int day, int month)
 
     signal registerNickSignal(string nickname, string address)

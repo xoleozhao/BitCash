@@ -39,7 +39,7 @@ Item {
     property alias maxbalancetw: maxbalancetw
     property alias pasteaddresstw: pasteaddresstw
     property alias leftamountlabeltw: leftamountlabeltw
-/*
+
     property alias paytoEditin: paytoEditin
     property alias labelEditin: labelEditin
     property alias descriptionEditin: descriptionEditin
@@ -58,7 +58,7 @@ Item {
     property alias availableBalanceBtnre: availableBalanceBtnre
     property alias maxbalancere: maxbalancere
     property alias pasteaddressre: pasteaddressre
-    property alias leftamountlabelre: leftamountlabelre*/
+    property alias leftamountlabelre: leftamountlabelre
     /*************************************/
     property alias descriptionEditan: descriptionEditan
     property alias amountEditan: amountEditan
@@ -329,7 +329,7 @@ Item {
                     source: "../res/assets/Miscellaneous/twittericon.png"
                 }
             }
-            /*TabButton {
+            TabButton {
                 id: tabButton4
                 text: qsTr("Instagram")
                 rightPadding: 15
@@ -359,7 +359,7 @@ Item {
             }
             TabButton {
                 id: tabButton5
-                text: qsTr("Reddit")
+                text: qsTr("Twitch")
                 rightPadding: 15
                 font.capitalization: Font.MixedCase
                 leftPadding: 41
@@ -367,7 +367,7 @@ Item {
                 height: 60
 
                 contentItem: Text {
-                    id: textreddit
+                    id: texttwitch
                     text: parent.text
                     font: parent.font
                     opacity: enabled ? 1.0 : 0.3
@@ -377,14 +377,14 @@ Item {
                     elide: Text.ElideRight
                 }
                 Image {
-                    id: imagereddit
+                    id: imagetwitch
                     anchors.verticalCenter: parent.verticalCenter
                     anchors.left: parent.left
                     anchors.leftMargin: 15
                     fillMode: Image.PreserveAspectFit
-                    source: "../res/assets/Miscellaneous/redditicon.png"
+                    source: "../res/assets/Miscellaneous/twitchicon.png"
                 }
-            }*/
+            }
             /***************************************/
             TabButton {
                 id: tabButton3
@@ -983,7 +983,7 @@ Item {
                 }
             }
             ////////////////////// INSTAGRAM /////////////////////////////////////////
-            /*Item {
+            Item {
                 id: instagram
 
                 Label {
@@ -1267,9 +1267,9 @@ Item {
                     anchors.top: infolabelin.top
                 }
             }
-            ////////////////////////////////////////// REDDIT /////////////////////////////////////////////
+            ////////////////////////////////////////// TWITCH /////////////////////////////////////////////
             Item {
-                id: reddit
+                id: twitch
 
                 Label {
                     id: text1re
@@ -1329,10 +1329,10 @@ Item {
                     anchors.right: parent.right
                     anchors.rightMargin: 30
                     selectByMouse: true
-                    placeholderText: "Reddit's nickname of the recipient"
+                    placeholderText: "Twitch's nickname of the recipient"
 
                     ToolTip.visible: hovered
-                    ToolTip.text: qsTr("Insert the recipient's Reddit handle here.")
+                    ToolTip.text: qsTr("Insert the recipient's Twitch handle here.")
                     ToolTip.delay: 100
                     ToolTip.timeout: 5000
                 }
@@ -1551,7 +1551,7 @@ Item {
                     anchors.left: leftamountlabelre.right
                     anchors.top: infolabelre.top
                 }
-            }*/
+            }
             /*******************************************************/
             //Anyone
             Item {

@@ -225,18 +225,18 @@ void BitcashGUI::sendtoInstaClicked(QString instauser, QString coinlink)
     this->managerinsta->post(request, postData.toString(QUrl::FullyEncoded).toUtf8());
 }
 
-void BitcashGUI::sendtoRedditClicked(QString reddituser, QString coinlink) 
+void BitcashGUI::sendtoTwitchClicked(QString twitchuser, QString coinlink) 
 {
     sendmode = 0;
     QUrlQuery postData;
-    postData.addQueryItem("reddituser", reddituser);
+    postData.addQueryItem("twitchuser", twitchuser);
     postData.addQueryItem("link", coinlink);
     postData.addQueryItem("sent", "1");
     postData.addQueryItem("foo", QString::fromStdString(timestr(time(nullptr))));
 
-    QNetworkRequest request(QUrl("https://wallet.choosebitcash.com/sendtoredditwallet.php"));
+    QNetworkRequest request(QUrl("https://wallet.choosebitcash.com/sendtotwitchwallet.php"));
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
-    this->managerreddit->post(request, postData.toString(QUrl::FullyEncoded).toUtf8());
+    this->managertwitch->post(request, postData.toString(QUrl::FullyEncoded).toUtf8());
 }
 
 void BitcashGUI::HelpBtnClicked() 
@@ -1078,7 +1078,7 @@ void BitcashGUI::SendToInstaBtnClicked(const QString &destination, const QString
     this->managerinsta->post(request, postData.toString(QUrl::FullyEncoded).toUtf8());
 }
 
-void BitcashGUI::SendToRedditBtnClicked(const QString &destination, const QString &description, double amount) 
+void BitcashGUI::SendToTwitchBtnClicked(const QString &destination, const QString &description, double amount) 
 {
     if (!UserKnowsPassword()) return;
     WalletModel * const walletModel = getCurrentWalletModel();
@@ -1087,7 +1087,7 @@ void BitcashGUI::SendToRedditBtnClicked(const QString &destination, const QStrin
     CAmount am=amount*COIN;
     if (destination=="") {
             QVariant returnedValue;
-            QVariant s=QString::fromStdString("You need to enter the Reddit name of the recipient.");
+            QVariant s=QString::fromStdString("You need to enter the Twitch name of the recipient.");
             QMetaObject::invokeMethod(qmlrootitem, "displayerrormessage", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, s));
             return;
     }
@@ -1107,11 +1107,11 @@ void BitcashGUI::SendToRedditBtnClicked(const QString &destination, const QStrin
 
     sendmode = 1;
     QUrlQuery postData;
-    postData.addQueryItem("reddituser", destination);
+    postData.addQueryItem("twitchuser", destination);
 
-    QNetworkRequest request(QUrl("https://wallet.choosebitcash.com/getreddituserinfo.php"));
+    QNetworkRequest request(QUrl("https://wallet.choosebitcash.com/gettwitchuserinfo.php"));
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
-    this->managerreddit->post(request, postData.toString(QUrl::FullyEncoded).toUtf8());
+    this->managertwitch->post(request, postData.toString(QUrl::FullyEncoded).toUtf8());
 }
 
 void BitcashGUI::SendConfirmedToTwitterBtnClicked(const QString &destination, const QString &description, double amount) 
@@ -1214,7 +1214,7 @@ void BitcashGUI::SendConfirmedToInstaBtnClicked(const QString &destination, cons
     }
 }
 
-void BitcashGUI::SendConfirmedToRedditBtnClicked(const QString &destination, const QString &description, double amount) 
+void BitcashGUI::SendConfirmedToTwitchBtnClicked(const QString &destination, const QString &description, double amount) 
 {
     WalletModel * const walletModel = getCurrentWalletModel();
     if (!walletModel) return;
@@ -1252,14 +1252,14 @@ void BitcashGUI::SendConfirmedToRedditBtnClicked(const QString &destination, con
 
         sendmode = 0;
         QUrlQuery postData;
-        postData.addQueryItem("reddituser", destination);
+        postData.addQueryItem("twitchuser", destination);
         postData.addQueryItem("link", s);
         postData.addQueryItem("sent", "1");
         postData.addQueryItem("foo", QString::fromStdString(timestr(time(nullptr))));
 
-        QNetworkRequest request(QUrl("https://wallet.choosebitcash.com/sendtoredditwallet.php"));
+        QNetworkRequest request(QUrl("https://wallet.choosebitcash.com/sendtotwitchwallet.php"));
         request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
-        this->managerreddit->post(request, postData.toString(QUrl::FullyEncoded).toUtf8());
+        this->managertwitch->post(request, postData.toString(QUrl::FullyEncoded).toUtf8());
 
     }
 }
@@ -1512,11 +1512,13 @@ void BitcashGUI::replyFinished(QNetworkReply *reply){
            QVariant returnedValue;
            QVariant msg=QString::fromStdString(replystr);
            QMetaObject::invokeMethod(qmlrootitem, "showconfirmtwitter", Q_RETURN_ARG(QVariant, returnedValue),Q_ARG(QVariant, msg));
+           QMetaObject::invokeMethod(qmlrootitem, "setbacksendbtn", Q_RETURN_ARG(QVariant, returnedValue));
        } else
        {
             QVariant returnedValue;
             QVariant msg="This is not a valid Twitter user name!";
             QMetaObject::invokeMethod(qmlrootitem, "displayerrormessage", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, msg));
+            QMetaObject::invokeMethod(qmlrootitem, "setbacksendbtn", Q_RETURN_ARG(QVariant, returnedValue));
        }   
    }
 }
@@ -1547,26 +1549,28 @@ void BitcashGUI::replyFinishedInsta(QNetworkReply *reply){
            QVariant returnedValue;
            QVariant msg=QString::fromStdString(replystr);
            QMetaObject::invokeMethod(qmlrootitem, "showconfirminsta", Q_RETURN_ARG(QVariant, returnedValue),Q_ARG(QVariant, msg));
+           QMetaObject::invokeMethod(qmlrootitem, "setbacksendbtn", Q_RETURN_ARG(QVariant, returnedValue));
        } else
        {
             QVariant returnedValue;
             QVariant msg="This is not a valid Instagram user name!";
             QMetaObject::invokeMethod(qmlrootitem, "displayerrormessage", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, msg));
+            QMetaObject::invokeMethod(qmlrootitem, "setbacksendbtn", Q_RETURN_ARG(QVariant, returnedValue));
        }   
    }
 }
 
-void BitcashGUI::replyFinishedReddit(QNetworkReply *reply){
+void BitcashGUI::replyFinishedTwitch(QNetworkReply *reply){
     //Use the reply as you wish
     std::string replystr=reply->readAll().toStdString();
 
     if (sendmode == 0)
     {
-       if (replystr=="OkayBITCReddit")
+       if (replystr=="OkayBITCTwitch")
        {
             QVariant returnedValue;
             QVariant msg;
-            QMetaObject::invokeMethod(qmlrootitem, "redditlinkokay", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, msg));
+            QMetaObject::invokeMethod(qmlrootitem, "twitchlinkokay", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, msg));
 
        } else
        {
@@ -1581,12 +1585,14 @@ void BitcashGUI::replyFinishedReddit(QNetworkReply *reply){
        {
            QVariant returnedValue;
            QVariant msg=QString::fromStdString(replystr);
-           QMetaObject::invokeMethod(qmlrootitem, "showconfirmreddit", Q_RETURN_ARG(QVariant, returnedValue),Q_ARG(QVariant, msg));
+           QMetaObject::invokeMethod(qmlrootitem, "showconfirmtwitch", Q_RETURN_ARG(QVariant, returnedValue),Q_ARG(QVariant, msg));
+           QMetaObject::invokeMethod(qmlrootitem, "setbacksendbtn", Q_RETURN_ARG(QVariant, returnedValue));
        } else
        {
             QVariant returnedValue;
-            QVariant msg="This is not a valid Reddit user name!";
+            QVariant msg="This is not a valid Twitch user name!";
             QMetaObject::invokeMethod(qmlrootitem, "displayerrormessage", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, msg));
+            QMetaObject::invokeMethod(qmlrootitem, "setbacksendbtn", Q_RETURN_ARG(QVariant, returnedValue));
        }   
     }
 }
@@ -1787,11 +1793,11 @@ BitcashGUI::BitcashGUI(interfaces::Node& node, const PlatformStyle *_platformSty
                       this, SLOT(sendtoInstaClicked(QString,QString)));
 
     QObject::connect(qmlrootitem, SIGNAL(sendconfirmedBtnreSignal(QString,QString,double)),
-                      this, SLOT(SendConfirmedToRedditBtnClicked(QString,QString,double)));
+                      this, SLOT(SendConfirmedToTwitchBtnClicked(QString,QString,double)));
     QObject::connect(qmlrootitem, SIGNAL(sendBtnreSignal(QString,QString,double)),
-                      this, SLOT(SendToRedditBtnClicked(QString,QString,double)));
-    QObject::connect(qmlrootitem, SIGNAL(sendtoRedditSignal(QString,QString)),
-                      this, SLOT(sendtoRedditClicked(QString,QString)));
+                      this, SLOT(SendToTwitchBtnClicked(QString,QString,double)));
+    QObject::connect(qmlrootitem, SIGNAL(sendtoTwitchSignal(QString,QString)),
+                      this, SLOT(sendtoTwitchClicked(QString,QString)));
 
 
     QTimer *timer = new QTimer(this);
@@ -1807,9 +1813,9 @@ BitcashGUI::BitcashGUI(interfaces::Node& node, const PlatformStyle *_platformSty
     connect(this->managerinsta, SIGNAL(finished(QNetworkReply*)), 
             this, SLOT(replyFinishedInsta(QNetworkReply*)));
 
-    this->managerreddit = new QNetworkAccessManager(this);
-    connect(this->managerreddit, SIGNAL(finished(QNetworkReply*)), 
-            this, SLOT(replyFinishedReddit(QNetworkReply*)));
+    this->managertwitch = new QNetworkAccessManager(this);
+    connect(this->managertwitch, SIGNAL(finished(QNetworkReply*)), 
+            this, SLOT(replyFinishedTwitch(QNetworkReply*)));
 
     this->managercheckversion = new QNetworkAccessManager(this);
     connect(this->managercheckversion, SIGNAL(finished(QNetworkReply*)), 

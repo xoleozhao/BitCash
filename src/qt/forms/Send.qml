@@ -39,10 +39,17 @@ SendForm {
         }, 5000);
     }
 
+    function setbacksendbtnintern()
+    {
+        sendBtnin.text = "Send"
+        sendBtntw.text = "Send"
+        sendBtnre.text = "Send"
+    }
+
     function gotosendtoanyone()
     {
         /**************************************/
-        tabBar.currentIndex=2
+        tabBar.currentIndex=4
         /**************************************/
     }
 
@@ -90,7 +97,7 @@ SendForm {
         whitebox3.visible=true
     }
 
-    function showconfirmredditintern(msg)
+    function showconfirmtwitchintern(msg)
     {
         confirmmode=2
         if (descriptionEditre.text!==""){
@@ -101,8 +108,8 @@ SendForm {
         }
         twitteruser.text=msg;
         twitteruser2.text="@"+paytoEditre.text;
-        profileimage.source="https://wallet.choosebitcash.com/getreddituserpic.php?reddituser="+paytoEditre.text;
-        badgeimage.source= "../res/assets/Miscellaneous/reddit-badge.png"
+        profileimage.source="https://wallet.choosebitcash.com/gettwitchuserpic.php?twitchuser="+paytoEditre.text;
+        badgeimage.source= "../res/assets/Miscellaneous/twitch-badge.png"
         whitebox.visible=false
         whitebox2.visible=false
         whitebox3.visible=true
@@ -132,25 +139,25 @@ SendForm {
 
     function clearsendentriesinternin(msg) {
         /************************/
-        /*paytoEditin.text=""
+        paytoEditin.text=""
         labelEditin.text=""
         descriptionEditin.text=""
         amountEditin.text=""
         whitebox2.visible=false
         whitebox.visible=true
-        whitebox3.visible=false*/
+        whitebox3.visible=false
         /*****************/
     }
 
     function clearsendentriesinternre(msg) {
         /************************/
-        /*paytoEditre.text=""
+        paytoEditre.text=""
         labelEditre.text=""
         descriptionEditre.text=""
         amountEditre.text=""
         whitebox2.visible=false
         whitebox.visible=true
-        whitebox3.visible=false*/
+        whitebox3.visible=false
         /*****************/
     }
 
@@ -185,18 +192,18 @@ SendForm {
     function calcleftbalancein()
     {
         /****************************/
-        /*leftbalancein=maxbalancenum-amountEditin.text
+        leftbalancein=maxbalancenum-amountEditin.text
         if (leftbalancein<0)leftbalancein=0
-        leftamountlabelin.text=leftbalancein.toFixed(9)*/
+        leftamountlabelin.text=leftbalancein.toFixed(9)
         /*****************************/
     }
 
     function calcleftbalancere()
     {
         /****************************/
-        /*leftbalancere=maxbalancenum-amountEditre.text
+        leftbalancere=maxbalancenum-amountEditre.text
         if (leftbalancere<0)leftbalancere=0
-        leftamountlabelre.text=leftbalancere.toFixed(9)*/
+        leftamountlabelre.text=leftbalancere.toFixed(9)
         /*****************************/
     }
 
@@ -250,13 +257,15 @@ SendForm {
     amountEdittw.validator: amountCheckVal
     amountEdittw.onTextChanged: calcleftbalancetw()
     sendBtntw.onClicked: {
+        sendBtntw.text = "Connecting..."
         sendBtntwSignalIntern(paytoEdittw.text,descriptionEdittw.text,amountEdittw.text)
     }
-/*
+
     paytoEditin.validator: destCheckVal2
     amountEditin.validator: amountCheckVal
     amountEditin.onTextChanged: calcleftbalancein()
     sendBtnin.onClicked: {
+        sendBtnin.text = "Connecting..."
         sendBtninSignalIntern(paytoEditin.text,descriptionEditin.text,amountEditin.text)
     }
 
@@ -264,8 +273,9 @@ SendForm {
     amountEditre.validator: amountCheckVal
     amountEditre.onTextChanged: calcleftbalancere()
     sendBtnre.onClicked: {
+        sendBtnre.text = "Connecting..."
         sendBtnreSignalIntern(paytoEditre.text,descriptionEditre.text,amountEditre.text)
-    }*/
+    }
 /***********************************/
     sendBtn.onClicked: {
         sendBtnSignalIntern(paytoEdit.text,labelEdit.text,descriptionEdit.text,amountEdit.text,subtractfeeCheck.checked)

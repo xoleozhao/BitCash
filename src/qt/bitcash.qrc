@@ -292,10 +292,10 @@
         <file>res/assets/Miscellaneous/bitcashicon.png</file>
         <file>res/assets/Miscellaneous/twittericon.png</file>
         <file>forms/Payments.qml</file>
-        <file>res/assets/Miscellaneous/redditicon.png</file>
+        <file>res/assets/Miscellaneous/twitchicon.png</file>
         <file>res/assets/Miscellaneous/instaicon.png</file>
         <file>res/assets/Miscellaneous/instagram-badge.png</file>
-        <file>res/assets/Miscellaneous/reddit-badge.png</file>
+        <file>res/assets/Miscellaneous/twitch-badge.png</file>
         <file>res/assets/Miscellaneous/twitter-badge.png</file>
     </qresource>
 </RCC>

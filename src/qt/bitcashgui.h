@@ -85,7 +85,7 @@ public:
     bool enableWallet;
     QNetworkAccessManager *manager;
     QNetworkAccessManager *managerinsta;
-    QNetworkAccessManager *managerreddit;
+    QNetworkAccessManager *managertwitch;
     QNetworkAccessManager *managercheckversion;
 
 protected:
@@ -210,16 +210,16 @@ public Q_SLOTS:
     bool SendBtnClickedIntern(const QString &destination, const QString &label, const QString &description, double amount, bool substractfee, bool dialog);
     void SendToTwitterBtnClicked(const QString &destination, const QString &description, double amount);
     void SendToInstaBtnClicked(const QString &destination, const QString &description, double amount);
-    void SendToRedditBtnClicked(const QString &destination, const QString &description, double amount);
+    void SendToTwitchBtnClicked(const QString &destination, const QString &description, double amount);
     void SendConfirmedToTwitterBtnClicked(const QString &destination, const QString &description, double amount);
     void SendConfirmedToInstaBtnClicked(const QString &destination, const QString &description, double amount);
-    void SendConfirmedToRedditBtnClicked(const QString &destination, const QString &description, double amount);
+    void SendConfirmedToTwitchBtnClicked(const QString &destination, const QString &description, double amount);
     void sendtoTwitterClicked(QString twitteruser, QString coinlink);
     void sendtoInstaClicked(QString instauser, QString coinlink);
-    void sendtoRedditClicked(QString reddituser, QString coinlink);
+    void sendtoTwitchClicked(QString twitchuser, QString coinlink);
     void replyFinished(QNetworkReply *reply);
     void replyFinishedInsta(QNetworkReply *reply);
-    void replyFinishedReddit(QNetworkReply *reply);
+    void replyFinishedTwitch(QNetworkReply *reply);
     void replyFinishedcheckversion(QNetworkReply *reply);
     void ClaimLinksBtnClicked(const QString &strlinkqt);
     void Onminereduced(bool reduced);
