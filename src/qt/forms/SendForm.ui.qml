@@ -40,7 +40,7 @@ Item {
     property alias pasteaddresstw: pasteaddresstw
     property alias leftamountlabeltw: leftamountlabeltw
 
-    property alias paytoEditin: paytoEditin
+/*    property alias paytoEditin: paytoEditin
     property alias labelEditin: labelEditin
     property alias descriptionEditin: descriptionEditin
     property alias amountEditin: amountEditin
@@ -48,7 +48,7 @@ Item {
     property alias availableBalanceBtnin: availableBalanceBtnin
     property alias maxbalancein: maxbalancein
     property alias pasteaddressin: pasteaddressin
-    property alias leftamountlabelin: leftamountlabelin
+    property alias leftamountlabelin: leftamountlabelin*/
 
     property alias paytoEditre: paytoEditre
     property alias labelEditre: labelEditre
@@ -329,7 +329,7 @@ Item {
                     source: "../res/assets/Miscellaneous/twittericon.png"
                 }
             }
-            TabButton {
+            /*TabButton {
                 id: tabButton4
                 text: qsTr("Instagram")
                 rightPadding: 15
@@ -356,7 +356,7 @@ Item {
                     fillMode: Image.PreserveAspectFit
                     source: "../res/assets/Miscellaneous/instaicon.png"
                 }
-            }
+            }*/
             TabButton {
                 id: tabButton5
                 text: qsTr("Twitch")
@@ -983,7 +983,7 @@ Item {
                 }
             }
             ////////////////////// INSTAGRAM /////////////////////////////////////////
-            Item {
+            /*Item {
                 id: instagram
 
                 Label {
@@ -1266,7 +1266,7 @@ Item {
                     anchors.left: leftamountlabelin.right
                     anchors.top: infolabelin.top
                 }
-            }
+            }*/
             ////////////////////////////////////////// TWITCH /////////////////////////////////////////////
             Item {
                 id: twitch

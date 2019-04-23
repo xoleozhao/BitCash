@@ -1016,7 +1016,7 @@ void BitcashGUI::SendToTwitterBtnClicked(const QString &destination, const QStri
     if (destination=="") {
             QVariant returnedValue;
             QVariant s=QString::fromStdString("You need to enter the Twitter name of the recipient.");
-            QMetaObject::invokeMethod(qmlrootitem, "displayerrormessage", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, s));
+            QMetaObject::invokeMethod(qmlrootitem, "displayerrormessage", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, s));            
             return;
     }
 
@@ -1518,7 +1518,6 @@ void BitcashGUI::replyFinished(QNetworkReply *reply){
             QVariant returnedValue;
             QVariant msg="This is not a valid Twitter user name!";
             QMetaObject::invokeMethod(qmlrootitem, "displayerrormessage", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, msg));
-            QMetaObject::invokeMethod(qmlrootitem, "setbacksendbtn", Q_RETURN_ARG(QVariant, returnedValue));
        }   
    }
 }
@@ -1555,7 +1554,6 @@ void BitcashGUI::replyFinishedInsta(QNetworkReply *reply){
             QVariant returnedValue;
             QVariant msg="This is not a valid Instagram user name!";
             QMetaObject::invokeMethod(qmlrootitem, "displayerrormessage", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, msg));
-            QMetaObject::invokeMethod(qmlrootitem, "setbacksendbtn", Q_RETURN_ARG(QVariant, returnedValue));
        }   
    }
 }
@@ -1592,7 +1590,6 @@ void BitcashGUI::replyFinishedTwitch(QNetworkReply *reply){
             QVariant returnedValue;
             QVariant msg="This is not a valid Twitch user name!";
             QMetaObject::invokeMethod(qmlrootitem, "displayerrormessage", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, msg));
-            QMetaObject::invokeMethod(qmlrootitem, "setbacksendbtn", Q_RETURN_ARG(QVariant, returnedValue));
        }   
     }
 }

@@ -98,6 +98,7 @@ Item {
     }        
 
     function displayerrormessage(msg) {        
+        send.setbacksendbtnintern()
         send.displayerrormessageintern(msg)
         receive.displayerrormessageintern(msg)
         payments.displayerrormessageintern(msg)

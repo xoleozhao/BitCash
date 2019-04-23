@@ -41,7 +41,9 @@ SendForm {
 
     function setbacksendbtnintern()
     {
+        /***********************
         sendBtnin.text = "Send"
+        ***********************/
         sendBtntw.text = "Send"
         sendBtnre.text = "Send"
     }
@@ -49,7 +51,7 @@ SendForm {
     function gotosendtoanyone()
     {
         /**************************************/
-        tabBar.currentIndex=4
+        tabBar.currentIndex=3
         /**************************************/
     }
 
@@ -139,13 +141,13 @@ SendForm {
 
     function clearsendentriesinternin(msg) {
         /************************/
-        paytoEditin.text=""
+        /*paytoEditin.text=""
         labelEditin.text=""
         descriptionEditin.text=""
         amountEditin.text=""
         whitebox2.visible=false
         whitebox.visible=true
-        whitebox3.visible=false
+        whitebox3.visible=false*/
         /*****************/
     }
 
@@ -192,9 +194,9 @@ SendForm {
     function calcleftbalancein()
     {
         /****************************/
-        leftbalancein=maxbalancenum-amountEditin.text
+        /*leftbalancein=maxbalancenum-amountEditin.text
         if (leftbalancein<0)leftbalancein=0
-        leftamountlabelin.text=leftbalancein.toFixed(9)
+        leftamountlabelin.text=leftbalancein.toFixed(9)*/
         /*****************************/
     }
 
@@ -260,7 +262,7 @@ SendForm {
         sendBtntw.text = "Connecting..."
         sendBtntwSignalIntern(paytoEdittw.text,descriptionEdittw.text,amountEdittw.text)
     }
-
+/*
     paytoEditin.validator: destCheckVal2
     amountEditin.validator: amountCheckVal
     amountEditin.onTextChanged: calcleftbalancein()
@@ -268,7 +270,7 @@ SendForm {
         sendBtnin.text = "Connecting..."
         sendBtninSignalIntern(paytoEditin.text,descriptionEditin.text,amountEditin.text)
     }
-
+*/
     paytoEditre.validator: destCheckVal2
     amountEditre.validator: amountCheckVal
     amountEditre.onTextChanged: calcleftbalancere()
