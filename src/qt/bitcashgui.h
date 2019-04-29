@@ -157,6 +157,8 @@ private:
     int prevBlocks;
     int spinnerFrame;
 
+    bool hasbeenmining = false;
+
     const PlatformStyle *platformStyle;
 
     void processSendCoinsReturn(WalletModel * const model, const WalletModel::SendCoinsReturn &sendCoinsReturn, const QString &msgArg = QString());

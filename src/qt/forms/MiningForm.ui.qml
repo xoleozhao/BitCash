@@ -17,6 +17,13 @@ Item {
     property alias animation2: animation2
     property alias animation3: animation3
     property alias whitebox: whitebox
+    property alias mininglog1: mininglog1
+    property alias mininglog2: mininglog2
+    property alias mininglog3: mininglog3
+    property alias mininglog4: mininglog4
+    property alias mininglog5: mininglog5
+    property alias poolcombo: poolcombo
+    property alias miningpoollabel: miningpoollabel
 
     Rectangle {
         id: toolBar
@@ -227,6 +234,87 @@ Item {
         height: 130
     }
 
+    Text {
+        id: mininglog1
+        y: 74
+        anchors.left: whitebox.left
+        anchors.leftMargin: 15
+        anchors.right: whitebox.right
+        anchors.rightMargin: 15
+        anchors.top: whitebox.top
+        anchors.topMargin: 15
+        text: qsTr("Miningf ")
+        wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+        font.pixelSize: 12
+        font.family: "Montserrat"
+        font.weight: Font.Normal
+        visible: false
+    }
+    Text {
+        id: mininglog2
+        y: 74
+        anchors.left: whitebox.left
+        anchors.leftMargin: 15
+        anchors.right: whitebox.right
+        anchors.rightMargin: 15
+        anchors.top: mininglog1.bottom
+        anchors.topMargin: 0
+        text: qsTr("Miningf")
+        wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+        font.pixelSize: 12
+        font.family: "Montserrat"
+        font.weight: Font.Normal
+        visible: false
+    }
+    Text {
+        id: mininglog3
+        y: 74
+        anchors.left: whitebox.left
+        anchors.leftMargin: 15
+        anchors.right: whitebox.right
+        anchors.rightMargin: 15
+        anchors.top: mininglog2.bottom
+        anchors.topMargin: 0
+        text: qsTr("sdfs")
+        wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+        font.pixelSize: 12
+        font.family: "Montserrat"
+        font.weight: Font.Normal
+        visible: false
+    }
+    Text {
+        id: mininglog4
+        y: 74
+        anchors.left: whitebox.left
+        anchors.leftMargin: 15
+        anchors.right: whitebox.right
+        anchors.rightMargin: 15
+        anchors.top: mininglog3.bottom
+        anchors.topMargin: 0
+        text: qsTr("sdfs")
+        wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+        font.pixelSize: 12
+        font.family: "Montserrat"
+        font.weight: Font.Normal
+        visible: false
+    }
+    Text {
+        id: mininglog5
+        y: 74
+        anchors.left: whitebox.left
+        anchors.leftMargin: 15
+        anchors.right: whitebox.right
+        anchors.rightMargin: 15
+        anchors.top: mininglog4.bottom
+        anchors.topMargin: 0
+        text: qsTr("sdfs")
+        wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+        font.pixelSize: 12
+        font.family: "Montserrat"
+        font.weight: Font.Normal
+        visible: false
+    }
+
     Image {
         id: miningicon
         y: 74
@@ -299,7 +387,6 @@ Item {
     }
 
     property alias graphsstat: graphsstat
-    property alias minereduced: minereduced
     property alias stopanimation: stopanimation
 
     Label {
@@ -313,39 +400,6 @@ Item {
         font.family: "Montserrat"
         opacity: 0.5
     }
-
-    CheckBox {
-        id: minereduced
-        text: qsTr("Reduce mining power")
-        font.weight: Font.DemiBold
-        font.pixelSize: 14
-        font.family: "Montserrat SemiBold"
-        bottomPadding: 5
-        topPadding: 20
-        rightPadding: 22
-        anchors.top: whitebox.bottom
-        anchors.topMargin: 0
-        checkState: Qt.Unchecked
-        leftPadding: 0
-        anchors.left: layoutrect.left
-        anchors.leftMargin: 0
-        hoverEnabled: true
-        ToolTip.visible: hovered
-        ToolTip.text: qsTr("We recommend checking this option if mining is slowing down your computer.")
-        ToolTip.delay: 100
-        ToolTip.timeout: 5000
-        Image {
-            id: imageinfo
-            width: 16
-            height: 16
-            antialiasing: true
-            anchors.verticalCenterOffset: 7
-            anchors.verticalCenter: minereduced.verticalCenter
-            fillMode: Image.PreserveAspectFit
-            anchors.right: minereduced.right
-            source: "../res/assets/Miscellaneous/info.png"
-        }
-    }
     CheckBox {
         id: stopanimation
         text: qsTr("Stop animation")
@@ -355,8 +409,8 @@ Item {
         bottomPadding: 5
         topPadding: 5
         rightPadding: 22
-        anchors.top: minereduced.bottom
-        anchors.topMargin: 0
+        anchors.top: whitebox.bottom
+        anchors.topMargin: 2
         checkState: Qt.Unchecked
         leftPadding: 0
         anchors.left: layoutrect.left
@@ -376,5 +430,33 @@ Item {
             anchors.right: stopanimation.right
             source: "../res/assets/Miscellaneous/info.png"
         }
+    }
+
+    Label {
+        id: miningpoollabel
+        color: "#3d3e40"
+        text: qsTr("Mining pool")
+        font.weight: Font.DemiBold
+        anchors.top: stopanimation.bottom
+        anchors.topMargin: 20
+        anchors.left: whitebox.left
+        anchors.leftMargin: 4
+        font.pixelSize: 14
+        font.family: "Montserrat SemiBold"
+        visible: false
+    }
+
+    ComboBox {
+        id: poolcombo
+        height: 48
+        anchors.right: whitebox.right
+        anchors.rightMargin: 4
+        anchors.left: whitebox.left
+        anchors.leftMargin: 4
+        anchors.top: miningpoollabel.bottom
+        anchors.topMargin: 1
+        currentIndex: 0
+        visible: false
+        model: ["stratum+tcp://mine.icemining.ca:3649", "stratum+tcp://bitc-us.skypool.co:8101", "stratum+tcp://eu.bsod.pw:2564", "stratum+tcp://pool.rig.tokyo:8001", "stratum+tcp://us.gethash.cc:3639", "stratum+tcp://x16r.mine.zpool.ca:3636"]
     }
 }

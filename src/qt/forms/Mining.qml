@@ -15,6 +15,49 @@ MiningForm {
      signal stopMiningSignalIntern()
      signal minereducedSignalIntern(bool isreduced)
 
+     function makeminingpoolvisibleintern() {
+        miningpoollabel.visible = true
+        poolcombo.visible = true
+     }
+
+     function getminingpoolintern()
+     {
+         return poolcombo.currentIndex
+     }
+
+     function initmininglogintern() {
+         mininglog1.visible = true
+         mininglog1.text = ""
+         mininglog2.visible = true
+         mininglog2.text = ""
+         mininglog3.visible = true
+         mininglog3.text = ""
+         mininglog4.visible = true
+         mininglog4.text = ""
+         mininglog5.visible = true
+         mininglog5.text = ""
+         labelgraphs.visible = false
+         graphsstat.visible = false
+     }
+
+     function exitmininglogintern() {
+         mininglog1.visible = false
+         mininglog2.visible = false
+         mininglog3.visible = false
+         mininglog4.visible = false
+         mininglog5.visible = false
+         labelgraphs.visible = true
+         graphsstat.visible = true
+     }
+
+     function mininglogintern(msg) {
+         mininglog1.text = mininglog2.text
+         mininglog2.text = mininglog3.text
+         mininglog3.text = mininglog4.text
+         mininglog4.text = mininglog5.text
+         mininglog5.text = msg
+     }
+
      function startminingintern(msg) {
          startminingbutton.visible=false
          stopminingbutton.visible=true         
@@ -69,8 +112,7 @@ MiningForm {
      }
 
      function setminingstatsintern(graphs,cycles) {
-         graphsstat.text=graphs
-         cyclesstat.text=cycles
+         graphsstat.text=graphs         
      }
 
      stopanimation.onCheckStateChanged: {
@@ -89,8 +131,7 @@ MiningForm {
          }
      }
      startminingbutton.onClicked: startMiningSignalIntern()
-     stopminingbutton.onClicked: stopMiningSignalIntern()     
-     minereduced.onCheckedChanged: minereducedSignalIntern(minereduced.checked)     
+     stopminingbutton.onClicked: stopMiningSignalIntern()
      animation1.onPlayingChanged: {
          if (!startminingbutton.visible && animation1.playing==false && !stopanimation.checked) {
              animation2.visible=true

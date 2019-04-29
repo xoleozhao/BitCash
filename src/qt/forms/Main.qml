@@ -17,6 +17,27 @@ Item {
         color: "#f7f7f7"
     }    
 
+    function getminingpool()
+    {
+        return mining.getminingpoolintern()
+    }
+
+    function makeminingpoolvisible() {
+        mining.makeminingpoolvisibleintern()
+    }
+
+    function initmininglog() {
+        mining.initmininglogintern()
+
+    }
+    function exitmininglog() {
+        mining.exitmininglogintern()
+    }
+
+    function mininglog(msg) {
+        mining.mininglogintern(msg)
+    }
+
     function setprogressbarlabel(show,infotext) {
         overview.progressinfolabel.visible=show
         overview.progressinfolabel.text=infotext
