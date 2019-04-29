@@ -519,21 +519,21 @@ void mininglog(char* msgtolog)
     QMetaObject::invokeMethod(qmlrootitem, "mininglog",  Qt::DirectConnection, Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, msg));
 }
 
-#ifdef WIN32
-//Define the function prototype
-typedef int __cdecl (CALLBACK* startminingType)(char *address, char* url);
-typedef int __cdecl (CALLBACK* stopminingType)();
-typedef int __cdecl (CALLBACK* setcallbackType)(f_char_t callbackfunction);
-#endif
-
     bool dllinited = false;
     bool freeResult, runTimeLinkSuccess = false; 
+
+#ifdef WIN32
+    //Define the function prototype
+    typedef int __cdecl (CALLBACK* startminingType)(char *address, char* url);
+    typedef int __cdecl (CALLBACK* stopminingType)();
+    typedef int __cdecl (CALLBACK* setcallbackType)(f_char_t callbackfunction);
+
     startminingType startminingPtr = NULL;
     stopminingType stopminingPtr = NULL;
     setcallbackType setcallbackPtr = NULL;
 
-#ifdef WIN32
-   HINSTANCE dllHandle = NULL;              
+    HINSTANCE dllHandle = NULL;   
+           
 void initcudadll()
 {
     dllinited = true;
