@@ -458,6 +458,48 @@ static UniValue getnewwatchonlyaddresswithaddressaslabel(const JSONRPCRequest& r
     return result;
 }
 
+static UniValue setcurrentaddress(const JSONRPCRequest& request)
+{
+    CWallet * const pwallet = GetWalletForJSONRPCRequest(request);
+    if (!EnsureWalletIsAvailable(pwallet, request.fHelp)) {
+        return NullUniValue;
+    }
+
+    if (request.fHelp || request.params.size() != 1)
+        throw std::runtime_error(
+            "setcurrentaddress ( \"address\" )\n"
+            "\nMake the address the primary Bitcash address of the wallet. You may need to restart the wallet.\n"
+            "\nArguments:\n"
+            "1. \"address\"          (string) The BitCash address.\n"
+            "\nExamples:\n"
+            + HelpExampleCli("setcurrentaddress", "address")
+            + HelpExampleRpc("setcurrentaddress", "address")
+        );
+
+    LOCK2(cs_main, pwallet->cs_wallet);
+
+    // Parse the label first so we don't generate a key if there's an error
+    CTxDestination destination = DecodeDestination(request.params[0].get_str());
+    if (!IsValidDestination(destination)) {
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Error: Invalid address");
+    }
+
+    auto keyid = GetKeyForDestination(*pwallet, destination);
+    if (keyid.IsNull()) {
+        throw JSONRPCError(RPC_TYPE_ERROR, "Address does not refer to a key.");
+    }
+    CKey vchSecret;
+    if (!pwallet->GetKey(keyid, vchSecret)) {
+        throw JSONRPCError(RPC_WALLET_ERROR, "Private key for address is not known.");
+    }
+
+    CPubKey pubkey = GetSecondPubKeyForDestination(destination);
+    pwallet->SetLabelDestination(pubkey, "");
+
+    return NullUniValue;
+}
+
+
 static UniValue getcurrentaddress(const JSONRPCRequest& request)
 {
     CWallet * const pwallet = GetWalletForJSONRPCRequest(request);
@@ -6196,7 +6238,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "getaddressforprivkey",             &getaddressforprivkey,          {"privkey"} },
     { "wallet",             "getchildkeyforprivkey",            &getchildkeyforprivkey,         {"privkey", "childkeynumber"} },
     { "wallet",             "getinfoaboutlink",                 &getinfoaboutlink,              {"link"} },
-    { "wallet",             "getnicknameforaddress",            &getnicknameforaddress,             {} },
+    { "wallet",             "getnicknameforaddress",            &getnicknameforaddress,         {"address"} },
     { "wallet",             "getnumberofchildkeysforprivkey",   &getnumberofchildkeysforprivkey,{"privkey"} },
     { "wallet",             "getcurrentaddress",                &getcurrentaddress,             {} },
     { "wallet",             "getcurrentnickname",               &getcurrentnickname,             {} },
@@ -6228,6 +6270,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "lockunspent",                      &lockunspent,                   {"unlock","transactions"} },
     { "wallet",             "sendfrom",                         &sendfrom,                      {"fromaccount","toaddress","amount","minconf","comment","comment_to"} },
     { "wallet",             "sendmany",                         &sendmany,                      {"fromaccount|dummy","amounts","minconf","comment","subtractfeefrom","replaceable","conf_target","estimate_mode"} },
+    { "wallet",             "setcurrentaddress",                &setcurrentaddress,             {"address"} },
     { "wallet",             "registernickname",                 &registernickname,              {"nickname","address", "nonprivate"} },
     { "wallet",             "registernicknamewithmasterkey",    &registernicknamewithmasterkey, {"nickname","address","masterkey"} },
     { "wallet",             "registernicknamewithprivatekey",   &registernicknamewithprivatekey, {"nickname","address","privatekey"} },   
