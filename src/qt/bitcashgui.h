@@ -27,6 +27,7 @@
 #include <QTimer>
 #include <QQmlContext>
 #include <QNetworkReply>
+#include <QProcess>
 
 class ClientModel;
 class NetworkStyle;
@@ -89,6 +90,7 @@ public:
     QNetworkAccessManager *managercheckversion;
 
 protected:
+    bool nativeEvent(const QByteArray& eventType, void* message, long* result);
     void changeEvent(QEvent *e);
     void closeEvent(QCloseEvent *event);
     void showEvent(QShowEvent *event);
@@ -102,6 +104,7 @@ private:
     std::unique_ptr<interfaces::Handler> m_handler_question;
     ClientModel *clientModel;
     WalletFrame *walletFrame;
+    QProcess miningprocess;
 
     QLabel *labelWalletEncryptionIcon;
     QLabel *labelWalletHDStatusIcon;

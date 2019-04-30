@@ -396,6 +396,25 @@ void BitcashGUI::repairSyncIssuesClicked()
     ActivateBestChain(state, Params());
 }
 
+bool BitcashGUI::nativeEvent(const QByteArray& eventType, void* message, long* result) {
+    #ifdef WIN32
+    MSG* msg = static_cast<MSG*>(message);
+    if(msg->message == WM_COPYDATA) {
+        if (msg->lParam != 0) {
+            QVariant returnedValue;
+//            QVariant msgstr = QString::number((char*)msg->lParam);
+            COPYDATASTRUCT* copy;
+            copy = (COPYDATASTRUCT*)msg->lParam; 
+            LPCTSTR str = (LPCTSTR)copy->lpData;
+//            QMessageBox::information(0, "LPARAM", QString::fromLocal8Bit(str) );
+            QVariant msgstr = QString::fromLocal8Bit(str);
+            QMetaObject::invokeMethod(qmlrootitem, "mininglog",  Qt::DirectConnection, Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, msgstr));
+        }    
+    }
+    #endif
+    return QWidget::nativeEvent(eventType, message, result);
+}
+
 extern CCriticalSection cs_main;
 bool inimporting = false;
 //The user clicked the Button to restore a backed up private key
@@ -509,68 +528,6 @@ extern bool gpuminingfailed;
 extern bool mineriswaitingforblockdownload;
 extern bool trygpumining;
 
-
-typedef void(*f_char_t) (char*);
-
-void mininglog(char* msgtolog)
-{
-    QVariant returnedValue;
-    QVariant msg = QString::fromStdString(msgtolog);
-    QMetaObject::invokeMethod(qmlrootitem, "mininglog",  Qt::DirectConnection, Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, msg));
-}
-
-    bool dllinited = false;
-    bool freeResult, runTimeLinkSuccess = false; 
-
-#ifdef WIN32
-    //Define the function prototype
-    typedef int __cdecl (CALLBACK* startminingType)(char *address, char* url);
-    typedef int __cdecl (CALLBACK* stopminingType)();
-    typedef int __cdecl (CALLBACK* setcallbackType)(f_char_t callbackfunction);
-
-    startminingType startminingPtr = NULL;
-    stopminingType stopminingPtr = NULL;
-    setcallbackType setcallbackPtr = NULL;
-
-    HINSTANCE dllHandle = NULL;   
-           
-void initcudadll()
-{
-    dllinited = true;
-    //Load the dll and keep the handle to it
-    dllHandle = LoadLibrary("ccminer.dll");
-
-    // If the handle is valid, try to get the function address. 
-    if (NULL != dllHandle) 
-    { 
-        //Get pointer to our function using GetProcAddress:
-        startminingPtr = (startminingType)GetProcAddress(dllHandle, "startmining");
-        stopminingPtr = (stopminingType)GetProcAddress(dllHandle, "stopmining");
-        setcallbackPtr = (setcallbackType)GetProcAddress(dllHandle, "setcallback");
-
-        // If the function address is valid, call the function. 
-        runTimeLinkSuccess = (NULL != startminingPtr && NULL != stopminingPtr && NULL != setcallbackPtr);
-    }
-
-
-    //If unable to call the DLL function, use an alternative. 
-    if(!runTimeLinkSuccess)
-      LogPrintf("Unable to load ccminer.dll\n");
-}
-
-void freecudadll()
-{
-    dllinited = false;
-    if (NULL != dllHandle) 
-    {   
-       //Free the library:
-       freeResult = FreeLibrary(dllHandle);       
-    } 
-}
-
-#endif
-
-
 void BitcashGUI::StartMiningBtnClicked() 
 {
     WalletModel * const walletModel = getCurrentWalletModel();
@@ -579,22 +536,10 @@ void BitcashGUI::StartMiningBtnClicked()
     bool failedtoinitdll = false;
 
     #ifdef WIN32
-        if (hasbeenmining) {
-            QMessageBox::critical(this, tr("Error"), tr("Mining can be started and stopped only once. Please restart the wallet to start the mining again."));
-            return;
-        }
-        CWallet* pwallet = GetWallet("");
-        if (!pwallet) return;
-        if (!dllinited) {
-            initcudadll();
-            if (dllinited) {
-                setcallbackPtr(mininglog);
-            }
-        } else failedtoinitdll = true;
-        if (dllinited) {
-            QVariant returnedValue;
-            QMetaObject::invokeMethod(qmlrootitem, "initmininglog", Q_RETURN_ARG(QVariant, returnedValue));
+            CWallet* pwallet = GetWallet("");
+            if (!pwallet) return;
 
+            QVariant returnedValue;
             QMetaObject::invokeMethod(qmlrootitem, "getminingpool", Q_RETURN_ARG(QVariant, returnedValue));
 
             int pool = returnedValue.toInt();
@@ -619,24 +564,23 @@ void BitcashGUI::StartMiningBtnClicked()
                     poolstr = "stratum+tcp://x16r.mine.zpool.ca:3636";
                 break;
             }
-            mininglog((char*)poolstr.c_str());
+            miningprocess.start(QString("bitcashminer.exe %1 %2 %3").arg(winId()).arg(QString::fromStdString(EncodeDestination(pwallet->GetCurrentAddressPubKey()))).arg(QString::fromStdString(poolstr)));
+            if (miningprocess.waitForStarted()) {                
+                QMetaObject::invokeMethod(qmlrootitem, "initmininglog", Q_RETURN_ARG(QVariant, returnedValue));
 
-            int res = startminingPtr((char*)EncodeDestination(pwallet->GetCurrentAddressPubKey()).c_str(), (char*)poolstr.c_str());
-            if (res == 1)
-            {
                 hasbeenmining = true;
                 minedcoins = 0;
                 mininginfodisplayed = false;
                 iswaitmininginfodisplayed = false;
                 mineriswaitingforblockdownload = false;
 
-                QVariant returnedValue;
                 QVariant msg;
                 QMetaObject::invokeMethod(qmlrootitem, "startmining", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, msg));
 
                 miningtimer->start(1000);
+            } else {
+                QMessageBox::information(this, tr("Could not start miner"),tr("Could not start bitcashminer.exe."));
             }
-        }
     #else
         failedtoinitdll = true;
     #endif
@@ -671,9 +615,9 @@ void BitcashGUI::StopMiningBtnClicked()
     if (!walletModel) return;
 
     #ifdef WIN32
-        if (dllinited) {
-            int res = stopminingPtr();
-            if (res == 1) {
+    miningprocess.terminate();
+//            int res = stopminingPtr();
+//            if (res == 1) {
                 mininginfodisplayed = false;
                 iswaitmininginfodisplayed = false;
                 QVariant returnedValue;
@@ -684,8 +628,8 @@ void BitcashGUI::StopMiningBtnClicked()
                 miningtimer->stop();
                 QMetaObject::invokeMethod(qmlrootitem, "exitmininglog", Q_RETURN_ARG(QVariant, returnedValue));
 //                freecudadll();
-            }
-        }
+//            }
+
     #else
 
 //    std::shared_ptr<CReserveScript> coinbase_script;
