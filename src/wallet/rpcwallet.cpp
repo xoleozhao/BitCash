@@ -680,10 +680,10 @@ static UniValue divideutxos(const JSONRPCRequest& request)
     return NullUniValue;
 }
 
-CTxDestination GetLabelDestination(CWallet* const pwallet, const std::string& label)
+CTxDestination GetLabelDestination(CWallet* const pwallet, const std::string& label, bool createnonprivate)
 {
     CTxDestination dest;
-    if (!pwallet->GetLabelDestination(dest, label)) {
+    if (!pwallet->GetLabelDestination(dest, label, createnonprivate)) {
         throw JSONRPCError(RPC_WALLET_KEYPOOL_RAN_OUT, "Error: Keypool ran out, please call keypoolrefill first");
     }
 
@@ -749,7 +749,7 @@ static UniValue getlabeladdress(const JSONRPCRequest& request)
         throw JSONRPCError(RPC_METHOD_DEPRECATED, "getaccountaddress is deprecated and will be removed in V0.18. To use this command, start bitcashd with -deprecatedrpc=accounts.");
     }
 
-    if (request.fHelp || request.params.size() < 1 || request.params.size() > 2)
+    if (request.fHelp || request.params.size() < 1 || request.params.size() > 3)
         throw std::runtime_error(
             "getlabeladdress \"label\" ( force ) \n"
             "\nReturns the default receiving address for this label. This will reset to a fresh address once there's a transaction that spends to it.\n"
@@ -757,6 +757,7 @@ static UniValue getlabeladdress(const JSONRPCRequest& request)
             "1. \"label\"         (string, required) The label for the address. It can also be set to the empty string \"\" to represent the default label.\n"
             "2. \"force\"         (bool, optional) Whether the label should be created if it does not yet exist. If False, the RPC will return an error if called with a label that doesn't exist.\n"
             "                                    Defaults to false (unless the getaccountaddress method alias is being called, in which case defaults to true for backwards compatibility).\n"
+            "3. \"nonprivate\"    (bool, optional) Whether a nonprivate address should be created if it does not yet exist. Defaults to false.\n"
             "\nResult:\n"
             "\"address\"          (string) The current receiving address for the label.\n"
             "\nExamples:\n"
@@ -775,6 +776,12 @@ static UniValue getlabeladdress(const JSONRPCRequest& request)
         force = request.params[1].get_bool();
     }
 
+    bool nonprivate = false;
+    if (!request.params[2].isNull()) {
+        nonprivate = request.params[2].get_bool();
+    }
+
+
     bool label_found = false;
     for (const std::pair<CTxDestination, CAddressBookData>& item : pwallet->mapAddressBook) {
         if (item.second.name == label) {
@@ -788,7 +795,7 @@ static UniValue getlabeladdress(const JSONRPCRequest& request)
 
     UniValue ret(UniValue::VSTR);
 
-    ret = EncodeDestinationHasSecondKey(GetLabelDestination(pwallet, label));
+    ret = EncodeDestinationHasSecondKey(GetLabelDestination(pwallet, label, nonprivate));
     return ret;
 }
 
@@ -882,7 +889,7 @@ static UniValue setlabel(const JSONRPCRequest& request)
         // and if we wouldn't do this, the record would stick around forever.
         if (pwallet->mapAddressBook.count(dest)) {
             std::string old_label = pwallet->mapAddressBook[dest].name;
-            if (old_label != label && dest == GetLabelDestination(pwallet, old_label)) {
+            if (old_label != label && dest == GetLabelDestination(pwallet, old_label, false)) {
                 pwallet->DeleteLabel(old_label);
             }
         }
@@ -6303,7 +6310,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "move",                             &movecmd,                       {"fromaccount","toaccount","amount","minconf","comment"} },
 
     /** Label functions (to replace non-balance account functions) */
-    { "wallet",             "getlabeladdress",                  &getlabeladdress,               {"label","force"} },
+    { "wallet",             "getlabeladdress",                  &getlabeladdress,               {"label", "force", "nonprivate"} },
     { "wallet",             "getaddressesbylabel",              &getaddressesbylabel,           {"label"} },
     { "wallet",             "getreceivedbylabel",               &getreceivedbylabel,            {"label","minconf"} },
     { "wallet",             "listlabels",                       &listlabels,                    {"purpose"} },

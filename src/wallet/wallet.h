@@ -951,7 +951,7 @@ public:
     int64_t IncOrderPosNext(WalletBatch *batch = nullptr);
     DBErrors ReorderTransactions();
     bool AccountMove(std::string strFrom, std::string strTo, CAmount nAmount, std::string strComment = "");
-    bool GetLabelDestination(CTxDestination &dest, const std::string& label);
+    bool GetLabelDestination(CTxDestination &dest, const std::string& label, bool createnonprivate = false);
     void SetLabelDestination(CPubKey &vchPubKey, const std::string& label);
 
     void MarkDirty();

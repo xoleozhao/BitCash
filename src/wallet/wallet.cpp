@@ -1592,7 +1592,7 @@ bool CWallet::AccountMove(std::string strFrom, std::string strTo, CAmount nAmoun
     return true;
 }
 
-bool CWallet::GetLabelDestination(CTxDestination &dest, const std::string& label)
+bool CWallet::GetLabelDestination(CTxDestination &dest, const std::string& label, bool createnonprivate)
 {
     WalletBatch batch(*database);
 
@@ -1606,11 +1606,19 @@ bool CWallet::GetLabelDestination(CTxDestination &dest, const std::string& label
             return false;
 
         LearnRelatedScripts(account.vchPubKey, m_default_address_type);
-        dest = GetDestinationForKey(account.vchPubKey, m_default_address_type);
+        if (createnonprivate) {
+            dest = GetDestinationForKey(account.vchPubKey, OutputType::NONPRIVATE);
+        } else {
+            dest = GetDestinationForKey(account.vchPubKey, m_default_address_type);
+        }
         SetAddressBook(dest, label, "receive");
         batch.WriteAccount(label, account);
     } else {
-        dest = GetDestinationForKey(account.vchPubKey, m_default_address_type);
+        if (createnonprivate) {
+            dest = GetDestinationForKey(account.vchPubKey, OutputType::NONPRIVATE);
+        } else {
+            dest = GetDestinationForKey(account.vchPubKey, m_default_address_type);
+        }
     }
 
     return true;
