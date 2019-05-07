@@ -2227,7 +2227,7 @@ isminetype CWallet::IsMine(const CTxOut& txout, int nr)
                         CKey otpk=CalculateOnetimeDestPrivateKey(key,privkey);  
 
                         AddKeyPubKeyWithDB(batch, otpk, destinationPubKey);
-                        SetStealthAddress(txout.scriptPubKey, destinationPubKey);
+                        SetStealthAddress(txout.scriptPubKey, pubkey);
                         accountforscript[txout.scriptPubKey] = item.second.name;
 
                         res = IsMineBasic(txout,4);
@@ -3504,73 +3504,84 @@ CAmount CWallet::GetLegacyBalance(const isminefilter& filter, int minDepth, cons
             } else if (IsMineConst(out,52) & filter && depth >= minDepth) {
                 if (account) {
                     bool foundgl = false;
-                    if (accountforscript.count(out.scriptPubKey) > 0) {
-                        if (accountforscript.at(out.scriptPubKey) == *account) {
-                            balance += out.nValue;
-                            foundgl = true;
+                    if (out.isnonprivate) {
+                        CPubKey onetimedestpubkey;
+                        if (ExtractCompletePubKey(*this, out.scriptPubKey,onetimedestpubkey))
+                        {
+                            if (*account == GetLabelName(onetimedestpubkey)){
+                                balance += out.nValue;
+                                foundgl = true;
+                            }
                         }
+                    }
+  
+                    if (!foundgl && accountforscript.count(out.scriptPubKey) > 0) {
+                        if (accountforscript.at(out.scriptPubKey) == *account) {
+                            balance += out.nValue;                            
+                        }
+                        foundgl = true;
                     }
 
                     if (!foundgl && !out.isnonprivate) {
-
-                    CPubKey onetimedestpubkey;
-                    if (ExtractCompletePubKey(*this, out.scriptPubKey,onetimedestpubkey))
-                    {
+                        CPubKey onetimedestpubkey;
+                        if (ExtractCompletePubKey(*this, out.scriptPubKey,onetimedestpubkey))
+                        {
                 
-                        bool found = false;
+                            bool found = false;
 //                        LogPrintf("GetLegacyBalance anz: %i time: %i.\n",mapAddressBook.size(),GetTimeMillis());
-                        for (const std::pair<CTxDestination, CAddressBookData>& item : mapAddressBook) {
-                            if (item.second.name==*account) {
-                                CPubKey pubkey=GetSecondPubKeyForDestination(item.first);
+                            for (const std::pair<CTxDestination, CAddressBookData>& item : mapAddressBook) {
+                                if (item.second.name==*account) {
+                                    CPubKey pubkey=GetSecondPubKeyForDestination(item.first);
 
-                                if (out.hasrecipientid) {
-                                    if ((out.recipientid1 != 0 || out.recipientid2 != 0) && (out.recipientid1 != pubkey[10] || out.recipientid2 != pubkey[20])) continue;
-                                }
+                                    if (out.hasrecipientid) {
+                                        if ((out.recipientid1 != 0 || out.recipientid2 != 0) && (out.recipientid1 != pubkey[10] || out.recipientid2 != pubkey[20])) continue;
+                                    }
 
-                                CKey key;
-                                if (GetKey(pubkey.GetID(), key)) {
+                                    CKey key;
+                                    if (GetKey(pubkey.GetID(), key)) {
 
-                                    char randprivkey[32];
-                                    memcpy(&randprivkey,out.randomPrivatKey,32);
-                                    DecryptPrivateKey((unsigned char*)&randprivkey,out.randomPubKey,key);
+                                        char randprivkey[32];
+                                        memcpy(&randprivkey,out.randomPrivatKey,32);
+                                        DecryptPrivateKey((unsigned char*)&randprivkey,out.randomPubKey,key);
 
-                                    std::vector<unsigned char> vec(randprivkey, randprivkey + 32);
-    
-                                    CKey privkey;
-                                    privkey.Set(vec.begin(),vec.end(),true);
-                                    CPubKey destinationPubKey=CalculateOnetimeDestPubKey(pubkey,privkey,false);
-                                    if (onetimedestpubkey==destinationPubKey) {
-                                        accountforscript[out.scriptPubKey] = *account;
-                                        balance += out.nValue;
-                                        found=true;
+                                        std::vector<unsigned char> vec(randprivkey, randprivkey + 32);
+        
+                                        CKey privkey;
+                                        privkey.Set(vec.begin(),vec.end(),true);
+                                        CPubKey destinationPubKey=CalculateOnetimeDestPubKey(pubkey,privkey,false);
+                                        if (onetimedestpubkey==destinationPubKey) {
+                                            accountforscript[out.scriptPubKey] = *account;
+                                            balance += out.nValue;
+                                            found=true;
+                                        }
                                     }
                                 }
-                            }
-                        }    
+                            }    
 //                        LogPrintf("END GetLegacyBalance anz: %i time: %i.\n",mapAddressBook.size(),GetTimeMillis());            
-                        if (!found && filter & ISMINE_WATCH_ONLY) {
-                            //If we have the master private key we can decode the transactions for the Watch-Only addresses
-                            CPubKey recipientpubkey;
-                            std::string referenceline;
-                            if (GetRealAddressAndRefline(out,recipientpubkey,referenceline,"",false))
-                            {
-                                CTxDestination dest=GetDestinationForKey(recipientpubkey, OutputType::LEGACY);
+                            if (!found && filter & ISMINE_WATCH_ONLY) {
+                                //If we have the master private key we can decode the transactions for the Watch-Only addresses
+                                CPubKey recipientpubkey;
+                                std::string referenceline;
+                                if (GetRealAddressAndRefline(out,recipientpubkey,referenceline,"",false))
+                                {
+                                    CTxDestination dest=GetDestinationForKey(recipientpubkey, OutputType::LEGACY);
 
 /*               std::string str=EncodeDestinationHasSecondKey(dest);
 std::cout << ":" << str << std::endl;
 std::cout << ":" << mapAddressBook[dest].name << std::endl;*/
 
-                                if (mapAddressBook[dest].name==*account) {
-                                    accountforscript[out.scriptPubKey] = *account;
-                                    balance += out.nValue;
+                                    if (mapAddressBook[dest].name==*account) {
+                                        accountforscript[out.scriptPubKey] = *account;
+                                        balance += out.nValue;
 
-               			}
-			    }
-                        }
-                    }    
+                           			}
+	                		    }
+                            }
+                        }    
                     }
-                } else
-                balance += out.nValue;
+                } else {
+                    balance += out.nValue;
+                }
             }
         }
 
@@ -4096,6 +4107,7 @@ bool CWallet::GetRealAddressAndRefline(CTxOut out,CPubKey& recipientpubkey,std::
             } else
             {
                 recipientpubkey = DecryptRealRecipient(out.randomPubKey,masterprivatekey,onetimedestpubkey);
+std::cout << "SetStealthAddress4 " << std::endl;
                 SetStealthAddress(out.scriptPubKey, recipientpubkey);
             }
         } else recipientpubkey=onetimedestpubkey;
@@ -4329,7 +4341,7 @@ bool CWallet::CreateTransaction(const std::vector<CRecipient>& vecSend, CTransac
             scriptChange = GetScriptForRawPubKey(pubkeyforchange);
 
             CTxOut change_prototype_txout(0, scriptChange);
-            coin_selection_params.change_output_size = GetSerializeSize(change_prototype_txout, SER_DISK || SER_TXOUTALONE, 0);
+            coin_selection_params.change_output_size = GetSerializeSize(change_prototype_txout, SER_DISK | SER_TXOUTALONE, 0);
 
             CFeeRate discard_rate = GetDiscardRate(*this, ::feeEstimator);
 
@@ -4384,7 +4396,7 @@ bool CWallet::CreateTransaction(const std::vector<CRecipient>& vecSend, CTransac
                     }
 
                     // Include the fee cost for outputs. Note this is only used for BnB right now
-                    coin_selection_params.tx_noinputs_size += ::GetSerializeSize(txout, SER_NETWORK || SER_TXOUTALONE, PROTOCOL_VERSION);
+                    coin_selection_params.tx_noinputs_size += ::GetSerializeSize(txout, SER_NETWORK | SER_TXOUTALONE, PROTOCOL_VERSION);
 
                     if (IsDust(txout, ::dustRelayFee))
                     {
@@ -5210,6 +5222,11 @@ const std::string& CWallet::GetLabelName(const CPubKey& pubkey) const
 {
     CTxDestination address=GetDestinationForKey(pubkey, OutputType::LEGACY);
     auto mi = mapAddressBook.find(address);
+    if (mi != mapAddressBook.end()) {
+      return mi->second.name;
+    }
+    address=GetDestinationForKey(pubkey, OutputType::NONPRIVATE);
+    mi = mapAddressBook.find(address);
     if (mi != mapAddressBook.end()) {
       return mi->second.name;
     }

@@ -2549,7 +2549,7 @@ static UniValue sendfrom(const JSONRPCRequest& request)
         return NullUniValue;
     }
 
-    if (request.fHelp || request.params.size() < 3 || request.params.size() > 7)
+    if (request.fHelp || request.params.size() < 3 || request.params.size() > 8)
         throw std::runtime_error(
             "sendfrom \"fromaccount\" \"toaddress\" amount ( \"referenceline\" minconf \"comment\" \"comment_to\" )\n"
             "\nDEPRECATED (use sendtoaddress). Sent an amount from an account to a bitcash address."
@@ -2569,6 +2569,8 @@ static UniValue sendfrom(const JSONRPCRequest& request)
             "7. \"comment_to\"        (string, optional) An optional comment to store the name of the person or organization \n"
             "                                     to which you're sending the transaction. This is not part of the transaction, \n"
             "                                     it is just kept in your wallet.\n"
+            "8. subtractfeefromamount (boolean, optional, default=false) The fee will be deducted from the amount being sent.\n"
+            "                             The recipient will receive less bitcashs than you enter in the amount field.\n"
             "\nResult:\n"
             "\"txid\"                 (string) The transaction id.\n"
             "\nExamples:\n"
@@ -2609,6 +2611,11 @@ static UniValue sendfrom(const JSONRPCRequest& request)
     if (!request.params[6].isNull() && !request.params[6].get_str().empty())
         mapValue["to"] = request.params[6].get_str();
 
+    bool fSubtractFeeFromAmount = false;
+    if (!request.params[7].isNull()) {
+        fSubtractFeeFromAmount = request.params[7].get_bool();
+    }
+
     EnsureWalletIsUnlocked(pwallet);
 
     // Check funds
@@ -2617,7 +2624,7 @@ static UniValue sendfrom(const JSONRPCRequest& request)
         throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, "Account has insufficient funds");
 
     CCoinControl no_coin_control; // This is a deprecated API
-    CTransactionRef tx = SendMoney(pwallet, dest, nAmount, false, no_coin_control, std::move(mapValue), std::move(strAccount),referenceline, false, CNoDestination(), false, CKey());
+    CTransactionRef tx = SendMoney(pwallet, dest, nAmount, fSubtractFeeFromAmount, no_coin_control, std::move(mapValue), std::move(strAccount),referenceline, false, CNoDestination(), false, CKey());
     return tx->GetHash().GetHex();
 }
 
@@ -6275,7 +6282,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "listunspentforaddress",            &listunspentforaddress,                   {"address","minconf","maxconf","addresses","include_unsafe","query_options"} },
     { "wallet",             "listwallets",                      &listwallets,                   {} },
     { "wallet",             "lockunspent",                      &lockunspent,                   {"unlock","transactions"} },
-    { "wallet",             "sendfrom",                         &sendfrom,                      {"fromaccount","toaddress","amount","minconf","comment","comment_to"} },
+    { "wallet",             "sendfrom",                         &sendfrom,                      {"fromaccount","toaddress","amount","minconf","comment","comment_to","subtractfeefromamount"} },
     { "wallet",             "sendmany",                         &sendmany,                      {"fromaccount|dummy","amounts","minconf","comment","subtractfeefrom","replaceable","conf_target","estimate_mode"} },
     { "wallet",             "setcurrentaddress",                &setcurrentaddress,             {"address"} },
     { "wallet",             "registernickname",                 &registernickname,              {"nickname","address", "nonprivate"} },

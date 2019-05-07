@@ -4,6 +4,7 @@
 
 #include <nicknames.h>
 #include <nicknamedb.h>
+#include <key_io.h>
 
 #include <string>
 #include <boost/algorithm/string/case_conv.hpp> 
