@@ -4107,7 +4107,6 @@ bool CWallet::GetRealAddressAndRefline(CTxOut out,CPubKey& recipientpubkey,std::
             } else
             {
                 recipientpubkey = DecryptRealRecipient(out.randomPubKey,masterprivatekey,onetimedestpubkey);
-std::cout << "SetStealthAddress4 " << std::endl;
                 SetStealthAddress(out.scriptPubKey, recipientpubkey);
             }
         } else recipientpubkey=onetimedestpubkey;
