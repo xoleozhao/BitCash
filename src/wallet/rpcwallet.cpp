@@ -2551,7 +2551,7 @@ static UniValue sendfrom(const JSONRPCRequest& request)
 
     if (request.fHelp || request.params.size() < 3 || request.params.size() > 8)
         throw std::runtime_error(
-            "sendfrom \"fromaccount\" \"toaddress\" amount ( \"referenceline\" minconf \"comment\" \"comment_to\" )\n"
+            "sendfrom \"fromaccount\" \"toaddress\" amount ( \"referenceline\" minconf \"comment\" \"comment_to\" subtractfeefromamount)\n"
             "\nDEPRECATED (use sendtoaddress). Sent an amount from an account to a bitcash address."
             + HelpRequiringPassphrase(pwallet) + "\n"
             "\nArguments:\n"
