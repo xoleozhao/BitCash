@@ -15,7 +15,6 @@
 #include <util.h>
 #include <utilmoneystr.h>
 #include <utilstrencodings.h>
-#include <wallet/wallet.h>
 
 UniValue ValueFromAmount(const CAmount& amount)
 {

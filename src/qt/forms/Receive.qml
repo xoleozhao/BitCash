@@ -24,9 +24,13 @@ ReceiveForm {
 
     function setreceivingaddressintern(address,nick) {
         receivingaddress.text=address
+        receivingaddressDo.text="dollar@"+address
         receivingnickname.text=nick
+        receivingnicknameDo.text="dollar"+nick
         receivingaddressEdit.text=address
+        receivingaddressEditDo.text="dollar@"+address
         receivingnicknameEdit.text=nick
+        receivingnicknameEditDo.text="dollar"+nick
         if (nick===""){
            whitebox3.visible=true
            createnickname.visible=true
@@ -62,9 +66,21 @@ ReceiveForm {
         copynickname.leftPadding= 46
         copynickname.iconname="../res/icons/checkblue.png"
         timer.setTimeout(function(){
-            copynickname.text=qsTr("Copy to clipboard")
+            copynickname.text=qsTr("Copy ₡ nickname to clipboard")
             copynickname.leftPadding=20
             copynickname.iconname=""
+        }, 3000);
+    }
+    copynicknameDo.onClicked: {
+        receivingnicknameEditDo.selectAll()
+        receivingnicknameEditDo.copy()
+        copynicknameDo.text=qsTr("Copied")
+        copynicknameDo.leftPadding= 46
+        copynicknameDo.iconname="../res/icons/checkblue.png"
+        timer.setTimeout(function(){
+            copynicknameDo.text=qsTr("Copy $ nickname to clipboard")
+            copynicknameDo.leftPadding=20
+            copynicknameDo.iconname=""
         }, 3000);
     }
     copyaddress.onClicked: {
@@ -74,9 +90,21 @@ ReceiveForm {
         copyaddress.leftPadding= 46
         copyaddress.iconname="../res/icons/checkblue.png"
         timer.setTimeout(function(){
-            copyaddress.text=qsTr("Copy to clipboard")
+            copyaddress.text=qsTr("Copy ₡ address to clipboard")
             copyaddress.leftPadding=20
             copyaddress.iconname=""
+        }, 3000);
+    }
+    copyaddressDo.onClicked: {
+        receivingaddressEditDo.selectAll()
+        receivingaddressEditDo.copy()
+        copyaddressDo.text=qsTr("Copied")
+        copyaddressDo.leftPadding= 46
+        copyaddressDo.iconname="../res/icons/checkblue.png"
+        timer.setTimeout(function(){
+            copyaddressDo.text=qsTr("Copy $ address to clipboard")
+            copyaddressDo.leftPadding=20
+            copyaddressDo.iconname=""
         }, 3000);
     }
     createnickname.onClicked: gotocreatenicksignal()

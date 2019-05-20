@@ -12,7 +12,6 @@
 
 #include "miner.h"
 #include "cuckoo.h"
-#include "mean_cuckoo.h"
 
 #include "consensus/consensus.h"
 #include "hash.h"

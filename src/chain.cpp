@@ -112,6 +112,21 @@ CBlockIndex* CBlockIndex::GetAncestor(int height)
     return const_cast<CBlockIndex*>(static_cast<const CBlockIndex*>(this)->GetAncestor(height));
 }
 
+CAmount CBlockIndex::GetPriceinCurrency(unsigned char currency) const
+{
+    CAmount d1 = abs(nPriceInfo.prices[currency]-nPriceInfo2.prices[currency]);
+    CAmount d2 = abs(nPriceInfo2.prices[currency]-nPriceInfo3.prices[currency]);
+    CAmount d3 = abs(nPriceInfo.prices[currency]-nPriceInfo3.prices[currency]);
+    if (d1 <= d2 && d1 <= d3) {
+        return (nPriceInfo.prices[currency]-nPriceInfo2.prices[currency]) / 2 + nPriceInfo2.prices[currency];
+    } else
+    if (d2 <= d1 && d2 <= d3) {
+        return (nPriceInfo2.prices[currency]-nPriceInfo3.prices[currency]) / 2 + nPriceInfo3.prices[currency];
+    } else {
+        return (nPriceInfo.prices[currency]-nPriceInfo3.prices[currency]) / 2 + nPriceInfo3.prices[currency];
+    }
+}
+
 void CBlockIndex::BuildSkip()
 {
     if (pprev)

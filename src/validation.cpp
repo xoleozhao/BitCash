@@ -61,6 +61,25 @@
 
 std::string Dev1scriptPubKey="02f858c4a789a111c7d3a5414e2014dd481a99100e05777ebbcfd1638932dd298b";
 
+std::string PricePubKey1="02dad4dbc84f943d3c052a924d3a1bae7f94f18016e6c6712e48fe63d280a1e0ca";
+std::string PricePubKey2="0237c2594c5467e9d830f1c4ca14814a36bebc61efc66007dfd8b385ac3669b537";
+std::string PricePubKey3="0354b0ad20ba9a91d239f50467e0bd92ad324f50b6d683c8c3c5bf3179950e46cd";
+std::string PricePubKey4="03ef98866199113852b88d3570705130a3be952cd48cf7365aa40305fb60798a9e";
+std::string PricePubKey5="02911ef2c4a866c2288b32718bbe4912c210db8b8fba74c2b92b65da7296e70f4a";
+std::string PricePubKey6="03e4db853e5c61debaab8f71b160829bb2d1f7540c6dc7f7dfa7db6e60eb4a394f";
+std::string PricePubKey7="03822ade68c1d90e105e1c10d04a865b37d77e076469285858ae50deb07891ea29";
+std::string PricePubKey8="0224f2c3bff9318f0721256b48397751c5e38d9a6b57a97262ea5fd505cd77d727";
+std::string PricePubKey9="035c5a2ecf4e64d2b6d6d1bf4337ffa771b2752633a04f6d743376afaff282c006";
+std::string PricePubKey10="03bd7a2b96c98a5d6930400e0493b085172b2a8203ec808e754ddbc7df8f8ddf86";
+std::string PricePubKey11="03b1b3d52eee0788c1ccecc9f9e43b4855b8ff3401dd1247692c0610af960362e3";
+std::string PricePubKey12="03e6ae9c8e9bb2466e96de4c22d7520f49d630b2de6325281c9cbc318006b7fe85";
+std::string PricePubKey13="034e3400e3f1086a3236c2a4de878608e2d48bfc3b11637a802a0fb1644eaf8b67";
+std::string PricePubKey14="023813dc52070f3da55c7cd6e4d66f7c4a7936ea9bd7b36cebd3761a4c94d94625";
+
+bool hasconvertedpubkeys = false;
+CPubKey pricepubkey1, pricepubkey2, pricepubkey3, pricepubkey4, pricepubkey5, pricepubkey6, pricepubkey7, pricepubkey8, pricepubkey9, pricepubkey10, pricepubkey11, pricepubkey12, pricepubkey13, pricepubkey14;
+
+
 /**
  * Global state
  */
@@ -609,7 +628,7 @@ static bool AcceptToMemoryPoolWorker(const CChainParams& chainparams, CTxMemPool
     }
 
     if (!CheckTransaction(tx, state)){
-        LogPrintf("CheckTransaction rejected the transaction: %s\n",state.GetDebugMessage());
+        LogPrintf("CheckTransaction rejected the transaction: msg: %s Txid: %s\n", FormatStateMessage(state), tx.GetHash().ToString());
         return false; // state filled in by CheckTransaction
     }
 
@@ -619,11 +638,20 @@ static bool AcceptToMemoryPoolWorker(const CChainParams& chainparams, CTxMemPool
         return state.DoS(100, false, REJECT_INVALID, "coinbase");
     }
 
-    // Only version 4 transactions are allowed in the mempool
+    // Only version 5 transactions are allowed in the mempool
     if (tx.nVersion <= 3) {
         LogPrintf("Version 3 transactions are no longer accepted.\n");
         return state.Invalid(false, REJECT_INVALID, "Old tx version");
     }
+    if (tx.nVersion <= 4 && time(nullptr) > Params().GetConsensus().STABLETIME - 5 * 60) {
+        LogPrintf("Version 4 transactions are no longer accepted.\n");
+        return state.Invalid(false, REJECT_INVALID, "Old tx version");
+    }
+    if (tx.nVersion == 5 && time(nullptr) < Params().GetConsensus().STABLETIME + 5 * 60) {
+        LogPrintf("Version 5 transactions are not yet accepted.\n");
+        return state.Invalid(false, REJECT_INVALID, "Old tx version");
+    }
+
 
     // Reject transactions with witness before segregated witness activates (override with -prematurewitness)
     bool witnessEnabled = IsWitnessEnabled(chainActive.Tip(), chainparams.GetConsensus());
@@ -722,12 +750,11 @@ static bool AcceptToMemoryPoolWorker(const CChainParams& chainparams, CTxMemPool
 
 
     {
-        CCoinsView dummy;
-        CCoinsViewCache view(&dummy);
+        //difference to Bitcoin: a transaction in the mempool can NOT be referred to as input to another transaction, because the nValue of a transaction 
+        //is only final after it has been mined into a block due to the currency conversion
+        CCoinsViewCache view(pcoinsTip.get());
 
         LockPoints lp;
-        CCoinsViewMemPool viewMemPool(pcoinsTip.get(), pool);
-        view.SetBackend(viewMemPool);
 
         // do all inputs exist?
         for (const CTxIn txin : tx.vin) {
@@ -751,12 +778,6 @@ static bool AcceptToMemoryPoolWorker(const CChainParams& chainparams, CTxMemPool
             }
         }
 
-        // Bring the best block into scope
-        view.GetBestBlock();
-
-        // we have all inputs cached now, so switch back to dummy, so we don't need to keep lock on mempool
-        view.SetBackend(dummy);
-
         // Only accept BIP68 sequence locked transactions that can be mined in the next
         // block; we don't want our mempool filled up with transactions that can't
         // be mined yet.
@@ -768,7 +789,7 @@ static bool AcceptToMemoryPoolWorker(const CChainParams& chainparams, CTxMemPool
         }
 
         CAmount nFees = 0;
-        if (!Consensus::CheckTxInputs(tx, state, view, GetSpendHeight(view), nFees, uint256S("0x0"), false)) {
+        if (!Consensus::CheckTxInputs(tx, state, view, GetSpendHeight(view), nFees, uint256S("0x0"), false, NULL)) {
             LogPrintf("CheckTxInputs\n");
             return error("%s: Consensus::CheckTxInputs: %s, %s", __func__, tx.GetHash().ToString(), FormatStateMessage(state));
         }
@@ -1012,6 +1033,7 @@ static bool AcceptToMemoryPoolWorker(const CChainParams& chainparams, CTxMemPool
         // This is done last to help prevent CPU exhaustion denial-of-service attacks.
         PrecomputedTransactionData txdata(tx);
         if (!CheckInputs(tx, state, view, true, scriptVerifyFlags, true, false, txdata)) {
+            LogPrintf("Checkinputs rejected the transaction in AcceptToMemoryPoolWorker TxId: %s Msg: %s \n", tx.GetHash().ToString(), FormatStateMessage(state));
             // SCRIPT_VERIFY_CLEANSTACK requires SCRIPT_VERIFY_WITNESS, so we
             // need to turn both off, and compare against just turning off CLEANSTACK
             // to see if the failure is specifically due to witness validation.
@@ -1019,9 +1041,9 @@ static bool AcceptToMemoryPoolWorker(const CChainParams& chainparams, CTxMemPool
             if (!tx.HasWitness() && CheckInputs(tx, stateDummy, view, true, scriptVerifyFlags & ~(SCRIPT_VERIFY_WITNESS | SCRIPT_VERIFY_CLEANSTACK), true, false, txdata) &&
                 !CheckInputs(tx, stateDummy, view, true, scriptVerifyFlags & ~SCRIPT_VERIFY_CLEANSTACK, true, false, txdata)) {
                 // Only the witness is missing, so the transaction itself may be fine.
+                LogPrintf("SetCorruptionPossible TxId: %s \n", tx.GetHash().ToString());
                 state.SetCorruptionPossible();
             }
-            LogPrintf("Checkinputs rejected the transaction\n");
             return false; // state filled in by CheckInputs
         }
 
@@ -1521,11 +1543,25 @@ bool CheckInputs(const CTransaction& tx, CValidationState &state, const CCoinsVi
                 return true;
             }
 
+            bool isfirst = true;
+            unsigned char currency = 0;
             for (unsigned int i = 0; i < tx.vin.size(); i++) {
                 if (tx.vin[i].isnickname) continue;
                 const COutPoint &prevout = tx.vin[i].prevout;
                 const Coin& coin = inputs.AccessCoin(prevout);
                 assert(!coin.IsSpent());
+
+	        unsigned char curr = 0;
+	        if (coin.IsCoinBase()) curr = 0;else
+	        curr = coin.out.currency;
+        
+		if (isfirst) { 
+	            currency = curr;
+	            isfirst = false;
+        	} else 
+	        if (currency != curr) {
+	            return state.DoS(100, false, REJECT_INVALID, "bad-txns-input-currencies-not-equal");
+	        }
 
                 // We very carefully only pass in things to CScriptCheck which
                 // are clearly committed to by tx' witness hash. This provides
@@ -1849,6 +1885,9 @@ int32_t ComputeBlockVersion(const CBlockIndex* pindexPrev, const Consensus::Para
         }
     }
 
+    if (pindexPrev != nullptr && pindexPrev->nTime > params.STABLETIME)
+       nVersion |= stabletimeactive;
+
     if (pindexPrev != nullptr && pindexPrev->nTime > params.X16RTIME)
        nVersion |= hashx16Ractive;
 
@@ -1973,6 +2012,12 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
     // re-enforce that rule here (at least until we make it impossible for
     // GetAdjustedTime() to go backward).
     if (!CheckBlock(block, state, chainparams.GetConsensus(), !fJustCheck, !fJustCheck)) {
+        LogPrintf("BlockHash for corrupt block: %s\n", block.GetHash().ToString());
+        CDataStream ssBlock(SER_NETWORK, PROTOCOL_VERSION);
+        ssBlock << block;
+        std::string strHex = HexStr(ssBlock.begin(), ssBlock.end());
+        LogPrintf("Block HEX: %s\n", strHex);
+        
         if (state.CorruptionPossible()) {
             // We don't write down blocks to disk if they may have been
             // corrupted, so this should be impossible unless we're having hardware
@@ -2165,7 +2210,7 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
         if (!tx.IsCoinBase())
         {
             CAmount txfee = 0;
-            if (!Consensus::CheckTxInputs(tx, state, view, pindex->nHeight, txfee, block.GetHash(), true)) {
+            if (!Consensus::CheckTxInputs(tx, state, view, pindex->nHeight, txfee, block.GetHash(), true, &block)) {
                 return error("%s: Consensus::CheckTxInputs: %s, %s", __func__, tx.GetHash().ToString(), FormatStateMessage(state));
             }
             nFees += txfee;
@@ -2218,10 +2263,11 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
     LogPrint(BCLog::BENCH, "      - Connect %u transactions: %.2fms (%.3fms/tx, %.3fms/txin) [%.2fs (%.2fms/blk)]\n", (unsigned)block.vtx.size(), MILLI * (nTime3 - nTime2), MILLI * (nTime3 - nTime2) / block.vtx.size(), nInputs <= 1 ? 0 : MILLI * (nTime3 - nTime2) / (nInputs-1), nTimeConnect * MICRO, nTimeConnect * MILLI / nBlocksTotal);
 
     CAmount blockReward = nFees + GetBlockSubsidy(pindex->nHeight, chainparams.GetConsensus()) + GetBlockSubsidyDevs(pindex->nHeight, chainparams.GetConsensus());
-    if (block.vtx[0]->GetValueOut() > blockReward)
+
+    if (block.vtx[0]->GetValueOutInCurrency(0, block.GetPriceinCurrency(0)) > blockReward)//Get value in currency 0
         return state.DoS(100,
                          error("ConnectBlock(): coinbase pays too much (actual=%d vs limit=%d)",
-                               block.vtx[0]->GetValueOut(), blockReward),
+                               block.vtx[0]->GetValueOutInCurrency(0, block.GetPriceinCurrency(0)), blockReward),
                                REJECT_INVALID, "bad-cb-amount");
 
     if (!control.Wait())
@@ -2249,17 +2295,57 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
         {
             if (tx.vin[j].isnickname) 
             {
-                uint256 hashtx=Hash(tx.vin[j].nickname.begin(),tx.vin[j].nickname.end(),tx.vin[j].address.begin(),tx.vin[j].address.end());
-                SetNickname(tx.vin[j].nickname,tx.vin[j].address,*pindex->phashBlock,!nicknamemasterpubkey.Verify(hashtx, tx.vin[j].nicknamesig), tx.vin[j].isnonprivatenickname); 
+                uint256 hashtx = Hash(tx.vin[j].nickname.begin(), tx.vin[j].nickname.end(), tx.vin[j].address.begin(), tx.vin[j].address.end());
+                SetNickname(tx.vin[j].nickname, tx.vin[j].address, *pindex->phashBlock, !nicknamemasterpubkey.Verify(hashtx, tx.vin[j].nicknamesig), tx.vin[j].isnonprivatenickname);
             }
         }
     }
-    
 
+    //check if the currencies conversion is correct
+    int j;
+
+    CAmount pricerate = block.GetPriceinCurrency(0);
+
+    for (int i = 0; i < block.vtx.size(); i++) {
+        const CTransaction &tx = *(block.vtx[i]);
+        
+        int inputcurrency = 0;//Currency of transaction inputs
+        //only one input currency is allowed for all inputs
+        for (j = 0;j < tx.vin.size(); j++) {               
+            if (tx.vin[j].isnickname) 
+                continue;
+            CCoinsViewCache theview(pcoinsTip.get());
+            const Coin& coin = theview.AccessCoin(tx.vin[j].prevout);
+	        if (coin.IsCoinBase()) {
+                    inputcurrency = 0;
+            } else {
+                inputcurrency = coin.out.currency;
+            }
+            break;
+        }
+        for (j = 0; j < tx.vout.size(); j++) {
+   
+            if (tx.vout[j].currency != inputcurrency) {
+                if (inputcurrency == 0 && tx.vout[j].currency == 1) {
+                    //Convert BitCash into Dollars
+                    if (tx.vout[j].nValue != (__int128_t)tx.vout[j].nValueBitCash * (__int128_t)pricerate / (__int128_t)COIN) {
+                        return state.DoS(100, false, REJECT_INVALID, "bad-currency-conversion", false, "The currency conversion is not correct.");
+                    }
+                } else
+		        if (inputcurrency == 1 && tx.vout[j].currency == 0) {
+                    //Convert Dollars into BitCash
+                    if (tx.vout[j].nValue != (__int128_t)tx.vout[j].nValueBitCash * (__int128_t)COIN / (__int128_t)pricerate) {
+                        return state.DoS(100, false, REJECT_INVALID, "bad-currency-conversion", false, "The currency conversion is not correct.");
+                    }               
+                }
+            }
+        } 
+    }
+
+    
     assert(pindex->phashBlock);
     // add this block to the view's block chain
     view.SetBestBlock(pindex->GetBlockHash());
-
 
 
     int64_t nTime5 = GetTimeMicros(); nTimeIndex += nTime5 - nTime4;
@@ -3287,6 +3373,173 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
             return state.DoS(100, false, REJECT_INVALID, "bad-txns-duplicate", true, "duplicate transaction");
     }
 
+    //Verify signature of price information
+    CHashWriter ss(SER_GETHASH, 0);
+    ss << block.nPriceInfo;
+
+    uint256 pricehash = ss.GetHash();
+
+    CHashWriter ss2(SER_GETHASH, 0);
+    ss2 << block.nPriceInfo2;
+
+    uint256 pricehash2 = ss2.GetHash();
+
+    CHashWriter ss3(SER_GETHASH, 0);
+    ss3 << block.nPriceInfo3;
+
+    uint256 pricehash3 = ss3.GetHash();
+
+    if  (block.nPriceInfo.priceCount != 1) {
+        return state.DoS(100, false, REJECT_INVALID, "bad-price-count", false, "Invalid number of price information.");
+    }
+    if  (block.nPriceInfo2.priceCount != 1) {
+        return state.DoS(100, false, REJECT_INVALID, "bad-price-count2", false, "Invalid number of price information.");
+    }
+    if  (block.nPriceInfo3.priceCount != 1) {
+        return state.DoS(100, false, REJECT_INVALID, "bad-price-count3", false, "Invalid number of price information.");
+    }
+
+    for (int i = 0; i < block.nPriceInfo.priceCount; i++) {
+        if  (block.nPriceInfo.prices[i]==0) {
+            return state.DoS(100, false, REJECT_INVALID, "bad-price-iszero", false, "The price must be greater than zero.");
+        }
+    } 
+    for (int i = 0; i < block.nPriceInfo2.priceCount; i++) {
+        if  (block.nPriceInfo2.prices[i]==0) {
+            return state.DoS(100, false, REJECT_INVALID, "bad-price-iszero2", false, "The price must be greater than zero.");
+        }
+    } 
+    for (int i = 0; i < block.nPriceInfo3.priceCount; i++) {
+        if  (block.nPriceInfo3.prices[i]==0) {
+            return state.DoS(100, false, REJECT_INVALID, "bad-price-iszero3", false, "The price must be greater than zero.");
+        }
+    } 
+
+
+    if (block.nTime > consensusParams.STABLETIME && 
+        (!(block.nPriceInfo.priceTime == block.nTime || (block.nPriceInfo.priceTime > block.nTime && block.nPriceInfo.priceTime <= block.nTime + MAX_PRICETIME_DIFFERENCE) 
+                                                      || (block.nPriceInfo.priceTime < block.nTime && block.nPriceInfo.priceTime + MAX_PRICETIME_DIFFERENCE >= block.nTime)))) {
+        //Time of Price information is not near enough to block time
+        LogPrintf("priceTime %f \n", block.nPriceInfo.priceTime);
+        LogPrintf("nTime %f \n", block.nTime);
+        LogPrintf("consensusParams.STABLETIME %f \n", consensusParams.STABLETIME);
+        return state.DoS(100, false, REJECT_INVALID, "bad-price-time", false, "Timestamp for price information is not in valid time range.");
+    }
+    if (block.nTime > consensusParams.STABLETIME && 
+        (!(block.nPriceInfo2.priceTime == block.nTime || (block.nPriceInfo2.priceTime > block.nTime && block.nPriceInfo2.priceTime <= block.nTime + MAX_PRICETIME_DIFFERENCE) 
+                                                      || (block.nPriceInfo2.priceTime < block.nTime && block.nPriceInfo2.priceTime + MAX_PRICETIME_DIFFERENCE >= block.nTime)))) {
+        //Time of Price information is not near enough to block time
+        LogPrintf("priceTime2 %f \n", block.nPriceInfo2.priceTime);
+        LogPrintf("nTime %f \n", block.nTime);
+        LogPrintf("consensusParams.STABLETIME %f \n", consensusParams.STABLETIME);
+        return state.DoS(100, false, REJECT_INVALID, "bad-price-time", false, "Timestamp for price information is not in valid time range.");
+    }
+    if (block.nTime > consensusParams.STABLETIME && 
+        (!(block.nPriceInfo3.priceTime == block.nTime || (block.nPriceInfo3.priceTime > block.nTime && block.nPriceInfo3.priceTime <= block.nTime + MAX_PRICETIME_DIFFERENCE) 
+                                                      || (block.nPriceInfo3.priceTime < block.nTime && block.nPriceInfo3.priceTime + MAX_PRICETIME_DIFFERENCE >= block.nTime)))) {
+        //Time of Price information is not near enough to block time
+        LogPrintf("priceTime3 %f \n", block.nPriceInfo3.priceTime);
+        LogPrintf("nTime %f \n", block.nTime);
+        LogPrintf("consensusParams.STABLETIME %f \n", consensusParams.STABLETIME);
+        return state.DoS(100, false, REJECT_INVALID, "bad-price-time", false, "Timestamp for price information is not in valid time range.");
+    }
+
+    if (!hasconvertedpubkeys) {
+        
+        pricepubkey1=CPubKey(ParseHex(PricePubKey1));
+	pricepubkey2=CPubKey(ParseHex(PricePubKey2));
+	pricepubkey3=CPubKey(ParseHex(PricePubKey3));
+	pricepubkey4=CPubKey(ParseHex(PricePubKey4));
+	pricepubkey5=CPubKey(ParseHex(PricePubKey5));
+	pricepubkey6=CPubKey(ParseHex(PricePubKey6));
+	pricepubkey7=CPubKey(ParseHex(PricePubKey7));
+	pricepubkey8=CPubKey(ParseHex(PricePubKey8));
+	pricepubkey9=CPubKey(ParseHex(PricePubKey9));
+	pricepubkey10=CPubKey(ParseHex(PricePubKey10));
+	pricepubkey11=CPubKey(ParseHex(PricePubKey11));
+	pricepubkey12=CPubKey(ParseHex(PricePubKey12));
+	pricepubkey13=CPubKey(ParseHex(PricePubKey13));
+	pricepubkey14=CPubKey(ParseHex(PricePubKey14));
+
+        hasconvertedpubkeys=true;
+    }
+
+    for (int i = 0; i < block.nPriceInfo.priceCount; i++) {
+        if (block.nPriceInfo.prices[i]<=0)
+        return state.DoS(100, false, REJECT_INVALID, "bad-negative-price", false, "Price information with negative value."); 
+        if (block.nPriceInfo2.prices[i]<=0)
+        return state.DoS(100, false, REJECT_INVALID, "bad-negative-price2", false, "Price information with negative value."); 
+        if (block.nPriceInfo3.prices[i]<=0)
+        return state.DoS(100, false, REJECT_INVALID, "bad-negative-price3", false, "Price information with negative value."); 
+    }
+
+    if (block.nTime > consensusParams.STABLETIME) {
+        int i1 = 0;
+ 	int i2 = 0;
+	int i3 = 0;
+        if (pricepubkey1.Verify(pricehash, block.priceSig)) i1=1;else
+        if (pricepubkey2.Verify(pricehash, block.priceSig)) i1=2;else
+        if (pricepubkey3.Verify(pricehash, block.priceSig)) i1=3;else
+        if (pricepubkey4.Verify(pricehash, block.priceSig)) i1=4;else
+        if (pricepubkey5.Verify(pricehash, block.priceSig)) i1=5;else
+        if (pricepubkey6.Verify(pricehash, block.priceSig)) i1=6;else
+        if (pricepubkey7.Verify(pricehash, block.priceSig)) i1=7;else
+        if (pricepubkey8.Verify(pricehash, block.priceSig)) i1=8;else
+        if (pricepubkey9.Verify(pricehash, block.priceSig)) i1=9;else
+        if (pricepubkey10.Verify(pricehash, block.priceSig)) i1=10;else
+        if (pricepubkey11.Verify(pricehash, block.priceSig)) i1=11;else
+        if (pricepubkey12.Verify(pricehash, block.priceSig)) i1=12;else
+        if (pricepubkey13.Verify(pricehash, block.priceSig)) i1=13;else
+        if (pricepubkey14.Verify(pricehash, block.priceSig)) i1=14;
+        if (i1<=0) {
+            //Invalid price signature
+            return state.DoS(100, false, REJECT_INVALID, "bad-price-signature", false, "No valid signature for price information.");
+        }
+
+	if (pricepubkey1.Verify(pricehash2, block.priceSig2)) i2=1;else
+        if (pricepubkey2.Verify(pricehash2, block.priceSig2)) i2=2;else
+        if (pricepubkey3.Verify(pricehash2, block.priceSig2)) i2=3;else
+        if (pricepubkey4.Verify(pricehash2, block.priceSig2)) i2=4;else
+        if (pricepubkey5.Verify(pricehash2, block.priceSig2)) i2=5;else
+        if (pricepubkey6.Verify(pricehash2, block.priceSig2)) i2=6;else
+        if (pricepubkey7.Verify(pricehash2, block.priceSig2)) i2=7;else
+        if (pricepubkey8.Verify(pricehash2, block.priceSig2)) i2=8;else
+        if (pricepubkey9.Verify(pricehash2, block.priceSig2)) i2=9;else
+        if (pricepubkey10.Verify(pricehash2, block.priceSig2)) i2=10;else
+        if (pricepubkey11.Verify(pricehash2, block.priceSig2)) i2=11;else
+        if (pricepubkey12.Verify(pricehash2, block.priceSig2)) i2=12;else
+        if (pricepubkey13.Verify(pricehash2, block.priceSig2)) i2=13;else
+        if (pricepubkey14.Verify(pricehash2, block.priceSig2)) i2=14;
+        if (i2<=0) {
+            //Invalid price signature
+            return state.DoS(100, false, REJECT_INVALID, "bad-price-signature2", false, "No valid signature for price information.");
+        }
+
+        if (pricepubkey1.Verify(pricehash3, block.priceSig3)) i3=1;else
+        if (pricepubkey2.Verify(pricehash3, block.priceSig3)) i3=2;else
+        if (pricepubkey3.Verify(pricehash3, block.priceSig3)) i3=3;else
+        if (pricepubkey4.Verify(pricehash3, block.priceSig3)) i3=4;else
+        if (pricepubkey5.Verify(pricehash3, block.priceSig3)) i3=5;else
+        if (pricepubkey6.Verify(pricehash3, block.priceSig3)) i3=6;else
+        if (pricepubkey7.Verify(pricehash3, block.priceSig3)) i3=7;else
+        if (pricepubkey8.Verify(pricehash3, block.priceSig3)) i3=8;else
+        if (pricepubkey9.Verify(pricehash3, block.priceSig3)) i3=9;else
+        if (pricepubkey10.Verify(pricehash3, block.priceSig3)) i3=10;else
+        if (pricepubkey11.Verify(pricehash3, block.priceSig3)) i3=11;else
+        if (pricepubkey12.Verify(pricehash3, block.priceSig3)) i3=12;else
+        if (pricepubkey13.Verify(pricehash3, block.priceSig3)) i3=13;else
+        if (pricepubkey14.Verify(pricehash3, block.priceSig3)) i3=14;
+        if (i3<=0) {
+            //Invalid price signature
+            return state.DoS(100, false, REJECT_INVALID, "bad-price-signature3", false, "No valid signature for price information.");
+        }
+    
+        if (i1 == i2 || i2 == i3 || i1 == i3) {
+            //Invalid price signature
+            return state.DoS(100, false, REJECT_INVALID, "bad-price-signature4", false, "The blocks need 3 price information from 3 different exchanges.");
+        }
+    }
+
     // All potential-corruption validation must be done before we do any
     // transaction validation, as otherwise we may mark the header as invalid
     // because we receive the wrong transactions for it.
@@ -3309,6 +3562,18 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
         if (!CheckTransaction(*tx, state, true, blockhash))
             return state.Invalid(false, state.GetRejectCode(), state.GetRejectReason(),
                                  strprintf("Transaction check failed (tx hash %s) %s", tx->GetHash().ToString(), state.GetDebugMessage()));
+        if (block.nTime <= consensusParams.STABLETIME) {
+            if (tx->nVersion > 4) {
+                return state.DoS(100, false, REJECT_INVALID, "bad-tx-version", false, "A version 5 transaction with currency information is not allowed before the time of the fork.");
+            }
+        } else
+        if (block.nTime > consensusParams.STABLETIME + 60 * 5) //5 minutes after the fork only version 5 transactions are allowed
+        {
+            if (tx->nVersion < 5) {
+                return state.DoS(100, false, REJECT_INVALID, "bad-tx-version", false, "Only version 5 transactions with currency information are allowed after the time of the fork.");
+            }
+            
+        }
         if (block.nTime < consensusParams.NONPRIVACY) {
             if (tx->nVersion > 3) {
                 return state.DoS(100, false, REJECT_INVALID, "bad-tx-version", false, "A version 4 transaction with nonprivacy information is not allowed before the time of the fork.");
@@ -3453,10 +3718,7 @@ static bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationSta
     const Consensus::Params& consensusParams = params.GetConsensus();
     auto pow = GetNextWorkRequired(pindexPrev, &block, consensusParams);
     if (block.nBits != pow.nBits) {
-        auto pow = GetNextWorkRequired(pindexPrev, &block, consensusParams, true);//do not block the blockchain download from the nodes of the old chain before the x16 fork
-        if (block.nBits != pow.nBits) {
-            return state.DoS(100, false, REJECT_INVALID, "bad-diffbits", false, "incorrect proof of work");
-        }
+        return state.DoS(100, false, REJECT_INVALID, "bad-diffbits", false, "incorrect proof of work");
     }
 
     const bool x16ractive = (isX16Ractive(block.nVersion));
@@ -3766,11 +4028,62 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
 
 bool ProcessNewBlock(
         const CChainParams& chainparams,
-        const std::shared_ptr<const CBlock> pblock,
+        std::shared_ptr<const CBlock> pblock,
         bool fForceProcessing,
         bool *fNewBlock,
         bool sample)
 {
+    std::shared_ptr<CBlock> pblocknew = std::make_shared<CBlock>();
+    *pblocknew = *pblock;
+
+
+    //check if the currencies conversion is correct
+    int j;
+
+    CAmount pricerate = pblocknew->GetPriceinCurrency(0);
+
+    for (int i = 0; i < pblocknew->vtx.size(); i++) {
+        CMutableTransaction tx(*pblocknew->vtx[i]);
+        
+        int inputcurrency = 0;//Currency of transaction inputs
+        //only one input currency is allowed for all inputs
+        for (j = 0; j < tx.vin.size(); j++) {               
+            if (tx.vin[j].isnickname) 
+                continue;
+            CCoinsViewCache theview(pcoinsTip.get());
+            const Coin& coin = theview.AccessCoin(tx.vin[j].prevout);
+            if (coin.IsCoinBase()) {
+                inputcurrency = 0;
+            } else {
+                inputcurrency = coin.out.currency;
+            }
+            break;
+        }
+        for (j = 0; j < tx.vout.size(); j++) {
+   
+            if (tx.vout[j].currency != inputcurrency) {
+                if (inputcurrency == 0 && tx.vout[j].currency == 1) {
+                    //Convert BitCash into Dollars
+                    CAmount amount = (__int128_t)tx.vout[j].nValueBitCash * (__int128_t)pricerate / (__int128_t)COIN;
+                    if (tx.vout[j].nValue != amount ) {
+                        LogPrintf("Convert BitCash into Dollars: %s new: %s \n",FormatMoney(tx.vout[j].nValue),FormatMoney(amount));
+                        tx.vout[j].nValue = amount;
+                        pblocknew->vtx[i] = MakeTransactionRef(std::move(tx));
+                    }
+                } else
+        		if (inputcurrency == 1 && tx.vout[j].currency == 0) {
+                    //Convert Dollars into BitCash
+                    CAmount amount = (__int128_t)tx.vout[j].nValueBitCash * (__int128_t)COIN / (__int128_t)pricerate;
+                    if (tx.vout[j].nValue != amount ) {
+                        LogPrintf("Convert Dollars into BitCash: %s new: %s \n",FormatMoney(tx.vout[j].nValue),FormatMoney(amount));
+                        tx.vout[j].nValue = amount;
+                        pblocknew->vtx[i] = MakeTransactionRef(std::move(tx));
+                    }               
+                }
+            }
+        } 
+    }
+
 
     {
         CBlockIndex *pindex = nullptr;
@@ -3782,7 +4095,7 @@ bool ProcessNewBlock(
         // Ensure that CheckBlock() passes before calling AcceptBlock, as
         // belt-and-suspenders.
         bool ret = CheckBlock(
-                *pblock,
+                *pblocknew,
                 state,
                 chainparams.GetConsensus(),
                 validate,
@@ -3793,7 +4106,7 @@ bool ProcessNewBlock(
         if (ret) {
             // Store to disk
             ret = g_chainstate.AcceptBlock(
-                    pblock,
+                    pblocknew,
                     state,
                     chainparams,
                     &pindex,
@@ -3804,7 +4117,7 @@ bool ProcessNewBlock(
         }
 //        g_chainstate.CheckBlockIndex(chainparams.GetConsensus());
         if (!ret) {
-            GetMainSignals().BlockChecked(*pblock, state);
+            GetMainSignals().BlockChecked(*pblocknew, state);
             return error("%s: AcceptBlock FAILED: %s", __func__, FormatStateMessage(state));
         }
     }
@@ -3812,7 +4125,7 @@ bool ProcessNewBlock(
     NotifyHeaderTip();
 
     CValidationState state; // Only used to report errors, not invalidity - ignore it
-    if (!ActivateBestChain(state, chainparams, pblock/*, sample*/))
+    if (!ActivateBestChain(state, chainparams, pblocknew/*, sample*/))
         return error("%s: ActivateBestChain failed: %s", __func__, FormatStateMessage(state));
 
     return true;
@@ -4337,8 +4650,8 @@ bool CChainState::RollforwardBlock(const CBlockIndex* pindex, CCoinsViewCache& i
         {
             if (tx.vin[j].isnickname) 
             {
-                uint256 hashtx=Hash(tx.vin[j].nickname.begin(),tx.vin[j].nickname.end(),tx.vin[j].address.begin(),tx.vin[j].address.end());
-                SetNickname(tx.vin[j].nickname,tx.vin[j].address,hash,!nicknamemasterpubkey.Verify(hashtx, tx.vin[j].nicknamesig), tx.vin[j].isnonprivatenickname); 
+                uint256 hashtx = Hash(tx.vin[j].nickname.begin(), tx.vin[j].nickname.end(), tx.vin[j].address.begin(), tx.vin[j].address.end());
+                SetNickname(tx.vin[j].nickname, tx.vin[j].address, hash, !nicknamemasterpubkey.Verify(hashtx, tx.vin[j].nicknamesig), tx.vin[j].isnonprivatenickname);
             }
         }
     }

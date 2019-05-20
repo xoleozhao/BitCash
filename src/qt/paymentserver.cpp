@@ -584,7 +584,7 @@ bool PaymentServer::processPaymentRequest(const PaymentRequestPlus& request, Sen
         }
 
         // Extract and check amounts
-        CTxOut txOut(sendingTo.second, sendingTo.first);
+        CTxOut txOut(sendingTo.second, sendingTo.first, 0);
         if (IsDust(txOut, optionsModel->node().getDustRelayFee())) {
             Q_EMIT message(tr("Payment request error"), tr("Requested payment amount of %1 is too small (considered dust).")
                 .arg(BitcashUnits::formatWithUnit(optionsModel->getDisplayUnit(), sendingTo.second)),

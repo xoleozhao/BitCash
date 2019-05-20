@@ -7,6 +7,7 @@
 #include <qt/addressbookpage.h>
 #include <qt/askpassphrasedialog.h>
 #include <qt/bitcashgui.h>
+#include <qt/bitcashunits.h>
 #include <qt/clientmodel.h>
 #include <qt/guiutil.h>
 #include <qt/optionsmodel.h>
@@ -187,13 +188,20 @@ void WalletView::processNewTransaction(const QModelIndex& parent, int start, int
         return;
 
     QString date = ttm->index(start, TransactionTableModel::Date, parent).data().toString();
+    QString currencystr = ttm->index(start, TransactionTableModel::Currency, parent).data().toString();
     qint64 amount = ttm->index(start, TransactionTableModel::Amount, parent).data(Qt::EditRole).toULongLong();
     QString type = ttm->index(start, TransactionTableModel::Type, parent).data().toString();
     QModelIndex index = ttm->index(start, 0, parent);
     QString address = ttm->data(index, TransactionTableModel::AddressRole).toString();
     QString label = ttm->data(index, TransactionTableModel::LabelRole).toString();
 
-    Q_EMIT incomingTransaction(date, walletModel->getOptionsModel()->getDisplayUnit(), amount, type, address, label, walletModel->getWalletName());
+    if (currencystr == "USD")
+    {
+        Q_EMIT incomingTransaction(date, BitcashUnits::DOLLAR, amount, type, address, label, walletModel->getWalletName());
+    } else
+    {
+        Q_EMIT incomingTransaction(date, BitcashUnits::BITC, amount, type, address, label, walletModel->getWalletName());
+    }
 }
 
 void WalletView::gotoOverviewPage()

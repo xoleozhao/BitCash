@@ -117,7 +117,6 @@ BITCASH_CORE_H = \
   miner.h \
   cuckoo/cuckoo.h \
   cuckoo/miner.h \
-  cuckoo/mean_cuckoo.h \
   net.h \
   net_processing.h \
   netaddress.h \
@@ -192,7 +191,7 @@ obj/build.h: FORCE
 libbitcash_util_a-clientversion.$(OBJEXT): obj/build.h
 
 # server: shared between bitcashd and bitcash-qt
-libbitcash_server_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCASH_INCLUDES) $(MINIUPNPC_CPPFLAGS) $(EVENT_CFLAGS) $(EVENT_PTHREADS_CFLAGS)
+libbitcash_server_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCASH_INCLUDES) $(MINIUPNPC_CPPFLAGS) $(EVENT_CFLAGS) $(EVENT_PTHREADS_CFLAGS) $(CURL_CFLAGS)
 libbitcash_server_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libbitcash_server_a_SOURCES = \
   addrdb.cpp \
@@ -211,7 +210,6 @@ libbitcash_server_a_SOURCES = \
   miner.cpp \
   cuckoo/cuckoo.cpp \
   cuckoo/miner.cpp \
-  cuckoo/mean_cuckoo.cpp \
   net.cpp \
   net_processing.cpp \
   noui.cpp \
@@ -311,12 +309,10 @@ crypto_libbitcash_crypto_a_SOURCES = \
   crypto/sph_whirlpool.c \
   crypto/sph_sha2.c \
   crypto/sph_sha512.c \
-  crypto/ripemd160.h \
   crypto/sha1.cpp \
   crypto/sha1.h \
   crypto/sha256.cpp \
   crypto/sha256.h \
-  crypto/sha512.h \
   crypto/sph_blake.h \
   crypto/sph_bmw.h \
   crypto/sph_cubehash.h \
@@ -340,7 +336,6 @@ crypto_libbitcash_crypto_a_SOURCES = \
 if USE_ASM
 crypto_libbitcash_crypto_a_SOURCES += crypto/sha256_sse4.cpp
 endif
-
 
 # common: shared between bitcashd, and bitcash-qt and non-server tools
 libbitcash_common_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCASH_INCLUDES)
@@ -463,7 +458,7 @@ bitcashd_LDADD = \
   $(LIBMEMENV) \
   $(LIBSECP256K1)
 
-bitcashd_LDADD += $(BOOST_LIBS) $(BDB_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(ZMQ_LIBS) $(DL_LIBS)
+bitcashd_LDADD += $(BOOST_LIBS) $(BDB_LIBS) $(SSL_LIBS) $(CURL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(ZMQ_LIBS) $(DL_LIBS)
 
 # bitcash-cli binary #
 bitcash_cli_SOURCES = bitcash-cli.cpp

@@ -18,30 +18,33 @@ Item {
     width: 1280
     height: 900
 
+    property alias senddollarCheckre: senddollarCheckre
     property alias listViewlinks: listViewlinks
 
     property int  recipientwidth : 200
     property int  btnswidth : 50
     property int  descriptionwidth : 400
     property int  amountwidth : 220
+    property int  currencywidth : 70
     property int  daywidth : 75
     property int  monthwidth : 75
 
-    signal createPaymentBtnSignalIntern(string recipient, string description, double amount, int day, int month)
+    signal createPaymentBtnSignalIntern(string recipient, string description, double amount, int day, int month, bool senddollar)
     signal deletepaymentsignalintern(string idstr)
     signal undopaymentremovalSignalintern()
 
     function closepaymentsundoinfointern(show) {
-        infobox.visible=show
+        infobox.visible = show
     }
-    function addpaymentsintern(id, recipient,desc,amount,day,month) {
+    function addpaymentsintern(id, recipient,desc,amount,day,month,currency) {
         linksmodel.insert(0,{
                                "idstr": id,
                                "recipient": recipient,
                                "description": desc,
                                "amount": amount,
                                "day": day,
-                               "month": month
+                               "month": month,
+                               "currency": currency
                            })
     }
 
@@ -263,7 +266,7 @@ Item {
                     background: Rectangle { color: "#ebebeb" }
                 }
                                 Label {
-                                    width: paymentsForm.width-amountwidth-recipientwidth-btnswidth-daywidth-monthwidth-30-30
+                                    width: paymentsForm.width-amountwidth-recipientwidth-btnswidth-daywidth-monthwidth-currencywidth-30-30
                                     height: 44
                                     text: "Description"
                                     verticalAlignment: Text.AlignVCenter
@@ -281,6 +284,22 @@ Item {
                                     width: amountwidth
                                     height: 44
                                     text: "Amount"
+                                    verticalAlignment: Text.AlignVCenter
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    rightPadding: 20
+                                    leftPadding: 20
+                                    font.weight: Font.DemiBold
+                                    horizontalAlignment: Text.AlignRight
+                                    font.pixelSize: 13
+                                    font.family: "Montserrat SemiBold"
+                                    color:"black"
+                                    padding: 10
+                                    background: Rectangle { color: "#ebebeb" }
+                                }
+                                Label {
+                                    width: currencywidth
+                                    height: 44
+                                    text: ""
                                     verticalAlignment: Text.AlignVCenter
                                     anchors.verticalCenter: parent.verticalCenter
                                     rightPadding: 20
@@ -433,7 +452,7 @@ Item {
 
                                 ItemDelegate {
                                     property int column: 1
-                                    width: paymentsForm.width-amountwidth-recipientwidth-btnswidth-daywidth-monthwidth-30-30
+                                    width: paymentsForm.width-amountwidth-recipientwidth-btnswidth-daywidth-monthwidth-currencywidth-30-30
                                     text: ""
                                     Label {
                                         text: description
@@ -537,6 +556,58 @@ Item {
                                 }
                                 ItemDelegate {
                                     property int column: 3
+                                    width: currencywidth
+                                    text: ""
+                                    Label {
+                                        text: currency
+                                        anchors.leftMargin: 8
+                                        anchors.rightMargin: 20
+                                        anchors.left: parent.left
+                                        anchors.right: parent.right
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        horizontalAlignment: Text.AlignRight
+
+                                        font.family: "Montserrat"
+                                        font.bold: true
+                                        font.pixelSize: 14
+                                        color: "#202124"
+                                    }
+                                    clip: true
+                                    ToolTip.delay: 1000
+                                    ToolTip.timeout: 5000
+                                    ToolTip.visible: hovered
+                                    ToolTip.text: amount
+                                    MouseArea {
+                                        anchors.fill: parent
+                                        acceptedButtons: Qt.RightButton
+                                        hoverEnabled: true
+                                        onClicked: {
+                                            contextMenucurrencyan.x = mouse.x;
+                                            contextMenucurrencyan.y = mouse.y;
+                                            contextMenucurrencyan.open();
+                                        }
+                                        onPressAndHold: {
+                                            if (mouse.source === Qt.MouseEventNotSynthesized) {
+                                                contextMenucurrencyan.x = mouse.x;
+                                                contextMenucurrencyan.y = mouse.y;
+                                                contextMenucurrencyan.open();
+                                            }
+                                        }
+                                    }
+                                    Menu {
+                                        id: contextMenucurrencyan
+                                        MenuItem {
+                                            text: "Copy amount"
+                                            onTriggered: {
+                                                copytextfieldlinks.text=currency
+                                                copytextfieldlinks.selectAll()
+                                                copytextfieldlinks.copy()
+                                            }
+                                        }
+                                    }
+                                }
+                                ItemDelegate {
+                                    property int column: 4
                                     width: daywidth
                                     text: ""
                                     Label {
@@ -588,7 +659,7 @@ Item {
                                     }
                                 }
                                 ItemDelegate {
-                                    property int column: 4
+                                    property int column: 5
                                     width: monthwidth
                                     text: ""
                                     Label {
@@ -640,7 +711,7 @@ Item {
                                     }
                                 }
                                 ItemDelegate {
-                                    property int column: 5
+                                    property int column: 6
                                     width: btnswidth
                                     text: ""
                                     ToolTip.text: "Remove payment"
@@ -707,7 +778,7 @@ Item {
                     anchors.verticalCenter: parent.verticalCenter
                     width: 16
                     height: 16
-                    background: Image {
+                    background:  {
                         x:0
                         y:0
                         fillMode: Image.PreserveAspectFit
@@ -880,6 +951,7 @@ Item {
                 border.color: "#eeeeef"
                 color: "#f7f7f7"
                 Text {
+                    id: currencyid
                     color: "#4d505e"
                     anchors.horizontalCenter: parent.horizontalCenter
                     anchors.top: parent.top
@@ -889,6 +961,26 @@ Item {
                     font.pixelSize: 14
                     font.weight: Font.Normal
                     font.family: "Montserrat"
+                }
+            }
+
+            CheckBox {
+                id: senddollarCheckre
+                text: qsTr("Send Dollar")
+                anchors.verticalCenter: amountEdit.verticalCenter
+                visible: true
+                font.weight: Font.DemiBold
+                font.pixelSize: 14
+                font.family: "Montserrat SemiBold"
+                topPadding: 15
+                leftPadding: 0
+                anchors.left: amountEdit.right
+                anchors.leftMargin: 100
+                onCheckStateChanged: {
+                    if (senddollarCheckre.checked)
+                        currencyid.text="USD"; else
+                    currencyid.text="BITC";
+
                 }
             }
 
@@ -933,7 +1025,7 @@ Item {
                 color: "#3d3e40"
                 text: qsTr("Day of execution")
                 font.weight: Font.DemiBold
-                anchors.top: amountEdit.bottom
+                anchors.top: senddollarCheckre.bottom
                 anchors.topMargin: 25
                 anchors.left: parent.left
                 anchors.leftMargin: 36
@@ -991,7 +1083,7 @@ Item {
                 iconname: "../res/assets/Miscellaneous/button-send.png"
                 font.capitalization: Font.MixedCase
                 font.family: "Montserrat SemiBold"
-                onClicked: createPaymentBtnSignalIntern(paytoEdit.text,descriptionEdit.text,amountEdit.text,dayEdit.text,monthEdit.text)
+                onClicked: createPaymentBtnSignalIntern(paytoEdit.text,descriptionEdit.text,amountEdit.text,dayEdit.text,monthEdit.text, senddollarCheckre.checked)
             }
 
             }

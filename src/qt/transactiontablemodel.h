@@ -38,7 +38,10 @@ public:
         Type = 3,
         ToAddress = 4,
         ReferenceLine = 5,
-        Amount = 6
+        Amountbitc = 6,
+        Amountusd = 7,
+        Amount = 8,
+        Currency = 9,
     };
 
     /** Roles to get specific information from a transaction row.
@@ -56,13 +59,19 @@ public:
         /** Long description (HTML format) */
         LongDescriptionRole,
         /** Address of transaction */
-        AddressRole,
-        /** Label of address related to transaction */
-        ReferencelineRole,
+        AddressRole,       
         /** Reference line related to transaction */
+        ReferencelineRole,
+        /** Currency related to transaction */
+        CurrencyRole,
+        /** Label of address related to transaction */        
         LabelRole,
         /** Net amount of transaction */
         AmountRole,
+        /** Net amount of transaction */
+        AmountRolebitc,
+        /** Net amount of transaction */
+        AmountRoleusd,
         /** Transaction hash */
         TxHashRole,
         /** Transaction data, hex-encoded */
@@ -73,6 +82,10 @@ public:
         ConfirmedRole,
         /** Formatted amount, without brackets when unconfirmed */
         FormattedAmountRole,
+        /** Formatted amount, without brackets when unconfirmed */
+        FormattedAmountRolebitc,
+        /** Formatted amount, without brackets when unconfirmed */
+        FormattedAmountRoleusd,
         /** Transaction status (TransactionRecord::Status) */
         StatusRole,
         /** Unprocessed icon */
@@ -85,8 +98,14 @@ public:
         TableAddressRole,
         //Description for Table
         TableReferencelineRole,
+        //Currency for Table
+        TableCurrencyRole,
         //Amount for Table
         TableAmountRole,
+        //Amount for Table
+        TableAmountRolebitc,
+        //Amount for Table
+        TableAmountRoleusd,
         //transaction type icon index
         TableTypeAsNumberRole
     };
@@ -119,7 +138,10 @@ private:
     int TxTypeAsNumber(const TransactionRecord *wtx) const;
     QString formatTxToAddress(const TransactionRecord *wtx, bool tooltip) const;
     QString formatTxAmount(const TransactionRecord *wtx, bool showUnconfirmed=true, BitcashUnits::SeparatorStyle separators=BitcashUnits::separatorStandard) const;
+    QString formatTxAmountbitc(const TransactionRecord *wtx, bool showUnconfirmed=true, BitcashUnits::SeparatorStyle separators=BitcashUnits::separatorStandard) const;
+    QString formatTxAmountusd(const TransactionRecord *wtx, bool showUnconfirmed=true, BitcashUnits::SeparatorStyle separators=BitcashUnits::separatorStandard) const;
     QString formatTxReferenceline(const TransactionRecord *wtx) const;
+    QString formatTxCurrency(const TransactionRecord *wtx) const;
     QString formatTooltip(const TransactionRecord *rec) const;
     QVariant txStatusDecoration(const TransactionRecord *wtx) const;
     QVariant txWatchonlyDecoration(const TransactionRecord *wtx) const;

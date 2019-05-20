@@ -46,6 +46,10 @@ bool LinksBatch::WriteNameLinkTimestamp(const std::string& strlink,uint64_t time
     return WriteIC(std::make_pair(std::string("timestamp"), strlink), timestamp);
 }
 
+bool LinksBatch::WriteNameLinkCurrency(const std::string& strlink,unsigned char currency)
+{
+    return WriteIC(std::make_pair(std::string("currency"), strlink), currency);
+}
 
 bool LinksBatch::EraseNameLink(const std::string& strlink)
 {
@@ -53,7 +57,8 @@ bool LinksBatch::EraseNameLink(const std::string& strlink)
     if (!EraseIC(std::make_pair(std::string("desc"), strlink)))valid=false;
     if (!EraseIC(std::make_pair(std::string("amount"), strlink)))valid=false;
     if (!EraseIC(std::make_pair(std::string("status"), strlink)))valid=false;
-    if (!EraseIC(std::make_pair(std::string("timestamp"), strlink)))valid=false;   
+    if (!EraseIC(std::make_pair(std::string("timestamp"), strlink)))valid=false;
+    if (!EraseIC(std::make_pair(std::string("currency"), strlink)))valid=false;      
     return valid;
 }
 
@@ -112,6 +117,13 @@ ReadKeyValue(CDataStream& ssKey, CDataStream& ssValue,
             std::string strLinks;
             ssKey >> strLinks;
             ssValue >> mapLinksBook[strLinks].timestamp;
+        }
+        else
+        if (strType == "currency")
+        {
+            std::string strLinks;
+            ssKey >> strLinks;
+            ssValue >> mapLinksBook[strLinks].currency;
         }
         else {
             wss.m_unknown_records++;

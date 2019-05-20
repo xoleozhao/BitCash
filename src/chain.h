@@ -213,6 +213,13 @@ public:
     uint32_t nBits;
     uint32_t nNonce;
     uint8_t nEdgeBits;
+    CPriceInfo nPriceInfo;
+    std::vector<unsigned char> priceSig;//Signature for nPriceInfo
+    CPriceInfo nPriceInfo2;
+    std::vector<unsigned char> priceSig2;//Signature for nPriceInfo2
+    CPriceInfo nPriceInfo3;
+    std::vector<unsigned char> priceSig3;//Signature for nPriceInfo3
+
 
     std::set<uint32_t> sCycle;
 
@@ -245,12 +252,20 @@ public:
         nNonce         = 0;
         nEdgeBits      = 0;
         sCycle.clear();
+        nPriceInfo.SetNull();
+        priceSig.clear();
+        nPriceInfo2.SetNull();
+        priceSig2.clear();
+        nPriceInfo3.SetNull();
+        priceSig3.clear();
     }
 
     CBlockIndex()
     {
         SetNull();
     }
+
+    CAmount GetPriceinCurrency(unsigned char currency) const;
 
     explicit CBlockIndex(const CBlockHeader& block)
     {
@@ -263,7 +278,12 @@ public:
         nNonce         = block.nNonce;
         nEdgeBits      = block.nEdgeBits;
         sCycle         = block.sCycle;
-
+        nPriceInfo     = block.nPriceInfo;
+        priceSig       = block.priceSig;
+        nPriceInfo2    = block.nPriceInfo2;
+        priceSig2      = block.priceSig2;
+        nPriceInfo3    = block.nPriceInfo3;
+        priceSig3      = block.priceSig3;
     }
 
     CDiskBlockPos GetBlockPos() const {
@@ -294,8 +314,15 @@ public:
         block.nTime          = nTime;
         block.nBits          = nBits;
         block.nNonce         = nNonce;
-        block.nEdgeBits     = nEdgeBits;
-        block.sCycle       = sCycle;
+        block.nEdgeBits      = nEdgeBits;
+        block.sCycle         = sCycle;
+        block.nPriceInfo     = nPriceInfo;
+        block.priceSig       = priceSig;
+        block.nPriceInfo2    = nPriceInfo2;
+        block.priceSig2      = priceSig2;
+        block.nPriceInfo3    = nPriceInfo3;
+        block.priceSig3      = priceSig3;
+
         return block;
     }
 
@@ -397,7 +424,7 @@ public:
         int _nVersion = s.GetVersion();
         if (!(s.GetType() & SER_GETHASH))
             READWRITE(VARINT(_nVersion, VarIntMode::NONNEGATIVE_SIGNED));
-
+        
         READWRITE(VARINT(nHeight, VarIntMode::NONNEGATIVE_SIGNED));
         READWRITE(VARINT(nStatus));
         READWRITE(VARINT(nTx));
@@ -415,6 +442,12 @@ public:
         READWRITE(nTime);
         READWRITE(nBits);
         READWRITE(nNonce);
+        READWRITE(nPriceInfo);
+        READWRITE(priceSig);
+        READWRITE(nPriceInfo2);
+        READWRITE(priceSig2);
+        READWRITE(nPriceInfo3);
+        READWRITE(priceSig3);
         if (!isX16Ractive(this->nVersion)) {
             READWRITE(nEdgeBits);
             READWRITE(sCycle);
@@ -431,6 +464,13 @@ public:
         block.nBits           = nBits;
         block.nNonce          = nNonce;
         block.nEdgeBits       = nEdgeBits;
+        block.nPriceInfo      = nPriceInfo;
+        block.priceSig        = priceSig;
+        block.nPriceInfo2     = nPriceInfo2;
+        block.priceSig2       = priceSig2;
+        block.nPriceInfo3     = nPriceInfo3;
+        block.priceSig3       = priceSig3;
+
         return block.GetHash();
     }
 

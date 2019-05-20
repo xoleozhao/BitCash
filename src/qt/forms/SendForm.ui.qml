@@ -29,32 +29,50 @@ Item {
     property alias pasteaddress: pasteaddress
     property alias leftamountlabel: leftamountlabel
 
+    property alias paytoEditDo: paytoEditDo
+    property alias labelEditDo: labelEditDo
+    property alias descriptionEditDo: descriptionEditDo
+    property alias amountEditDo: amountEditDo
+    property alias subtractfeeCheckDo: subtractfeeCheckDo
+    property alias sendBtnDo: sendBtnDo
+    property alias printBtnDo: printBtnDo
+    property alias availableBalanceBtnDo: availableBalanceBtnDo
+    property alias maxbalanceDo: maxbalanceDo
+    property alias pasteaddressDo: pasteaddressDo
+    property alias leftamountlabelDo: leftamountlabelDo
+
     /*********************************/
     property alias paytoEdittw: paytoEdittw
     property alias labelEdittw: labelEdittw
     property alias descriptionEdittw: descriptionEdittw
     property alias amountEdittw: amountEdittw
     property alias sendBtntw: sendBtntw
+    property alias senddollarChecktw: senddollarChecktw
+    property alias bitcashicontw: bitcashicontw
     property alias availableBalanceBtntw: availableBalanceBtntw
     property alias maxbalancetw: maxbalancetw
     property alias pasteaddresstw: pasteaddresstw
     property alias leftamountlabeltw: leftamountlabeltw
 
-/*    property alias paytoEditin: paytoEditin
+    property alias paytoEditin: paytoEditin
     property alias labelEditin: labelEditin
     property alias descriptionEditin: descriptionEditin
     property alias amountEditin: amountEditin
     property alias sendBtnin: sendBtnin
+    property alias senddollarCheckin: senddollarCheckin
+    property alias bitcashiconin: bitcashiconin
     property alias availableBalanceBtnin: availableBalanceBtnin
     property alias maxbalancein: maxbalancein
     property alias pasteaddressin: pasteaddressin
-    property alias leftamountlabelin: leftamountlabelin*/
+    property alias leftamountlabelin: leftamountlabelin
 
     property alias paytoEditre: paytoEditre
     property alias labelEditre: labelEditre
     property alias descriptionEditre: descriptionEditre
     property alias amountEditre: amountEditre
     property alias sendBtnre: sendBtnre
+    property alias senddollarCheckre: senddollarCheckre
+    property alias bitcashiconre: bitcashiconre
     property alias availableBalanceBtnre: availableBalanceBtnre
     property alias maxbalancere: maxbalancere
     property alias pasteaddressre: pasteaddressre
@@ -63,6 +81,8 @@ Item {
     property alias descriptionEditan: descriptionEditan
     property alias amountEditan: amountEditan
     property alias sendBtnan: sendBtnan
+    property alias bitcashiconan: bitcashiconan
+    property alias senddollarCheckan: senddollarCheckan
     property alias leftamountlabelan: leftamountlabelan
 
     property alias changetwbtn: changetwbtn
@@ -211,7 +231,7 @@ Item {
         anchors.top: toolBar.bottom
         anchors.topMargin: 10
         visible: false
-        width: 632
+        width: 750
         height: 210
         anchors.horizontalCenter: parent.horizontalCenter
     }
@@ -300,6 +320,36 @@ Item {
                 }
             }
 
+            TabButton {
+                id: tabButton6
+                y: 0
+                text: qsTr("Dollar")
+                rightPadding: 15
+                leftPadding: 58
+                width: implicitWidth
+                height: 60
+                contentItem: Text {
+                    id: textdollar
+                    x: 58
+                    text: parent.text
+                    leftPadding: 0
+                    font: parent.font
+                    opacity: enabled ? 1.0 : 0.3
+                    color: "#4d505e"
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                    elide: Text.ElideRight
+                }
+                Image {
+                    id: imagedollar
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.left: parent.left
+                    anchors.leftMargin: 35
+                    fillMode: Image.PreserveAspectFit
+                    source: "../res/assets/Miscellaneous/bitcashicon.png"
+                }
+            }
+
             /***************************************/
             TabButton {
                 id: tabButton2
@@ -329,7 +379,7 @@ Item {
                     source: "../res/assets/Miscellaneous/twittericon.png"
                 }
             }
-            /*TabButton {
+            TabButton {
                 id: tabButton4
                 text: qsTr("Instagram")
                 rightPadding: 15
@@ -356,7 +406,7 @@ Item {
                     fillMode: Image.PreserveAspectFit
                     source: "../res/assets/Miscellaneous/instaicon.png"
                 }
-            }*/
+            }
             TabButton {
                 id: tabButton5
                 text: qsTr("Twitch")
@@ -696,6 +746,302 @@ Item {
                     anchors.top: infolabel.top
                 }
             }
+
+            /////////////////////////////////////////////
+            // Dollar
+            /////////////////////////////////////////////
+            Item {
+                id: dollar
+
+                Label {
+                    id: text1Do
+                    color: "#3d3e40"
+                    text: qsTr("Recipient")
+                    font.weight: Font.DemiBold
+                    anchors.top: parent.top
+                    anchors.topMargin: 30
+                    anchors.left: parent.left
+                    anchors.leftMargin: 30
+                    font.family: "Montserrat SemiBold"
+                    font.pixelSize: 14
+                }
+
+                MenuTextField {
+                    id: paytoEditDo
+                    height: 48
+                    anchors.left: parent.left
+                    anchors.leftMargin: 30
+                    color: acceptableInput ? "green" : "red"
+                    text: ""
+                    font.pixelSize: 14
+                    font.family: "Montserrat"
+                    font.letterSpacing: 0
+                    bottomPadding: 16
+                    padding: 16
+                    rightPadding: 16
+                    topPadding: 16
+                    leftPadding: 16
+                    anchors.top: text1Do.bottom
+                    anchors.topMargin: 20
+                    anchors.right: parent.right
+                    anchors.rightMargin: 30
+                    selectByMouse: true
+                    placeholderText: "Paste the BitCash address or nickname of the recipient"
+                }
+
+                MenuTextField {
+                    id: labelEditDo
+                    y: 134
+                    height: 40
+                    visible: false
+                    anchors.left: parent.left
+                    anchors.leftMargin: 8
+                    anchors.rightMargin: 8
+                    anchors.right: parent.right
+                    selectByMouse: true
+                }
+
+                Label {
+                    id: text2Do
+                    x: 8
+                    y: 113
+                    text: qsTr("Label for address book:")
+                    visible: false
+                    font.pixelSize: 12
+                    font.family: "Montserrat"
+                }
+
+                MenuTextField {
+                    id: descriptionEditDo
+                    height: 48
+                    font.pixelSize: 14
+                    font.family: "Montserrat"
+                    padding: 16
+                    rightPadding: 16
+                    leftPadding: 16
+                    topPadding: 16
+                    anchors.top: text3Do.bottom
+                    anchors.topMargin: 20
+                    anchors.left: parent.left
+                    anchors.leftMargin: 30
+                    anchors.rightMargin: 30
+                    anchors.right: parent.right
+                    selectByMouse: true
+                    placeholderText: "What are you paying for?"
+                }
+
+                Label {
+                    id: text3Do
+                    color: "#3d3e40"
+                    text: qsTr("Description")
+                    font.weight: Font.DemiBold
+                    anchors.top: paytoEditDo.bottom
+                    anchors.topMargin: 25
+                    anchors.left: parent.left
+                    anchors.leftMargin: 30
+                    font.pixelSize: 14
+                    font.family: "Montserrat SemiBold"
+                }
+
+                MenuTextField {
+                    id: amountEditDo
+                    width: 228
+                    height: 48
+                    font.pixelSize: 14
+                    font.family: "Montserrat"
+                    topPadding: 16
+                    padding: 16
+                    anchors.top: text4Do.bottom
+                    anchors.topMargin: 20
+                    anchors.left: parent.left
+                    anchors.leftMargin: 30
+                    horizontalAlignment: Text.AlignLeft
+                    selectByMouse: true
+                    placeholderText: "0.000000000"
+                }
+                Rectangle {
+                    anchors.left: amountEditDo.right
+                    anchors.top: amountEditDo.top
+                    anchors.bottom: amountEditDo.bottom
+                    width: 80
+                    radius: 4
+                    border.width: 1
+                    border.color: "#eeeeef"
+                    color: "#f7f7f7"
+                    Text {
+                        color: "#4d505e"
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        anchors.top: parent.top
+                        anchors.bottom: parent.bottom
+                        padding: 16
+                        text: "Dollar"
+                        font.pixelSize: 14
+                        font.weight: Font.Normal
+                        font.family: "Montserrat"
+                    }
+                }
+
+                Label {
+                    id: text4Do
+                    color: "#3d3e40"
+                    text: qsTr("Amount")
+                    font.weight: Font.DemiBold
+                    anchors.top: descriptionEditDo.bottom
+                    anchors.topMargin: 25
+                    anchors.left: parent.left
+                    anchors.leftMargin: 30
+                    font.pixelSize: 14
+                    font.family: "Montserrat SemiBold"
+                }
+
+                CheckBox {
+                    id: subtractfeeCheckDo
+                    text: qsTr("Subtract transaction fee from amount")
+                    visible: true
+                    font.weight: Font.DemiBold
+                    font.pixelSize: 14
+                    font.family: "Montserrat SemiBold"
+                    topPadding: 30
+                    anchors.top: infolabelDo.bottom
+                    anchors.topMargin: 0
+                    leftPadding: 0
+                    anchors.left: parent.left
+                    anchors.leftMargin: 30
+                }
+
+                Mybutton {
+                    id: sendBtnDo
+                    height: 44
+                    text: qsTr("Send")
+                    font.weight: Font.DemiBold
+                    font.pixelSize: 14
+                    leftPadding: 44
+                    anchors.left: parent.left
+                    anchors.leftMargin: 30
+                    anchors.top: subtractfeeCheckDo.bottom
+                    anchors.topMargin: 15
+                    iconname: "../res/assets/Miscellaneous/button-send.png"
+                    font.capitalization: Font.MixedCase
+                    font.family: "Montserrat SemiBold"
+                }
+
+                Mybutton {
+                    id: printBtnDo
+                    height: 44
+                    text: qsTr("Print paper bills")
+                    font.weight: Font.DemiBold
+                    font.pixelSize: 14
+                    leftPadding: 44
+                    rightPadding: 20
+                    anchors.left: sendBtnDo.right
+                    anchors.leftMargin: 20
+                    anchors.top: sendBtnDo.top
+                    anchors.topMargin: 0
+                    iconname: "../res/assets/Miscellaneous/print-icon.png"
+                    font.capitalization: Font.MixedCase
+                    font.family: "Montserrat SemiBold"
+                    btncolor: "white"
+                    txtcolor: "#3e45ac"
+                    btncolordown: "#eaeaea"
+                    txtcolordown: "#494ea7"
+                    btnbordercolor: "#3e45ac"
+                    borderwidth: 1
+                }
+
+                Button {
+                    id: availableBalanceBtnDo
+                    x: 307
+                    y: 268
+                    text: qsTr("Use available balance")
+                    visible: false
+                    anchors.right: parent.right
+                    anchors.rightMargin: 8
+                }
+
+                Label {
+                    id: maxbalanceDo
+                    x: 413
+                    y: 373
+                    text: qsTr("0.000000 Dollar")
+                    visible: false
+                    anchors.right: parent.right
+                    anchors.rightMargin: 8
+                    font.pixelSize: 12
+                    font.family: "Montserrat"
+                }
+
+                Label {
+                    id: text7Do
+                    x: 349
+                    y: 373
+                    width: 58
+                    height: 15
+                    text: qsTr("Balance:")
+                    visible: false
+                    anchors.right: maxbalanceDo.left
+                    anchors.rightMargin: 6
+                    font.pixelSize: 12
+                    font.family: "Montserrat"
+                }
+
+                Button {
+                    id: pasteaddressDo
+                    x: 428
+                    y: 67
+                    text: qsTr("Paste")
+                    visible: false
+                    anchors.right: parent.right
+                    anchors.rightMargin: 8
+                }
+
+                Label {
+                    id: infolabelDo
+                    color: "#3e45ac"
+                    text: qsTr("You'll have")
+                    font.weight: Font.DemiBold
+                    font.pixelSize: 13
+                    font.family: "Montserrat SemiBold"
+                    rightPadding: 4
+                    anchors.left: parent.left
+                    anchors.leftMargin: 30
+                    anchors.top: amountEditDo.bottom
+                    anchors.topMargin: 20
+                }
+                Label {
+                    id: bitcashiconDo
+                    anchors.left: infolabelDo.right
+                    anchors.verticalCenter: infolabelDo.verticalCenter
+
+                    font.pixelSize: 13
+                    font.family: "Montserrat SemiBold"
+                    font.weight: Font.DemiBold
+                    color: "#3e45ac"
+                    text: "$"
+                }
+                Label {
+                    id: leftamountlabelDo
+                    color: "#3e45ac"
+                    text: qsTr("0.000000000")
+                    font.weight: Font.DemiBold
+                    font.pixelSize: 13
+                    font.family: "Montserrat SemiBold"
+                    leftPadding: 0
+                    anchors.left: bitcashiconDo.right
+                    anchors.top: infolabelDo.top
+                }
+                Label {
+                    id: infolabel2Do
+                    color: "#3e45ac"
+                    text: qsTr("available balance left on your acccount")
+                    font.pixelSize: 13
+                    font.weight: Font.DemiBold
+                    font.family: "Montserrat SemiBold"
+                    leftPadding: 4
+                    anchors.left: leftamountlabelDo.right
+                    anchors.top: infolabelDo.top
+                }
+            }
+
             //Twitter
             /******************************************/
             Item {
@@ -881,7 +1227,7 @@ Item {
                     leftPadding: 44
                     anchors.left: parent.left
                     anchors.leftMargin: 30
-                    anchors.top: infolabeltw.bottom
+                    anchors.top: senddollarChecktw.bottom
                     anchors.topMargin: 15
                     iconname: "../res/assets/Miscellaneous/button-send.png"
                     font.capitalization: Font.MixedCase
@@ -981,9 +1327,24 @@ Item {
                     anchors.left: leftamountlabeltw.right
                     anchors.top: infolabeltw.top
                 }
+
+                CheckBox {
+                    id: senddollarChecktw
+                    text: qsTr("Send Dollar instead of BitCash")
+                    visible: true
+                    font.weight: Font.DemiBold
+                    font.pixelSize: 14
+                    font.family: "Montserrat SemiBold"
+                    topPadding: 30
+                    anchors.top: infolabeltw.bottom
+                    anchors.topMargin: 0
+                    leftPadding: 0
+                    anchors.left: parent.left
+                    anchors.leftMargin: 30
+                }
             }
             ////////////////////// INSTAGRAM /////////////////////////////////////////
-            /*Item {
+            Item {
                 id: instagram
 
                 Label {
@@ -1166,7 +1527,7 @@ Item {
                     leftPadding: 44
                     anchors.left: parent.left
                     anchors.leftMargin: 30
-                    anchors.top: infolabelin.bottom
+                    anchors.top: senddollarCheckin.bottom
                     anchors.topMargin: 15
                     iconname: "../res/assets/Miscellaneous/button-send.png"
                     font.capitalization: Font.MixedCase
@@ -1266,7 +1627,21 @@ Item {
                     anchors.left: leftamountlabelin.right
                     anchors.top: infolabelin.top
                 }
-            }*/
+                CheckBox {
+                    id: senddollarCheckin
+                    text: qsTr("Send Dollar instead of BitCash")
+                    visible: true
+                    font.weight: Font.DemiBold
+                    font.pixelSize: 14
+                    font.family: "Montserrat SemiBold"
+                    topPadding: 30
+                    anchors.top: infolabelin.bottom
+                    anchors.topMargin: 0
+                    leftPadding: 0
+                    anchors.left: parent.left
+                    anchors.leftMargin: 30
+                }
+            }
             ////////////////////////////////////////// TWITCH /////////////////////////////////////////////
             Item {
                 id: twitch
@@ -1451,7 +1826,7 @@ Item {
                     leftPadding: 44
                     anchors.left: parent.left
                     anchors.leftMargin: 30
-                    anchors.top: infolabelre.bottom
+                    anchors.top: senddollarCheckre.bottom
                     anchors.topMargin: 15
                     iconname: "../res/assets/Miscellaneous/button-send.png"
                     font.capitalization: Font.MixedCase
@@ -1550,6 +1925,20 @@ Item {
                     leftPadding: 4
                     anchors.left: leftamountlabelre.right
                     anchors.top: infolabelre.top
+                }
+                CheckBox {
+                    id: senddollarCheckre
+                    text: qsTr("Send Dollar instead of BitCash")
+                    visible: true
+                    font.weight: Font.DemiBold
+                    font.pixelSize: 14
+                    font.family: "Montserrat SemiBold"
+                    topPadding: 30
+                    anchors.top: infolabelre.bottom
+                    anchors.topMargin: 0
+                    leftPadding: 0
+                    anchors.left: parent.left
+                    anchors.leftMargin: 30
                 }
             }
             /*******************************************************/
@@ -1685,6 +2074,21 @@ Item {
                     font.family: "Montserrat SemiBold"
                 }
 
+                CheckBox {
+                    id: senddollarCheckan
+                    text: qsTr("Send Dollar instead of BitCash")
+                    visible: true
+                    font.weight: Font.DemiBold
+                    font.pixelSize: 14
+                    font.family: "Montserrat SemiBold"
+                    topPadding: 30
+                    anchors.top: infolabelan.bottom
+                    anchors.topMargin: 0
+                    leftPadding: 0
+                    anchors.left: parent.left
+                    anchors.leftMargin: 30
+                }
+
                 Mybutton {
                     id: sendBtnan
                     height: 44
@@ -1694,7 +2098,7 @@ Item {
                     leftPadding: 44
                     anchors.left: parent.left
                     anchors.leftMargin: 30
-                    anchors.top: infolabelan.bottom
+                    anchors.top: senddollarCheckan.bottom
                     anchors.topMargin: 15
                     iconname: "../res/assets/Miscellaneous/button-send.png"
                     font.capitalization: Font.MixedCase

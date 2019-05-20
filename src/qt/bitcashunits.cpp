@@ -39,7 +39,12 @@ bool BitcashUnits::valid(int unit)
 
 QString BitcashUnits::longName(int unit)
 {
-    return QString("BITC");
+    switch(unit)
+    {
+    case DOLLAR: return QString("USD");
+    default: return QString("BITC");
+    }
+    
 /*    switch(unit)
     {
     case BITC: return QString("BITC");
@@ -61,8 +66,13 @@ QString BitcashUnits::shortName(int unit)
 
 QString BitcashUnits::description(int unit)
 {
-    return QString("BitCashs");
-    /*switch(unit)
+    switch(unit)
+    {
+    case DOLLAR: return QString("US Dollar");
+    default: return QString("BitCash");
+    }
+
+     /*switch(unit)
     {
     case BITC: return QString("Bitcashs");
     case mBITC: return QString("Milli-Bitcashs (1 / 1" THIN_SP_UTF8 "000)");

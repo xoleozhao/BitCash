@@ -6,7 +6,7 @@ import QtQuick.Layouts 1.3
 Item {
     id: item1
     width: 1100
-    height: 800
+    height: 1000
 
     Rectangle {
         id: toolBar
@@ -131,7 +131,7 @@ Item {
         anchors.top: toolBar.bottom
         anchors.topMargin: 10
         visible: false
-        width: 632
+        width: 682
         height: 210
         anchors.horizontalCenter: parent.horizontalCenter
     }
@@ -157,14 +157,14 @@ Item {
         anchors.left: layoutrect.left
         anchors.right: layoutrect.right
         color: "white"
-        radius: 3
+        radius: 1
         anchors.rightMargin: 6
         anchors.leftMargin: 6
         anchors.top: whitebox4.bottom
         anchors.topMargin: 26
         border.width: 0
         width: 632
-        height: 181
+        height: 290
     }
 
     Rectangle {
@@ -198,6 +198,7 @@ Item {
 
     property alias receivingaddress: receivingaddress
     property alias receivingaddressEdit: receivingaddressEdit
+
     Label {
         id: receivingaddress
         color: "#3e45ac"
@@ -233,15 +234,37 @@ Item {
         selectByMouse: true
         readOnly: true
     }
+
+    MenuTextField {
+        id: receivingaddressEditDo
+        visible: false
+        height: 52
+        text: "TESThyhwTyjkPPKkQ27T4B3vAuU6iMgwmHWuvNHjGTB8cmdwxExm"
+        bottomPadding: 16
+        font.pixelSize: 16
+        font.family: "Montserrat"
+        padding: 16
+        rightPadding: 16
+        leftPadding: 16
+        topPadding: 16
+        anchors.top: label.bottom
+        anchors.topMargin: 10
+        anchors.left: label.left
+        anchors.leftMargin: 0
+        anchors.right: whitebox.right
+        anchors.rightMargin: 30
+        selectByMouse: true
+        readOnly: true
+    }
     Label {
         id: label1
         color: "#202124"
-        text: qsTr("Your nickname")
+        text: qsTr("Your nickname to receive BitCash")
         font.pixelSize: 14
         font.weight: Font.DemiBold
         font.family: "Montserrat SemiBold"
         anchors.top: whitebox2.top
-        anchors.topMargin: 36
+        anchors.topMargin: 30
         anchors.left: whitebox.left
         anchors.leftMargin: 36
     }
@@ -288,11 +311,68 @@ Item {
         selectByMouse: true
         readOnly: true
     }
+
+    Label {
+        id: label3
+        color: "#202124"
+        text: qsTr("Your nickname to receive Dollar")
+        font.pixelSize: 14
+        font.weight: Font.DemiBold
+        font.family: "Montserrat SemiBold"
+        anchors.top: copynickname.bottom
+        anchors.topMargin: 20
+        anchors.left: whitebox.left
+        anchors.leftMargin: 36
+    }
+
+    property alias receivingnicknameDo: receivingnicknameDo
+    property alias receivingnicknameEditDo: receivingnicknameEditDo
+
+    Label {
+        id: receivingnicknameDo
+        color: "#3e45ac"
+        text: "@test"
+        font.letterSpacing: 0
+        font.family: "Montserrat"
+        font.pixelSize: 18
+        anchors.top: label3.bottom
+        anchors.topMargin: 5
+        anchors.right: whitebox2.right
+        anchors.rightMargin: 30
+        anchors.left: whitebox2.left
+        anchors.leftMargin: 30
+    }
+
+    MenuTextField {
+        id: receivingnicknameEditDo
+        visible: false
+        height: 52
+        text: ""
+        font.letterSpacing: 0
+        font.family: "Montserrat"
+        horizontalAlignment: Text.AlignLeft
+        curPos: 0
+        renderType: Text.QtRendering
+        font.pixelSize: 16
+        padding: 16
+        rightPadding: 16
+        leftPadding: 16
+        topPadding: 16
+        anchors.top: label3.bottom
+        anchors.topMargin: 10
+        anchors.right: whitebox2.right
+        anchors.rightMargin: 36
+        anchors.left: whitebox2.left
+        anchors.leftMargin: 36
+        selectByMouse: true
+        readOnly: true
+    }
+
     property alias copyaddress: copyaddress
     Mybutton {
         id: copyaddress
         height: 44
-        text: qsTr("Copy to clipboard")
+        text: qsTr("Copy ₡ address to clipboard")
         font.weight: Font.DemiBold
         font.pixelSize: 14
         font.family: "Montserrat SemiBold"
@@ -305,19 +385,82 @@ Item {
         font.capitalization: Font.MixedCase
     }
 
-    property alias copynickname: copynickname
+    property alias copyaddressDo: copyaddressDo
     Mybutton {
-        id: copynickname
+        id: copyaddressDo
         height: 44
-        text: qsTr("Copy to clipboard")
+        text: qsTr("Copy $ address to clipboard")
         font.weight: Font.DemiBold
         font.pixelSize: 14
         font.family: "Montserrat SemiBold"
         rightPadding: 20
         leftPadding: 20
-        anchors.top: receivingnickname.bottom
+        anchors.top: receivingaddressDo.bottom
+        anchors.topMargin: 20
+        anchors.left: whitebox.left
+        anchors.leftMargin: 30
+        font.capitalization: Font.MixedCase
+    }
+
+    Label {
+        id: label4
+        color: "#202124"
+        text: qsTr("Your Dollar address")
+        font.pixelSize: 14
+        font.weight: Font.DemiBold
+        font.family: "Montserrat SemiBold"
+        anchors.top: copyaddress.bottom
+        anchors.topMargin: 20
+        anchors.left: whitebox.left
+        anchors.leftMargin: 30
+    }
+
+    property alias receivingaddressDo: receivingaddressDo
+    property alias receivingaddressEditDo: receivingaddressEditDo
+    Label {
+        id: receivingaddressDo
+        color: "#3e45ac"
+        text: "dollar@TESThyhwTyjkPPKkQ27T4B3vAuU6iMgwmHWuvNHjGTB8cmdwxExm"
+        font.pixelSize: 16
+        font.family: "Montserrat"
+        anchors.top: label4.bottom
+        anchors.topMargin: 5
+        anchors.left: label4.left
+        anchors.leftMargin: 0
+        anchors.right: whitebox.right
+        anchors.rightMargin: 30
+    }
+
+    property alias copynickname: copynickname
+    Mybutton {
+        id: copynickname
+        height: 44
+        text: qsTr("Copy ₡ nickname to clipboard")
+        font.weight: Font.DemiBold
+        font.pixelSize: 14
+        font.family: "Montserrat SemiBold"
+        rightPadding: 20
+        leftPadding: 20
+        anchors.top: receivingnickname2.bottom
         anchors.topMargin: 20
         anchors.left: whitebox2.left
+        anchors.leftMargin: 30
+        font.capitalization: Font.MixedCase
+    }
+
+    property alias copynicknameDo: copynicknameDo
+    Mybutton {
+        id: copynicknameDo
+        height: 44
+        text: qsTr("Copy $ nickname to clipboard")
+        font.weight: Font.DemiBold
+        font.pixelSize: 14
+        font.family: "Montserrat SemiBold"
+        rightPadding: 20
+        leftPadding: 20
+        anchors.top: receivingnicknameDo.bottom
+        anchors.topMargin: 20
+        anchors.left: whitebox.left
         anchors.leftMargin: 30
         font.capitalization: Font.MixedCase
     }
@@ -328,9 +471,9 @@ Item {
         x: -3
         y: -1
         width: 632
-        height: 181
+        height: 290
         color: "#ffffff"
-        radius: 3
+        radius: 1
         anchors.rightMargin: 6
         anchors.leftMargin: 6
         visible: false
@@ -463,10 +606,10 @@ Item {
     property alias infoboxerror: infoboxerror
     property alias errorlabel: errorlabel
 
-    Rectangle{
+    Rectangle {
         id: infoboxerror
         visible: false
-        anchors.left:parent.left
+        anchors.left: parent.left
         anchors.verticalCenter: parent.verticalCenter
         anchors.right: parent.right
         anchors.rightMargin: 30
@@ -477,13 +620,13 @@ Item {
         radius: 3
         border.width: 0
         color: "#4d505e"
-        Label{
+        Label {
             id: errorlabel
             text: ""
             font.family: "Montserrat"
             font.pixelSize: 11
             color: "#ffffff"
-            anchors.left:parent.left
+            anchors.left: parent.left
             anchors.leftMargin: 20
             anchors.verticalCenter: parent.verticalCenter
         }
@@ -496,12 +639,11 @@ Item {
             width: 16
             height: 16
             background: Image {
-                x:0
-                y:0
+                x: 0
+                y: 0
                 fillMode: Image.PreserveAspectFit
                 source: "../res/icons/closebtngrey.png"
             }
         }
-
     }
 }

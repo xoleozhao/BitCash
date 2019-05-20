@@ -27,6 +27,7 @@
 #include <utilstrencodings.h>
 #include <validationinterface.h>
 #include <warnings.h>
+#include <wallet/rpcwallet.h>
 
 #include <memory>
 #include <stdint.h>
@@ -142,7 +143,7 @@ UniValue generateBlocks(
 
         while (nMaxTries > 0 && pblock->nNonce < nInnerLoopCount && !CheckProofOfWork(pblock->GetHash(), pblock->nBits, Params().GetConsensus())) {
             ++pblock->nNonce;
-            --nMaxTries;        
+            --nMaxTries;
         }
 
         if (nMaxTries == 0) {
@@ -166,7 +167,6 @@ UniValue generateBlocks(
     return blockHashes;
 }
 
-extern bool minerreduced;
 UniValue getmininginfo(const JSONRPCRequest& request)
 {
     if (request.fHelp || request.params.size() != 0)
@@ -208,7 +208,6 @@ UniValue getmininginfo(const JSONRPCRequest& request)
 //    obj.push_back(Pair("currentblockref",    (uint64_t)nLastBlockRef));
     obj.push_back(Pair("difficulty",         (double)GetDifficulty()));
     obj.push_back(Pair("mining",             gArgs.GetBoolArg("-mine", DEFAULT_MINING)));
-    obj.push_back(Pair("reduced power",      minerreduced));
     obj.push_back(Pair("minepowthreads",     gArgs.GetArg("-minepowthreads", DEFAULT_MINING_POW_THREADS)));
     obj.push_back(Pair("minebucketsize",     gArgs.GetArg("-minebucketsize", DEFAULT_MINING_BUCKET_SIZE)));
     obj.push_back(Pair("minebucketthreads",  gArgs.GetArg("-minebucketthreads", DEFAULT_MINING_BUCKET_THREADS)));
@@ -289,6 +288,11 @@ static std::string gbt_vb_name(const Consensus::DeploymentPos pos) {
 
 UniValue getblocktemplate(const JSONRPCRequest& request)
 {
+    CWallet * const pwallet = GetWalletForJSONRPCRequest(request);
+    if (!EnsureWalletIsAvailable(pwallet, request.fHelp)) {
+        return NullUniValue;
+    }
+
     if (request.fHelp || request.params.size() > 1)
         throw std::runtime_error(
             "getblocktemplate ( TemplateRequest )\n"
@@ -436,11 +440,11 @@ UniValue getblocktemplate(const JSONRPCRequest& request)
     if(!g_connman)
         throw JSONRPCError(RPC_CLIENT_P2P_DISABLED, "Error: Peer-to-peer functionality missing or disabled");
 
-    if (g_connman->GetNodeCount(CConnman::CONNECTIONS_ALL) == 0)
-        throw JSONRPCError(RPC_CLIENT_NOT_CONNECTED, "Bitcash is not connected!");
+/*    if (g_connman->GetNodeCount(CConnman::CONNECTIONS_ALL) == 0)
+        throw JSONRPCError(RPC_CLIENT_NOT_CONNECTED, "Bitcash is not connected!");*/
 
-    if (IsInitialBlockDownload())
-        throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD, "Bitcash is downloading blocks...");
+/*    if (IsInitialBlockDownload())
+        throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD, "Bitcash is downloading blocks...");*/
 
     static unsigned int nTransactionsUpdatedLast;
 

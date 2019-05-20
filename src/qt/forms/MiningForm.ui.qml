@@ -233,7 +233,6 @@ Item {
         width: 632
         height: 130
     }
-
     Text {
         id: mininglog1
         y: 74
@@ -400,6 +399,7 @@ Item {
         font.family: "Montserrat"
         opacity: 0.5
     }
+
     CheckBox {
         id: stopanimation
         text: qsTr("Stop animation")
@@ -431,7 +431,6 @@ Item {
             source: "../res/assets/Miscellaneous/info.png"
         }
     }
-
     Label {
         id: miningpoollabel
         color: "#3d3e40"
@@ -445,7 +444,6 @@ Item {
         font.family: "Montserrat SemiBold"
         visible: false
     }
-
     ComboBox {
         id: poolcombo
         height: 48

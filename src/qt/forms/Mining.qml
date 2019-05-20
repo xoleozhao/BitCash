@@ -112,7 +112,7 @@ MiningForm {
      }
 
      function setminingstatsintern(graphs,cycles) {
-         graphsstat.text=graphs         
+         graphsstat.text=graphs
      }
 
      stopanimation.onCheckStateChanged: {

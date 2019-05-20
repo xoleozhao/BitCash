@@ -11,7 +11,6 @@
 std::unique_ptr<NicknameDatabase> database;
 std::map<std::string, CNicknameBookData> mapNicknameBook;
 std::map<CPubKey, CNicknameAddrBookData> mapAddressForNicknameBook;
-
 std::map<CScript, CPubKey> stealthaddresses;
 std::map<std::string, std::string> reflines;
 
@@ -42,7 +41,6 @@ bool SetRefLines(const std::string encryptedref,const std::string decryptedref)
 
     return valid;
 }
-
 
 bool SetNickname(const std::string& strName,const CPubKey address, uint256 hash, bool storeblockhash, bool isnonprivate)
 {

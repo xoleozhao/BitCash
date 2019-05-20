@@ -92,6 +92,7 @@ struct Params {
     uint8_t nCuckooProofSize;
     uint64_t X16RTIME;
     uint64_t NONPRIVACY;
+    uint64_t STABLETIME;
 };
 } // namespace Consensus
 

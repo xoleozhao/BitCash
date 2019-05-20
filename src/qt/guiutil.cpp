@@ -246,7 +246,7 @@ bool isDust(interfaces::Node& node, const QString& address, const CAmount& amoun
 {
     CTxDestination dest = DecodeDestination(address.toStdString());
     CScript script = GetScriptForDestination(dest);
-    CTxOut txOut(amount, script);
+    CTxOut txOut(amount, script, 0);
     return IsDust(txOut, node.getDustRelayFee());
 }
 

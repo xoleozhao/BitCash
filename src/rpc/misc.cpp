@@ -92,7 +92,7 @@ UniValue getinfo(const JSONRPCRequest& request)
 #ifdef ENABLE_WALLET
     if (pwallet) {
         obj.push_back(Pair("walletversion", pwallet->GetVersion()));
-        obj.push_back(Pair("balance",       ValueFromAmount(pwallet->GetBalance())));
+        obj.push_back(Pair("balance",       ValueFromAmount(pwallet->GetBalance(0))));
     }
 #endif
     obj.push_back(Pair("blocks",        (int)chainActive.Height()));
@@ -376,13 +376,17 @@ static UniValue signpricewithprivkey(const JSONRPCRequest& request)
     CHashWriter ss(SER_GETHASH, 0);
     ss << pinfo;
 
+    uint256 hash = ss.GetHash();
+//        std::cout << std::endl<< "hash when signing: " << hash.ToString() << std::endl;
+
     std::vector<unsigned char> vchSig;
-    if (!key.Sign(ss.GetHash(), vchSig))
+    if (!key.Sign(hash, vchSig))
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Sign failed");
 
     UniValue obj(UniValue::VOBJ);
     obj.pushKV("priceinfo", HexStr(ssPrice.begin(), ssPrice.end()));
     obj.pushKV("signature", HexStr(vchSig.begin(), vchSig.end()));
+
     return obj;
 }
 

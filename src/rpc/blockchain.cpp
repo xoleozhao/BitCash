@@ -47,6 +47,22 @@ static std::mutex cs_blockchange;
 static std::condition_variable cond_blockchange;
 static CUpdatedBlock latestblock;
 
+/* Get the price for a given block index
+ */
+double GetBlockPrice(const CBlockIndex* blockindex)
+{
+    if (blockindex == nullptr)
+    {
+        if (chainActive.Tip() == nullptr)
+            return 0;
+        else
+            blockindex = chainActive.Tip();
+    }
+    if (blockindex->nPriceInfo.priceCount<=0) return 0;
+    else
+      return blockindex->GetPriceinCurrency(0);
+}
+
 /* Calculate the difficulty for a given block index,
  * or the block index of the given chain.
  */
@@ -162,6 +178,27 @@ UniValue blockheaderToJSON(const CBlockIndex* blockindex)
     if (!x16ractive) result.pushKV("edgebits", strprintf("%u", blockindex->nEdgeBits));
     result.pushKV("difficulty", GetDifficulty(blockindex));
     result.pushKV("chainwork", blockindex->nChainWork.GetHex());
+    result.pushKV("pricetime", (int64_t)blockindex->nPriceInfo.priceTime);
+    result.pushKV("pricecount", blockindex->nPriceInfo.priceCount);
+
+    for (int i=0;i<blockindex->nPriceInfo.priceCount;i++)
+        result.pushKV("price", ValueFromAmount(blockindex->nPriceInfo.prices[i]));
+
+    result.pushKV("pricetime2", (int64_t)blockindex->nPriceInfo2.priceTime);
+    result.pushKV("pricecount2", blockindex->nPriceInfo2.priceCount);
+
+    for (int i=0;i<blockindex->nPriceInfo2.priceCount;i++)
+        result.pushKV("price2", ValueFromAmount(blockindex->nPriceInfo2.prices[i]));
+
+    result.pushKV("pricetime3", (int64_t)blockindex->nPriceInfo3.priceTime);
+    result.pushKV("pricecount3", blockindex->nPriceInfo3.priceCount);
+
+    for (int i=0;i<blockindex->nPriceInfo3.priceCount;i++)
+        result.pushKV("price3", ValueFromAmount(blockindex->nPriceInfo3.prices[i])); 
+
+    for (int i=0;i<blockindex->nPriceInfo3.priceCount;i++)
+        result.pushKV("priceaverage", ValueFromAmount(blockindex->GetPriceinCurrency(i))); 
+
 
     if (blockindex->pprev)
         result.pushKV("previousblockhash", blockindex->pprev->GetBlockHash().GetHex());
@@ -207,6 +244,26 @@ UniValue blockToJSON(const CBlock& block, const CBlockIndex* blockindex, bool tx
     result.pushKV("bits", strprintf("%08x", block.nBits));
     result.pushKV("difficulty", GetDifficulty(blockindex));
     result.pushKV("chainwork", blockindex->nChainWork.GetHex());
+
+    result.pushKV("pricetime", (int64_t)block.nPriceInfo.priceTime);
+    result.pushKV("pricecount", block.nPriceInfo.priceCount);
+
+    for (int i=0;i<block.nPriceInfo.priceCount;i++)
+    result.pushKV("price", ValueFromAmount(block.nPriceInfo.prices[i]));
+
+
+    result.pushKV("pricetime2", (int64_t)blockindex->nPriceInfo2.priceTime);
+    result.pushKV("pricecount2", blockindex->nPriceInfo2.priceCount);
+
+    for (int i=0;i<blockindex->nPriceInfo2.priceCount;i++)
+        result.pushKV("price2", ValueFromAmount(blockindex->nPriceInfo2.prices[i]));
+
+    result.pushKV("pricetime3", (int64_t)blockindex->nPriceInfo3.priceTime);
+    result.pushKV("pricecount3", blockindex->nPriceInfo3.priceCount);
+
+    for (int i=0;i<blockindex->nPriceInfo3.priceCount;i++)
+        result.pushKV("price3", ValueFromAmount(blockindex->nPriceInfo3.prices[i])); 
+
 
     if (blockindex->pprev)
         result.pushKV("previousblockhash", blockindex->pprev->GetBlockHash().GetHex());
@@ -915,9 +972,14 @@ struct CCoinsStats
     uint64_t nBogoSize;
     uint256 hashSerialized;
     uint64_t nDiskSize;
-    CAmount nTotalAmount;
+    CAmount nTotalAmount[256];
 
-    CCoinsStats() : nHeight(0), nTransactions(0), nTransactionOutputs(0), nBogoSize(0), nDiskSize(0), nTotalAmount(0) {}
+    CCoinsStats() : nHeight(0), nTransactions(0), nTransactionOutputs(0), nBogoSize(0), nDiskSize(0) {
+        for (unsigned i = 0; i <= 255; i++)
+        {
+            nTotalAmount[i] = 0;
+        }
+    }
 };
 
 static void ApplyStats(CCoinsStats &stats, CHashWriter& ss, const uint256& hash, const std::map<uint32_t, Coin>& outputs)
@@ -931,7 +993,7 @@ static void ApplyStats(CCoinsStats &stats, CHashWriter& ss, const uint256& hash,
         ss << output.second.out.scriptPubKey;
         ss << VARINT(output.second.out.nValue, VarIntMode::NONNEGATIVE_SIGNED);
         stats.nTransactionOutputs++;
-        stats.nTotalAmount += output.second.out.nValue;
+        stats.nTotalAmount[output.second.out.currency] += output.second.out.nValue;
         stats.nBogoSize += 32 /* txid */ + 4 /* vout index */ + 4 /* height + coinbase */ + 8 /* amount */ +
                            2 /* scriptPubKey len */ + output.second.out.scriptPubKey.size() /* scriptPubKey */;
     }
@@ -1061,7 +1123,8 @@ static UniValue gettxoutsetinfo(const JSONRPCRequest& request)
         ret.pushKV("bogosize", (int64_t)stats.nBogoSize);
         ret.pushKV("hash_serialized_2", stats.hashSerialized.GetHex());
         ret.pushKV("disk_size", stats.nDiskSize);
-        ret.pushKV("total_amount", ValueFromAmount(stats.nTotalAmount));
+        ret.pushKV("total_amount", ValueFromAmount(stats.nTotalAmount[0]));
+        ret.pushKV("total_amount_usd", ValueFromAmount(stats.nTotalAmount[1]));
     } else {
         throw JSONRPCError(RPC_INTERNAL_ERROR, "Unable to read UTXO set");
     }
@@ -1606,7 +1669,7 @@ static UniValue listinvalidblocks(const JSONRPCRequest& request)
             }
         }
     }
-
+    
     ret.pushKV("invalidblocks", blocksinvalid);
 
     return ret;

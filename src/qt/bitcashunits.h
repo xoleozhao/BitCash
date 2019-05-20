@@ -58,7 +58,8 @@ public:
     {
         BITC,
         mBITC,
-        uBITC
+        uBITC,
+        DOLLAR
     };
 
     enum SeparatorStyle

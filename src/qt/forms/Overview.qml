@@ -3,7 +3,7 @@ import QtQuick.Controls 2.0
 import QtQuick.Controls.Material 2.0
 import QtQuick.Layouts 1.3
 
-Item {   
+Item {
     id: overviewForm
     width: 1280
     height: 800
@@ -23,6 +23,11 @@ Item {
                    label11.visible=false
                    label.visible=false
                    backupimage.visible=false
+                   trading.width = 0
+                   trading.visible = false
+                   trading.anchors.rightMargin = 0
+                   label43.visible=false
+                   label12.visible=false
                }else {
                    image.width=200;
                    image.anchors.rightMargin=30
@@ -35,6 +40,11 @@ Item {
                    label11.visible=false
                    label.visible=false
                    backupimage.visible=false
+                   trading.width = backup.width
+                   trading.visible = true
+                   trading.anchors.rightMargin = 24
+                   label43.visible=false
+                   label12.visible=false
                }
            }else {
                image.width=420-(1200-overviewForm.width);
@@ -48,30 +58,52 @@ Item {
                label11.visible=true
                label.visible=true
                backupimage.visible=true
+               trading.width = backup.width
+               trading.visible = true
+               trading.anchors.rightMargin = 24
+               label43.visible=true
+               label12.visible=true
            }
        } else {
-           image.width=420
-           image.visible=true
-           image.anchors.rightMargin=30
-           backup.width=image.width+12
-           backup.visible=true
-           backup.anchors.rightMargin=24
-           label4.visible=true
-           label42.visible=true
-           label11.visible=true
-           label.visible=true
-           backupimage.visible=true
+           image.width = 420
+           image.visible = true
+           image.anchors.rightMargin = 30
+           backup.width = image.width+12
+           backup.visible = true
+           backup.anchors.rightMargin = 24
+           label4.visible = true
+           label42.visible = true
+           label11.visible = true
+           label.visible = true
+           backupimage.visible = true
+           trading.width = backup.width
+           trading.visible = true
+           trading.anchors.rightMargin = 24
+           label43.visible = true
+           label12.visible = true
        }
     }
 
     signal startMiningSignalInternoverview()
     signal startBackupSignalInternoverview()
+    signal startTradingSignalInternoverview()
 
     function setbalancesintern(avail, pending, immature, total) {
-        availLabel.text=avail
-        pendingLabel.text=pending
-        immatureLabel.text=immature
-        totalLabel.text=total
+        availLabel.text = avail
+        pendingLabel.text = pending
+        immatureLabel.text = immature
+        totalLabel.text = total
+    }
+
+    function setbalancesinternDo(avail, pending, immature, total) {
+        availLabelDo.text = avail
+        pendingLabelDo.text = pending
+        immatureLabelDo.text = immature
+        totalLabelDo.text = total
+    }
+
+    function setpriceDointern(price) {
+        priceLabelDo.text = price
     }
 
     function geticonname(nr)
@@ -87,7 +119,7 @@ Item {
         radius: 1
         border.width: 0
         clip: true
-        height: 284
+        height: 369
         color: "white"
         anchors.left: parent.left
         anchors.leftMargin: 24
@@ -162,7 +194,7 @@ Item {
             font.weight: Font.DemiBold
             leftPadding: 0
             anchors.bottom: pendingLabel.top
-            anchors.bottomMargin: 46
+            anchors.bottomMargin: 56
             anchors.right: parent.right
             anchors.rightMargin: 36
             color: "#202124"
@@ -180,10 +212,38 @@ Item {
         }
 
         Label {
+            id: availLabelDo
+            x: 285
+            y: 33
+            text: qsTr("32.950000000")
+            font.pixelSize: 14
+            font.family: "Montserrat SemiBold"
+            font.weight: Font.DemiBold
+            leftPadding: 0
+            anchors.top: availLabel.bottom
+            anchors.topMargin: 5
+            anchors.right: parent.right
+            anchors.rightMargin: 36
+            color: "#202124"
+        }
+
+        Label {
+            id: availbitcashiconDo
+            anchors.right: availLabelDo.left
+            anchors.verticalCenter: availLabelDo.verticalCenter
+            font.pixelSize: 14
+            font.family: "Montserrat SemiBold"
+            font.weight: Font.DemiBold
+            color: "#202124"
+            text: "$"
+        }
+
+        Label {
             id: pendingLabel
             x: 282
             y: 104
             text: qsTr("8764332,956544566")
+            anchors.verticalCenterOffset: -1
             font.pixelSize: 14
             font.family: "Montserrat SemiBold"
             font.weight: Font.DemiBold
@@ -206,6 +266,33 @@ Item {
             }
         }
 
+        Label {
+            id: pendingLabelDo
+            x: 282
+            text: qsTr("8764332,956544566")
+            font.pixelSize: 14
+            font.family: "Montserrat SemiBold"
+            font.weight: Font.DemiBold
+            leftPadding: 0
+            anchors.top: pendingLabel.bottom
+            anchors.topMargin: 5
+            horizontalAlignment: Text.AlignRight
+            anchors.right: parent.right
+            anchors.rightMargin: 36
+            color: "#202124"
+            Label {
+                id: pendingbitcashiconDo
+                anchors.right: pendingLabelDo.left
+                anchors.verticalCenter: pendingLabelDo.verticalCenter
+
+                font.pixelSize: 14
+                font.family: "Montserrat SemiBold"
+                font.weight: Font.DemiBold
+                color: "#202124"
+                text: "$"
+            }
+        }
+
         Rectangle {
             id: totalbalancerect
             onWidthChanged: {
@@ -225,9 +312,9 @@ Item {
 
             }
             y: 25
-            radius: 4
+            radius: 1
             clip: true
-            height: 189
+            height: 200
             color: "#00000000"
             anchors.top: parent.top
             anchors.bottom: parent.bottom
@@ -238,7 +325,7 @@ Item {
 
             Label {
                 id: label3
-                text: qsTr("Total balance")
+                text: qsTr("Total BitCash balance")
                 anchors.top: parent.top
                 anchors.topMargin: 36
                 font.pixelSize: 18
@@ -273,6 +360,84 @@ Item {
             font.weight: Font.Light
             color: "#3e45ac"
             text: "₡"
+        }
+
+        Label {
+            id: label3Do
+            text: qsTr("Total Dollar balance")
+            anchors.top: totalLabel.bottom
+            anchors.topMargin: 20
+            font.pixelSize: 18
+            font.family: "Montserrat SemiBold"
+            font.weight: Font.DemiBold
+            anchors.left: parent.left
+            anchors.leftMargin: 36
+            color: "#212225"
+        }
+
+        Label {
+            id: totalLabelDo
+            text: qsTr("3345154,000000000")
+            font.pixelSize: 42
+            font.family: "Montserrat Light"
+            font.weight: Font.Light
+            leftPadding: 0
+            anchors.left: totalbitcashiconDo.right
+            anchors.leftMargin: 0
+            anchors.top: label3Do.bottom
+            anchors.topMargin: 10
+            color: "#3e45ac"
+        }
+        Label {
+            id: totalbitcashiconDo
+            anchors.left: parent.left
+            anchors.leftMargin: 36
+            anchors.verticalCenter: totalLabelDo.verticalCenter
+
+            font.pixelSize: 42
+            font.family: "Montserrat Light"
+            font.weight: Font.Light
+            color: "#3e45ac"
+            text: "$"
+        }
+
+        Label {
+            id: pricecaption
+            text: qsTr("Price of one BitCash in USD")
+            anchors.top: totalbitcashiconDo.bottom
+            anchors.topMargin: 20
+            font.pixelSize: 18
+            font.family: "Montserrat SemiBold"
+            font.weight: Font.DemiBold
+            anchors.left: parent.left
+            anchors.leftMargin: 36
+            color: "#212225"
+        }
+
+        Label {
+            id: priceLabelDo
+            text: qsTr("-")
+            font.pixelSize: 42
+            font.family: "Montserrat Light"
+            font.weight: Font.Light
+            leftPadding: 0
+            anchors.left: pricebitcashiconDo.right
+            anchors.leftMargin: 0
+            anchors.top: pricecaption.bottom
+            anchors.topMargin: 10
+            color: "#3e45ac"
+        }
+        Label {
+            id: pricebitcashiconDo
+            anchors.left: parent.left
+            anchors.leftMargin: 36
+            anchors.verticalCenter: priceLabelDo.verticalCenter
+
+            font.pixelSize: 42
+            font.family: "Montserrat Light"
+            font.weight: Font.Light
+            color: "#3e45ac"
+            text: "$"
         }
 
         }
@@ -341,8 +506,37 @@ Item {
             font.family: "Montserrat SemiBold"
             leftPadding: 0
             anchors.top: pendingLabel.bottom
-            anchors.topMargin: 46
+            anchors.topMargin: 50
             horizontalAlignment: Text.AlignRight            
+            anchors.right: parent.right
+            anchors.rightMargin: 36
+            color: "#202124"
+        }
+
+        Label {
+            id: immaturebitcashiconDo
+            anchors.right: immatureLabelDo.left
+            anchors.verticalCenter: immatureLabelDo.verticalCenter
+
+            font.pixelSize: 14
+            font.family: "Montserrat SemiBold"
+            font.weight: Font.DemiBold
+            color: "#202124"
+            text: "$"
+        }
+
+
+        Label {
+            id: immatureLabelDo
+            x: 282
+            text: qsTr("2,453000")
+            font.pixelSize: 14
+            font.weight: Font.DemiBold
+            font.family: "Montserrat SemiBold"
+            leftPadding: 0
+            anchors.top: immatureLabel.bottom
+            anchors.topMargin: 5
+            horizontalAlignment: Text.AlignRight
             anchors.right: parent.right
             anchors.rightMargin: 36
             color: "#202124"
@@ -353,7 +547,7 @@ Item {
             height: 1
             radius: 10
             anchors.top: pendingLabel.bottom
-            anchors.topMargin: 20
+            anchors.topMargin: 35
             color: "#eaeaea"
             anchors.right: immatureLabel.right
             anchors.rightMargin: 0
@@ -378,6 +572,7 @@ Item {
     property int  datewidth : 150
     property int  typewidth : 150
     property int  amountwidth : 220
+    property int  amountusdwidth : 220
     Label{
         id: lasttranslabel
         anchors.top: balancerect.bottom
@@ -444,7 +639,7 @@ Item {
                             background: Rectangle { color: "#ebebeb" }
                         }
                         Label {
-                            width: overviewForm.width-datewidth-typewidth-amountwidth-30-30
+                            width: overviewForm.width-datewidth-typewidth-amountwidth-amountusdwidth-30-30
                             height: 44
                             text: "Address"
                             verticalAlignment: Text.AlignVCenter
@@ -461,7 +656,7 @@ Item {
                         Label {
                             width: amountwidth
                             height: 44
-                            text: "Amount"
+                            text: "BITC"
                             verticalAlignment: Text.AlignVCenter
                             bottomPadding: 10
                             rightPadding: 20
@@ -470,6 +665,23 @@ Item {
                             font.weight: Font.DemiBold
                             font.family: "Montserrat SemiBold"
                             horizontalAlignment: Text.AlignRight                            
+                            font.pixelSize: 13
+                            color:"#202124"
+                            padding: 10
+                            background: Rectangle { color: "#ebebeb" }
+                        }
+                        Label {
+                            width: amountusdwidth
+                            height: 44
+                            text: "USD"
+                            verticalAlignment: Text.AlignVCenter
+                            bottomPadding: 10
+                            rightPadding: 20
+                            leftPadding: 20
+                            anchors.verticalCenter: parent.verticalCenter
+                            font.weight: Font.DemiBold
+                            font.family: "Montserrat SemiBold"
+                            horizontalAlignment: Text.AlignRight
                             font.pixelSize: 13
                             color:"#202124"
                             padding: 10
@@ -551,7 +763,7 @@ Item {
                         }
                         ItemDelegate {
                             property int column: 2
-                            width: overviewForm.width-datewidth-typewidth-amountwidth-30-30
+                            width: overviewForm.width-datewidth-typewidth-amountwidth-amountusdwidth-30-30
                             text: ""
                             clip: true
                             Label {
@@ -573,9 +785,28 @@ Item {
                             text: ""
                             clip: true
                             Label {
-                                text: transactionamount
+                                text: transactionamountbitc
                                 anchors.leftMargin: 8
                                 anchors.rightMargin: 20                                
+                                anchors.left: parent.left
+                                anchors.right: parent.right
+                                anchors.verticalCenter: parent.verticalCenter
+                                horizontalAlignment: Text.AlignRight
+                                font.family: "Montserrat SemiBold"
+                                font.weight: Font.DemiBold
+                                font.pixelSize: 14
+                                color: "#202124"
+                            }
+                        }
+                        ItemDelegate {
+                            property int column: 4
+                            width: amountusdwidth
+                            text: ""
+                            clip: true
+                            Label {
+                                text: transactionamountusd
+                                anchors.leftMargin: 8
+                                anchors.rightMargin: 20
                                 anchors.left: parent.left
                                 anchors.right: parent.right
                                 anchors.verticalCenter: parent.verticalCenter
@@ -681,10 +912,10 @@ Item {
         x: 354
         y: 31
         width: 432
-        height: 134
+        height: 120
         anchors.right: parent.right
         anchors.rightMargin: 24
-        radius: 3
+        radius: 1
         anchors.bottom: balancerect.bottom
         anchors.bottomMargin: 0
         border.width: 0
@@ -821,5 +1052,70 @@ Item {
         }
 
     }
+
+    ShadowBox {
+        id: trading
+        x: 824
+        width: 432
+        radius: 3
+        anchors.top: image.bottom
+        anchors.topMargin: 10
+        anchors.bottom: backup.top
+        anchors.bottomMargin: 10
+
+        Label {
+            id: label12
+            color: "#202124"
+            text: qsTr("Automatic trading")
+            anchors.topMargin: 20
+            font.family: "Montserrat SemiBold"
+            font.weight: Font.DemiBold
+            font.pixelSize: 18
+            anchors.left: parent.left
+            anchors.leftMargin: 30
+            anchors.top: parent.top
+        }
+
+        Text {
+            id: label43
+            x: -4
+            y: 5
+            height: 54
+            color: "#4f515a"
+            text: qsTr("Place a stop loss or take profit order")
+            anchors.topMargin: 5
+            font.family: "Montserrat"
+            wrapMode: Text.WordWrap
+            font.pixelSize: 13
+            anchors.left: parent.left
+            anchors.rightMargin: 20
+            anchors.leftMargin: 30
+            anchors.top: label12.bottom
+            anchors.right: tradebutton.left
+        }
+
+        Mybutton {
+            id: tradebutton
+            x: 244
+            y: 208
+            height: 44
+            text: qsTr("Place orders")
+            font.bold: false
+            rightPadding: 20
+            leftPadding: 20
+            font.family: "Montserrat SemiBold"
+            font.capitalization: Font.MixedCase
+            font.weight: Font.DemiBold
+            font.pixelSize: 14
+            anchors.rightMargin: 20
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.right: parent.right
+            onClicked: startTradingSignalInternoverview()
+        }
+        anchors.rightMargin: 24
+        border.width: 0
+        anchors.right: parent.right
+    }
+
 
 }

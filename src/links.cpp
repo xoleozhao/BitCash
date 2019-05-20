@@ -19,18 +19,20 @@ void InitLinksDB()
     DBNICKErrors nLoadWalletRet = LinksBatch(*ldatabase,"cr+").LoadWallet();
 }
 
-bool SetLink(const std::string& strlink,const std::string& desc,const std::string& amount,int status,uint64_t timestamp)
+bool SetLink(const std::string& strlink,const std::string& desc,const std::string& amount,int status,uint64_t timestamp, unsigned char currency)
 {
     mapLinksBook[strlink].description = desc;
     mapLinksBook[strlink].amount = amount;
     mapLinksBook[strlink].status = status;
     mapLinksBook[strlink].timestamp = timestamp;
+    mapLinksBook[strlink].currency = currency;
 
     bool valid=true;
     if (!LinksBatch(*ldatabase).WriteNameLinkDesc(strlink, desc))valid=false;
     if (!LinksBatch(*ldatabase).WriteNameLinkAmount(strlink, amount))valid=false;
     if (!LinksBatch(*ldatabase).WriteNameLinkStatus(strlink, status))valid=false;
     if (!LinksBatch(*ldatabase).WriteNameLinkTimestamp(strlink, timestamp))valid=false;
+    if (!LinksBatch(*ldatabase).WriteNameLinkCurrency(strlink, currency))valid=false;
 
     return valid;
 }

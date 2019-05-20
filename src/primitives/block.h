@@ -6,14 +6,17 @@
 #ifndef BITCASH_PRIMITIVES_BLOCK_H
 #define BITCASH_PRIMITIVES_BLOCK_H
 
+#include <consensus/params.h>
 #include <primitives/transaction.h>
 #include <serialize.h>
 #include <uint256.h>
 #include <set>
 
 #define hashx16Ractive ((uint32_t)1) << 3
+#define stabletimeactive ((uint32_t)1) << 2
 
 extern bool isX16Ractive(int32_t nVersion);
+extern bool isstabletimeactive(int32_t nVersion);
 
 //Stores a signed price information
 class CPriceInfo
@@ -45,8 +48,8 @@ public:
 	priceTime = 0;
         priceCount = 1;
         unsigned char i;
-        for (i=0;i<priceCount;i++) {
-	    prices[i]=0;
+        for (i = 0; i < priceCount; i++) {
+	    prices[i] = 1;
         }
     }
 
@@ -79,6 +82,12 @@ public:
     uint32_t nTime;
     uint32_t nBits;
     uint32_t nNonce;
+    CPriceInfo nPriceInfo;
+    std::vector<unsigned char> priceSig;//Signature for nPriceInfo
+    CPriceInfo nPriceInfo2;
+    std::vector<unsigned char> priceSig2;//Signature for nPriceInfo2
+    CPriceInfo nPriceInfo3;
+    std::vector<unsigned char> priceSig3;//Signature for nPriceInfo3
     uint8_t nEdgeBits;
     std::set<uint32_t> sCycle;
 
@@ -98,13 +107,30 @@ public:
         READWRITE(nTime);
         READWRITE(nBits);
         READWRITE(nNonce);
+        if (isstabletimeactive(this->nVersion)) {	
+            READWRITE(nPriceInfo);
+            READWRITE(priceSig);
+            READWRITE(nPriceInfo2);
+            READWRITE(priceSig2);
+            READWRITE(nPriceInfo3);
+            READWRITE(priceSig3);
+        } else {
+          nPriceInfo.prices[0] = 1;
+          nPriceInfo.priceCount = 1;
+          nPriceInfo2.prices[0] = 1;
+          nPriceInfo2.priceCount = 1;
+          nPriceInfo3.prices[0] = 1;
+          nPriceInfo3.priceCount = 1;
+        }
         if (!isX16Ractive(this->nVersion)) {
             READWRITE(nEdgeBits);
             if (!(s.GetType() & SER_GETHASH)) {
                 READWRITE(sCycle);
             }
-        }
+        }        
     }
+
+    CAmount GetPriceinCurrency(unsigned char currency) const;
 
     void SetNull()
     {
@@ -114,7 +140,13 @@ public:
         nTime = 0;
         nBits = 0;
         nNonce = 0;
-        nEdgeBits = 0;
+        nPriceInfo.SetNull();
+        priceSig.clear();
+        nPriceInfo2.SetNull();
+        priceSig2.clear();
+        nPriceInfo3.SetNull();
+        priceSig3.clear();
+        nEdgeBits = 0;        
         sCycle.clear();
     }
 
@@ -176,6 +208,12 @@ public:
         block.nTime          = nTime;
         block.nBits          = nBits;
         block.nNonce         = nNonce;
+        block.nPriceInfo     = nPriceInfo;
+        block.priceSig       = priceSig;
+        block.nPriceInfo2    = nPriceInfo2;
+        block.priceSig2      = priceSig2;
+        block.nPriceInfo3    = nPriceInfo3;
+        block.priceSig3      = priceSig3;
         block.nEdgeBits      = nEdgeBits;
         block.sCycle         = sCycle;
         return block;

@@ -15,7 +15,7 @@ Item {
         anchors.right:parent.right
         anchors.bottom:parent.bottom
         color: "#f7f7f7"
-    }    
+    }
 
     function getminingpool()
     {
@@ -77,6 +77,7 @@ Item {
 
     function clearsendentries(msg) {
         send.clearsendentriesintern()
+        send.clearsendentriesinternDo()
      }
 
     function clearregisternickentries(msg) {
@@ -87,9 +88,17 @@ Item {
         nicknames.setnicknameerrorintern(msg)
     }
 
+    function deactivateallwindows()
+    {
+        paperbillselect.visible = false
+        backupwallet.visible = false
+        trading.visible = false
+        paperwallet.visible = false
+    }
+
     function startpaperwallet(msg) {
-        backupwallet.visible=false
-        paperwallet.visible=true
+        deactivateallwindows()
+        paperwallet.visible = true
     }
 
     function setwalletfolder(folder) {
@@ -97,9 +106,24 @@ Item {
     }
 
     function startbackupwallet(msg) {
-        paperwallet.visible=false
+        deactivateallwindows()
         backupwallet.visible=true
         backupwallet.tabBar.currentIndex=0
+    }
+
+    function opentradingwindow(msg) {
+        deactivateallwindows()
+        trading.visible = true
+    }
+
+    function openbillselectwindow(msg) {
+        deactivateallwindows()
+        paperbillselect.visible = true
+    }
+
+    function startprintingpaperbill(){
+        deactivateallwindows()
+        printpaperbill.visible = true
     }
 
     function startimportkey(msg) {        
@@ -108,21 +132,17 @@ Item {
         backupwallet.tabBar.currentIndex=1
     }
 
-    function setbacksendbtn()
-    {
-        send.setbacksendbtnintern()
-    }
-
     function setpaperwalletaddresses(address,privatekey) {
         paperwallet.setpaperwalletaddressesintern(address,privatekey)
         backupwallet.setpaperwalletaddressesintern(address,privatekey)
     }        
 
-    function displayerrormessage(msg) {        
-        send.setbacksendbtnintern()
+    function displayerrormessage(msg) {      
+        send.setbacksendbtnintern()  
         send.displayerrormessageintern(msg)
         receive.displayerrormessageintern(msg)
         payments.displayerrormessageintern(msg)
+        trading.displayerrormessageintern(msg)
     }
 
     function displayerrormessageimportkey(msg) {        
@@ -138,49 +158,49 @@ Item {
     property string coinsstr
     function twitterlinkokay(msg)
     {     
-        senderstr=receive.receivingnicknameEdit.text
-        if (senderstr==="") senderstr=receive.receivingaddressEdit.text
-        recieverstr=send.paytoEdittw.text
-        coinsstr=send.amountEdittw.text
+        senderstr = receive.receivingnicknameEdit.text
+        if (senderstr === "") senderstr = receive.receivingaddressEdit.text
+        recieverstr = send.paytoEdittw.text
+        coinsstr = send.amountEdittw.text
 
-        twittersuccess.twitteredit.text="https://wallet.choosebitcash.com/twitterlogin.php?sender="+senderstr+"&receiver="+recieverstr+"&coins="+coinsstr
-        twittersuccess.text2.text="Hey @"+recieverstr+", I just sent you "+coinsstr+" BITC to your Twitter account as a tip. Click here to claim it: "+twittersuccess.twitteredit.text
-        twittersuccess.text1.text=qsTr("Send the below link directly to the Twitter user so that he/she can claim the coins.\n\n You can even paste the link in public tweets or comments. No need to worry, no other user can gain access to these coins except for the intended Twitter user.\n\nIf you submitted this transaction by accident, you can claim the coins back with your link.")
-        twittersuccess.sendcap.text= qsTr("Successfully sent the coins to the Twitter user")
-        twittersuccess.sendicon.source= "../res/assets/Miscellaneous/twittericon.png"
-        twittersuccess.visible=true
+        twittersuccess.twitteredit.text = "https://wallet.choosebitcash.com/twitterlogin.php?sender="+senderstr+"&receiver="+recieverstr+"&coins="+coinsstr
+        twittersuccess.text2.text = "Hey @"+recieverstr+", I just sent you "+coinsstr+" BITC to your Twitter account as a tip. Click here to claim it: "+twittersuccess.twitteredit.text
+        twittersuccess.text1.text = qsTr("Send the below link directly to the Twitter user so that he/she can claim the coins.\n\n You can even paste the link in public tweets or comments. No need to worry, no other user can gain access to these coins except for the intended Twitter user.\n\nIf you submitted this transaction by accident, you can claim the coins back with your link.")
+        twittersuccess.sendcap.text = qsTr("Successfully sent the coins to the Twitter user")
+        twittersuccess.sendicon.source = "../res/assets/Miscellaneous/twittericon.png"
+        twittersuccess.visible = true
         send.clearsendentriesinterntw()
     }
 
     function instalinkokay(msg)
     {
-        senderstr=receive.receivingnicknameEdit.text
-        if (senderstr==="") senderstr=receive.receivingaddressEdit.text
-        recieverstr=send.paytoEditin.text
-        coinsstr=send.amountEditin.text
+        senderstr = receive.receivingnicknameEdit.text
+        if (senderstr === "") senderstr = receive.receivingaddressEdit.text
+        recieverstr = send.paytoEditin.text
+        coinsstr = send.amountEditin.text
 
-        twittersuccess.twitteredit.text="https://wallet.choosebitcash.com/instalogin.php?sender="+senderstr+"&receiver="+recieverstr+"&coins="+coinsstr
-        twittersuccess.text2.text="Hey @"+recieverstr+", I just sent you "+coinsstr+" BITC to your Instagram account as a tip. Click here to claim it: "+twittersuccess.twitteredit.text
-        twittersuccess.text1.text=qsTr("Send the below link directly to the Instagram user so that he/she can claim the coins.\n\n You can even paste the link in public posts or comments. No need to worry, no other user can gain access to these coins except for the intended Instagram user.\n\nIf you submitted this transaction by accident, you can claim the coins back with your link.")
-        twittersuccess.sendcap.text= qsTr("Successfully sent the coins to the Instagram user")
-        twittersuccess.sendicon.source= "../res/assets/Miscellaneous/instaicon.png"
-        twittersuccess.visible=true
+        twittersuccess.twitteredit.text = "https://wallet.choosebitcash.com/instalogin.php?sender="+senderstr+"&receiver="+recieverstr+"&coins="+coinsstr
+        twittersuccess.text2.text = "Hey @"+recieverstr+", I just sent you "+coinsstr+" BITC to your Instagram account as a tip. Click here to claim it: "+twittersuccess.twitteredit.text
+        twittersuccess.text1.text = qsTr("Send the below link directly to the Instagram user so that he/she can claim the coins.\n\n You can even paste the link in public posts or comments. No need to worry, no other user can gain access to these coins except for the intended Instagram user.\n\nIf you submitted this transaction by accident, you can claim the coins back with your link.")
+        twittersuccess.sendcap.text = qsTr("Successfully sent the coins to the Instagram user")
+        twittersuccess.sendicon.source = "../res/assets/Miscellaneous/instaicon.png"
+        twittersuccess.visible = true
         send.clearsendentriesinternin()
     }
 
     function twitchlinkokay(msg)
     {
-        senderstr=receive.receivingnicknameEdit.text
-        if (senderstr==="") senderstr=receive.receivingaddressEdit.text
-        recieverstr=send.paytoEditre.text
-        coinsstr=send.amountEditre.text
+        senderstr = receive.receivingnicknameEdit.text
+        if (senderstr === "") senderstr = receive.receivingaddressEdit.text
+        recieverstr = send.paytoEditre.text
+        coinsstr = send.amountEditre.text
 
-        twittersuccess.twitteredit.text="https://wallet.choosebitcash.com/twitchlogin.php?sender="+senderstr+"&receiver="+recieverstr+"&coins="+coinsstr
-        twittersuccess.text2.text="Hey @"+recieverstr+", I just sent you "+coinsstr+" BITC to your Twitch account as a tip. Click here to claim it: "+twittersuccess.twitteredit.text
-        twittersuccess.text1.text=qsTr("Send the below link directly to the Twitch user so that he/she can claim the coins.\n\n You can even paste the link in public posts or comments. No need to worry, no other user can gain access to these coins except for the intended Twitch user.\n\nIf you submitted this transaction by accident, you can claim the coins back with your link.")
-        twittersuccess.sendcap.text= qsTr("Successfully sent the coins to the Twitch user")
-        twittersuccess.sendicon.source= "../res/assets/Miscellaneous/twitchicon.png"
-        twittersuccess.visible=true
+        twittersuccess.twitteredit.text = "https://wallet.choosebitcash.com/twitchlogin.php?sender="+senderstr+"&receiver="+recieverstr+"&coins="+coinsstr
+        twittersuccess.text2.text = "Hey @"+recieverstr+", I just sent you "+coinsstr+" BITC to your Twitch account as a tip. Click here to claim it: "+twittersuccess.twitteredit.text
+        twittersuccess.text1.text = qsTr("Send the below link directly to the Twitch user so that he/she can claim the coins.\n\n You can even paste the link in public posts or comments. No need to worry, no other user can gain access to these coins except for the intended Twitch user.\n\nIf you submitted this transaction by accident, you can claim the coins back with your link.")
+        twittersuccess.sendcap.text = qsTr("Successfully sent the coins to the Twitch user")
+        twittersuccess.sendicon.source = "../res/assets/Miscellaneous/twitchicon.png"
+        twittersuccess.visible = true
         send.clearsendentriesinternre()
     }
 
@@ -189,7 +209,16 @@ Item {
         send.setmaxbalanceintern(avail, availnum)        
     }
 
-    function setreceivingaddress(address,nick) {        
+    function setbalancesDo(avail, pending, immature, total, availnum) {
+        overview.setbalancesinternDo(avail, pending, immature, total)
+        send.setmaxbalanceinternDo(avail, availnum)
+    }
+
+    function setpriceDo(price) {
+        overview.setpriceDointern(price)
+    }
+
+    function setreceivingaddress(address, nick) {
         if (nick!=="")
         {
             receive.setreceivingaddressintern(address,"@"+nick)
@@ -200,13 +229,16 @@ Item {
         }
     }
 
-    function addbitcashexpresslink(link,desc,amount,date) {
-        transactions.addbitcashexpresslinkintern(link,desc,amount,date)
+    function addbitcashexpresslink(link, desc, amount, date, currency) {
+        transactions.addbitcashexpresslinkintern(link,desc,amount,date,currency)
         send.descriptionEditan.text=""
         send.amountEditan.text=""
     }
-    function addpayment(id,recipient,desc,amount,day,month) {
-        payments.addpaymentsintern(id,recipient, desc,amount, day, month)
+    function addpayment(id, recipient, desc, amount, day, month, currency) {
+        payments.addpaymentsintern(id,recipient, desc,amount, day, month,currency)
+    }
+    function addorder(id, amount, target, senddollar, whenabove) {
+        trading.addorderintern(id, amount, target, senddollar, whenabove)
     }
     function bitcashexpressclaimed() {        
         receive.bitcashexpressclaimedintern()
@@ -217,8 +249,14 @@ Item {
     function clearpaymentfields(msg) {
         payments.clearpaymentfieldsintern(msg)
     }
+    function clearorderfields(msg) {
+        trading.clearorderfieldsintern(msg)
+    }
     function clearpaymentlistmodel() {
         payments.clearpaymentlistmodelintern()
+    }
+    function clearorderlistmodel() {
+        trading.clearorderslistmodelintern()
     }
     function clearlinklistmodel() {
         transactions.clearlinklistmodelintern();
@@ -239,6 +277,11 @@ Item {
         send.showconfirminstaintern(msg)
     }
 
+    function setbacksendbtn()
+    {
+        send.setbacksendbtnintern()
+    }
+
     function showconfirmtwitch(msg)
     {
         send.showconfirmtwitchintern(msg)
@@ -247,20 +290,25 @@ Item {
     signal filtereditchangedsignal(string text)
     signal showtxdetails(int index)
     signal sendBtnSignal(string destination, string label, string description, double amount, bool substractfee)    
-    signal sendBtntwSignal(string destination, string description, double amount)
-    signal sendBtninSignal(string destination, string description, double amount)
-    signal sendBtnreSignal(string destination, string description, double amount)
-    signal sendconfirmedBtntwSignal(string destination, string description, double amount)
-    signal sendconfirmedBtninSignal(string destination, string description, double amount)
-    signal sendconfirmedBtnreSignal(string destination, string description, double amount)
-    signal sendlinkBtnSignal(string description, double amount)
+    signal sendBtnDoSignal(string destination, string label, string description, double amount, bool substractfee)
+    signal sendBtntwSignal(string destination, string description, double amount, bool senddollar)
+    signal sendBtninSignal(string destination, string description, double amount, bool senddollar)
+    signal sendBtnreSignal(string destination, string description, double amount, bool senddollar)
+    signal sendconfirmedBtntwSignal(string destination, string description, double amount, bool senddollar)
+    signal sendconfirmedBtninSignal(string destination, string description, double amount, bool senddollar)
+    signal sendconfirmedBtnreSignal(string destination, string description, double amount, bool senddollar)
+    signal generateBillSignal(int denomination)
+    signal sendlinkBtnSignal(string description, double amount, bool senddollar)
     signal claimlinkBtnSignal(string link)
     signal datefiltersignal(int index)
     signal downloadtransactionsSignal()
     signal sendtoTwitterSignal(string twitteruser, string linktosend)
     signal sendtoInstaSignal(string twitteruser, string linktosend)
     signal sendtoTwitchSignal(string twitteruser, string linktosend)
-    signal createPaymentBtnSignal(string recipient, string description, double amount, int day, int month)
+    signal createPaymentBtnSignal(string recipient, string description, double amount, int day, int month, bool senddollar)
+    signal createOrderBtnSignal(double amounttosend, double targetPrice, bool senddollar, bool whenpricegoesabove)
+    signal printfrontbillSignal()
+    signal printbackbillSignal()
 
     signal registerNickSignal(string nickname, string address)
     signal minereducedSignal(bool isreduced)
@@ -275,8 +323,10 @@ Item {
     signal printpaperwalletSignal()
     signal backupwalletfileSignal()
     signal backupBtnSignal()
+    signal tradingBtnSignal()
     signal importkeySignal(string key)
     signal deletepaymentsignal(string idstr)
+    signal deleteordersignal(string idstr)
     signal abandonTxSignal(string txidtext)
 
     SwipeView {
@@ -294,11 +344,11 @@ Item {
             payments.width = width
         }
 
-
         Overview {
             id: overview
             onStartMiningSignalInternoverview: tabBar.currentIndex=tabBar.currentIndex+1
             onStartBackupSignalInternoverview: backupBtnSignal();
+            onStartTradingSignalInternoverview: tradingBtnSignal();
         }
         Mining{
             id: mining
@@ -307,7 +357,7 @@ Item {
             onMinereducedSignalIntern: minereducedSignal(isreduced)
         }
 
-        Flickable {            
+        Flickable {
             clip: true
             contentWidth: parent
             contentHeight: 1024
@@ -322,17 +372,19 @@ Item {
             Send{
                 id: send
                 onSendBtnSignalIntern: sendBtnSignal(destination,label,description,amount,substractfee)
-                onSendBtntwSignalIntern: sendBtntwSignal(destination,description,amount)
-                onSendconfirmedBtntwSignalIntern: sendconfirmedBtntwSignal(destination,description,amount)
-                onSendBtninSignalIntern: sendBtninSignal(destination,description,amount)
-                    onSendconfirmedBtninSignalIntern: sendconfirmedBtninSignal(destination,description,amount)
-                onSendBtnreSignalIntern: sendBtnreSignal(destination,description,amount)
-                onSendconfirmedBtnreSignalIntern: sendconfirmedBtnreSignal(destination,description,amount)
-                onSendlinkBtnSignalIntern: sendlinkBtnSignal(description, amount)
+                onSendBtnDoSignalIntern: sendBtnDoSignal(destination,label,description,amount,substractfee)
+                onPrintBtnDoSignalIntern: openbillselectwindow()
+                onSendBtntwSignalIntern: sendBtntwSignal(destination,description,amount, senddollar)
+                onSendconfirmedBtntwSignalIntern: sendconfirmedBtntwSignal(destination,description,amount,senddollar)
+                onSendBtninSignalIntern: sendBtninSignal(destination, description, amount, senddollar)
+                onSendconfirmedBtninSignalIntern: sendconfirmedBtninSignal(destination, description, amount, senddollar)
+                onSendBtnreSignalIntern: sendBtnreSignal(destination,description,amount, senddollar)
+                onSendconfirmedBtnreSignalIntern: sendconfirmedBtnreSignal(destination,description,amount, senddollar)
+                onSendlinkBtnSignalIntern: sendlinkBtnSignal(description, amount, senddollar)
                 onSendtoanyoneSignalIntern: gotosendtoanyone()
                 onViewaccounthistorysignal:{
                     tabBar.currentIndex=tabBar.currentIndex+2
-                    }
+                }
                 onGotooverviewsignal: {
                     tabBar.currentIndex=tabBar.currentIndex-2
                 }
@@ -359,7 +411,6 @@ Item {
                 onClaimlinkBtnSignalIntern: claimlinkBtnSignal(link)
             }
         }
-
 
         Transactions{
             id: transactions
@@ -392,7 +443,7 @@ Item {
             }
             Payments{
                 id: payments
-                onCreatePaymentBtnSignalIntern: createPaymentBtnSignal(recipient, description, amount, day, month)
+                onCreatePaymentBtnSignalIntern: createPaymentBtnSignal(recipient, description, amount, day, month, senddollar)
                 onDeletepaymentsignalintern: deletepaymentsignal(idstr)
                 onUndopaymentremovalSignalintern: undopaymentremovalSignal()
             }
@@ -641,7 +692,6 @@ Item {
                 source: "../res/assets/Navigation/create-your-nickname-inactive.png"
             }
         }
-
         TabButton {
             id: tabButton6
             text: qsTr("Recurring payments")
@@ -703,6 +753,19 @@ Item {
         onPrintpaperwalletSignalintern: printpaperwalletSignal()
     }
 
+    Paperbillselect
+    {
+        id: paperbillselect
+        onGenerateBillSignalintern: generateBillSignal(denomination)
+    }
+
+    Printpaperbill
+    {
+        id: printpaperbill
+        onPrintfrontbillSignalintern: printfrontbillSignal()
+        onPrintbackbillSignalintern: printbackbillSignal()
+    }
+
     Backupwallet
     {
         id: backupwallet
@@ -710,6 +773,14 @@ Item {
         onBackupwalletfileSignalintern: backupwalletfileSignal()
         onImportkeySignalintern: importkeySignal(key)
     }
+
+    Trading
+    {
+        id: trading
+        onCreateOrderBtnSignalIntern: createOrderBtnSignal(amounttosend, targetPrice, senddollar, whenpricegoesabove)
+        onDeleteordersignalintern: deleteordersignal(idstr)
+    }
+
     TwitterSuccess
     {
         id: twittersuccess

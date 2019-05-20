@@ -5,13 +5,17 @@
 
 #include <primitives/transaction.h>
 
+#include <ctime>
 #include <hash.h>
 #include <chainparams.h>
+#include <consensus/params.h>
 #include <tinyformat.h>
 #include <utilstrencodings.h>
+#include <utilmoneystr.h>
 
 bool userefline;
 bool usenonprivacy;
+bool usecurrency;
 
 std::string COutPoint::ToString() const
 {
@@ -28,7 +32,6 @@ CTxIn::CTxIn(COutPoint prevoutIn, CScript scriptSigIn, uint32_t nSequenceIn)
     nickname = "";
     nicknamesig.clear();
     address = CPubKey();
-
 }
 
 CTxIn::CTxIn(uint256 hashPrevTx, uint32_t nOut, CScript scriptSigIn, uint32_t nSequenceIn)
@@ -43,9 +46,9 @@ CTxIn::CTxIn(uint256 hashPrevTx, uint32_t nOut, CScript scriptSigIn, uint32_t nS
     address = CPubKey();
 }
 
-CTxIn::CTxIn(std::string nick,CPubKey addr, bool isnonprivate)
+CTxIn::CTxIn(std::string nick, CPubKey addr, bool isnonprivate)
 {
-    isnickname = true;   
+    isnickname = true;
     isnonprivatenickname = isnonprivate;
     prevout.hash=uint256S("0x0");
     prevout.n=0;
@@ -73,10 +76,12 @@ std::string CTxIn::ToString() const
 }
 
 //CTxOut::CTxOut(const CAmount& nValueIn, CScript scriptPubKeyIn, std::string refererencelineIn, CPubKey senderPubKeyIn, CPubKey receiverPubKeyIn)
-CTxOut::CTxOut(const CAmount& nValueIn, CScript scriptPubKeyIn)
+CTxOut::CTxOut(const CAmount& nValueIn, CScript scriptPubKeyIn, unsigned char curr)
 {
     nValue = nValueIn;
+    nValueBitCash = nValueIn;
     scriptPubKey = scriptPubKeyIn;
+    currency = curr;
     isnonprivate = false;
     hasrecipientid = false;
     recipientid1 = 0;
@@ -88,10 +93,14 @@ CTxOut::CTxOut(const CAmount& nValueIn, CScript scriptPubKeyIn)
 
 std::string CTxOut::ToString() const
 {
-    return strprintf("CTxOut(nValue=%d.%08d, scriptPubKey=%s)", nValue / COIN, nValue % COIN, HexStr(scriptPubKey).substr(0, 30));
+    return strprintf("CTxOut(nValue=%d.%08d, scriptPubKey=%s, currency=%d.%08d)", nValue / COIN, nValue % COIN, HexStr(scriptPubKey).substr(0, 30),currency / COIN, currency % COIN);
 }
 
-CMutableTransaction::CMutableTransaction() : nVersion(CTransaction::CURRENT_VERSION), nLockTime(0) {}
+CMutableTransaction::CMutableTransaction() : nVersion(CTransaction::CURRENT_VERSION), nLockTime(0) 
+{
+    //Do not create transactions with currency information until 30 minutes after the fork
+    if (!ExistParams() || time(nullptr) < Params().GetConsensus().STABLETIME + 30 * 60) nVersion = CTransaction::OLD_VERSION;
+}
 CMutableTransaction::CMutableTransaction(const CTransaction& tx) : vin(tx.vin), vout(tx.vout), nVersion(tx.nVersion), nLockTime(tx.nLockTime) {}
 
 uint256 CMutableTransaction::GetHash() const
@@ -117,16 +126,49 @@ CTransaction::CTransaction() : vin(), vout(), nVersion(CTransaction::CURRENT_VER
 CTransaction::CTransaction(const CMutableTransaction &tx) : vin(tx.vin), vout(tx.vout), nVersion(tx.nVersion), nLockTime(tx.nLockTime), hash(ComputeHash()) {}
 CTransaction::CTransaction(CMutableTransaction &&tx) : vin(std::move(tx.vin)), vout(std::move(tx.vout)), nVersion(tx.nVersion), nLockTime(tx.nLockTime), hash(ComputeHash()) {}
 
+CAmount CTransaction::GetValueOutInCurrency(unsigned char currency, CAmount price) const
+{
+//std::cout << "INPUT Currency: " << (int)currency << std::endl;
+    CAmount nValueOut = 0;
+    for (const auto& tx_out : vout) {
+
+//std::cout << "Output: " << FormatMoney(tx_out.nValue) << std::endl;
+//std::cout << "Output Currency: " << (int)tx_out.currency << std::endl;
+
+        CAmount value = tx_out.nValue;
+	if (tx_out.currency != currency) {
+                if (currency == 1 && tx_out.currency == 0) {
+                    //Convert BitCash into Dollars
+//std::cout << "Input BitCash: " << FormatMoney(tx_out.nValue) << std::endl;
+                    value = (__int128_t)tx_out.nValue * (__int128_t)price / (__int128_t)COIN;
+//std::cout << "Conv Dollars: " << FormatMoney(value) << std::endl;
+                } else
+		if (currency == 0 && tx_out.currency == 1) {
+                    //Convert Dollars into BitCash
+//std::cout << "Input Dollars: " << FormatMoney(tx_out.nValue) << std::endl;
+                    value = (__int128_t)tx_out.nValue * (__int128_t)COIN / (__int128_t)price;
+//std::cout << "Conv BitCash: " << FormatMoney(value) << std::endl;
+                }
+            }
+
+        nValueOut += value;
+        if (!MoneyRange(value) || !MoneyRange(nValueOut))
+            throw std::runtime_error(std::string(__func__) + ": value out of range");
+    }
+    return nValueOut;
+}
+
 CAmount CTransaction::GetValueOut() const
 {
     CAmount nValueOut = 0;
     for (const auto& tx_out : vout) {
-        nValueOut += tx_out.nValue;
+        nValueOut += tx_out.nValueBitCash;
         if (!MoneyRange(tx_out.nValue) || !MoneyRange(nValueOut))
             throw std::runtime_error(std::string(__func__) + ": value out of range");
     }
     return nValueOut;
 }
+
 
 unsigned int CTransaction::GetTotalSize() const
 {

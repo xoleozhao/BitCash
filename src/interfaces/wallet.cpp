@@ -69,14 +69,19 @@ WalletTx MakeWalletTx(CWallet& wallet, const CWalletTx& wtx)
     result.txout_address.reserve(wtx.tx->vout.size());
     result.txout_address_is_mine.reserve(wtx.tx->vout.size());
     for (const auto& txout : wtx.tx->vout) {
-        result.txout_is_mine.emplace_back(wallet.IsMineBasic(txout,11));
+        result.txout_is_mine.emplace_back(wallet.IsMineBasic(txout, 11));
         result.txout_address.emplace_back();
         result.txout_address_is_mine.emplace_back(ExtractDestination(txout.scriptPubKey, result.txout_address.back()) ?
                                                       IsMine(wallet, result.txout_address.back()) :
                                                       ISMINE_NO);
     }
-    result.credit = wtx.GetCredit(ISMINE_ALL);
-    result.debit = wtx.GetDebit(ISMINE_ALL);
+    result.credit = wtx.GetCredit(ISMINE_ALL,255);
+    result.debit = wtx.GetDebit(ISMINE_ALL,255);
+    result.creditbitc = wtx.GetCredit(ISMINE_ALL,0);
+    result.debitbitc = wtx.GetDebit(ISMINE_ALL,0);
+    result.creditusd = wtx.GetCredit(ISMINE_ALL,1);
+    result.debitusd = wtx.GetDebit(ISMINE_ALL,1);
+    result.inputcurrency = wtx.GetInputCurrency();
     result.change = wtx.GetChange();
     result.time = wtx.GetTxTime();
     result.value_map = wtx.mapValue;
@@ -92,7 +97,7 @@ WalletTx MakeWalletTx(CWallet& wallet, const CWalletTx& wtx)
         if (wallet.GetRealAddressAsSender(wtx.tx->vout[nOut],pubkey)){
             CTxDestination address;
             address = pubkey.GetID();
-            SetSecondPubKeyForDestination(address,pubkey);
+            SetSecondPubKeyForDestination(address, pubkey);
             SetNonPrivateForDestination(address, wtx.tx->vout[nOut].isnonprivate);
             result.txout_address[nOut] = address;
         }
@@ -163,9 +168,11 @@ public:
     bool GetRealAddressAsSender(CTxOut out,CPubKey& recipientpubkey) override { return m_wallet.GetRealAddressAsSender(out, recipientpubkey); }
     std::string DecryptRefLineTxOutWithOnePrivateKey(CTxOut out,CKey key) override { return m_wallet.DecryptRefLineTxOutWithOnePrivateKey(out,key); }
 
-    bool FillTxOutForTransaction(CTxOut& out,CPubKey recipientpubkey,std::string referenceline, bool nonprivate) override { return m_wallet. FillTxOutForTransaction(out, recipientpubkey, referenceline, nonprivate); }
+    bool FillTxOutForTransaction(CTxOut& out, CPubKey recipientpubkey, std::string referenceline, unsigned char currency, bool nonprivate) override { return m_wallet. FillTxOutForTransaction(out, recipientpubkey, referenceline, currency, nonprivate); }
 
     bool DoesTxOutBelongtoPrivKeyCalcOneTimePrivate(const CTxOut& txout, CKey key, CKey& otpk) override { return m_wallet.DoesTxOutBelongtoPrivKeyCalcOneTimePrivate(txout,key,otpk); }
+
+    unsigned char GetInputCurrency(const CTxIn &txin) override { return m_wallet.GetInputCurrency(txin); }
     bool getPubKey(const CKeyID& address, CPubKey& pub_key) override { return m_wallet.GetPubKey(address, pub_key); }
     bool getPrivKey(const CKeyID& address, CKey& key) override { return m_wallet.GetKey(address, key); }
     bool isSpendable(const CTxDestination& dest) override { return IsMine(m_wallet, dest) & ISMINE_SPENDABLE; }
@@ -244,28 +251,28 @@ public:
         LOCK2(cs_main, m_wallet.cs_wallet);
         return m_wallet.ListLockedCoins(outputs);
     }
-    bool SendAsLink(CAmount nAmount, std::string referenceline, std::string& strlink, std::string& strerr) override {return m_wallet.SendAsLink(nAmount,referenceline,strlink, strerr);}
+    bool SendAsLink(CAmount nAmount, std::string referenceline, std::string& strlink, std::string& strerr, unsigned char tocurrency, unsigned char fromcurrency) override {return m_wallet.SendAsLink(nAmount,referenceline,strlink, strerr, tocurrency, fromcurrency);}
     bool ClaimFromLink(std::string& strlink, std::string& strerr) override {return m_wallet.ClaimFromLink(strlink, strerr);}
     std::unique_ptr<PendingWalletTx> createTransaction(const std::vector<CRecipient>& recipients,
         const CCoinControl& coin_control,
         bool sign,
         int& change_pos,
         CAmount& fee,
-        std::string& fail_reason) override
+        std::string& fail_reason, unsigned char fromcurrency) override
     {
         LOCK2(cs_main, m_wallet.cs_wallet);
         auto pending = MakeUnique<PendingWalletTxImpl>(m_wallet);
         if (!m_wallet.CreateTransaction(recipients, pending->m_tx, pending->m_key, fee, change_pos,
-                fail_reason, coin_control, sign)) {
+                fail_reason, coin_control, sign, false, CNoDestination(), false, CKey(), fromcurrency)) {
             return {};
         }
         return std::move(pending);
     }
-    std::unique_ptr<PendingWalletTx> CreateTransactionToMe(uint256& txid, int outnr, CKey key, CAmount nValue, const CScript& scriptPubKey, std::string refline, std::string& strFailReason, const CCoinControl& coin_control, CTxOut output)
+    std::unique_ptr<PendingWalletTx> CreateTransactionToMe(uint256& txid, int outnr, CKey key, CAmount nValue, const CScript& scriptPubKey, std::string refline, std::string& strFailReason, const CCoinControl& coin_control, CTxOut output, unsigned char tocurrency)
     { 
         LOCK2(cs_main, m_wallet.cs_wallet);
         auto pending = MakeUnique<PendingWalletTxImpl>(m_wallet);
-        if (!m_wallet.CreateTransactionToMe(txid, outnr, key, nValue, scriptPubKey, refline, pending->m_tx, strFailReason, coin_control, output)) {
+        if (!m_wallet.CreateTransactionToMe(txid, outnr, key, nValue, scriptPubKey, refline, pending->m_tx, strFailReason, coin_control, output, false, CNoDestination(), tocurrency)) {
             return {};
         }
         return std::move(pending);
@@ -372,15 +379,18 @@ public:
     WalletBalances getBalances() override
     {
         WalletBalances result;
-        result.balance = m_wallet.GetBalance();
-        result.unconfirmed_balance = m_wallet.GetUnconfirmedBalance();
-        result.immature_balance = m_wallet.GetImmatureBalance();
-        result.have_watch_only = m_wallet.HaveWatchOnly();
+        result.balance = m_wallet.GetBalance(0);
+        result.unconfirmed_balance = m_wallet.GetUnconfirmedBalance(0);
+        result.immature_balance = m_wallet.GetImmatureBalance(0);
+        result.have_watch_only = m_wallet.HaveWatchOnly(0);
         if (result.have_watch_only) {
-            result.watch_only_balance = m_wallet.GetWatchOnlyBalance();
-            result.unconfirmed_watch_only_balance = m_wallet.GetUnconfirmedWatchOnlyBalance();
-            result.immature_watch_only_balance = m_wallet.GetImmatureWatchOnlyBalance();
+            result.watch_only_balance = m_wallet.GetWatchOnlyBalance(0);
+            result.unconfirmed_watch_only_balance = m_wallet.GetUnconfirmedWatchOnlyBalance(0);
+            result.immature_watch_only_balance = m_wallet.GetImmatureWatchOnlyBalance(0);
         }
+        result.balanceDo = m_wallet.GetBalance(1);
+        result.unconfirmed_balanceDo = m_wallet.GetUnconfirmedBalance(1);
+        result.immature_balanceDo = m_wallet.GetImmatureBalance(1);
         return result;
     }
     bool tryGetBalances(WalletBalances& balances, int& num_blocks) override
@@ -395,10 +405,10 @@ public:
         num_blocks = ::chainActive.Height();
         return true;
     }
-    CAmount getBalance() override { return m_wallet.GetBalance(); }
-    CAmount getAvailableBalance(const CCoinControl& coin_control) override
+    CAmount getBalance(unsigned char currency) override { return m_wallet.GetBalance(currency); }
+    CAmount getAvailableBalance(const CCoinControl& coin_control, unsigned char currency) override
     {
-        return m_wallet.GetAvailableBalance(&coin_control);
+        return m_wallet.GetAvailableBalance(currency, &coin_control);
     }
     isminetype txinIsMine(const CTxIn& txin) override
     {
@@ -410,15 +420,15 @@ public:
         LOCK2(::cs_main, m_wallet.cs_wallet);
         return m_wallet.IsMine(txout,12);
     }
-    CAmount getDebit(const CTxIn& txin, isminefilter filter) override
+    CAmount getDebit(const CTxIn& txin, isminefilter filter, unsigned char currency) override
     {
         LOCK2(::cs_main, m_wallet.cs_wallet);
-        return m_wallet.GetDebit(txin, filter);
+        return m_wallet.GetDebit(txin, filter, currency);
     }
-    CAmount getCredit(const CTxOut& txout, isminefilter filter) override
+    CAmount getCredit(const CTxOut& txout, isminefilter filter,unsigned char currency) override
     {
         LOCK2(::cs_main, m_wallet.cs_wallet);
-        return m_wallet.GetCredit(txout, filter);
+        return m_wallet.GetCredit(txout, filter, currency);
     }
     CoinsList listCoins() override
     {

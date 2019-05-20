@@ -28,6 +28,10 @@ const int DEFAULT_MINING_BUCKET_SIZE = 10;
 const int DEFAULT_MINING_BUCKET_THREADS = std::thread::hardware_concurrency() / 2;
 const int DEFAULT_MINING_POW_THREADS = 2;
 
+void GetExchangesListFromWebserver();
+CAmount GetPriceInformation();
+CAmount GetCachedPriceInformation(uint64_t cachetime);
+
 /** Run the miner threads */
 void GenerateBitCash(interfaces::Wallet* iwallet,
     CWallet* wallet,
@@ -173,7 +177,7 @@ public:
     std::unique_ptr<CBlockTemplate> CreateNewBlock(interfaces::Wallet* iwallet,
     CWallet* wallet,
     bool useinterface, bool fMineWitnessTx=true, bool includeextranonce=false);
-    std::unique_ptr<CBlockTemplate> CreateNewBlockWithScriptPubKey(const CScript& scriptPubKeyIn, bool fMineWitnessTx=true);
+    std::unique_ptr<CBlockTemplate> CreateNewBlockWithScriptPubKey(const CScript& scriptPubKeyIn, bool fMineWitnessTx);
 
 private:
     // utility functions
@@ -187,6 +191,12 @@ private:
       * Increments nPackagesSelected / nDescendantsUpdated with corresponding
       * statistics from the package selection (for logging statistics). */
     void addPackageTxs(int &nPackagesSelected, int &nDescendantsUpdated);
+    /** Download and include price information */
+
+    /** Converts the nValue to other currencies according to the price information of the block and the currency of the transaction outputs */
+    void ConvertCurrenciesForBlockTemplate();
+
+    void CalculateFeesForBlock();
 
     // helper functions for addPackageTxs()
     /** Remove confirmed (inBlock) entries from given set */

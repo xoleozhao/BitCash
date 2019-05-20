@@ -22,7 +22,7 @@ using Consensus::PoW;
 }*/
 
 //uses the "Virtual Time Span Retargeting Algorithm", developed by the BitCash developers to retarget the nbits after every block
-PoW GetNextWorkRequiredBug(const CBlockIndex* pindexLast, const CBlockHeader* pblock, const Consensus::Params& params, bool beforex16rtimefork)
+PoW GetNextWorkRequiredBug(const CBlockIndex* pindexLast, const CBlockHeader* pblock, const Consensus::Params& params)
 {
     assert(pindexLast != nullptr);
 
@@ -37,21 +37,21 @@ PoW GetNextWorkRequiredBug(const CBlockIndex* pindexLast, const CBlockHeader* pb
         return PoW{bnPowLimit.GetCompact(),pindexLast->nEdgeBits};
     }
 
+    pindex = pindexLast;
+
     //reset Difficulty when the X16R fork happens
-    if (!beforex16rtimefork) {
-        for (unsigned int nCountBlocks = 0; nCountBlocks <= nPastBlocks-1; nCountBlocks++) {
+    for (unsigned int nCountBlocks = 0; nCountBlocks <= nPastBlocks-1; nCountBlocks++) {
 
-            int64_t newtime = pindexLast->nTime;
+       int64_t newtime = pindexLast->nTime;
 
-            if(nCountBlocks != nPastBlocks) {
-                assert(pindex->pprev); // should never fail
-                pindex = pindex->pprev;
-            }
+       if(nCountBlocks != nPastBlocks) {
+            assert(pindex->pprev); // should never fail
+            pindex = pindex->pprev;
+       }
 
-            if (newtime > params.X16RTIME-5*60 && pindex->nTime <= params.X16RTIME+5*60) {
-                return PoW{bnPowLimit.GetCompact(),pindexLast->nEdgeBits};
-            }
-        }
+       if (newtime > params.X16RTIME-5*60 && pindex->nTime <= params.X16RTIME+5*60) {
+           return PoW{bnPowLimit.GetCompact(),pindexLast->nEdgeBits};
+       }
     }
 
     arith_uint256 bnTargetNow = arith_uint256().SetCompact(pindexLast->nBits);    
@@ -142,36 +142,36 @@ PoW GetNextWorkRequiredBug(const CBlockIndex* pindexLast, const CBlockHeader* pb
 }
 
 //uses the "Virtual Time Span Retargeting Algorithm", developed by the BitCash developers to retarget the nbits after every block
-PoW GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader* pblock, const Consensus::Params& params, bool beforex16rtimefork)
+PoW GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader* pblock, const Consensus::Params& params)
 {
     assert(pindexLast != nullptr);
 
-    if (pindexLast->nHeight<=52063) return GetNextWorkRequiredBug(pindexLast,pblock,params,beforex16rtimefork);
+    if (pindexLast->nHeight<=52063) return GetNextWorkRequiredBug(pindexLast,pblock,params);
 
-    const arith_uint256 bnPowLimit = UintToArith256(params.powLimit.uHashLimit);
     const CBlockIndex *pindex = pindexLast;
     int64_t nPastBlocks = 24;
+
+    const arith_uint256 bnPowLimit = UintToArith256(params.powLimit.uHashLimit);
 
     // make sure we have at least (nPastBlocks + 1) blocks, otherwise just return powLimit
     if (!pindexLast || pindexLast->nHeight < nPastBlocks) {
         return PoW{bnPowLimit.GetCompact(),pindexLast->nEdgeBits};
     }
 
-    //reset Difficulty when the X16R fork happens
-    if (!beforex16rtimefork) {
-        for (unsigned int nCountBlocks = 0; nCountBlocks <= nPastBlocks-1; nCountBlocks++) {
+    pindex = pindexLast;
 
-            int64_t newtime = pindexLast->nTime;
+    for (unsigned int nCountBlocks = 0; nCountBlocks <= nPastBlocks-1; nCountBlocks++) {
+            
+       int64_t newtime = pindexLast->nTime;
 
-            if(nCountBlocks != nPastBlocks) {
-                assert(pindex->pprev); // should never fail
-                pindex = pindex->pprev;
-            }
+       if(nCountBlocks != nPastBlocks) {
+           assert(pindex->pprev); // should never fail
+           pindex = pindex->pprev;
+       }
 
-            if (newtime > params.X16RTIME-5*60 && pindex->nTime <= params.X16RTIME+5*60) {
-                return PoW{bnPowLimit.GetCompact(),pindexLast->nEdgeBits};
-            }
-        }
+       if (newtime > params.X16RTIME-5*60 && pindex->nTime <= params.X16RTIME+5*60) {
+          return PoW{bnPowLimit.GetCompact(),pindexLast->nEdgeBits};
+       }
     }
 
     pindex = pindexLast;

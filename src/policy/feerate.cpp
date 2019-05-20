@@ -6,6 +6,7 @@
 #include <policy/feerate.h>
 
 #include <tinyformat.h>
+#include <iostream>
 
 const std::string CURRENCY_UNIT = "BITC";
 

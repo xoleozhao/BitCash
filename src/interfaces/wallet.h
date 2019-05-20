@@ -95,10 +95,12 @@ public:
 
     virtual bool DoesTxOutBelongtoPrivKeyCalcOneTimePrivate(const CTxOut& txout, CKey key, CKey& otpk)=0;
     
-    virtual bool FillTxOutForTransaction(CTxOut& out,CPubKey recipientpubkey,std::string referenceline, bool nonprivate)=0;
+    virtual bool FillTxOutForTransaction(CTxOut& out, CPubKey recipientpubkey, std::string referenceline, unsigned char currency, bool nonprivate)=0;
 
     //! Get public key.
     virtual bool getPubKey(const CKeyID& address, CPubKey& pub_key) = 0;
+    
+    virtual unsigned char GetInputCurrency(const CTxIn &txin) = 0;
 
     //! Get private key.
     virtual bool getPrivKey(const CKeyID& address, CKey& key) = 0;
@@ -158,13 +160,13 @@ public:
         bool sign,
         int& change_pos,
         CAmount& fee,
-        std::string& fail_reason) = 0;
+        std::string& fail_reason, unsigned char fromcurrency) = 0;
 
     //! Create transaction to me (claim BitCash Express)
-    virtual std::unique_ptr<PendingWalletTx> CreateTransactionToMe(uint256& txid, int outnr, CKey key, CAmount nValue, const CScript& scriptPubKey, std::string refline, std::string& strFailReason, const CCoinControl& coin_control, CTxOut output) = 0;
+    virtual std::unique_ptr<PendingWalletTx> CreateTransactionToMe(uint256& txid, int outnr, CKey key, CAmount nValue, const CScript& scriptPubKey, std::string refline, std::string& strFailReason, const CCoinControl& coin_control, CTxOut output, unsigned char tocurrency) = 0;
 
     //send as link (BitCash Express)
-    virtual bool SendAsLink(CAmount nAmount, std::string referenceline, std::string& strlink, std::string& strerr) = 0;
+    virtual bool SendAsLink(CAmount nAmount, std::string referenceline, std::string& strlink, std::string& strerr, unsigned char tocurrency, unsigned char fromcurrency) = 0;
 
     //claim coins from link (BitCash Express)
     virtual bool ClaimFromLink(std::string& strlink, std::string& strerr) = 0;
@@ -226,10 +228,10 @@ public:
     virtual bool tryGetBalances(WalletBalances& balances, int& num_blocks) = 0;
 
     //! Get balance.
-    virtual CAmount getBalance() = 0;
+    virtual CAmount getBalance(unsigned char currency) = 0;
 
     //! Get available balance.
-    virtual CAmount getAvailableBalance(const CCoinControl& coin_control) = 0;
+    virtual CAmount getAvailableBalance(const CCoinControl& coin_control, unsigned char currency) = 0;
 
     //! Return whether transaction input belongs to wallet.
     virtual isminetype txinIsMine(const CTxIn& txin) = 0;
@@ -238,10 +240,10 @@ public:
     virtual isminetype txoutIsMine(const CTxOut& txout) = 0;
 
     //! Return debit amount if transaction input belongs to wallet.
-    virtual CAmount getDebit(const CTxIn& txin, isminefilter filter) = 0;
+    virtual CAmount getDebit(const CTxIn& txin, isminefilter filter, unsigned char currency) = 0;
 
     //! Return credit amount if transaction input belongs to wallet.
-    virtual CAmount getCredit(const CTxOut& txout, isminefilter filter) = 0;
+    virtual CAmount getCredit(const CTxOut& txout, isminefilter filter, unsigned char currency) = 0;
 
     //! Return AvailableCoins + LockedCoins grouped by wallet address.
     //! (put change in one group with wallet address)
@@ -341,12 +343,19 @@ struct WalletBalances
     CAmount unconfirmed_watch_only_balance = 0;
     CAmount immature_watch_only_balance = 0;
 
+    CAmount balanceDo = 0;
+    CAmount unconfirmed_balanceDo = 0;
+    CAmount immature_balanceDo = 0;
+
     bool balanceChanged(const WalletBalances& prev) const
     {
         return balance != prev.balance || unconfirmed_balance != prev.unconfirmed_balance ||
                immature_balance != prev.immature_balance || watch_only_balance != prev.watch_only_balance ||
                unconfirmed_watch_only_balance != prev.unconfirmed_watch_only_balance ||
-               immature_watch_only_balance != prev.immature_watch_only_balance;
+               immature_watch_only_balance != prev.immature_watch_only_balance ||
+
+               balanceDo != prev.balanceDo || unconfirmed_balanceDo != prev.unconfirmed_balanceDo ||
+               immature_balanceDo != prev.immature_balanceDo;
     }
 };
 
@@ -360,7 +369,12 @@ struct WalletTx
     std::vector<isminetype> txout_address_is_mine;
     CAmount credit;
     CAmount debit;
+    CAmount creditbitc;
+    CAmount debitbitc;
+    CAmount creditusd;
+    CAmount debitusd;
     CAmount change;
+    unsigned char inputcurrency;
     int64_t time;
     std::map<std::string, std::string> value_map;
     bool is_coinbase;

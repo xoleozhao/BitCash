@@ -297,5 +297,22 @@
         <file>res/assets/Miscellaneous/instagram-badge.png</file>
         <file>res/assets/Miscellaneous/twitch-badge.png</file>
         <file>res/assets/Miscellaneous/twitter-badge.png</file>
+        <file>forms/Trading.qml</file>
+        <file>forms/Paperbillselect.qml</file>
+        <file>forms/Printpaperbill.qml</file>
+        <file>res/assets/bills/bill100front.png</file>
+        <file>res/assets/bills/bill100back.png</file>
+        <file>res/assets/bills/bill50front.png</file>
+        <file>res/assets/bills/bill50back.png</file>
+        <file>res/assets/bills/bill20front.png</file>
+        <file>res/assets/bills/bill20back.png</file>
+        <file>res/assets/bills/bill10front.png</file>
+        <file>res/assets/bills/bill10back.png</file>
+        <file>res/assets/bills/bill5front.png</file>
+        <file>res/assets/bills/bill5back.png</file>
+        <file>res/assets/bills/bill2front.png</file>
+        <file>res/assets/bills/bill2back.png</file>
+        <file>res/assets/bills/bill1front.png</file>
+        <file>res/assets/bills/bill1back.png</file>
     </qresource>
 </RCC>

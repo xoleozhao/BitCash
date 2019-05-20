@@ -37,6 +37,7 @@ These dependencies are required:
  libssl      | Crypto           | Random Number Generation, Elliptic Curve Cryptography
  libboost    | Utility          | Library for threading, data structures, etc
  libevent    | Networking       | OS independent asynchronous networking
+ libcurl     | https-client     | OS independent https client
 
 Optional dependencies:
 
@@ -84,6 +85,10 @@ install necessary parts of boost:
 2. If that doesn't work, you can install all boost development packages with:
 
         sudo apt-get install libboost-all-dev
+
+Libcurl is required:
+
+        sudo apt-get install libcurl4-openssl-dev
 
 BerkeleyDB is required for the wallet.
 

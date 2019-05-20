@@ -15,17 +15,31 @@ class CPaymentsBookData
 {
 public:
     std::string recipient, description,amount;
-
     int day, month;
+    unsigned char currency;
 
     CPaymentsBookData() {}
 
 };
 
-extern std::map<std::string, CPaymentsBookData> mapPaymentsBook;
+class COrdersBookData
+{
+public:
+    std::string amounttosend, targetPrice; 
+    bool senddollar, whenpricegoesabove;
 
-bool SetPayment(const std::string& strPayment,const std::string& recipient, const std::string& desc,const std::string& amount,int day,int month);
+    COrdersBookData() {}
+
+};
+
+
+extern std::map<std::string, CPaymentsBookData> mapPaymentsBook;
+extern std::map<std::string, COrdersBookData> mapOrdersBook;
+
+bool SetPayment(const std::string& strPayment, const std::string& recipient, const std::string& desc, const std::string& amount, int day, int month, unsigned char currency);
 bool DeletePayment(const std::string& strPayment);
+bool SetOrder(const std::string& strOrder, const std::string& amounttosend, const std::string& targetPrice, bool senddollar, bool whenpricegoesabove);
+bool DeleteOrder(const std::string& strOrder);
 void InitPaymentsDB();
 
 

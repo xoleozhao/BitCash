@@ -243,7 +243,6 @@ void TransactionView::setModel(WalletModel *_model)
                       this, SLOT(showtxdetails(int)));
         QObject::connect(qmlrootitem, SIGNAL(abandonTxSignal(QString)),
                       this, SLOT(abandonTxBtnClicked(QString)));
-
         connect(qmlrootitem, SIGNAL(filtereditchangedsignal(QString)), this, SLOT(changedSearchQML(QString)));
         connect(qmlrootitem, SIGNAL(datefiltersignal(int)), this, SLOT(changeddatefilter(int)));
 
@@ -302,7 +301,6 @@ void TransactionView::showtxdetails(int index)
     QVariant msg = theindex.data(TransactionTableModel::LongDescriptionRole).toString();
     QVariant txid = theindex.data(TransactionTableModel::TxHashRole).toString();
     QMetaObject::invokeMethod(qmlrootitem, "settxdetails", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, msg), Q_ARG(QVariant, txid));
-
 }
 
 void TransactionView::chooseDate(int idx)
@@ -460,7 +458,8 @@ void TransactionView::exportClicked()
     writer.addColumn(tr("Label"), 0, TransactionTableModel::LabelRole);
     writer.addColumn(tr("Address"), 0, TransactionTableModel::AddressRole);
     writer.addColumn(tr("Description"), 0, TransactionTableModel::ReferencelineRole);
-    writer.addColumn(BitcashUnits::getAmountColumnTitle(model->getOptionsModel()->getDisplayUnit()), 0, TransactionTableModel::FormattedAmountRole);
+    writer.addColumn(BitcashUnits::getAmountColumnTitle(model->getOptionsModel()->getDisplayUnit()), 0, TransactionTableModel::FormattedAmountRolebitc);
+    writer.addColumn(BitcashUnits::getAmountColumnTitle(BitcashUnits::DOLLAR), 0, TransactionTableModel::FormattedAmountRoleusd);
     writer.addColumn(tr("ID"), 0, TransactionTableModel::TxHashRole);
 
     if(!writer.write()) {

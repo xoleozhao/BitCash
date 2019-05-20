@@ -8,10 +8,12 @@
 #include <primitives/transaction.h>
 #include <script/interpreter.h>
 #include <consensus/validation.h>
+#include <primitives/block.h>
 
 // TODO remove the following dependencies
 #include <chain.h>
 #include <coins.h>
+#include <miner.h>
 #include <utilmoneystr.h>
 #include <nicknames.h>
 #include <key_io.h>
@@ -184,11 +186,17 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state, bool fChe
 
     // Check for negative or overflow output values
     CAmount nValueOut = 0;
+
     for (const auto& txout : tx.vout)
     {
+        if (txout.currency>=2) return state.DoS(100, false, REJECT_INVALID, "bad-txns-vout-currency-not-supported");
+
         if (txout.referenceline.length()>1000)
             return state.DoS(100, false, REJECT_INVALID, "CTransaction::CheckTransaction() : txout.referenceline encrypted length>1000 characters");
 
+//std::cout << "i" << i << std::endl;i++;
+//std::cout << "txout.nValue" << FormatMoney(txout.nValue) << std::endl;
+//std::cout << "txout.nValueBitCash" << FormatMoney(txout.nValueBitCash) << std::endl;
         if (txout.nValue < 0)
             return state.DoS(100, false, REJECT_INVALID, "bad-txns-vout-negative");
         if (txout.nValue > MAX_MONEY)
@@ -267,7 +275,7 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state, bool fChe
     return true;
 }
 
-bool Consensus::CheckTxInputs(const CTransaction& tx, CValidationState& state, const CCoinsViewCache& inputs, int nSpendHeight, CAmount& txfee, uint256 blockhash, bool usehash)
+bool Consensus::CheckTxInputs(const CTransaction& tx, CValidationState& state, const CCoinsViewCache& inputs, int nSpendHeight, CAmount& txfee, uint256 blockhash, bool usehash, const CBlock* block)
 {
     CPubKey nicknamemasterpubkey(ParseHex(NicknameMasterPubKey));
     // are the actual inputs available?
@@ -276,7 +284,10 @@ bool Consensus::CheckTxInputs(const CTransaction& tx, CValidationState& state, c
                          strprintf("%s: inputs missing/spent", __func__));
     }
 
+    bool isfirst = true;
+    unsigned char currency = 0;
     CAmount nValueIn = 0;
+
     for (unsigned int i = 0; i < tx.vin.size(); ++i) {
         if (tx.vin[i].isnickname) {
             if (tx.vin[i].nickname.size()<3) 
@@ -329,6 +340,19 @@ bool Consensus::CheckTxInputs(const CTransaction& tx, CValidationState& state, c
                 strprintf("tried to spend coinbase at depth %d", nSpendHeight - coin.nHeight));
         }
 
+        unsigned char curr = 0;
+        if (coin.IsCoinBase()) curr = 0;else
+        curr = coin.out.currency;
+        
+        if (isfirst) { 
+            currency = curr;
+            isfirst = false;
+        } else {
+            if (currency != curr) {
+                return state.DoS(100, false, REJECT_INVALID, "bad-txns-input-currencies-not-equal");
+            }
+        }
+
         // Check for negative or overflow input values
         nValueIn += coin.out.nValue;
         if (!MoneyRange(coin.out.nValue) || !MoneyRange(nValueIn)) {
@@ -337,14 +361,28 @@ bool Consensus::CheckTxInputs(const CTransaction& tx, CValidationState& state, c
     }
 
 
-    const CAmount value_out = tx.GetValueOut();
+    CAmount value_out = tx.GetValueOut();
+
     if (nValueIn < value_out) {
         return state.DoS(100, false, REJECT_INVALID, "bad-txns-in-belowout", false,
             strprintf("value in (%s) < value out (%s)", FormatMoney(nValueIn), FormatMoney(value_out)));
     }
 
     // Tally transaction fees
-    const CAmount txfee_aux = nValueIn - value_out;
+    CAmount txfee_aux = nValueIn - value_out;
+
+    if (currency != 0) {
+        //convert fee into currency 0 
+        if (currency == 1) {
+            if (block != NULL) {
+                txfee_aux = (__int128_t)txfee_aux * (__int128_t)COIN / (__int128_t)block->GetPriceinCurrency(0);
+            } else 
+            {
+                txfee_aux = (__int128_t)txfee_aux * (__int128_t)COIN / (__int128_t)GetCachedPriceInformation(30 * 60 * 1000);
+            }
+        }
+    }
+
     if (!MoneyRange(txfee_aux)) {
         return state.DoS(100, false, REJECT_INVALID, "bad-txns-fee-outofrange");
     }

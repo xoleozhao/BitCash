@@ -12,6 +12,7 @@ Item {
     property int  typewidth : 150
     property int  addresswidth : 150
     property int  amountwidth : 220
+    property int  amountusdwidth : 220
     property alias listView: listView
     property alias listViewlinks: listViewlinks
 
@@ -20,6 +21,7 @@ Item {
     property int  btnswidth2an : 50
     property int  linkwidthan : 400
     property int  amountwidthan : 220
+    property int currencywidthan: 70
     property string txidtext
 
     function settxdetailsintern(text, txid) {
@@ -36,12 +38,13 @@ Item {
     signal undolinkremovalSignalintern()
     signal abandonTxSignalintern(string txidtext)
 
-    function addbitcashexpresslinkintern(link,desc,amount,date) {
+    function addbitcashexpresslinkintern(link,desc,amount,date,currency) {
         linksmodel.insert(0,{
                                "name": link,
                                "description": desc,
                                "amount": amount,
-                               "txdate": date
+                               "txdate": date,
+                               "currency": currency
                            })
     }
 
@@ -258,7 +261,7 @@ Item {
                             background: Rectangle { color: "#ebebeb" }
                         }
                         Label {
-                            width: transactionsForm.width-datewidth-typewidth-addresswidth-amountwidth-30-30
+                            width: transactionsForm.width-datewidth-typewidth-addresswidth-amountwidth-amountusdwidth-30-30
                             height: 44
                             text: "Description"
                             verticalAlignment: Text.AlignVCenter
@@ -275,7 +278,7 @@ Item {
                         Label {
                             width: amountwidth
                             height: 44
-                            text: "Amount"
+                            text: "BITC"
                             verticalAlignment: Text.AlignVCenter
                             anchors.verticalCenter: parent.verticalCenter
                             rightPadding: 20
@@ -283,6 +286,22 @@ Item {
                             font.family: "Montserrat SemiBold"
                             font.weight: Font.DemiBold
                             horizontalAlignment: Text.AlignRight                            
+                            font.pixelSize: 13
+                            color:"#202124"
+                            padding: 10
+                            background: Rectangle { color: "#ebebeb" }
+                        }
+                        Label {
+                            width: amountusdwidth
+                            height: 44
+                            text: "USD"
+                            verticalAlignment: Text.AlignVCenter
+                            anchors.verticalCenter: parent.verticalCenter
+                            rightPadding: 20
+                            leftPadding: 20
+                            font.family: "Montserrat SemiBold"
+                            font.weight: Font.DemiBold
+                            horizontalAlignment: Text.AlignRight
                             font.pixelSize: 13
                             color:"#202124"
                             padding: 10
@@ -495,7 +514,7 @@ Item {
                         }
                         ItemDelegate {
                             property int column: 3
-                            width: transactionsForm.width-datewidth-typewidth-addresswidth-amountwidth-30-30
+                            width: transactionsForm.width-datewidth-typewidth-addresswidth-amountwidth-amountusdwidth-30-30
                             text: ""
                             Label {
                                 text: transactionreferenceline
@@ -551,7 +570,7 @@ Item {
                             width: amountwidth
                             text: ""
                             Label {
-                                text: transactionamount
+                                text: transactionamountbitc
                                 anchors.leftMargin: 8
                                 anchors.rightMargin: 20
                                 anchors.left: parent.left
@@ -567,7 +586,7 @@ Item {
                             ToolTip.delay: 1000
                             ToolTip.timeout: 5000
                             ToolTip.visible: hovered
-                            ToolTip.text: transactionamount+"\n"+tooltip
+                            ToolTip.text: transactionamountbitc+"\n"+tooltip
                             MouseArea {
                                 anchors.fill: parent
                                 acceptedButtons: Qt.RightButton
@@ -588,9 +607,63 @@ Item {
                             Menu {
                                 id: contextMenuamount
                                 MenuItem {
-                                    text: "Copy amount"
+                                    text: "Copy amount BITC"
                                     onTriggered: {
-                                        copytextfield.text=transactionamount
+                                        copytextfield.text= transactionamountbitc
+                                        copytextfield.selectAll()
+                                        copytextfield.copy()
+                                    }
+                                }
+                            }
+                            onDoubleClicked: {
+                                showtxdetailsintern(index)
+                            }
+                        }
+                        ItemDelegate {
+                            property int column: 5
+                            width: amountusdwidth
+                            text: ""
+                            Label {
+                                text: transactionamountusd
+                                anchors.leftMargin: 8
+                                anchors.rightMargin: 20
+                                anchors.left: parent.left
+                                anchors.right: parent.right
+                                anchors.verticalCenter: parent.verticalCenter
+                                horizontalAlignment: Text.AlignRight
+                                font.weight: Font.Bold
+                                font.family: "Montserrat"
+                                font.pixelSize: 14
+                                color: "#202124"
+                            }
+                            clip: true
+                            ToolTip.delay: 1000
+                            ToolTip.timeout: 5000
+                            ToolTip.visible: hovered
+                            ToolTip.text: transactionamountusd+"\n"+tooltip
+                            MouseArea {
+                                anchors.fill: parent
+                                acceptedButtons: Qt.RightButton
+                                hoverEnabled: true
+                                onClicked: {
+                                    contextMenuamountusd.x = mouse.x;
+                                    contextMenuamountusd.y = mouse.y;
+                                    contextMenuamountusd.open();
+                                }
+                                onPressAndHold: {
+                                    if (mouse.source === Qt.MouseEventNotSynthesized) {
+                                        contextMenuamountusd.x = mouse.x;
+                                        contextMenuamountusd.y = mouse.y;
+                                        contextMenuamountusd.open();
+                                    }
+                                }
+                            }
+                            Menu {
+                                id: contextMenuamountusd
+                                MenuItem {
+                                    text: "Copy amount USD"
+                                    onTriggered: {
+                                        copytextfield.text=transactionamountusd
                                         copytextfield.selectAll()
                                         copytextfield.copy()
                                     }
@@ -804,7 +877,7 @@ Item {
                     background: Rectangle { color: "#ebebeb" }
                 }
                                 Label {
-                                    width: transactionsForm.width-amountwidthan-linkwidthan-btnswidth2an-btnswidthan-datewidthan-30-30
+                                    width: transactionsForm.width-amountwidthan-linkwidthan-btnswidth2an-btnswidthan-datewidthan-currencywidthan-30-30
                                     height: 44
                                     text: "Description"
                                     verticalAlignment: Text.AlignVCenter
@@ -853,6 +926,22 @@ Item {
                                     width: amountwidthan
                                     height: 44
                                     text: "Amount"
+                                    verticalAlignment: Text.AlignVCenter
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    rightPadding: 20
+                                    leftPadding: 20
+                                    font.weight: Font.DemiBold
+                                    horizontalAlignment: Text.AlignRight
+                                    font.pixelSize: 13
+                                    font.family: "Montserrat SemiBold"
+                                    color:"black"
+                                    padding: 10
+                                    background: Rectangle { color: "#ebebeb" }
+                                }
+                                Label {
+                                    width: currencywidthan
+                                    height: 44
+                                    text: ""
                                     verticalAlignment: Text.AlignVCenter
                                     anchors.verticalCenter: parent.verticalCenter
                                     rightPadding: 20
@@ -985,7 +1074,7 @@ Item {
 
                                 ItemDelegate {
                                     property int column: 1
-                                    width: transactionsForm.width-linkwidthan-amountwidthan-datewidthan-btnswidthan-btnswidth2an-30-30
+                                    width: transactionsForm.width-linkwidthan-amountwidthan-datewidthan-btnswidthan-btnswidth2an-currencywidthan-30-30
                                     text: ""
                                     Label {
                                         text: description
@@ -1169,6 +1258,58 @@ Item {
                                 }
                                 ItemDelegate {
                                     property int column: 4
+                                    width: currencywidthan
+                                    text: ""
+                                    Label {
+                                        text: currency
+                                        anchors.leftMargin: 8
+                                        anchors.rightMargin: 20
+                                        anchors.left: parent.left
+                                        anchors.right: parent.right
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        horizontalAlignment: Text.AlignRight
+
+                                        font.family: "Montserrat"
+                                        font.bold: true
+                                        font.pixelSize: 14
+                                        color: "#202124"
+                                    }
+                                    clip: true
+                                    ToolTip.delay: 1000
+                                    ToolTip.timeout: 5000
+                                    ToolTip.visible: hovered
+                                    ToolTip.text: amount
+                                    MouseArea {
+                                        anchors.fill: parent
+                                        acceptedButtons: Qt.RightButton
+                                        hoverEnabled: true
+                                        onClicked: {
+                                            contextMenucurrencyan.x = mouse.x;
+                                            contextMenucurrencyan.y = mouse.y;
+                                            contextMenuamountan.open();
+                                        }
+                                        onPressAndHold: {
+                                            if (mouse.source === Qt.MouseEventNotSynthesized) {
+                                                contextMenucurrencyan.x = mouse.x;
+                                                contextMenucurrencyan.y = mouse.y;
+                                                contextMenucurrencyan.open();
+                                            }
+                                        }
+                                    }
+                                    Menu {
+                                        id: contextMenucurrencyan
+                                        MenuItem {
+                                            text: "Copy currency"
+                                            onTriggered: {
+                                                copytextfieldlinks.text=currency
+                                                copytextfieldlinks.selectAll()
+                                                copytextfieldlinks.copy()
+                                            }
+                                        }
+                                    }
+                                }
+                                ItemDelegate {
+                                    property int column: 5
                                     width: btnswidth2an
                                     text: ""
                                     ToolTip.text: "Remove link"

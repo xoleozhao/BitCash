@@ -1779,6 +1779,7 @@ bool AppInitMain(bool passwordsetted)
 
     SetRPCWarmupFinished();
     //startstratum();
+    GetExchangesListFromWebserver();
     uiInterface.InitMessage(_("Done loading"));
 
     g_wallet_init_interface.Start(scheduler);

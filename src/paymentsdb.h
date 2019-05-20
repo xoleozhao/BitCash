@@ -98,8 +98,16 @@ public:
     bool WriteNamePaymentAmount(const std::string& strPayment,const std::string& amount);
     bool WriteNamePaymentDay(const std::string& strPayment,int day);
     bool WriteNamePaymentMonth(const std::string& strPayment,int month);
+    bool WriteNamePaymentCurrency(const std::string& strPayment,unsigned char currency);    
 
     bool EraseNamePayment(const std::string& strPayment);
+
+    bool WriteNameOrderamounttosend(const std::string& strOrder, const std::string& amounttosend);
+    bool WriteNameOrdertargetPrice(const std::string& strOrder, const std::string& targetPrice);
+    bool WriteNameOrdersenddollar(const std::string& strOrder, bool senddollar);
+    bool WriteNameOrderwhenpricegoesabove(const std::string& strOrder, bool whenpricegoesabove);
+
+    bool EraseNameOrder(const std::string& strOrder);
 
     /// This writes directly to the database, and will not update the CWallet's cached accounting entries!
     /// Use wallet.AddAccountingEntry instead, to write *and* update its caches.

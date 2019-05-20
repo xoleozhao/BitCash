@@ -98,13 +98,18 @@ public:
         if (!ser_action.ForRead()) {
             uint64_t nVal = CompressAmount(txout.nValue);
             READWRITE(VARINT(nVal));
+	    nVal = CompressAmount(txout.nValueBitCash);
+            READWRITE(VARINT(nVal));
         } else {
             uint64_t nVal = 0;
             READWRITE(VARINT(nVal));
             txout.nValue = DecompressAmount(nVal);
+            READWRITE(VARINT(nVal));
+            txout.nValueBitCash = DecompressAmount(nVal);
         }
         CScriptCompressor cscript(REF(txout.scriptPubKey));
         READWRITE(cscript);
+        READWRITE(txout.currency);
     }
 };
 

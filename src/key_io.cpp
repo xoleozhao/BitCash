@@ -95,7 +95,7 @@ CTxDestination DecodeDestinationNoNickname(const std::string& str, const CChainP
         const std::vector<unsigned char>& pubkey_prefix = params.Base58Prefix(CChainParams::PUBKEY_ADDRESS);
         const std::vector<unsigned char>& pubkey_prefixtrezor = params.Base58Prefix(CChainParams::PUBKEY_ADDRESSTREZOR);
         const std::vector<unsigned char>& pubkey_prefixnonprivate = params.Base58Prefix(CChainParams::PUBKEY_ADDRESSNONPRIVATE);
-        if (data.size() == 33 + /*hash.size() +*/ pubkey_prefix.size() && (std::equal(pubkey_prefix.begin(), pubkey_prefix.end(), data.begin()) || std::equal(pubkey_prefixtrezor.begin(),          pubkey_prefixtrezor.end(), data.begin()) || std::equal(pubkey_prefixnonprivate.begin(), pubkey_prefixnonprivate.end(), data.begin()))) {
+        if (data.size() == 33 + /*hash.size() +*/ pubkey_prefix.size() && (std::equal(pubkey_prefix.begin(), pubkey_prefix.end(), data.begin()) || std::equal(pubkey_prefixtrezor.begin(), pubkey_prefixtrezor.end(), data.begin()) || std::equal(pubkey_prefixnonprivate.begin(), pubkey_prefixnonprivate.end(), data.begin()))) {
             temprecokey.resize(33);
             std::copy(data.begin() + pubkey_prefix.size(), data.begin() + pubkey_prefix.size()+33, temprecokey.begin());
             CPubKey pkey;
@@ -166,6 +166,53 @@ CTxDestination DecodeDestinationNoNickname(const std::string& str, const CChainP
     return CNoDestination();
 }
 
+void LocalSetCurrencyForDestination(CTxDestination& dest, const unsigned char key2)
+{
+    if (auto id = boost::get<CKeyID>(&dest)) {
+        id->currency=key2;
+    }
+    if (auto id = boost::get<WitnessV0ScriptHash>(&dest)) {
+        id->currency=key2;
+    }
+    if (auto id = boost::get<WitnessV0KeyHash>(&dest)) {
+        id->currency=key2;
+    }
+    if (auto id = boost::get<CScriptID>(&dest)) {
+        id->currency=key2;
+    }
+    if (auto id = boost::get<WitnessUnknown>(&dest)) {
+        id->currency=key2;
+    }
+    if (auto id = boost::get<CNoDestination>(&dest)) {
+        id->currency=key2;
+    }
+}
+
+unsigned char LocalGetCurrencyForDestination(const CTxDestination& dest)
+{
+    unsigned char key2 = 0;
+
+    if (auto id = boost::get<CKeyID>(&dest)) {
+        key2 = id->currency;
+    }
+    if (auto id = boost::get<WitnessV0ScriptHash>(&dest)) {
+        key2 = id->currency; 
+    }
+    if (auto id = boost::get<WitnessV0KeyHash>(&dest)) {
+        key2 = id->currency; 
+    }
+    if (auto id = boost::get<CScriptID>(&dest)) {
+        key2 = id->currency; 
+    }
+    if (auto id = boost::get<WitnessUnknown>(&dest)) {
+        key2 = id->currency; 
+    }
+    if (auto id = boost::get<CNoDestination>(&dest)) {
+        key2 = id->currency;
+    }
+    return key2;   
+}
+
 void LocalSetDepositForDestination(CTxDestination& dest, const bool isdeposit)
 {
     if (auto id = boost::get<CKeyID>(&dest)) {
@@ -213,17 +260,19 @@ bool LocalGetDepositForDestination(const CTxDestination& dest)
     return isdeposit;   
 }
 
-std::string encodedeposit(const CTxDestination& dest,std::string str)
+std::string encodecurrency(const CTxDestination& dest,std::string str)
 {
+    unsigned char currency = LocalGetCurrencyForDestination(dest);
     bool isdeposit = LocalGetDepositForDestination(dest);
-
+    if (currency == 1) {
+        return "dollar@"+str;
+    } else
     if (isdeposit) {
         return "deposit@"+str;
     }
 
     return str;    
 }
-
 
 void LocalSetSecondPubKeyForDestination(CTxDestination& dest, const CPubKey& key2)
 {
@@ -262,15 +311,25 @@ void LocalSetNonPrivateForDestination(CTxDestination& dest, bool nonprivate)
 
 CTxDestination DecodeDestination(const std::string& strinput, const CChainParams& params)
 {
+    unsigned char currency = 0;
     bool isdeposit = false;
     std::string str = strinput;
 
+    if (str.length()>=7 && str[0]=='d' && str[1]=='o' && str[2]=='l' && str[3]=='l' && str[4]=='a' && str[5]=='r' && str[6]=='@') {
+        currency = 1;
+        str.erase(0, 7);
+    } else
+    if (str.length()>=8 && str[0]=='b' && str[1]=='i' && str[2]=='t' && str[3]=='c' && str[4]=='a' && str[5]=='s' && str[6]=='h' && str[7]=='@') {
+        currency = 0;
+        str.erase(0, 8);
+    } else
     if (str.length()>=8 && str[0]=='d' && str[1]=='e' && str[2]=='p' && str[3]=='o' && str[4]=='s' && str[5]=='i' && str[6]=='t' && str[7]=='@') {
         isdeposit = true;
         str.erase(0, 8);
     }
 
     CTxDestination dest = DecodeDestinationNoNickname(str, params);
+    LocalSetCurrencyForDestination(dest, currency);
     LocalSetDepositForDestination(dest, isdeposit);
     if (auto id = boost::get<CNoDestination>(&dest)) {
        //try to search nickname       
@@ -278,6 +337,7 @@ CTxDestination DecodeDestination(const std::string& strinput, const CChainParams
        if (pubkey.IsValid()) {
            dest=CTxDestination(pubkey.GetID());
            LocalSetSecondPubKeyForDestination(dest, pubkey);        
+           LocalSetCurrencyForDestination(dest, currency);
            LocalSetDepositForDestination(dest, isdeposit);
            LocalSetNonPrivateForDestination(dest, IsNonPrivateNickname(str));
            return dest;
@@ -394,7 +454,7 @@ bool DestinationHasSecondPubKey(const CTxDestination& dest)
 
 std::string EncodeDestinationHasSecondKey(const CTxDestination& dest)
 {    
-    return encodedeposit(dest, boost::apply_visitor(DestinationEncoder(Params()), dest));
+    return encodecurrency(dest, boost::apply_visitor(DestinationEncoder(Params()), dest));
 }
 
 
@@ -405,7 +465,7 @@ std::string EncodeDestination(const CTxDestination& dest,const CPubKey& key2)
     if (!DestinationHasSecondPubKey(destnew)){
         LocalSetSecondPubKeyForDestination(destnew,key2);  
     }
-    return encodedeposit(destnew, boost::apply_visitor(DestinationEncoder(Params()), destnew));
+    return encodecurrency(destnew, boost::apply_visitor(DestinationEncoder(Params()), destnew));
 }
 
 std::string EncodeDestination(const CPubKey& key2)

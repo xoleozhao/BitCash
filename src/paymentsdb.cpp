@@ -25,39 +25,76 @@
 // PaymentsBatch
 //
 
-bool PaymentsBatch::WriteNamePaymentRecipient(const std::string& strPayment,const std::string& recipient)
+bool PaymentsBatch::WriteNamePaymentRecipient(const std::string& strPayment, const std::string& recipient)
 {
     return WriteIC(std::make_pair(std::string("recipient"), strPayment), recipient);
 }
 
-bool PaymentsBatch::WriteNamePaymentDesc(const std::string& strPayment,const std::string& desc)
+bool PaymentsBatch::WriteNamePaymentDesc(const std::string& strPayment, const std::string& desc)
 {
     return WriteIC(std::make_pair(std::string("desc"), strPayment), desc);
 }
 
-bool PaymentsBatch::WriteNamePaymentAmount(const std::string& strPayment,const std::string& amount)
+bool PaymentsBatch::WriteNamePaymentAmount(const std::string& strPayment, const std::string& amount)
 {
     return WriteIC(std::make_pair(std::string("amount"), strPayment), amount);
 }
 
-bool PaymentsBatch::WriteNamePaymentDay(const std::string& strPayment,int day)
+bool PaymentsBatch::WriteNamePaymentDay(const std::string& strPayment, int day)
 {
     return WriteIC(std::make_pair(std::string("day"), strPayment), day);
 }
 
-bool PaymentsBatch::WriteNamePaymentMonth(const std::string& strPayment,int month)
+bool PaymentsBatch::WriteNamePaymentMonth(const std::string& strPayment, int month)
 {
     return WriteIC(std::make_pair(std::string("month"), strPayment), month);
 }
 
+bool PaymentsBatch::WriteNamePaymentCurrency(const std::string& strPayment, unsigned char currency)
+{
+    return WriteIC(std::make_pair(std::string("currency"), strPayment), currency);
+}
+
+
 bool PaymentsBatch::EraseNamePayment(const std::string& strPayment)
 {
-    bool valid=true;
-    if (!EraseIC(std::make_pair(std::string("recipient"), strPayment)))valid=false;
-    if (!EraseIC(std::make_pair(std::string("desc"), strPayment)))valid=false;
-    if (!EraseIC(std::make_pair(std::string("amount"), strPayment)))valid=false;
-    if (!EraseIC(std::make_pair(std::string("day"), strPayment)))valid=false;
-    if (!EraseIC(std::make_pair(std::string("month"), strPayment)))valid=false;   
+    bool valid = true;
+    if (!EraseIC(std::make_pair(std::string("recipient"), strPayment))) valid = false;
+    if (!EraseIC(std::make_pair(std::string("desc"), strPayment))) valid = false;
+    if (!EraseIC(std::make_pair(std::string("amount"), strPayment))) valid = false;
+    if (!EraseIC(std::make_pair(std::string("day"), strPayment))) valid = false;
+    if (!EraseIC(std::make_pair(std::string("month"), strPayment))) valid = false;
+    if (!EraseIC(std::make_pair(std::string("currency"), strPayment))) valid = false;      
+    return valid;
+}
+
+bool PaymentsBatch::WriteNameOrderamounttosend(const std::string& strOrder, const std::string& amounttosend)
+{
+    return WriteIC(std::make_pair(std::string("amounttosend"), strOrder), amounttosend);
+}
+
+bool PaymentsBatch::WriteNameOrdertargetPrice(const std::string& strOrder, const std::string& targetPrice)
+{
+    return WriteIC(std::make_pair(std::string("targetPrice"), strOrder), targetPrice);
+}
+
+bool PaymentsBatch::WriteNameOrdersenddollar(const std::string& strOrder, bool senddollar)
+{
+    return WriteIC(std::make_pair(std::string("senddollar"), strOrder), senddollar);
+}
+
+bool PaymentsBatch::WriteNameOrderwhenpricegoesabove(const std::string& strOrder, bool whenpricegoesabove)
+{
+    return WriteIC(std::make_pair(std::string("whenpricegoesabove"), strOrder), whenpricegoesabove);
+}
+
+bool PaymentsBatch::EraseNameOrder(const std::string& strOrder)
+{
+    bool valid = true;
+    if (!EraseIC(std::make_pair(std::string("amounttosend"), strOrder))) valid = false;
+    if (!EraseIC(std::make_pair(std::string("targetPrice"), strOrder))) valid = false;
+    if (!EraseIC(std::make_pair(std::string("senddollar"), strOrder))) valid = false;
+    if (!EraseIC(std::make_pair(std::string("whenpricegoesabove"), strOrder))) valid = false;
     return valid;
 }
 
@@ -123,6 +160,36 @@ ReadKeyValue(CDataStream& ssKey, CDataStream& ssValue,
             std::string strPayments;
             ssKey >> strPayments;
             ssValue >> mapPaymentsBook[strPayments].month;
+        } else
+        if (strType == "currency")
+        {
+            std::string strPayments;
+            ssKey >> strPayments;
+            ssValue >> mapPaymentsBook[strPayments].currency;
+        } else
+        if (strType == "amounttosend")
+        {
+            std::string strOrder;
+            ssKey >> strOrder;
+            ssValue >> mapOrdersBook[strOrder].amounttosend;
+        } else
+        if (strType == "targetPrice")
+        {
+            std::string strOrder;
+            ssKey >> strOrder;
+            ssValue >> mapOrdersBook[strOrder].targetPrice;
+        } else
+        if (strType == "senddollar")
+        {
+            std::string strOrder;
+            ssKey >> strOrder;
+            ssValue >> mapOrdersBook[strOrder].senddollar;
+        } else
+        if (strType == "whenpricegoesabove")
+        {
+            std::string strOrder;
+            ssKey >> strOrder;
+            ssValue >> mapOrdersBook[strOrder].whenpricegoesabove;
         }
         else {
             wss.m_unknown_records++;

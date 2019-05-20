@@ -168,10 +168,10 @@ struct CRecipient
     CAmount nAmount;
     bool fSubtractFeeFromAmount;
     std::string refline;
+    unsigned char currency;
     bool nonprivate;
     CPubKey cpkey;
     bool isdeposit;
-
 };
 
 typedef std::map<std::string, std::string> mapValue_t;
@@ -201,6 +201,7 @@ struct COutputEntry
     CAmount amount;
     int vout;
     std::string referenceline;
+    unsigned char currency;
     bool isnonprivate;
 };
 
@@ -338,24 +339,24 @@ public:
     int64_t nOrderPos; //!< position in ordered transaction list
 
     // memory only
-    mutable bool fDebitCached;
-    mutable bool fCreditCached;
-    mutable bool fImmatureCreditCached;
-    mutable bool fAvailableCreditCached;
-    mutable bool fWatchDebitCached;
-    mutable bool fWatchCreditCached;
-    mutable bool fImmatureWatchCreditCached;
-    mutable bool fAvailableWatchCreditCached;
+    mutable bool fDebitCached[256];
+    mutable bool fCreditCached[256];
+    mutable bool fImmatureCreditCached[256];
+    mutable bool fAvailableCreditCached[256];
+    mutable bool fWatchDebitCached[256];
+    mutable bool fWatchCreditCached[256];
+    mutable bool fImmatureWatchCreditCached[256];
+    mutable bool fAvailableWatchCreditCached[256];
     mutable bool fChangeCached;
     mutable bool fInMempool;
-    mutable CAmount nDebitCached;
-    mutable CAmount nCreditCached;
-    mutable CAmount nImmatureCreditCached;
-    mutable CAmount nAvailableCreditCached;
-    mutable CAmount nWatchDebitCached;
-    mutable CAmount nWatchCreditCached;
-    mutable CAmount nImmatureWatchCreditCached;
-    mutable CAmount nAvailableWatchCreditCached;
+    mutable CAmount nDebitCached[256];
+    mutable CAmount nCreditCached[256];
+    mutable CAmount nImmatureCreditCached[256];
+    mutable CAmount nAvailableCreditCached[256];
+    mutable CAmount nWatchDebitCached[256];
+    mutable CAmount nWatchCreditCached[256];
+    mutable CAmount nImmatureWatchCreditCached[256];
+    mutable CAmount nAvailableWatchCreditCached[256];
     mutable CAmount nChangeCached;
 
     CWalletTx(const CWallet* pwalletIn, CTransactionRef arg) : CMerkleTx(std::move(arg))
@@ -373,24 +374,27 @@ public:
         nTimeSmart = 0;
         fFromMe = false;
         strFromAccount.clear();
-        fDebitCached = false;
-        fCreditCached = false;
-        fImmatureCreditCached = false;
-        fAvailableCreditCached = false;
-        fWatchDebitCached = false;
-        fWatchCreditCached = false;
-        fImmatureWatchCreditCached = false;
-        fAvailableWatchCreditCached = false;
+        int i;
+        for (i = 0; i<256; i++) {
+            fDebitCached[i] = false;
+            fCreditCached[i] = false;
+            fImmatureCreditCached[i] = false;
+            fAvailableCreditCached[i] = false;
+            fWatchDebitCached[i] = false;
+            fWatchCreditCached[i] = false;
+            fImmatureWatchCreditCached[i] = false;
+            fAvailableWatchCreditCached[i] = false;        
+            nDebitCached[i] = 0;
+            nCreditCached[i] = 0;
+            nImmatureCreditCached[i] = 0;
+            nAvailableCreditCached[i] = 0;
+            nWatchDebitCached[i] = 0;
+            nWatchCreditCached[i] = 0;
+            nAvailableWatchCreditCached[i] = 0;
+            nImmatureWatchCreditCached[i] = 0;
+        }
         fChangeCached = false;
         fInMempool = false;
-        nDebitCached = 0;
-        nCreditCached = 0;
-        nImmatureCreditCached = 0;
-        nAvailableCreditCached = 0;
-        nWatchDebitCached = 0;
-        nWatchCreditCached = 0;
-        nAvailableWatchCreditCached = 0;
-        nImmatureWatchCreditCached = 0;
         nChangeCached = 0;
         nOrderPos = -1;
     }
@@ -435,14 +439,17 @@ public:
     //! make sure balances are recalculated
     void MarkDirty()
     {
-        fCreditCached = false;
-        fAvailableCreditCached = false;
-        fImmatureCreditCached = false;
-        fWatchDebitCached = false;
-        fWatchCreditCached = false;
-        fAvailableWatchCreditCached = false;
-        fImmatureWatchCreditCached = false;
-        fDebitCached = false;
+        int i;
+        for (i = 0; i<256; i++) {
+            fAvailableCreditCached[i] = false;
+            fImmatureCreditCached[i] = false;
+            fWatchDebitCached[i] = false;
+            fWatchCreditCached[i] = false;
+            fAvailableWatchCreditCached[i] = false;
+            fImmatureWatchCreditCached[i] = false;
+            fCreditCached[i] = false;
+            fDebitCached[i] = false;
+        }
         fChangeCached = false;
     }
 
@@ -453,17 +460,17 @@ public:
     }
 
     //! filter decides which addresses will count towards the debit
-    CAmount GetDebit(const isminefilter& filter) const;
-    CAmount GetDebitForAddress(CTxDestination dest) const;
-    CAmount GetCredit(const isminefilter& filter) const;
-    CAmount GetImmatureCredit(bool fUseCache=true) const;
-    CAmount GetAvailableCredit(bool fUseCache=true) const;
-    CAmount GetImmatureWatchOnlyCredit(const bool fUseCache=true) const;
-    CAmount GetAvailableWatchOnlyCredit(const bool fUseCache=true) const;
-    CAmount GetAvailableWatchOnlyCreditForOneDestination(CTxDestination dest) const;
-    CAmount GetImmatureWatchOnlyCreditForOneDestination(CTxDestination dest) const;
-    CAmount GetAvailableCreditForOneDestination(CTxDestination dest, bool fUseCache=true) const;
-    CAmount GetImmatureCreditForOneDestination(CTxDestination dest) const;
+    CAmount GetDebit(const isminefilter& filter, unsigned char currency) const;
+    CAmount GetDebitForAddress(CTxDestination dest, unsigned char currency) const;
+    CAmount GetCredit(const isminefilter& filter, unsigned char currency) const;
+    CAmount GetImmatureCredit(unsigned char currency, bool fUseCache=true) const;
+    CAmount GetAvailableCredit(unsigned char currency, bool fUseCache=true) const;
+    CAmount GetImmatureWatchOnlyCredit(unsigned char currency, const bool fUseCache=true) const;
+    CAmount GetAvailableWatchOnlyCredit(unsigned char currency, const bool fUseCache=true) const;
+    CAmount GetAvailableWatchOnlyCreditForOneDestination(CTxDestination dest, unsigned char currency) const;
+    CAmount GetImmatureWatchOnlyCreditForOneDestination(CTxDestination dest, unsigned char currency) const;
+    CAmount GetAvailableCreditForOneDestination(CTxDestination dest, unsigned char currency, bool fUseCache=true) const;
+    CAmount GetImmatureCreditForOneDestination(CTxDestination dest, unsigned char currency) const;
 
     CAmount GetChange() const;
 
@@ -476,15 +483,17 @@ public:
     }
 
     void GetAmounts(std::list<COutputEntry>& listReceived,
-                    std::list<COutputEntry>& listSent, CAmount& nFee, std::string& strSentAccount, const isminefilter& filter) const;
+                    std::list<COutputEntry>& listSent, CAmount& nFee, std::string& strSentAccount, const isminefilter& filter, unsigned char currency) const;
 
     void GetAmountsForAddress(CTxDestination dest, std::list<COutputEntry>& listReceived,
-                           std::list<COutputEntry>& listSent, CAmount& nFee) const;
+                           std::list<COutputEntry>& listSent, CAmount& nFee, unsigned char currency) const;
 
     bool IsFromMe(const isminefilter& filter) const
     {
-        return (GetDebit(filter) > 0);
+        return (GetDebit(filter,255) > 0);//255=all currencies
     }
+
+    unsigned char GetInputCurrency() const;
 
     // True if only scriptSigs are different
     bool IsEquivalentTo(const CWalletTx& tx) const;
@@ -831,6 +840,8 @@ public:
     bool RegisterNickname(std::string nick, std::string addr,std::string& strFailReason);
     std::set<COutPoint> setLockedCoins;
 
+    unsigned char GetInputCurrency(const CTxIn &txin) const;
+
     const CWalletTx* GetWalletTx(const uint256& hash) const;
 
     //! check whether we are allowed to upgrade (or already support) to the named feature
@@ -839,7 +850,7 @@ public:
     /**
      * populate vCoins with vector of available COutputs.
      */
-    void AvailableCoins(std::vector<COutput>& vCoins, bool fOnlySafe=true, const CCoinControl *coinControl = nullptr, const CAmount& nMinimumAmount = 1, const CAmount& nMaximumAmount = MAX_MONEY, const CAmount& nMinimumSumAmount = MAX_MONEY, const uint64_t nMaximumCount = 0, const int nMinDepth = 0, const int nMaxDepth = 99999999, bool onlyforonedest = false, CTxDestination dest = CNoDestination()) const;
+    void AvailableCoins(std::vector<COutput>& vCoins, bool fOnlySafe=true, const CCoinControl *coinControl = nullptr, const CAmount& nMinimumAmount = 1, const CAmount& nMaximumAmount = MAX_MONEY, const CAmount& nMinimumSumAmount = MAX_MONEY, const uint64_t nMaximumCount = 0, const int nMinDepth = 0, const int nMaxDepth = 99999999, bool onlyforonedest = false, CTxDestination dest = CNoDestination(),  unsigned char currency=0) const;
 
     /**
      * Return list of available coins and locked coins grouped by non-change output address.
@@ -886,8 +897,8 @@ public:
     bool DoesTxOutBelongtoPrivKeyCalcOneTimePrivate(const CTxOut& txout, CKey key, CKey& otpk);
     void DecryptPrivateKey(unsigned char *privatekey,CPubKey pubkey,CKey privkey) const;
     void EncryptPrivateKey(unsigned char *privatekey,CPubKey pubkey,CKey privkey) const;
-    bool FillTxOutForTransaction(CTxOut& out,CPubKey recipientpubkey,std::string referenceline, bool nonprivate);
-    bool FillTxOutForTransaction(CTxOut& out,CTxDestination destination,std::string referenceline, bool nonprivate);
+    bool FillTxOutForTransaction(CTxOut& out,CPubKey recipientpubkey,std::string referenceline, unsigned char currency, bool nonprivate);
+    bool FillTxOutForTransaction(CTxOut& out,CTxDestination destination,std::string referenceline, unsigned char currency, bool nonprivate);
     bool GetRealAddressAndRefline(CTxOut out,CPubKey& recipientpubkey,std::string& referenceline,std::string mpk,bool usempk) const;
     bool GetRealAddressAsSender(CTxOut out,CPubKey& recipientpubkey) const;
     bool GetRealAddressAsReceiver(CTxOut txout,CPubKey& recipientpubkey) const;
@@ -968,20 +979,20 @@ public:
     void ResendWalletTransactions(int64_t nBestBlockTime, CConnman* connman) override;
     // ResendWalletTransactionsBefore may only be called if fBroadcastTransactions!
     std::vector<uint256> ResendWalletTransactionsBefore(int64_t nTime, CConnman* connman);
-    CAmount GetBalance() const;
-    CAmount GetBalanceForAddress(CTxDestination dest) const;
-    CAmount GetUnconfirmedBalance() const;
-    CAmount GetImmatureBalance() const;
-    CAmount GetWatchOnlyBalance() const;
-    CAmount GetUnconfirmedWatchOnlyBalance() const;
-    CAmount GetImmatureWatchOnlyBalance() const;
-    CAmount GetUnconfirmedBalanceForAddress(CTxDestination dest) const;
-    CAmount GetImmatureBalanceForAddress(CTxDestination dest) const;
-    CAmount GetWatchOnlyBalanceForAddress(CTxDestination dest) const;
-    CAmount GetUnconfirmedWatchOnlyBalanceForAddress(CTxDestination dest) const;
-    CAmount GetImmatureWatchOnlyBalanceForAddress(CTxDestination dest) const;
-    CAmount GetLegacyBalance(const isminefilter& filter, int minDepth, const std::string* account);
-    CAmount GetAvailableBalance(const CCoinControl* coinControl = nullptr) const;
+    CAmount GetBalance(unsigned char currency) const;
+    CAmount GetBalanceForAddress(CTxDestination dest, unsigned char currency) const;
+    CAmount GetUnconfirmedBalance(unsigned char currency) const;
+    CAmount GetImmatureBalance(unsigned char currency) const;
+    CAmount GetWatchOnlyBalance(unsigned char currency) const;
+    CAmount GetUnconfirmedWatchOnlyBalance(unsigned char currency) const;
+    CAmount GetImmatureWatchOnlyBalance(unsigned char currency) const;
+    CAmount GetUnconfirmedBalanceForAddress(CTxDestination dest, unsigned char currency) const;
+    CAmount GetImmatureBalanceForAddress(CTxDestination dest, unsigned char currency) const;
+    CAmount GetWatchOnlyBalanceForAddress(CTxDestination dest, unsigned char currency) const;
+    CAmount GetUnconfirmedWatchOnlyBalanceForAddress(CTxDestination dest, unsigned char currency) const;
+    CAmount GetImmatureWatchOnlyBalanceForAddress(CTxDestination dest, unsigned char currency) const;
+    CAmount GetLegacyBalance(const isminefilter& filter, int minDepth, const std::string* account, unsigned char currency);
+    CAmount GetAvailableBalance(unsigned char currency, const CCoinControl* coinControl = nullptr) const;
 
     OutputType TransactionChangeType(OutputType change_type, const std::vector<CRecipient>& vecSend);
 
@@ -992,7 +1003,8 @@ public:
     bool FundTransaction(CMutableTransaction& tx, CAmount& nFeeRet, int& nChangePosInOut, std::string& strFailReason, bool lockUnspents, const std::set<int>& setSubtractFeeFromOutputs, CCoinControl);
     bool SignTransaction(CMutableTransaction& tx);
 
-    bool CreateNicknameTransaction(std::string nickname, std::string address, CTransactionRef& tx, std::string& strFailReason, bool sign = true, CKey masterkey=CKey(), bool usemasterkey=false, bool isnonprivate = false);
+    bool CreateNicknameTransaction( std::string nickname, std::string address, CTransactionRef& tx, std::string& strFailReason, bool sign = true, 
+                                    CKey masterkey = CKey(), bool usemasterkey = false, bool isnonprivate = false);
     /**
      * Create a new transaction paying the recipients with a set of coins
      * selected by SelectCoins(); Also create the change output, when needed
@@ -1001,14 +1013,14 @@ public:
     bool CreateTransaction(const std::vector<CRecipient>& vecSend, CTransactionRef& tx, CReserveKey& reservekey, CAmount& nFeeRet,
                            int& nChangePosInOut, std::string& strFailReason, const CCoinControl& coin_control, bool sign = true, 
                            bool onlyfromoneaddress = false, CTxDestination fromaddress =  CNoDestination(), 
-                           bool provideprivatekey = false, CKey privatekey = CKey());
+                           bool provideprivatekey = false, CKey privatekey = CKey(), unsigned char fromcurrency = 0);
     bool CreateTransactionToMe(uint256& txid, int outnr, CKey key, CAmount nValue, const CScript& scriptPubKey, std::string refline, CTransactionRef& tx, std::string& strFailReason, const CCoinControl& coin_control, CTxOut output,
-                           bool onlyfromoneaddress = false, CTxDestination fromaddress =  CNoDestination());
+                           bool onlyfromoneaddress = false, CTxDestination fromaddress =  CNoDestination(), unsigned char tocurrency = 0);
     bool CommitNicknameTransaction(CTransactionRef tx, std::vector<std::pair<std::string, std::string>> orderForm, std::string fromAccount,  CConnman* connman, CValidationState& state);
 
     bool CommitTransaction(CTransactionRef tx, mapValue_t mapValue, std::vector<std::pair<std::string, std::string>> orderForm, std::string fromAccount, CReserveKey& reservekey, CConnman* connman, CValidationState& state, bool keepkey=true, bool frombitcashexpresslink=false);
 
-    bool SendAsLink(CAmount nAmount, std::string referenceline, std::string& strlink, std::string& strerr);
+    bool SendAsLink(CAmount nAmount, std::string referenceline, std::string& strlink, std::string& strerr, unsigned char tocurrency, unsigned char fromcurrency);
     bool ClaimFromLink(std::string& strlink, std::string& strerr);
 
     void ListAccountCreditDebit(const std::string& strAccount, std::list<CAccountingEntry>& entries);
@@ -1064,14 +1076,14 @@ public:
      * Returns amount of debit if the input matches the
      * filter, otherwise returns 0
      */
-    CAmount GetDebit(const CTxIn& txin, const isminefilter& filter) const;   
-    CAmount GetDebitForAddress(CTxDestination dest, const CTxIn &txin) const;
+    CAmount GetDebit(const CTxIn& txin, const isminefilter& filter, unsigned char currency) const;   
+    CAmount GetDebitForAddress(CTxDestination dest, const CTxIn &txin, unsigned char currency) const;
     isminetype IsMineConst(const CTxOut& txout, int nr) const;
     isminetype IsMineForOneDestination(const CTxOut& txout, CTxDestination& desttocheck) const;
     isminetype IsMine(const CTxOut& txout, int nr);
     isminetype IsMineBasic(const CTxOut& txout, int nr);    
 
-    CAmount GetCredit(const CTxOut& txout, const isminefilter& filter) const;
+    CAmount GetCredit(const CTxOut& txout, const isminefilter& filter, unsigned char currency) const;
     bool IsChange(const CTxOut& txout) const;
     bool IsChangeForAddress(CTxDestination dest, const CTxOut& txout) const;
     CAmount GetChange(const CTxOut& txout) const;
@@ -1080,12 +1092,12 @@ public:
 
     /** should probably be renamed to IsRelevantToMe */
     bool IsFromMe(const CTransaction& tx);
-    CAmount GetDebit(const CTransaction& tx, const isminefilter& filter) const;
-    CAmount GetDebitForAddress(CTxDestination dest, const CTransaction& tx) const;
+    CAmount GetDebit(const CTransaction& tx, const isminefilter& filter, unsigned char currency) const;
+    CAmount GetDebitForAddress(CTxDestination dest, const CTransaction& tx, unsigned char currency) const;
     /** Returns whether all of the inputs match the filter */
     bool IsAllFromMe(const CTransaction& tx, const isminefilter& filter) const;
-    CAmount GetCredit(const CTransaction& tx, const isminefilter& filter) const;
-    CAmount GetCreditForOneDestination(CTxDestination dest,const CTransaction& tx, const isminefilter& filter) const;
+    CAmount GetCredit(const CTransaction& tx, const isminefilter& filter, unsigned char currency) const;
+    CAmount GetCreditForOneDestination(CTxDestination dest,const CTransaction& tx, const isminefilter& filter, unsigned char currency) const;
     CAmount GetChange(const CTransaction& tx) const;
     void ChainStateFlushed(const CBlockLocator& loc) override;
 
@@ -1305,7 +1317,9 @@ CTxDestination GetDestinationForKeyInner(const CPubKey& key, OutputType type);
 CTxDestination GetDestinationForKey(const CPubKey& key, OutputType);
 CPubKey GetSecondPubKeyForDestination(const CTxDestination& dest);
 void SetSecondPubKeyForDestination(CTxDestination& dest, const CPubKey& key2);
+unsigned char GetCurrencyForDestination(const CTxDestination& dest);
 bool GetNonPrivateForDestination(const CTxDestination& dest);
+void SetCurrencyForDestination(CTxDestination& dest, const unsigned char key2);
 void SetNonPrivateForDestination(CTxDestination& dest, bool isnonprivate);
 void SetDepositForDestination(CTxDestination& dest, const bool isdeposit);
 bool GetDepositForDestination(const CTxDestination& dest);

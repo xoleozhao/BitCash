@@ -7,9 +7,10 @@
 #include <interfaces/node.h>
 #include <policy/policy.h>
 
-WalletModelTransaction::WalletModelTransaction(const QList<SendCoinsRecipient> &_recipients) :
+WalletModelTransaction::WalletModelTransaction(const QList<SendCoinsRecipient> &_recipients, unsigned char currency) :
     recipients(_recipients),
-    fee(0)
+    fee(0),
+    fromcurrency(currency)
 {
 }
 

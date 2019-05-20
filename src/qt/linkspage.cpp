@@ -174,7 +174,7 @@ void LinksPage::createlinkClicked()
     std::string referenceline = ui->referencelineEdit->text().toStdString(); 
     std::string strlink, strerr;
    
-    if (!walletModel->wallet().SendAsLink(nAmount, referenceline, strlink, strerr))
+    if (!walletModel->wallet().SendAsLink(nAmount, referenceline, strlink, strerr, 0, 0))
     {
         QMessageBox::critical(this, tr("Could not create link"),QString::fromStdString(strerr));
       

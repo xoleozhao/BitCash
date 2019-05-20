@@ -17,6 +17,7 @@ public:
     std::string link, description,amount;
     int status;
     uint64_t timestamp;
+    unsigned char currency;
 
     CLinksBookData() {}
 
@@ -24,7 +25,7 @@ public:
 
 extern std::map<std::string, CLinksBookData> mapLinksBook;
 
-bool SetLink(const std::string& strlink,const std::string& desc,const std::string& amount,int status,uint64_t timestamp);
+bool SetLink(const std::string& strlink,const std::string& desc,const std::string& amount,int status,uint64_t timestamp, unsigned char currency);
 bool DeleteLink(const std::string& strlink);
 void InitLinksDB();
 

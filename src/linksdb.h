@@ -97,6 +97,7 @@ public:
     bool WriteNameLinkAmount(const std::string& strlink,const std::string& amount);
     bool WriteNameLinkStatus(const std::string& strlink,int status);
     bool WriteNameLinkTimestamp(const std::string& strlink,uint64_t timestamp);
+    bool WriteNameLinkCurrency(const std::string& strlink,unsigned char currency);
 
     bool EraseNameLink(const std::string& strlink);
 

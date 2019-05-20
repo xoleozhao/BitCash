@@ -36,7 +36,8 @@ static int column_alignments[] = {
         Qt::AlignLeft|Qt::AlignVCenter, /* type */
         Qt::AlignLeft|Qt::AlignVCenter, /* address */
         Qt::AlignLeft|Qt::AlignVCenter, /* referenceline */
-        Qt::AlignRight|Qt::AlignVCenter /* amount */
+        Qt::AlignRight|Qt::AlignVCenter, /* amount bitc*/
+        Qt::AlignRight|Qt::AlignVCenter /* amount usd */
     };
 
 // Comparison operator for sort/binary search of model tx list
@@ -118,13 +119,26 @@ public:
                     " Index=" + QString::number(lowerIndex) + "-" + QString::number(upperIndex) +
                     " showTransaction=" + QString::number(showTransaction) + " derivedStatus=" + QString::number(status);
 
-        switch(status)
+        if (status == CT_DELETED || status == CT_UPDATED)
         {
-        case CT_NEW:
+            if(!inModel)
+            {
+                qWarning() << "TransactionTablePriv::updateWallet: Warning: Got CT_DELETED, but transaction is not in model";
+                return;
+            }
+            // Removed -- remove entire transaction from table
+            parent->beginRemoveRows(QModelIndex(), lowerIndex, upperIndex-1);
+            cachedWallet.erase(lower, upper);
+            parent->endRemoveRows();
+            inModel = false;
+
+        }
+        if (status == CT_NEW || status == CT_UPDATED)
+        {
             if(inModel)
             {
                 qWarning() << "TransactionTablePriv::updateWallet: Warning: Got CT_NEW, but transaction is already in model";
-                break;
+                return;
             }
             if(showTransaction)
             {
@@ -133,7 +147,7 @@ public:
                 if(!wtx.tx)
                 {
                     qWarning() << "TransactionTablePriv::updateWallet: Warning: Got CT_NEW, but transaction is not in wallet";
-                    break;
+                    return;
                 }
                 // Added -- insert at the right position
                 QList<TransactionRecord> toInsert =
@@ -150,26 +164,6 @@ public:
                     parent->endInsertRows();
                 }
             }
-            break;
-        case CT_DELETED:
-            if(!inModel)
-            {
-                qWarning() << "TransactionTablePriv::updateWallet: Warning: Got CT_DELETED, but transaction is not in model";
-                break;
-            }
-            // Removed -- remove entire transaction from table
-            parent->beginRemoveRows(QModelIndex(), lowerIndex, upperIndex-1);
-            cachedWallet.erase(lower, upper);
-            parent->endRemoveRows();
-            break;
-        case CT_UPDATED:
-            // Miscellaneous updates -- nothing to do, status update will take care of this, and is only computed for
-            // visible transactions.
-            for (int i = lowerIndex; i < upperIndex; i++) {
-                TransactionRecord *rec = &cachedWallet[i];
-                rec->status.needsUpdate = true;
-            }
-            break;
         }
     }
 
@@ -243,8 +237,8 @@ TransactionTableModel::~TransactionTableModel()
 /** Updates the column title to "Amount (DisplayUnit)" and emits headerDataChanged() signal for table headers to react. */
 void TransactionTableModel::updateAmountColumnTitle()
 {
-    columns[Amount] = BitcashUnits::getAmountColumnTitle(walletModel->getOptionsModel()->getDisplayUnit());
-    Q_EMIT headerDataChanged(Qt::Horizontal,Amount,Amount);
+    columns[Amountbitc] = BitcashUnits::getAmountColumnTitle(walletModel->getOptionsModel()->getDisplayUnit());
+    Q_EMIT headerDataChanged(Qt::Horizontal,Amountbitc,Amountbitc);
 }
 
 void TransactionTableModel::updateTransaction(const QString &hash, int status, bool showTransaction)
@@ -465,9 +459,48 @@ QString TransactionTableModel::formatTxAmount(const TransactionRecord *wtx, bool
     return QString(str);
 }
 
+QString TransactionTableModel::formatTxAmountbitc(const TransactionRecord *wtx, bool showUnconfirmed, BitcashUnits::SeparatorStyle separators) const
+{
+    if (wtx->creditbitc - wtx->debitbitc == 0 && wtx->creditusd - wtx->debitusd != 0) return QString("");
+
+    QString str = BitcashUnits::format(walletModel->getOptionsModel()->getDisplayUnit(), wtx->creditbitc + wtx->debitbitc, false, separators);
+    if(showUnconfirmed)
+    {
+        if(!wtx->status.countsForBalance)
+        {
+            str = QString("[") + str + QString("]");
+        }
+    }
+    return QString(str);
+}
+
+QString TransactionTableModel::formatTxAmountusd(const TransactionRecord *wtx, bool showUnconfirmed, BitcashUnits::SeparatorStyle separators) const
+{
+    if (wtx->creditbitc - wtx->debitbitc != 0 && wtx->creditusd - wtx->debitusd == 0) return QString("");
+
+    QString str = BitcashUnits::format(walletModel->getOptionsModel()->getDisplayUnit(), wtx->creditusd + wtx->debitusd, false, separators);
+    if(showUnconfirmed)
+    {
+        if(!wtx->status.countsForBalance)
+        {
+            str = QString("[") + str + QString("]");
+        }
+    }
+    return QString(str);
+}
+
 QString TransactionTableModel::formatTxReferenceline(const TransactionRecord *wtx) const
 {
     return QString::fromStdString(wtx->referenceline);
+}
+
+QString TransactionTableModel::formatTxCurrency(const TransactionRecord *wtx) const
+{
+    switch(wtx->currency)
+    {
+    case 1: return "USD";
+    default: return "BITC";
+    }
 }
 
 QVariant TransactionTableModel::txStatusDecoration(const TransactionRecord *wtx) const
@@ -565,6 +598,12 @@ QVariant TransactionTableModel::data(const QModelIndex &index, int role) const
             return formatTxReferenceline(rec);
         case Amount:
             return formatTxAmount(rec, true, BitcashUnits::separatorAlways);
+        case Amountusd:
+            return formatTxAmountusd(rec, true, BitcashUnits::separatorAlways);
+        case Amountbitc:
+            return formatTxAmountbitc(rec, true, BitcashUnits::separatorAlways);
+        case Currency:
+            return formatTxCurrency(rec);
         }
         break;
     case Qt::EditRole:
@@ -621,8 +660,14 @@ QVariant TransactionTableModel::data(const QModelIndex &index, int role) const
             return formatTxToAddress(rec, false);
     case TableReferencelineRole:
             return formatTxReferenceline(rec);
+    case TableCurrencyRole:
+            return formatTxCurrency(rec);
     case TableAmountRole:
             return formatTxAmount(rec, true, BitcashUnits::separatorAlways);
+    case TableAmountRolebitc:
+            return formatTxAmountbitc(rec, true, BitcashUnits::separatorAlways);
+    case TableAmountRoleusd:
+            return formatTxAmountusd(rec, true, BitcashUnits::separatorAlways);
     case TypeRole:
         return rec->type;
     case DateRole:
@@ -639,8 +684,17 @@ QVariant TransactionTableModel::data(const QModelIndex &index, int role) const
         return walletModel->getAddressTableModel()->labelForAddress(QString::fromStdString(rec->address));
     case ReferencelineRole:
         return QString::fromStdString(rec->referenceline);
+    case CurrencyRole: 
+        switch (rec->currency) {
+            case 1: return "USD";
+            default: return "BITC";
+        }
     case AmountRole:
         return qint64(rec->credit + rec->debit);
+    case AmountRolebitc:
+        return qint64(rec->creditbitc + rec->debitbitc);
+    case AmountRoleusd:
+        return qint64(rec->creditusd + rec->debitusd);
     case TxHashRole:
         return rec->getTxHash();
     case TxHexRole:
@@ -678,6 +732,12 @@ QVariant TransactionTableModel::data(const QModelIndex &index, int role) const
     case FormattedAmountRole:
         // Used for copy/export, so don't include separators
         return formatTxAmount(rec, false, BitcashUnits::separatorNever);
+    case FormattedAmountRolebitc:
+        // Used for copy/export, so don't include separators
+        return formatTxAmountbitc(rec, false, BitcashUnits::separatorNever);
+    case FormattedAmountRoleusd:
+        // Used for copy/export, so don't include separators
+        return formatTxAmountusd(rec, false, BitcashUnits::separatorNever);
     case StatusRole:
         return rec->status.status;
     }
@@ -690,10 +750,13 @@ QHash<int, QByteArray> TransactionTableModel::roleNames() const {
     roles[TableTypeRole] = "transactiontype";
     roles[TableAddressRole] = "transactionaddress";
     roles[TableReferencelineRole] = "transactionreferenceline";
-    roles[TableAmountRole] = "transactionamount";
+    roles[TableAmountRolebitc] = "transactionamountbitc";
     roles[Qt::DecorationRole] = "decoration";
     roles[Qt::ToolTipRole] = "tooltip";
     roles[TableTypeAsNumberRole] = "transactiontypeno";
+    roles[TableAmountRoleusd] = "transactionamountusd";
+    roles[TableAmountRole] = "transactionamount";
+    roles[TableCurrencyRole] = "transactioncurrency";
 
     return roles;
 }
@@ -727,6 +790,8 @@ QVariant TransactionTableModel::headerData(int section, Qt::Orientation orientat
                 return tr("Reference Line for the transaction.");
             case Amount:
                 return tr("Amount removed from or added to balance.");
+            case Currency:
+                return tr("Currency of transaction.");
             }
         }
     }

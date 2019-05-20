@@ -6,6 +6,8 @@
 #include <miner.h>
 
 #include <amount.h>
+#include <boost/algorithm/string.hpp>
+#include <cctype>
 #include <chain.h>
 #include <chainparams.h>
 #include <coins.h>
@@ -23,16 +25,61 @@
 #include <primitives/transaction.h>
 #include <script/standard.h>
 #include <timedata.h>
+#include <tuple>
 #include <util.h>
+#include <utility>
 #include <utilmoneystr.h>
 #include <validationinterface.h>
 #include <wallet/wallet.h>
 
 #include <algorithm>
 #include <boost/thread.hpp>
+#include <boost/asio.hpp>
 #include <queue>
 #include <utility>
 
+#include <iostream>
+#include <istream>
+#include <ostream>
+#include <string>
+#include "RSJparser.tcc"
+#include <curl/curl.h>
+
+static size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp)
+{
+    ((std::string*)userp)->append((char*)contents, size * nmemb);
+    return size * nmemb;
+}
+ 
+std::string getdocumentwithcurl(std::string url)
+{
+  CURL *curl;
+  CURLcode res;
+  std::string readBuffer = "";
+
+//std::cout << url << std::endl;
+ 
+  curl = curl_easy_init();
+  if(curl) {
+    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+    /* example.com is redirected, so we tell libcurl to follow redirection */ 
+    curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
+ 
+    /* Perform the request, res will get the return code */ 
+    res = curl_easy_perform(curl);
+    /* Check for errors */ 
+/*    if(res != CURLE_OK) {        
+    std::cout << "curl_easy_perform() failed: " << curl_easy_strerror(res) << std::endl;
+    }    
+     std::cout << readBuffer << std::endl;*/
+    /* always cleanup */ 
+    curl_easy_cleanup(curl);
+    return readBuffer;
+  }
+}
 
 // Unconfirmed transactions in the memory pool often depend on other
 // transactions in the memory pool. When we select transactions from the
@@ -49,6 +96,8 @@ const int MAX_NONCE = 0xfffff;
 CAmount minedcoins=0;
 bool triedoneproofofwork = false;
 
+bool AddPriceInformation(CBlockHeader *pblock);
+
 int64_t UpdateTime(CBlockHeader* pblock, const Consensus::Params& consensusParams, const CBlockIndex* pindexPrev)
 {
     int64_t nOldTime = pblock->nTime;
@@ -61,6 +110,21 @@ int64_t UpdateTime(CBlockHeader* pblock, const Consensus::Params& consensusParam
     if (consensusParams.fPowAllowMinDifficultyBlocks)
         pblock->nBits = GetNextWorkRequired(pindexPrev, pblock, consensusParams).nBits;
 
+    if (pblock->nTime > consensusParams.STABLETIME && 
+        (!(pblock->nPriceInfo.priceTime == pblock->nTime || (pblock->nPriceInfo.priceTime > pblock->nTime && pblock->nPriceInfo.priceTime <= pblock->nTime + MAX_PRICETIME_DIFFERENCE / 3) 
+                                                         || (pblock->nPriceInfo.priceTime < pblock->nTime && pblock->nPriceInfo.priceTime + MAX_PRICETIME_DIFFERENCE / 3 >= pblock->nTime)))) {
+        AddPriceInformation(pblock);
+    } else
+    if (pblock->nTime > consensusParams.STABLETIME && 
+        (!(pblock->nPriceInfo2.priceTime == pblock->nTime || (pblock->nPriceInfo2.priceTime > pblock->nTime && pblock->nPriceInfo2.priceTime <= pblock->nTime + MAX_PRICETIME_DIFFERENCE / 3) 
+                                                         || (pblock->nPriceInfo2.priceTime < pblock->nTime && pblock->nPriceInfo2.priceTime + MAX_PRICETIME_DIFFERENCE / 3 >= pblock->nTime)))) {
+        AddPriceInformation(pblock);
+    } else
+    if (pblock->nTime > consensusParams.STABLETIME && 
+        (!(pblock->nPriceInfo3.priceTime == pblock->nTime || (pblock->nPriceInfo3.priceTime > pblock->nTime && pblock->nPriceInfo3.priceTime <= pblock->nTime + MAX_PRICETIME_DIFFERENCE / 3) 
+                                                         || (pblock->nPriceInfo3.priceTime < pblock->nTime && pblock->nPriceInfo3.priceTime + MAX_PRICETIME_DIFFERENCE / 3 >= pblock->nTime)))) {
+        AddPriceInformation(pblock);
+    }
     if (pblock->nTime > consensusParams.X16RTIME)
        pblock->nVersion |= hashx16Ractive;
 
@@ -111,6 +175,96 @@ void BlockAssembler::resetBlock()
     nFees = 0;
 }
 
+/** Converts the nValue to other currencies according to the price information of the block and the currency of the transaction outputs */
+void BlockAssembler::ConvertCurrenciesForBlockTemplate()
+{
+    int i;
+    int j;
+
+    CAmount pricerate = pblock->GetPriceinCurrency(0);
+
+    for (i = 0;i < pblock->vtx.size(); i++) {
+
+        CMutableTransaction tx(*pblock->vtx[i]);
+
+        int inputcurrency = 0;//Currency of transaction inputs
+
+            //only one input currency is allowed for all inputs
+            for (j = 0;j < tx.vin.size(); j++) {                
+                if (tx.vin[j].isnickname) continue;   
+                CCoinsViewCache inputs(pcoinsTip.get());
+                const Coin& coin = inputs.AccessCoin(tx.vin[j].prevout);                
+                if (coin.IsCoinBase()) {
+                    inputcurrency = 0;                    
+                } else {
+	                inputcurrency = coin.out.currency;
+                }
+                break;
+
+            }
+
+        for (j = 0;j < tx.vout.size(); j++) {
+            if (tx.vout[j].currency != inputcurrency) {
+                if (inputcurrency == 0 && tx.vout[j].currency == 1) {
+                    //std::cout << "Input BitCash: " << FormatMoney(tx.vout[j].nValueBitCash) << std::endl;
+                    //Convert BitCash into Dollars
+                    tx.vout[j].nValue = (__int128_t)tx.vout[j].nValueBitCash * (__int128_t)pricerate / (__int128_t)COIN;
+                    //std::cout << "Converted to Dollar: " << FormatMoney(tx.vout[j].nValue) << std::endl;
+                } else
+		if (inputcurrency == 1 && tx.vout[j].currency == 0) {
+                    //std::cout << "Input Dollar: " << FormatMoney(tx.vout[j].nValueBitCash) << std::endl;
+                    //Convert Dollars into BitCash
+                    tx.vout[j].nValue = (__int128_t)tx.vout[j].nValueBitCash * (__int128_t)COIN / (__int128_t)pricerate;
+                    //std::cout << "Converted to BitCash: " << FormatMoney(tx.vout[j].nValue) << std::endl;
+                }
+            }
+        } 
+	pblock->vtx[i] = MakeTransactionRef(std::move(tx));
+    }
+}
+
+/** Converts the nValue to other currencies according to the price information of the block and the currency of the transaction outputs */
+void BlockAssembler::CalculateFeesForBlock()
+{
+    int i;
+    int j;
+
+    CAmount pricerate = pblock->GetPriceinCurrency(0);
+
+    nFees = 0;
+
+    for (i = 1;i < pblock->vtx.size(); i++) {//start from transaction 1 not 0, because transaction 0 is the coinbase placeholder
+
+        CTransaction tx(*pblock->vtx[i]);
+
+        int currency = 0;//Currency of transaction inputs
+        CAmount nValueIn = 0;
+
+        for (j = 0;j < tx.vin.size(); j++) {                
+            if (tx.vin[j].isnickname) continue;   
+            CCoinsViewCache inputs(pcoinsTip.get());
+            const Coin& coin = inputs.AccessCoin(tx.vin[j].prevout);                
+            if (coin.IsCoinBase()) {
+               currency = 0;
+            } else
+                currency = coin.out.currency;
+            nValueIn += coin.out.nValue;
+        }
+        CAmount value_out = tx.GetValueOut();
+
+        // Tally transaction fees
+        CAmount txfee_aux = nValueIn - value_out;
+        if (currency != 0) {
+            //convert fee into currency 0 
+            if (currency == 1) {
+                txfee_aux = (__int128_t)txfee_aux * (__int128_t)COIN / (__int128_t)pblock->GetPriceinCurrency(0);
+            }
+        }
+        nFees += txfee_aux;
+    }
+}
+
+
 std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlockWithScriptPubKey(const CScript& scriptPubKeyIn, bool fMineWitnessTx)
 {
     int64_t nTimeStart = GetTimeMicros();
@@ -129,19 +283,22 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlockWithScriptPubKey(c
     pblocktemplate->vTxSigOpsCost.push_back(-1); // updated at end
 
     LOCK2(cs_main, mempool.cs);
+    AddPriceInformation(pblock);
     CBlockIndex* pindexPrev = chainActive.Tip();
     assert(pindexPrev != nullptr);
     nHeight = pindexPrev->nHeight + 1;
 
+    pblock->nTime = GetAdjustedTime();
     pblock->nVersion = ComputeBlockVersion(pindexPrev, chainparams.GetConsensus());
+    if (pblock->nTime > chainparams.GetConsensus().STABLETIME)
+       pblock->nVersion |= stabletimeactive;
+    if (pblock->nTime > chainparams.GetConsensus().X16RTIME)
+       pblock->nVersion |= hashx16Ractive;
+
     // -regtest only: allow overriding block.nVersion with
     // -blockversion=N to test forking scenarios
     if (chainparams.MineBlocksOnDemand())
         pblock->nVersion = gArgs.GetArg("-blockversion", pblock->nVersion);
-
-    pblock->nTime = GetAdjustedTime();
-    if (pblock->nTime > chainparams.GetConsensus().X16RTIME)
-       pblock->nVersion |= hashx16Ractive;
 
     const int64_t nMedianTimePast = pindexPrev->GetMedianTimePast();
 
@@ -166,6 +323,8 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlockWithScriptPubKey(c
     nLastBlockTx = nBlockTx;
     nLastBlockWeight = nBlockWeight;
 
+    CalculateFeesForBlock();
+
     // Create coinbase transaction.
     CMutableTransaction coinbaseTx;
     coinbaseTx.vin.resize(1);
@@ -173,26 +332,32 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlockWithScriptPubKey(c
     coinbaseTx.vout.resize(2);
     coinbaseTx.vout[0].scriptPubKey = scriptPubKeyIn;
     coinbaseTx.vout[0].nValue = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus());
+    coinbaseTx.vout[0].nValueBitCash = coinbaseTx.vout[0].nValue;
+
     //Pay to the development fund....
     coinbaseTx.vout[1].scriptPubKey = GetScriptForRawPubKey(CPubKey(ParseHex(Dev1scriptPubKey)));
     coinbaseTx.vout[1].nValue = GetBlockSubsidyDevs(nHeight, chainparams.GetConsensus());
+    coinbaseTx.vout[1].nValueBitCash = coinbaseTx.vout[1].nValue;
 
     coinbaseTx.vin[0].scriptSig = CScript() << nHeight << OP_0;
     pblock->vtx[0] = MakeTransactionRef(std::move(coinbaseTx));
-    pblocktemplate->vchCoinbaseCommitment = GenerateCoinbaseCommitment(*pblock, pindexPrev, chainparams.GetConsensus());
     pblocktemplate->vTxFees[0] = -nFees;
-
+    
 //    LogPrintf("CreateNewBlock(): block weight: %u txs: %u fees: %ld sigops %d C nVersion %d\n", GetBlockWeight(*pblock), nBlockTx, nFees, nBlockSigOpsCost, coinbaseTx.nVersion);
 
     auto pow = GetNextWorkRequired(pindexPrev, pblock, chainparams.GetConsensus());
 
-    // Fill in header
+    // Fill in header    
+
     pblock->hashPrevBlock  = pindexPrev->GetBlockHash();
     UpdateTime(pblock, chainparams.GetConsensus(), pindexPrev);
     pblock->nBits          = pow.nBits;
     pblock->nNonce         = 0;
     pblock->nEdgeBits = pow.nEdgeBits;
     pblocktemplate->vTxSigOpsCost[0] = WITNESS_SCALE_FACTOR * GetLegacySigOpCount(*pblock->vtx[0]);
+
+    ConvertCurrenciesForBlockTemplate();
+    pblocktemplate->vchCoinbaseCommitment = GenerateCoinbaseCommitment(*pblock, pindexPrev, chainparams.GetConsensus());
 
     CValidationState state;
     if (!TestBlockValidity(state, chainparams, *pblock, pindexPrev, false, false)) {
@@ -216,25 +381,29 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(interfaces::Walle
         return nullptr;
     pblock = &pblocktemplate->block; // pointer for convenience
 
-    // Add dummy coinbase tx as first transaction
+    // Add dummy coinbase tx as first transaction  
     pblock->vtx.emplace_back();
     pblocktemplate->vTxFees.push_back(-1); // updated at end
     pblocktemplate->vTxSigOpsCost.push_back(-1); // updated at end
 
     LOCK2(cs_main, mempool.cs);
+    AddPriceInformation(pblock);
     CBlockIndex* pindexPrev = chainActive.Tip();
     assert(pindexPrev != nullptr);
     nHeight = pindexPrev->nHeight + 1;
 
+    pblock->nTime = GetAdjustedTime();
     pblock->nVersion = ComputeBlockVersion(pindexPrev, chainparams.GetConsensus());
+    if (pblock->nTime > chainparams.GetConsensus().STABLETIME)
+       pblock->nVersion |= stabletimeactive;
+    if (pblock->nTime > chainparams.GetConsensus().X16RTIME)
+       pblock->nVersion |= hashx16Ractive;
+
     // -regtest only: allow overriding block.nVersion with
     // -blockversion=N to test forking scenarios
     if (chainparams.MineBlocksOnDemand())
         pblock->nVersion = gArgs.GetArg("-blockversion", pblock->nVersion);
 
-    pblock->nTime = GetAdjustedTime();
-    if (pblock->nTime > chainparams.GetConsensus().X16RTIME)
-       pblock->nVersion |= hashx16Ractive;
     const int64_t nMedianTimePast = pindexPrev->GetMedianTimePast();
 
     nLockTimeCutoff = (STANDARD_LOCKTIME_VERIFY_FLAGS & LOCKTIME_MEDIAN_TIME_PAST)
@@ -258,21 +427,26 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(interfaces::Walle
     nLastBlockTx = nBlockTx;
     nLastBlockWeight = nBlockWeight;
 
+    CalculateFeesForBlock();
+
     // Create coinbase transaction.
     CMutableTransaction coinbaseTx;
     coinbaseTx.vin.resize(1);
     coinbaseTx.vin[0].prevout.SetNull();
     coinbaseTx.vout.resize(2);
+   
     coinbaseTx.vout[0].nValue = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus());
+    coinbaseTx.vout[0].nValueBitCash = coinbaseTx.vout[0].nValue;
     if (useinterface){
-        iwallet->FillTxOutForTransaction(coinbaseTx.vout[0],iwallet->GetCurrentAddressPubKey(),"", false);
+        iwallet->FillTxOutForTransaction(coinbaseTx.vout[0],iwallet->GetCurrentAddressPubKey(),"", 0, false);
     } else
     {
-        wallet->FillTxOutForTransaction(coinbaseTx.vout[0],wallet->GetCurrentAddressPubKey(),"", false);
+        wallet->FillTxOutForTransaction(coinbaseTx.vout[0],wallet->GetCurrentAddressPubKey(),"", 0, false);
     }
     //Pay to the development fund....
     coinbaseTx.vout[1].scriptPubKey = GetScriptForRawPubKey(CPubKey(ParseHex(Dev1scriptPubKey)));
     coinbaseTx.vout[1].nValue = GetBlockSubsidyDevs(nHeight, chainparams.GetConsensus());
+    coinbaseTx.vout[1].nValueBitCash = coinbaseTx.vout[1].nValue;
 
     if (includeextranonce) {
         coinbaseTx.vin[0].scriptSig = CScript() << nHeight << ParseHex("FFBBAAEE003344BBFFBBAAEE003344BB") << OP_0; 
@@ -280,20 +454,23 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(interfaces::Walle
         coinbaseTx.vin[0].scriptSig = CScript() << nHeight << OP_0;    
     }
     pblock->vtx[0] = MakeTransactionRef(std::move(coinbaseTx));
-    pblocktemplate->vchCoinbaseCommitment = GenerateCoinbaseCommitment(*pblock, pindexPrev, chainparams.GetConsensus());
     pblocktemplate->vTxFees[0] = -nFees;
 
 //    LogPrintf("CreateNewBlock(): block weight: %u txs: %u fees: %ld sigops %d C nVersion %d\n", GetBlockWeight(*pblock), nBlockTx, nFees, nBlockSigOpsCost, coinbaseTx.nVersion);
 
     auto pow = GetNextWorkRequired(pindexPrev, pblock, chainparams.GetConsensus());
 
-    // Fill in header
+    // Fill in header   
     pblock->hashPrevBlock  = pindexPrev->GetBlockHash();
     UpdateTime(pblock, chainparams.GetConsensus(), pindexPrev);
     pblock->nBits          = pow.nBits;
     pblock->nNonce         = 0;
     pblock->nEdgeBits = pow.nEdgeBits;
     pblocktemplate->vTxSigOpsCost[0] = WITNESS_SCALE_FACTOR * GetLegacySigOpCount(*pblock->vtx[0]);
+
+    ConvertCurrenciesForBlockTemplate();
+
+    pblocktemplate->vchCoinbaseCommitment = GenerateCoinbaseCommitment(*pblock, pindexPrev, chainparams.GetConsensus());
 
     CValidationState state;
     if (!TestBlockValidity(state, chainparams, *pblock, pindexPrev, false, false)) {
@@ -313,7 +490,6 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(interfaces::Walle
     pblocktemplate->coinb1=str1;
     pblocktemplate->coinb2=str2;
     pblocktemplate->blockheight=nHeight;
-
     return std::move(pblocktemplate);
 }
 
@@ -328,6 +504,295 @@ void BlockAssembler::onlyUnconfirmed(CTxMemPool::setEntries& testSet)
             iit++;
         }
     }
+}
+
+
+std::set<std::string> exchanges;
+
+const int numexchangeinfos = 5;
+std::string exchangeinfos[numexchangeinfos] = {
+  {"https://wallet.choosebitcash.com/pricesources.txt"},
+  {"https://webwallet.choosebitcash.com/priceinfo/pricesources.txt"},
+  {"https://cadkas.com/priceinfo/pricesources.txt"},
+  {"https://price.choosebitcash.com/priceinfo/pricesources.txt"},
+  {"https://price2.choosebitcash.com/priceinfo/pricesources.txt"}
+};
+
+const int numwebsites = 5;
+std::string pricewebsites[numwebsites] = {
+  {"https://wallet.choosebitcash.com/getpriceinfo.php"},
+  {"https://webwallet.choosebitcash.com/priceinfo/getpriceinfo.php"},
+  {"https://cadkas.com/priceinfo/getpriceinfo.php"},
+  {"https://price.choosebitcash.com/priceinfo/getpriceinfo.php"},
+  {"https://price2.choosebitcash.com/priceinfo/getpriceinfo.php"}
+};
+
+
+CAmount pricecache = COIN;
+bool haspriceinfo = false;
+uint64_t pricetime = 0;
+
+void GetExchangesListFromWebserver()
+{
+    //we already know these exchanges
+    for (int i = 0; i < numwebsites; i++) {
+        exchanges.insert(pricewebsites[i]);
+    }
+
+//std::cout << "count " << exchanges.size() << std::endl;
+
+    //download a list of possible other exchanges
+    for (int i = 0; i < numexchangeinfos; i++) {
+        std::string server = exchangeinfos[i];
+        try {
+	    std::string priceinfo = getdocumentwithcurl(server);
+
+//std::cout << "c.priceinfo " << c.priceinfo << std::endl;
+
+	    std::istringstream stream(priceinfo);
+	    std::string line;
+	    while(std::getline(stream, line)) { 
+                exchanges.insert(boost::algorithm::trim_copy(line));
+	    }
+
+        }
+        catch (std::exception& e)
+        {
+        }
+    }
+//std::cout << "count " << exchanges.size() << std::endl;
+}
+
+CAmount GetPriceInformationFromWebserver(std::string server, std::string &price, std::string &signature)
+{
+    try
+    {
+	std::string priceinfo = getdocumentwithcurl(server);
+
+        RSJresource  json (priceinfo);
+        price=json["priceinfo"].as<std::string>("");
+        signature=json["signature"].as<std::string>("");
+    }
+    catch (std::exception& e)
+    {
+        return 0;
+    }
+    if (IsHex(price)) { 
+        std::vector<unsigned char> txData(ParseHex(price));
+        CDataStream ssData(txData, SER_NETWORK, PROTOCOL_VERSION);
+        try {
+            CPriceInfo nPriceInfo;
+            ssData >> nPriceInfo;
+            if (nPriceInfo.prices[0]>0) {
+                return nPriceInfo.prices[0];
+            } else return 0;
+        } catch (const std::exception&) {
+            // Fall through.
+            return 0;
+        }    
+    } else return 0;
+
+    return 0;
+}
+
+CAmount GetOnePriceInformation(std::string &price, std::string &signature)
+{   
+    CAmount res = 0;
+    int size = exchanges.size();
+    int count = 0;
+
+    while (res <= 0 && count < size*4) {
+        int i = rand() % size;
+        //get the i. element of exchanges
+	std::set<std::string>::iterator it = exchanges.begin();
+	std::advance(it, i);
+        std::string ex = *it;
+
+        res = GetPriceInformationFromWebserver(ex, price, signature);
+        count++;
+    }
+
+    return res;   
+}
+
+
+CAmount GetPriceInformation(std::string &price, std::string &signature, std::string &price2, std::string &signature2, std::string &price3, std::string &signature3)
+{   
+    CAmount res = 0;
+    int size = exchanges.size();
+    int count = 0;
+    int i1 = 0;
+    int i2 = 0;
+
+    while (res <= 0 && count < size*4) {
+        int i = rand() % size;
+        i1 = i;
+        //get the i. element of exchanges
+	std::set<std::string>::iterator it = exchanges.begin();
+	std::advance(it, i);
+        std::string ex = *it;
+
+        res = GetPriceInformationFromWebserver(ex, price, signature);
+        count++;
+    }
+
+    count = 0;
+    res = 0;
+    while (res <= 0 && count < size*4) {
+       int i = 0;
+        do {
+            i = rand() % size;
+        } while (i == i1);
+        i2 = i;
+
+        //get the i. element of exchanges
+	std::set<std::string>::iterator it = exchanges.begin();
+	std::advance(it, i);
+        std::string ex = *it;
+
+        res = GetPriceInformationFromWebserver(ex, price2, signature2);
+        count++;
+    }
+
+    count = 0;
+    res = 0;
+    while (res <= 0 && count < size*4) {
+       int i = 0;
+        do {
+            i = rand() % size;
+        } while (i == i1 || i == i2);
+
+        //get the i. element of exchanges
+	std::set<std::string>::iterator it = exchanges.begin();
+	std::advance(it, i);
+        std::string ex = *it;
+
+        res = GetPriceInformationFromWebserver(ex, price3, signature3);
+        count++;
+    }
+    return res;   
+}
+
+bool AddPriceInformation(CBlock *pblock)
+{
+    std::string price="";
+    std::string signature="";
+    std::string price2="";
+    std::string signature2="";
+    std::string price3="";
+    std::string signature3="";
+
+    if (GetPriceInformation(price, signature, price2, signature2, price3, signature3) <= 0) {
+        return 0;
+    }
+
+    if (IsHex(price)) { 
+        std::vector<unsigned char> txData(ParseHex(price));
+        CDataStream ssData(txData, SER_NETWORK, PROTOCOL_VERSION);
+        try {
+            ssData >> pblock->nPriceInfo;
+        } catch (const std::exception&) {
+            // Fall through.
+            return false;
+        }    
+    } else return false;
+
+    pblock->priceSig = ParseHex(signature);
+
+    if (IsHex(price2)) { 
+        std::vector<unsigned char> txData(ParseHex(price2));
+        CDataStream ssData(txData, SER_NETWORK, PROTOCOL_VERSION);
+        try {
+            ssData >> pblock->nPriceInfo2;
+        } catch (const std::exception&) {
+            // Fall through.
+            return false;
+        }    
+    } else return false;
+
+    pblock->priceSig2 = ParseHex(signature2);
+
+    if (IsHex(price3)) { 
+        std::vector<unsigned char> txData(ParseHex(price3));
+        CDataStream ssData(txData, SER_NETWORK, PROTOCOL_VERSION);
+        try {
+            ssData >> pblock->nPriceInfo3;
+        } catch (const std::exception&) {
+            // Fall through.
+            return false;
+        }    
+    } else return false;
+
+    pblock->priceSig3 = ParseHex(signature3);
+    return true;
+}
+
+bool AddPriceInformation(CBlockHeader *pblock)
+{
+    std::string price="";
+    std::string signature="";
+    std::string price2="";
+    std::string signature2="";
+    std::string price3="";
+    std::string signature3="";
+
+    if (GetPriceInformation(price, signature, price2, signature2, price3, signature3) <= 0) {
+        return 0;
+    }
+
+    if (IsHex(price)) { 
+        std::vector<unsigned char> txData(ParseHex(price));
+        CDataStream ssData(txData, SER_NETWORK, PROTOCOL_VERSION);
+        try {
+            ssData >> pblock->nPriceInfo;
+        } catch (const std::exception&) {
+            // Fall through.
+            return false;
+        }    
+    } else return false;
+
+    pblock->priceSig = ParseHex(signature);
+
+    if (IsHex(price2)) { 
+        std::vector<unsigned char> txData(ParseHex(price2));
+        CDataStream ssData(txData, SER_NETWORK, PROTOCOL_VERSION);
+        try {
+            ssData >> pblock->nPriceInfo2;
+        } catch (const std::exception&) {
+            // Fall through.
+            return false;
+        }    
+    } else return false;
+
+    pblock->priceSig2 = ParseHex(signature2);
+
+    if (IsHex(price3)) { 
+        std::vector<unsigned char> txData(ParseHex(price3));
+        CDataStream ssData(txData, SER_NETWORK, PROTOCOL_VERSION);
+        try {
+            ssData >> pblock->nPriceInfo3;
+        } catch (const std::exception&) {
+            // Fall through.
+            return false;
+        }    
+    } else return false;
+
+    pblock->priceSig3 = ParseHex(signature3);
+    return true;
+}
+
+CAmount GetCachedPriceInformation(uint64_t cachetime)
+{
+    std::string price, signature;
+    if (!haspriceinfo || GetTimeMillis() > pricetime + cachetime) {        
+        CAmount tempprice = GetOnePriceInformation(price, signature);
+        if (tempprice != 0) {
+   	    pricecache = tempprice;
+            pricetime = GetTimeMillis();        
+            haspriceinfo = true;
+        }
+    }
+    return pricecache;
 }
 
 bool BlockAssembler::TestPackage(uint64_t packageSize, int64_t packageSigOpsCost) const
@@ -597,7 +1062,7 @@ static bool ProcessBlockFound(const CBlock* pblock, const CChainParams& chainpar
     {
         LOCK(cs_main);
         if (pblock->hashPrevBlock != chainActive.Tip()->GetBlockHash())
-            return error("MeritMiner: generated block is stale");
+            return error("BitCashMiner: generated block is stale");
     }
 
     // Inform about the new block
@@ -606,7 +1071,7 @@ static bool ProcessBlockFound(const CBlock* pblock, const CChainParams& chainpar
     // Process this block the same as if we had received it from another node
     std::shared_ptr<const CBlock> shared_pblock = std::make_shared<const CBlock>(*pblock);
     if (!ProcessNewBlock(chainparams, shared_pblock, true, nullptr, false))
-        return error("MeritMiner: ProcessNewBlock, block not accepted");
+        return error("BitCashMiner: ProcessNewBlock, block not accepted");
 
     return true;
 }
@@ -731,7 +1196,6 @@ void MinerWorker(int thread_id, MinerContext& ctx)
             if (pblock->nNonce % ctx.nonces_per_thread == 0) {
                 pblock->nNonce += ctx.nonces_per_thread * (ctx.threads_number - 1);
             }
-        
             triedoneproofofwork = true;
 
             if(cycle_found) {
@@ -744,6 +1208,7 @@ void MinerWorker(int thread_id, MinerContext& ctx)
                 g_connman->AddFoundCycles(cycles_found);
                 cycles_found=0;          
             }
+
 
             // Check for stop or if block needs to be rebuilt
             if (!ctx.alive) {

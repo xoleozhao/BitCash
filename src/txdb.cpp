@@ -287,10 +287,16 @@ bool CBlockTreeDB::LoadBlockIndexGuts(const Consensus::Params& consensusParams, 
                 pindexNew->nTime          = diskindex.nTime;
                 pindexNew->nBits          = diskindex.nBits;
                 pindexNew->nNonce         = diskindex.nNonce;
-                pindexNew->nEdgeBits     = diskindex.nEdgeBits;
+                pindexNew->nEdgeBits      = diskindex.nEdgeBits;
+                pindexNew->nPriceInfo     = diskindex.nPriceInfo;
+                pindexNew->priceSig       = diskindex.priceSig;
+                pindexNew->nPriceInfo2    = diskindex.nPriceInfo2;
+                pindexNew->priceSig2      = diskindex.priceSig2;
+                pindexNew->nPriceInfo3    = diskindex.nPriceInfo3;
+                pindexNew->priceSig3      = diskindex.priceSig3;
                 pindexNew->nStatus        = diskindex.nStatus;
                 pindexNew->nTx            = diskindex.nTx;
-                pindexNew->sCycle       = diskindex.sCycle;
+                pindexNew->sCycle         = diskindex.sCycle;
 
 
                 if (isX16Ractive(diskindex.nVersion)) {

@@ -65,10 +65,13 @@ Build Bitcash Core
 4.  You can also create a .dmg that contains the .app bundle (optional):
 
         make deploy
+	/usr/local/opt/qt/bin/macdeployqt Bitcash-Qt.app -qmldir=src/qt/forms 
+	->this will create the folder /Frameworks
 
-macdeployqt will not install all QT plugins correctly.
-Therefor you need to call the normal macdeployqt to create a valid app bundle:
-/usr/local/opt/qt/bin/macdeployqt Bitcash-Qt.app -qmldir=src/qt/forms -dmg
+	sudo cp /usr/local/Cellar/boost/1.67.0_1/lib/libboost_system-mt.dylib ./Bitcash-Qt.app/Contents/Frameworks/
+
+	rm bitcash.dmg
+	hdiutil create -volname BitCash -srcfolder Bitcash-Qt.app -ov -format UDZO bitcash.dmg
 
 Running
 -------

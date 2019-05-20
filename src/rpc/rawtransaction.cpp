@@ -111,8 +111,10 @@ void TxToUnivWithWallet(const CWallet* pwallet,const CTransaction& tx, const uin
         const CTxOut& txout = tx.vout[i];
         UniValue out(UniValue::VOBJ);
 
-        out.pushKV("value", ValueFromAmount(txout.nValue));
+        out.pushKV("value", ValueFromAmount(txout.nValue));        
+        out.pushKV("valueBitCash", ValueFromAmount(txout.nValueBitCash));
         out.pushKV("n", (int64_t)i);
+        out.pushKV("currency", txout.currency);
         out.pushKV("isnonprivate", txout.isnonprivate);
         out.pushKV("hasrecipientid", txout.hasrecipientid);
         out.pushKV("recipientid1", txout.recipientid1);
@@ -193,7 +195,9 @@ void TxToUnivWithWalletMK(const CWallet* pwallet,std::string masterprivatekey, c
         UniValue out(UniValue::VOBJ);
 
         out.pushKV("value", ValueFromAmount(txout.nValue));
+        out.pushKV("valueBitCash", ValueFromAmount(txout.nValueBitCash));
         out.pushKV("n", (int64_t)i);
+        out.pushKV("currency", txout.currency);
 
         UniValue o(UniValue::VOBJ);
         ScriptPubKeyToUniv(txout.scriptPubKey, o, true, txout.isnonprivate);
@@ -667,7 +671,7 @@ static UniValue createrawtransaction(const JSONRPCRequest& request)
         if (name_ == "data") {
             std::vector<unsigned char> data = ParseHexV(outputs[name_].getValStr(), "Data");
 
-            CTxOut out(0, CScript() << OP_RETURN << data);
+            CTxOut out(0, CScript() << OP_RETURN << data, 0);
             rawTx.vout.push_back(out);
         } else {
             CTxDestination destination = DecodeDestination(name_);
@@ -682,10 +686,10 @@ static UniValue createrawtransaction(const JSONRPCRequest& request)
             CScript scriptPubKey = GetScriptForDestination(destination);
             CAmount nAmount = AmountFromValue(outputs[name_]);
 
-            CTxOut out(nAmount, scriptPubKey);
+            CTxOut out(nAmount, scriptPubKey,0 );
 #ifdef ENABLE_WALLET
             CWallet * const pwallet = GetWalletForJSONRPCRequest(request);
-            pwallet->FillTxOutForTransaction(out, destination, referenceline, false);
+            pwallet->FillTxOutForTransaction(out, destination, referenceline, 0, false);
 #endif
             rawTx.vout.push_back(out);
 
@@ -728,7 +732,7 @@ static UniValue createrawtransactionfromscript(const JSONRPCRequest& request)
     std::vector<unsigned char> scriptData(ParseHexV(request.params[0], "argument"));
     scriptPubKey = CScript(scriptData.begin(), scriptData.end());
 
-    CTxOut out(nAmount, scriptPubKey);
+    CTxOut out(nAmount, scriptPubKey, 0);
     rawTx.vout.push_back(out);
 
     return EncodeHexTx(rawTx);

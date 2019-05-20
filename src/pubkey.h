@@ -21,6 +21,7 @@ class CKeyID : public uint160
 {
 public:
     std::vector<unsigned char> recokey;
+    unsigned char currency;
     bool nonprivate;
     bool isdeposit;
 

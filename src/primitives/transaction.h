@@ -12,10 +12,12 @@
 #include <serialize.h>
 #include <uint256.h>
 #include <pubkey.h>
+#include <iostream>
 
 static const int SERIALIZE_TRANSACTION_NO_WITNESS = 0x40000000;
 extern bool userefline;
 extern bool usenonprivacy;
+extern bool usecurrency;
 
 /** An outpoint - a combination of a transaction hash and an index n into its vout */
 class COutPoint
@@ -175,14 +177,16 @@ public:
 class CTxOut
 {
 public:
-    CAmount nValue;
+    CAmount nValue;//Value in currency of transaction outputs
+    CAmount nValueBitCash;//Value in currency of transaction inputs
     CScript scriptPubKey;
 
     std::string referenceline;
     char randomPrivatKey[32];
     CPubKey randomPubKey;
+    unsigned char currency;//in which currency to store the coins 0=BitCash; 1=US Dollar
     bool isnonprivate;
-    bool hasrecipientid;
+    bool hasrecipientid, currencyisactive;
     unsigned char recipientid1;
     unsigned char recipientid2;
 
@@ -192,13 +196,19 @@ public:
     }
 
 //    CTxOut(const CAmount& nValueIn, CScript scriptPubKeyIn, std::string refererencelineIn, CPubKey senderPubKeyIn, CPubKey receiverPubKeyIn);
-    CTxOut(const CAmount& nValueIn, CScript scriptPubKeyIn);
+    CTxOut(const CAmount& nValueIn, CScript scriptPubKeyIn, unsigned char curr);
 
     ADD_SERIALIZE_METHODS;
 
     template <typename Stream, typename Operation>
     inline void SerializationOp(Stream& s, Operation ser_action) {
-        READWRITE(nValue);
+        if (usecurrency) { 
+            if (!(s.GetType() & SER_GETHASH)) {
+                READWRITE(nValue);
+            }
+        } else {
+            READWRITE(nValue);
+        }
         READWRITE(scriptPubKey);	        
         if (userefline || (s.GetType() & SER_TXOUTALONE)) {
             READWRITE(referenceline);
@@ -217,15 +227,28 @@ public:
             recipientid2 = 0;
             hasrecipientid = false;
         }
+        if (usecurrency || (s.GetType() & SER_TXOUTALONE)) {
+            READWRITE(nValueBitCash);
+            READWRITE(currency);
+            currencyisactive = true;
+        } else 
+        if (ser_action.ForRead()) {
+            currency = 0;
+            nValueBitCash = nValue;
+            currencyisactive = false;
+        }
     }
 
     void SetNull()
     {
         nValue = -1;
-        referenceline="";
+	    nValueBitCash = -1;
+        referenceline = "";
         scriptPubKey.clear();
+        currency = 0;
         isnonprivate = false;
         hasrecipientid = false;
+        currencyisactive = false;
         recipientid1 = 0;
         recipientid2 = 0;
     }
@@ -237,11 +260,12 @@ public:
 
     friend bool operator==(const CTxOut& a, const CTxOut& b)
     {
-        return (a.nValue       == b.nValue &&
+        return (a.nValueBitCash       == b.nValueBitCash &&
                 a.scriptPubKey == b.scriptPubKey && 
                 a.referenceline == b.referenceline/* &&
 		a.randomPubKey == b.randomPubKey &&
-		a.randomPrivatKey == b.randomPrivatKey*/ &&
+		a.randomPrivatKey == b.randomPrivatKey*/&&
+                a.currency == b.currency &&
                 a.isnonprivate == b.isnonprivate &&
                 a.hasrecipientid == b.hasrecipientid &&
                 a.recipientid1 == b.recipientid1 &&
@@ -284,8 +308,9 @@ inline void UnserializeTransaction(TxType& tx, Stream& s) {
     unsigned char flags = 0;
     tx.vin.clear();
     tx.vout.clear();
-    userefline = tx.nVersion >= 3;
+    userefline=tx.nVersion>=3;
     usenonprivacy = tx.nVersion >= 4;
+    usecurrency=tx.nVersion>=5;
     /* Try to read the vin. In case the dummy is there, this will be read as an empty vector. */
     s >> tx.vin;
     if (tx.vin.size() == 0 && fAllowWitness) {
@@ -320,6 +345,7 @@ inline void SerializeTransaction(const TxType& tx, Stream& s) {
     s << tx.nVersion;
     userefline=tx.nVersion>=3;
     usenonprivacy=tx.nVersion>=4;
+    usecurrency=tx.nVersion>=5;
     unsigned char flags = 0;
     // Consistency check
     if (fAllowWitness) {
@@ -351,14 +377,15 @@ inline void SerializeTransaction(const TxType& tx, Stream& s) {
 class CTransaction
 {
 public:
-    // Default transaction version.136
-    static const int32_t CURRENT_VERSION=4;
+    // Default transaction version.
+    static const int32_t OLD_VERSION=4;
+    static const int32_t CURRENT_VERSION=5;
 
     // Changing the default transaction version requires a two step process: first
     // adapting relay policy by bumping MAX_STANDARD_VERSION, and then later date
     // bumping the default CURRENT_VERSION at which point both CURRENT_VERSION and
     // MAX_STANDARD_VERSION will be equal.
-    static const int32_t MAX_STANDARD_VERSION=4;
+    static const int32_t MAX_STANDARD_VERSION=5;
 
     // The local variables are made const to prevent unintended modification
     // without updating the cached hash value. However, CTransaction is not
@@ -407,6 +434,8 @@ public:
 
     // Return sum of txouts.
     CAmount GetValueOut() const;
+    CAmount GetValueOutInCurrency(unsigned char currency, CAmount price) const;
+
     // GetValueIn() is a method on CCoinsViewCache, because
     // inputs must be known to compute value in.
 

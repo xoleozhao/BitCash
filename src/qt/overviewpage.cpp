@@ -200,6 +200,19 @@ void OverviewPage::setBalance(const interfaces::WalletBalances& balances)
 
     QMetaObject::invokeMethod(qmlrootitem, "setbalances", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, avail), Q_ARG(QVariant, pending), Q_ARG(QVariant, immature), Q_ARG(QVariant, total), Q_ARG(QVariant, availnum));
 
+    QVariant availDo, pendingDo, immatureDo, totalDo, availnumDo;
+
+    availDo=BitcashUnits::format(unit, balances.balanceDo, false, BitcashUnits::separatorAlways); 
+    availnumDo=BitcashUnits::format(unit, balances.balanceDo, false, BitcashUnits::separatorNever); 
+
+    pendingDo=BitcashUnits::format(unit, balances.unconfirmed_balanceDo, false, BitcashUnits::separatorAlways);
+
+    immatureDo=BitcashUnits::format(unit, balances.immature_balanceDo, false, BitcashUnits::separatorAlways);
+
+    totalDo=BitcashUnits::format(unit, balances.balanceDo + balances.unconfirmed_balanceDo + balances.immature_balanceDo, false, BitcashUnits::separatorAlways);
+
+    QMetaObject::invokeMethod(qmlrootitem, "setbalancesDo", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, availDo), Q_ARG(QVariant, pendingDo), Q_ARG(QVariant, immatureDo), Q_ARG(QVariant, totalDo), Q_ARG(QVariant, availnumDo));
+
 }
 
 // show/hide watch-only labels

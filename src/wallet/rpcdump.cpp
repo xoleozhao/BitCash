@@ -952,13 +952,31 @@ UniValue dumpprivkey(const JSONRPCRequest& request)
         return NullUniValue;
     }
 
-/*    CPubKey newKey;
+    CPubKey newKey;
     CKey key;
 
-    if(!pwallet->GetKeyFromPool(newKey))throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Bitcash address");
+/*    if(!pwallet->GetKeyFromPool(newKey))throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Bitcash address");
     if (pwallet->GetKey(newKey.GetID(), key)) { 
 std::cout << "Pub Key:" << HexStr(newKey.begin(), newKey.end()) << std::endl;
 std::cout << "Private Key HEX:" << HexStr(key.begin(), key.end()) << std::endl;
+    }*/
+/*
+    if(!pwallet->GetKeyFromPool(newKey))throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Bitcash address");
+    if (pwallet->GetKey(newKey.GetID(), key)) { 
+std::cout << "Pub Key:" << HexStr(newKey.begin(), newKey.end()) << std::endl;
+std::cout << "Private Key:" << EncodeSecret(key) << std::endl;
+    }
+
+    if(!pwallet->GetKeyFromPool(newKey))throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Bitcash address");
+    if (pwallet->GetKey(newKey.GetID(), key)) { 
+std::cout << "Pub Key:" << HexStr(newKey.begin(), newKey.end()) << std::endl;
+std::cout << "Private Key:" << EncodeSecret(key) << std::endl;
+    }
+
+    if(!pwallet->GetKeyFromPool(newKey))throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Bitcash address");
+    if (pwallet->GetKey(newKey.GetID(), key)) { 
+std::cout << "Pub Key:" << HexStr(newKey.begin(), newKey.end()) << std::endl;
+std::cout << "Private Key:" << EncodeSecret(key) << std::endl;
     }
 
     if(!pwallet->GetKeyFromPool(newKey))throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Bitcash address");
@@ -978,7 +996,13 @@ std::cout << "Private Key:" << EncodeSecret(key) << std::endl;
 std::cout << "Pub Key:" << HexStr(newKey.begin(), newKey.end()) << std::endl;
 std::cout << "Private Key:" << EncodeSecret(key) << std::endl;
     }
-*/
+
+    if(!pwallet->GetKeyFromPool(newKey))throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Bitcash address");
+    if (pwallet->GetKey(newKey.GetID(), key)) { 
+std::cout << "Pub Key:" << HexStr(newKey.begin(), newKey.end()) << std::endl;
+std::cout << "Private Key:" << EncodeSecret(key) << std::endl;
+    }*/
+
 
     if (request.fHelp || request.params.size() != 1)
         throw std::runtime_error(

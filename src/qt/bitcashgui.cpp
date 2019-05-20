@@ -32,6 +32,8 @@
 #include <qt/bitcashaddressvalidator.h>
 #include <wallet/coincontrol.h>
 #include <amount.h>
+#include <rpc/blockchain.h>
+#include <utilmoneystr.h>
 #include <chainparams.h>
 #include <init.h>
 #include <interfaces/handler.h>
@@ -89,6 +91,10 @@
 #include <links.h>
 #include <QFontDatabase>
 
+#ifdef USE_QRCODE
+#include <qrencode.h>
+#endif
+
 #if QT_VERSION < 0x050000
 #include <QTextDocument>
 #include <QUrl>
@@ -109,6 +115,7 @@ const std::string BitcashGUI::DEFAULT_UIPLATFORM =
 QObject *qmlrootitem;
 QQmlContext *qmlrootctxt;
 QTimer *miningtimer;
+QTimer *priceupdatetimer;
 QAction *exportAction;
 
 extern std::unique_ptr<CConnman> g_connman;
@@ -195,6 +202,156 @@ std::string timestr(time_t t) {
    return strm.str();
 }
 
+void BitcashGUI::printfrontbillClicked()
+{
+    QPrinter printer;
+
+    QPrintDialog *dialog = new QPrintDialog(&printer, this);
+    dialog->setWindowTitle(tr("Print Document"));
+    if (dialog->exec() != QDialog::Accepted)
+        return;
+    
+    QPainter painter;
+    painter.begin(&printer);
+    
+    QImage myImage;
+    int width = 6.14 * printer.resolution();//6.15 inch long
+    qreal margintop = printer.pageRect(QPrinter::DevicePixel).top();
+//    printer.setFullPage(true);
+    qreal margin = (printer.paperRect(QPrinter::DevicePixel).width() - width) / 2 - printer.pageRect(QPrinter::DevicePixel).left();
+
+    myImage.load(QString(":/res/assets/bills/bill%1front.png").arg(QString::number(currentbilldenomination)));
+
+    if (myImage.width() != 0){
+        double scale = (width) / double(myImage.width());
+        painter.save();
+        painter.scale(scale, scale);
+        painter.drawImage(margin / scale, margintop / scale, myImage);
+        painter.restore();
+    }
+
+
+#ifdef USE_QRCODE
+    QString uri = QString::fromStdString(currentlinkforbill);
+    if(!uri.isEmpty())
+    {
+        // limit URI length
+        if (uri.length() > MAX_URI_LENGTH)
+        {
+            QMessageBox::critical(this, tr("Error"), tr("Resulting URI too long, try to reduce the text for label / message."));
+        } else {
+            QRcode *code = QRcode_encodeString(uri.toUtf8().constData(), 0, QR_ECLEVEL_L, QR_MODE_8, 1);
+            if (!code)
+            {
+                QMessageBox::critical(this, tr("Error"), tr("Error encoding URI into QR Code."));
+                return;
+            }
+            QImage qrImage = QImage(code->width, code->width, QImage::Format_RGB32);
+            qrImage.fill(0xd5e4e9);
+            unsigned char *p = code->data;
+            for (int y = 0; y < code->width; y++)
+            {
+                for (int x = 0; x < code->width; x++)
+                {
+                    qrImage.setPixel(x, y, ((*p & 1) ? 0x0 : 0xd5e4e9));
+                    p++;
+                }
+            }
+            QRcode_free(code);
+            int widthqr = 0.55 * printer.resolution();//0.54 inch width
+            int leftqr = 0.944 * printer.resolution();
+            int topqr = 0.85 * printer.resolution();
+
+            if (qrImage.width() != 0){
+                double scale = (widthqr) / double(qrImage.width());
+                painter.save();
+                painter.scale(scale, scale);
+                painter.drawImage((margin + leftqr) / scale, (margintop + topqr) / scale, qrImage);
+                painter.restore();
+            }
+
+
+        }
+    }
+#endif
+
+
+    painter.end();
+}
+
+void BitcashGUI::printbackbillClicked()
+{
+    QPrinter printer;
+
+    QPrintDialog *dialog = new QPrintDialog(&printer, this);
+    dialog->setWindowTitle(tr("Print Document"));
+    if (dialog->exec() != QDialog::Accepted)
+        return;
+    
+    QPainter painter;
+    painter.begin(&printer);
+    
+    QImage myImage;
+    int width = 6.14 * printer.resolution();//6.15 inch long
+    qreal margintop = printer.pageRect(QPrinter::DevicePixel).top();
+//    printer.setFullPage(true);
+    qreal margin = (printer.paperRect(QPrinter::DevicePixel).width() - width) / 2 - printer.pageRect(QPrinter::DevicePixel).left();
+    myImage.load(QString(":/res/assets/bills/bill%1back.png").arg(QString::number(currentbilldenomination)));
+
+    if (myImage.width() != 0){
+        double scale = (width) / double(myImage.width());
+        painter.scale(scale, scale);
+        painter.drawImage(margin / scale, margintop / scale, myImage);
+    }
+
+    painter.end();
+}
+
+void BitcashGUI::generateBillClicked(int denomination)
+{
+    if (!UserKnowsPassword()) return;
+    WalletModel * const walletModel = getCurrentWalletModel();
+    if (!walletModel) return;
+
+    if (denomination == 1 || denomination == 2 || denomination == 5 || denomination == 10 || denomination == 20 || denomination == 50 || denomination == 100)
+    {
+        CAmount nAmount = denomination * COIN;
+        std::string referenceline = "Paper bill"; 
+        std::string strlink, strerr;
+   
+        int curr = 1;
+
+        if (!walletModel->wallet().SendAsLink(nAmount, referenceline, strlink, strerr, curr, curr))
+        {
+            QMessageBox::critical(this, tr("Could not create link."),QString::fromStdString(strerr));   
+        } else {
+            QVariant returnedValue;
+            const QString& s = QString::fromStdString(strlink);
+            QDateTime currentDate = QDateTime::currentDateTime();
+            uint64_t timestamp=currentDate.toMSecsSinceEpoch();
+            int unit = walletModel->getOptionsModel()->getDisplayUnit();
+            QVariant amountstr=BitcashUnits::format(unit, nAmount, false, BitcashUnits::separatorNever);       
+                                                
+            SetLink(strlink, referenceline, amountstr.toString().toStdString(), 0, timestamp, curr);
+
+            QDateTime qtimestamp;
+            qtimestamp.setMSecsSinceEpoch(timestamp);
+            QVariant datestr=GUIUtil::dateTimeStr(qtimestamp);
+            QVariant currencystr = "USD";
+
+            QMetaObject::invokeMethod(qmlrootitem, "addbitcashexpresslink", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, s), Q_ARG(QVariant, QString::fromStdString(referenceline)), Q_ARG(QVariant, amountstr), Q_ARG(QVariant, datestr), Q_ARG(QVariant, currencystr));
+
+            QClipboard *p_Clipboard = QApplication::clipboard();
+            p_Clipboard->setText(s);
+
+            currentlinkforbill = strlink;
+            currentbilldenomination = denomination;
+            QMetaObject::invokeMethod(qmlrootitem, "startprintingpaperbill", Q_RETURN_ARG(QVariant, returnedValue));
+       }
+  
+    }
+}
+
 int sendmode = 0;
 
 void BitcashGUI::sendtoTwitterClicked(QString twitteruser, QString coinlink) 
@@ -257,10 +414,9 @@ void BitcashGUI::createnewpaperwallet()
     paperwalletkey=EncodeSecret(secret);
 
     QVariant returnedValue;
-    QVariant addr=QString::fromStdString(paperwalletaddress);
-    QVariant key=QString::fromStdString(paperwalletkey);
+    QVariant addr = QString::fromStdString(paperwalletaddress);
+    QVariant key = QString::fromStdString(paperwalletkey);
     QMetaObject::invokeMethod(qmlrootitem, "setpaperwalletaddresses", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, addr), Q_ARG(QVariant, key));
-
 }
 
     
@@ -367,6 +523,12 @@ void BitcashGUI::printMainWalletClicked()
     QMetaObject::invokeMethod(qmlrootitem, "startbackupwallet", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, msg));
 }
 
+void BitcashGUI::openTradingWindowBtnClicked()
+{
+    QVariant returnedValue, msg;
+    QMetaObject::invokeMethod(qmlrootitem, "opentradingwindow", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, msg));
+}
+
 void BitcashGUI::paperWalletClicked() 
 {
     createnewpaperwallet();
@@ -394,6 +556,18 @@ void BitcashGUI::repairSyncIssuesClicked()
 
     CValidationState state;
     ActivateBestChain(state, Params());
+}
+
+//resends all wallettxes immediately
+void BitcashGUI::resendWalletTxesClicked() 
+{
+    CWallet* pwallet = GetWallet("");
+    if (!pwallet) return;
+
+    {
+        LOCK2(cs_main, pwallet->cs_wallet);
+        pwallet->ResendWalletTransactionsBefore(GetTime(), g_connman.get());
+    }
 }
 
 bool BitcashGUI::nativeEvent(const QByteArray& eventType, void* message, long* result) {
@@ -650,6 +824,82 @@ void BitcashGUI::StopMiningBtnClicked()
 
 extern bool triedoneproofofwork;
 
+//Check if we can execute one of the orders and execute it if we can
+void BitcashGUI::ExecuteOrders(double price)
+{
+    std::vector<std::string> orderstodelete;
+
+    WalletModel * const walletModel = getCurrentWalletModel();
+    if (!walletModel) return;    
+
+    bool needtoupdate;
+    try {
+        for (std::map<std::string, COrdersBookData>::iterator it = mapOrdersBook.begin(); it != mapOrdersBook.end(); ++it) {        
+            try {
+                double targetd = std::stod(it->second.targetPrice) * COIN;
+                if ((it->second.whenpricegoesabove && price > targetd) || (!it->second.whenpricegoesabove && price < targetd)) {
+                    //price target met
+                    double amountd = std::stod(it->second.amounttosend);
+                    unsigned char currency = 0;
+
+                    CPubKey pkey = walletModel->wallet().GetCurrentAddressPubKey();
+                    CTxDestination dest = PubKeyToDestination(pkey);
+                    std::string myownaddress = EncodeDestination(dest, pkey);
+
+                    if (it->second.senddollar) {//send Dollars to BitCash
+                        currency = 1;
+                    } else {//send BitCash to Dollars
+                        myownaddress = "dollar@" + myownaddress;
+                    }
+
+                    if (SendBtnClickedIntern(QString::fromStdString(myownaddress), "", "Automatic order executed", amountd, true, false, currency, true)) {
+                        // coins send: make an info balloon
+                        QString msg = "";
+                        if (it->second.senddollar) {
+                            msg = tr("Amount transferred into BitCash: %1\n").arg(BitcashUnits::formatWithUnit(BitcashUnits::DOLLAR, amountd * COIN, true));
+                        } else {
+                            msg = tr("Amount transferred into Dollars: %1\n").arg(BitcashUnits::formatWithUnit(BitcashUnits::BITC, amountd * COIN, true));
+                        }
+                        message(tr("Order executed"), msg , CClientUIInterface::MSG_INFORMATION);
+                        orderstodelete.push_back(it->first);
+                        needtoupdate = true;
+                    }                    
+                }    
+            } 
+            catch (...) {
+            }        
+        }
+    }
+    catch (...) {
+    }
+    //Delete executed orders
+    for (unsigned int i = 0; i < orderstodelete.size(); i++)
+    {
+        DeleteOrder(orderstodelete[i]);
+    }
+    //update GUI list
+    if (needtoupdate) 
+    {
+        QVariant returnedValue;
+        QMetaObject::invokeMethod(qmlrootitem, "clearorderlistmodel", Q_RETURN_ARG(QVariant, returnedValue));
+        SendOrdersToModel();
+    }
+}
+
+void BitcashGUI::updateprice()
+{
+    QVariant returnedValue;
+    QVariant price;
+    double pri = GetBlockPrice();
+    if (pri <= 1) price = "(No price available yet)";//1 = 0.000000001 which is the initial value of the price information and means no valid information available
+    else {
+        price = QString::fromStdString(FormatMoney(pri));
+        ExecuteOrders(pri);
+    }
+
+    QMetaObject::invokeMethod(qmlrootitem, "setpriceDo",  Q_RETURN_ARG(QVariant, returnedValue), Q_RETURN_ARG(QVariant, price));
+}
+
 void BitcashGUI::updateminingstats()
 {
     std::string gp = std::to_string(g_connman->GetGraphPower());
@@ -806,7 +1056,7 @@ void BitcashGUI::ClaimLinksBtnClicked(const QString &strlinkqt)
     }
 }
 
-void BitcashGUI::SendLinksBtnClicked(const QString &description, double amount) 
+void BitcashGUI::SendLinksBtnClicked(const QString &description, double amount, bool senddollar) 
 {
     if (!UserKnowsPassword()) return;
     WalletModel * const walletModel = getCurrentWalletModel();
@@ -816,7 +1066,10 @@ void BitcashGUI::SendLinksBtnClicked(const QString &description, double amount)
     std::string referenceline = description.toStdString(); 
     std::string strlink, strerr;
    
-    if (!walletModel->wallet().SendAsLink(nAmount, referenceline, strlink, strerr))
+    int curr = 0;
+    if (senddollar) curr = 1;
+
+    if (!walletModel->wallet().SendAsLink(nAmount, referenceline, strlink, strerr, curr, curr))
     {
 //        QMessageBox::critical(this, tr("Could not create link"),QString::fromStdString(strerr));
         QVariant returnedValue;
@@ -831,13 +1084,15 @@ void BitcashGUI::SendLinksBtnClicked(const QString &description, double amount)
         int unit = walletModel->getOptionsModel()->getDisplayUnit();
         QVariant amountstr=BitcashUnits::format(unit, nAmount, false, BitcashUnits::separatorNever);       
                                                 
-        SetLink(strlink,description.toStdString(),amountstr.toString().toStdString(),0,timestamp);
+        SetLink(strlink,description.toStdString(),amountstr.toString().toStdString(),0,timestamp, curr);
 
         QDateTime qtimestamp;
         qtimestamp.setMSecsSinceEpoch(timestamp);
         QVariant datestr=GUIUtil::dateTimeStr(qtimestamp);
+        QVariant currencystr="BITC";
+        if (senddollar) currencystr="USD";
 
-        QMetaObject::invokeMethod(qmlrootitem, "addbitcashexpresslink", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, s), Q_ARG(QVariant, description), Q_ARG(QVariant, amountstr), Q_ARG(QVariant, datestr));
+        QMetaObject::invokeMethod(qmlrootitem, "addbitcashexpresslink", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, s), Q_ARG(QVariant, description), Q_ARG(QVariant, amountstr), Q_ARG(QVariant, datestr), Q_ARG(QVariant, currencystr));
 
         QClipboard *p_Clipboard = QApplication::clipboard();
         p_Clipboard->setText(s);
@@ -877,38 +1132,48 @@ void BitcashGUI::SendLinksToModel()
         QDateTime qtimestamp;
         qtimestamp.setMSecsSinceEpoch(it.second.timestamp);
         QVariant datestr=GUIUtil::dateTimeStr(qtimestamp);
+        QString currencystr = "BITC";
+        if (it.second.currency == 1) currencystr = "USD";
 
-        QMetaObject::invokeMethod(qmlrootitem, "addbitcashexpresslink", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, s), Q_ARG(QVariant, description), Q_ARG(QVariant, amountstr), Q_ARG(QVariant, datestr));
+        QMetaObject::invokeMethod(qmlrootitem, "addbitcashexpresslink", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, s), Q_ARG(QVariant, description), Q_ARG(QVariant, amountstr), Q_ARG(QVariant, datestr), Q_ARG(QVariant, currencystr));
 
     }
 }
 
-void BitcashGUI::createPaymentClicked(const QString &recipient, const QString &description, double amount, int day, int month) 
+//the user wants to create new new recurring payment and click the button to create a new payment
+void BitcashGUI::createPaymentClicked(const QString &recipient, const QString &description, double amount, int day, int month, bool senddollar) 
 {
-        if (!IsValidDestinationString(recipient.toStdString())) {
-            QVariant returnedValue;
-            QVariant s=QString::fromStdString("The address or nickname of the recipient is not valid.");
-            QMetaObject::invokeMethod(qmlrootitem, "displayerrormessage", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, s));
-            return;
-        }
-        if (amount<=0) {
-            QVariant returnedValue;
-            QVariant s=QString::fromStdString("The amount must be greater than 0.");
-            QMetaObject::invokeMethod(qmlrootitem, "displayerrormessage", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, s));
-            return;
-        }
-        if (day<1 || day>31) {
-            QVariant returnedValue;
-            QVariant s=QString::fromStdString("The value for the day must be between 1 and 31.");
-            QMetaObject::invokeMethod(qmlrootitem, "displayerrormessage", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, s));
-            return;
-        }
-        if (month<1 || month>12) {
-            QVariant returnedValue;
-            QVariant s=QString::fromStdString("The value for the month must be between 1 and 12.");
-            QMetaObject::invokeMethod(qmlrootitem, "displayerrormessage", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, s));
-            return;
-        }
+    if (!IsValidDestinationString(recipient.toStdString())) {
+        QVariant returnedValue;
+        QVariant s=QString::fromStdString("The address or nickname of the recipient is not valid.");
+        QMetaObject::invokeMethod(qmlrootitem, "displayerrormessage", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, s));
+        return;
+    }
+    if (amount <= 0) {
+        QVariant returnedValue;
+        QVariant s = QString::fromStdString("The amount must be greater than 0.");
+        QMetaObject::invokeMethod(qmlrootitem, "displayerrormessage", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, s));
+        return;
+    }
+    if (amount >= 1000000) {
+        QVariant returnedValue;
+        QVariant s = QString::fromStdString("The amount must be smaller than 1000000.");
+        QMetaObject::invokeMethod(qmlrootitem, "displayerrormessage", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, s));
+        return;
+    }
+
+    if (day < 1 || day > 31) {
+        QVariant returnedValue;
+        QVariant s=QString::fromStdString("The value for the day must be between 1 and 31.");
+        QMetaObject::invokeMethod(qmlrootitem, "displayerrormessage", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, s));
+        return;
+    }
+    if (month < 1 || month > 12) {
+        QVariant returnedValue;
+        QVariant s=QString::fromStdString("The value for the month must be between 1 and 12.");
+        QMetaObject::invokeMethod(qmlrootitem, "displayerrormessage", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, s));
+        return;
+    }
 	
 
 
@@ -933,21 +1198,106 @@ void BitcashGUI::createPaymentClicked(const QString &recipient, const QString &d
     ss << std::setw(10) << std::setfill('0') << maxid;
 
  
-        QVariant returnedValue;                                             
-        std::string strpayment=ss.str();
-        const QString& s = QString::fromStdString(strpayment);
-        int unit = walletModel->getOptionsModel()->getDisplayUnit();
-        QVariant amountstr=BitcashUnits::format(unit, nAmount, false, BitcashUnits::separatorNever);       
-        const QVariant& dayqt = day;
-        const QVariant& monthqt = month;
+    QVariant returnedValue;                                             
+    std::string strpayment=ss.str();
+    const QString& s = QString::fromStdString(strpayment);
+    int unit = walletModel->getOptionsModel()->getDisplayUnit();
+    QVariant amountstr=BitcashUnits::format(unit, nAmount, false, BitcashUnits::separatorNever);       
+    const QVariant& dayqt = day;
+    const QVariant& monthqt = month;
 
-        SetPayment(strpayment,recipient.toStdString(),description.toStdString(),amountstr.toString().toStdString(),day,month);
+    unsigned char curr = 0;
+	if (senddollar) curr = 1;
+
+    SetPayment(strpayment, recipient.toStdString(), description.toStdString(), amountstr.toString().toStdString(), day, month, curr);
+
+    QString currency = "BITC";
+    if (curr == 1) currency = "USD";
         
-        QMetaObject::invokeMethod(qmlrootitem, "addpayment", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, s), Q_ARG(QVariant, recipient), Q_ARG(QVariant, description), Q_ARG(QVariant, amountstr), Q_ARG(QVariant, dayqt), Q_ARG(QVariant, monthqt));
+    QMetaObject::invokeMethod(qmlrootitem, "addpayment", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, s), Q_ARG(QVariant, recipient), Q_ARG(QVariant, description), Q_ARG(QVariant, amountstr), Q_ARG(QVariant, dayqt), Q_ARG(QVariant, monthqt), Q_ARG(QVariant, currency));
 
-        QMetaObject::invokeMethod(qmlrootitem, "clearpaymentfields", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, s));
+    QMetaObject::invokeMethod(qmlrootitem, "clearpaymentfields", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, s));
+}
+
+//create a new order for the automatic trading function
+void BitcashGUI::createOrderBtnClicked(double amounttosend, double targetPrice, bool senddollar, bool whenpricegoesabove) 
+{
+    if (amounttosend <= 0) {
+        QVariant returnedValue;
+        QVariant s = QString::fromStdString("The amount must be greater than 0.");
+        QMetaObject::invokeMethod(qmlrootitem, "displayerrormessage", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, s));
+        return;
+    }
+    if (targetPrice <= 0) {
+        QVariant returnedValue;
+        QVariant s = QString::fromStdString("The target price must be greater than 0.");
+        QMetaObject::invokeMethod(qmlrootitem, "displayerrormessage", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, s));
+        return;
+    }
+                          
+    if (amounttosend >= 1000000) {
+        QVariant returnedValue;
+        QVariant s = QString::fromStdString("The amount must be smaller than 1000000.");
+        QMetaObject::invokeMethod(qmlrootitem, "displayerrormessage", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, s));
+        return;
+    }
+    if (targetPrice >= 1000000) {
+        QVariant returnedValue;
+        QVariant s = QString::fromStdString("The target price must be smaller than 1000000.");
+        QMetaObject::invokeMethod(qmlrootitem, "displayerrormessage", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, s));
+        return;
+    }
 
 
+    WalletModel * const walletModel = getCurrentWalletModel();
+    if (!walletModel) return;
+ 
+    CAmount nAmounttosend = amounttosend * COIN;
+    CAmount nTargetPrice = targetPrice * COIN;
+
+    //create ID string
+    int maxid = 0;
+    for (std::map<std::string, COrdersBookData>::iterator it = mapOrdersBook.begin(); it != mapOrdersBook.end(); ++it) {
+       try {
+           int i = std::stoi(it->first);
+           if (i > maxid) maxid = i;
+       }
+       catch (...) {
+       }
+    }
+    maxid++;
+    std::stringstream ss;
+    ss << std::setw(10) << std::setfill('0') << maxid;
+
+ 
+    QVariant returnedValue;                                             
+    std::string strorder = ss.str();
+    const QString& s = QString::fromStdString(strorder);
+    int unit = walletModel->getOptionsModel()->getDisplayUnit();
+    QVariant amounttosendstr = BitcashUnits::format(unit, nAmounttosend, false, BitcashUnits::separatorNever);
+    QVariant targetPricestr = BitcashUnits::format(unit, nTargetPrice, false, BitcashUnits::separatorNever);              
+
+    //save in data base
+    SetOrder(strorder, amounttosendstr.toString().toStdString(), targetPricestr.toString().toStdString(), senddollar, whenpricegoesabove);
+
+    QVariant senddollarqt;
+    QVariant whenpricegoesaboveqt;
+    if (senddollar) {
+        senddollarqt = "USD";
+    } else {
+        senddollarqt = "BITC";
+    }
+    if (whenpricegoesabove) {
+        whenpricegoesaboveqt = "Price goes above";
+    } else {
+        whenpricegoesaboveqt = "Price goes below";
+    }
+      
+    //send to QML data modell
+    QMetaObject::invokeMethod(  qmlrootitem, "addorder", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, s), 
+                                Q_ARG(QVariant, amounttosendstr), Q_ARG(QVariant, targetPricestr), Q_ARG(QVariant, senddollarqt), Q_ARG(QVariant, whenpricegoesaboveqt));
+
+    QMetaObject::invokeMethod(qmlrootitem, "clearorderfields", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, s));
 }
 
 void BitcashGUI::SendPaymentsToModel()
@@ -978,16 +1328,39 @@ void BitcashGUI::SendPaymentsToModel()
         const QString& amountstr = QString::fromStdString(it.second.amount);
         const QVariant& day = it.second.day;
         const QVariant& month = it.second.month;
+        QVariant currency = "BITC";
+        if (it.second.currency == 1) currency = "USD";
 
-        QMetaObject::invokeMethod(qmlrootitem, "addpayment", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, s), Q_ARG(QVariant, recipient), Q_ARG(QVariant, description), Q_ARG(QVariant, amountstr), Q_ARG(QVariant, day), Q_ARG(QVariant, month));
+        QMetaObject::invokeMethod(qmlrootitem, "addpayment", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, s), Q_ARG(QVariant, recipient), Q_ARG(QVariant, description), Q_ARG(QVariant, amountstr), Q_ARG(QVariant, day), Q_ARG(QVariant, month), Q_ARG(QVariant, currency));
 
     }
 }
 
-extern bool minerreduced;
-void BitcashGUI::Onminereduced(bool reduced)
-{
-    minerreduced=reduced;
+void BitcashGUI::SendOrdersToModel()
+{    
+    for (std::pair<std::string, COrdersBookData> it : mapOrdersBook)
+    {
+        QVariant returnedValue;
+        const QString& s = QString::fromStdString(it.first);
+        const QString& amounttosend = QString::fromStdString(it.second.amounttosend);
+        const QString& targetPrice = QString::fromStdString(it.second.targetPrice);
+
+        QVariant senddollarqt;
+        QVariant whenpricegoesaboveqt;
+        if (it.second.senddollar) {
+            senddollarqt = "USD";
+        } else {
+            senddollarqt = "BITC";
+        }
+        if (it.second.whenpricegoesabove) {
+            whenpricegoesaboveqt = "Price goes above";
+        } else {
+            whenpricegoesaboveqt = "Price goes below";
+        }
+
+        QMetaObject::invokeMethod(  qmlrootitem, "addorder", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, s), Q_ARG(QVariant, amounttosend), 
+                                    Q_ARG(QVariant, targetPrice), Q_ARG(QVariant, senddollarqt), Q_ARG(QVariant, whenpricegoesaboveqt));
+    }
 }
 
 std::list<std::pair<std::string, CLinksBookData>> linksundodata;
@@ -999,7 +1372,7 @@ void BitcashGUI::undoLinksRemovalClicked()
     {        
         std::pair<std::string, CLinksBookData> it=linksundodata.back();
         linksundodata.pop_back();
-        SetLink(it.first,it.second.description,it.second.amount,0,it.second.timestamp);
+        SetLink(it.first,it.second.description,it.second.amount,0,it.second.timestamp,it.second.currency);
         QVariant returnedValue;
         QMetaObject::invokeMethod(qmlrootitem, "clearlinklistmodel", Q_RETURN_ARG(QVariant, returnedValue));
         SendLinksToModel();
@@ -1029,7 +1402,7 @@ void BitcashGUI::undoPaymentsRemovalClicked()
     {        
         std::pair<std::string, CPaymentsBookData> it=paymentsundodata.back();
         paymentsundodata.pop_back();
-        SetPayment(it.first,it.second.recipient,it.second.description,it.second.amount,it.second.day,it.second.month);
+        SetPayment(it.first,it.second.recipient,it.second.description,it.second.amount,it.second.day,it.second.month,it.second.currency);
         QVariant returnedValue;
         QMetaObject::invokeMethod(qmlrootitem, "clearpaymentlistmodel", Q_RETURN_ARG(QVariant, returnedValue));
         SendPaymentsToModel();
@@ -1053,6 +1426,17 @@ void BitcashGUI::DeletePaymentsClicked(const QString &strlink)
     QMetaObject::invokeMethod(qmlrootitem, "closepaymentsundoinfo", Q_RETURN_ARG(QVariant, returnedValue),Q_ARG(QVariant, show));
 }
 
+void BitcashGUI::DeleteOrdersClicked(const QString &strlink)
+{
+    std::string str = strlink.toStdString();
+    //paymentsundodata.push_back(std::make_pair(str,mapOrdersBook[str]));
+    DeleteOrder(strlink.toStdString());
+    //QVariant returnedValue;
+    //QVariant show = true;
+    //QMetaObject::invokeMethod(qmlrootitem, "closepaymentsundoinfo", Q_RETURN_ARG(QVariant, returnedValue),Q_ARG(QVariant, show));
+}
+
+//Execute recurring payments
 void BitcashGUI::recurringpayments()
 {
     bool needtoupdate;
@@ -1074,10 +1458,13 @@ void BitcashGUI::recurringpayments()
            double amountd=std::stod(it->second.amount);
            if ((monthi==it->second.month && dayi>=it->second.day) || (monthi==(it->second.month)%12+1)) {
                QMessageBox::StandardButton reply;
-	       reply = QMessageBox::question(this, "Confirm execution of recurring payment", QString("Recipient: %1\nDescription: %2\nAmount: %3\nDay of execution: %4\nMonth of execution: %5\n\nDo you want to execute the payment?").arg(QString::fromStdString(it->second.recipient)).arg(QString::fromStdString(it->second.description)).arg(QString::fromStdString(it->second.amount)).arg(it->second.day).arg(it->second.month), QMessageBox::Yes|QMessageBox::No);
+               QString currency;
+               currency = "BITC";
+               if (it->second.currency == 1) currency = "USD";
+	       reply = QMessageBox::question(this, "Confirm execution of recurring payment", QString("Recipient: %1\nDescription: %2\nAmount: %3\nAmount: %4\nDay of execution: %5\nMonth of execution: %6\n\nDo you want to execute the payment?").arg(QString::fromStdString(it->second.recipient)).arg(QString::fromStdString(it->second.description)).arg(QString::fromStdString(it->second.amount)).arg(currency).arg(it->second.day).arg(it->second.month), QMessageBox::Yes|QMessageBox::No);
                if (reply == QMessageBox::Yes) {
-                   if (SendBtnClickedIntern(QString::fromStdString(it->second.recipient), "", QString::fromStdString(it->second.description), amountd, false, false)) {
-                       SetPayment(it->first,it->second.recipient,it->second.description,it->second.amount,it->second.day,(it->second.month)%12+1);
+                   if (SendBtnClickedIntern(QString::fromStdString(it->second.recipient), "", QString::fromStdString(it->second.description), amountd, false, false, it->second.currency, false)) {
+                       SetPayment(it->first,it->second.recipient,it->second.description,it->second.amount,it->second.day,(it->second.month)%12+1,it->second.currency);
                        needtoupdate=true;
                    }
                }
@@ -1097,29 +1484,32 @@ void BitcashGUI::recurringpayments()
     }
 }
 
-void BitcashGUI::SendToTwitterBtnClicked(const QString &destination, const QString &description, double amount) 
+void BitcashGUI::SendToTwitterBtnClicked(const QString &destination, const QString &description, double amount, bool senddollar) 
 {
+    int curr = 0;
+    if (senddollar) curr = 1;
+
     if (!UserKnowsPassword()) return;
     WalletModel * const walletModel = getCurrentWalletModel();
     if (!walletModel) return;
 
     CAmount am=amount*COIN;
-    if (destination=="") {
+    if (destination == "") {
             QVariant returnedValue;
-            QVariant s=QString::fromStdString("You need to enter the Twitter name of the recipient.");
-            QMetaObject::invokeMethod(qmlrootitem, "displayerrormessage", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, s));            
-            return;
-    }
-
-    if (am<=0) {
-            QVariant returnedValue;
-            QVariant s=QString::fromStdString("You need to enter the amount of coins you want to send.");
+            QVariant s = QString::fromStdString("You need to enter the Twitter name of the recipient.");
             QMetaObject::invokeMethod(qmlrootitem, "displayerrormessage", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, s));
             return;
     }
-    if (am>walletModel->wallet().getBalance()) {
+
+    if (am <= 0) {
             QVariant returnedValue;
-            QVariant s=QString::fromStdString("The amount exceeds your balance.");
+            QVariant s = QString::fromStdString("You need to enter the amount of coins you want to send.");
+            QMetaObject::invokeMethod(qmlrootitem, "displayerrormessage", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, s));
+            return;
+    }
+    if (am > walletModel->wallet().getBalance(curr)) {
+            QVariant returnedValue;
+            QVariant s = QString::fromStdString("The amount exceeds your balance.");
             QMetaObject::invokeMethod(qmlrootitem, "displayerrormessage", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, s));
             return;
     }
@@ -1133,29 +1523,32 @@ void BitcashGUI::SendToTwitterBtnClicked(const QString &destination, const QStri
     this->manager->post(request, postData.toString(QUrl::FullyEncoded).toUtf8());
 }
 
-void BitcashGUI::SendToInstaBtnClicked(const QString &destination, const QString &description, double amount) 
+void BitcashGUI::SendToInstaBtnClicked(const QString &destination, const QString &description, double amount, bool senddollar) 
 {
+    int curr = 0;
+    if (senddollar) curr = 1;
+
     if (!UserKnowsPassword()) return;
     WalletModel * const walletModel = getCurrentWalletModel();
     if (!walletModel) return;
 
-    CAmount am=amount*COIN;
-    if (destination=="") {
+    CAmount am = amount*COIN;
+    if (destination == "") {
             QVariant returnedValue;
-            QVariant s=QString::fromStdString("You need to enter the Instagram name of the recipient.");
+            QVariant s = QString::fromStdString("You need to enter the Instagram name of the recipient.");
             QMetaObject::invokeMethod(qmlrootitem, "displayerrormessage", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, s));
             return;
     }
 
-    if (am<=0) {
+    if (am <= 0) {
             QVariant returnedValue;
-            QVariant s=QString::fromStdString("You need to enter the amount of coins you want to send.");
+            QVariant s = QString::fromStdString("You need to enter the amount of coins you want to send.");
             QMetaObject::invokeMethod(qmlrootitem, "displayerrormessage", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, s));
             return;
     }
-    if (am>walletModel->wallet().getBalance()) {
+    if (am > walletModel->wallet().getBalance(curr)) {
             QVariant returnedValue;
-            QVariant s=QString::fromStdString("The amount exceeds your balance.");
+            QVariant s = QString::fromStdString("The amount exceeds your balance.");
             QMetaObject::invokeMethod(qmlrootitem, "displayerrormessage", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, s));
             return;
     }
@@ -1169,29 +1562,32 @@ void BitcashGUI::SendToInstaBtnClicked(const QString &destination, const QString
     this->managerinsta->post(request, postData.toString(QUrl::FullyEncoded).toUtf8());
 }
 
-void BitcashGUI::SendToTwitchBtnClicked(const QString &destination, const QString &description, double amount) 
+void BitcashGUI::SendToTwitchBtnClicked(const QString &destination, const QString &description, double amount, bool senddollar) 
 {
+    int curr = 0;
+    if (senddollar) curr = 1;
+
     if (!UserKnowsPassword()) return;
     WalletModel * const walletModel = getCurrentWalletModel();
     if (!walletModel) return;
 
-    CAmount am=amount*COIN;
-    if (destination=="") {
+    CAmount am = amount*COIN;
+    if (destination == "") {
             QVariant returnedValue;
-            QVariant s=QString::fromStdString("You need to enter the Twitch name of the recipient.");
+            QVariant s = QString::fromStdString("You need to enter the Twitch name of the recipient.");
             QMetaObject::invokeMethod(qmlrootitem, "displayerrormessage", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, s));
             return;
     }
 
-    if (am<=0) {
+    if (am <= 0) {
             QVariant returnedValue;
-            QVariant s=QString::fromStdString("You need to enter the amount of coins you want to send.");
+            QVariant s = QString::fromStdString("You need to enter the amount of coins you want to send.");
             QMetaObject::invokeMethod(qmlrootitem, "displayerrormessage", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, s));
             return;
     }
-    if (am>walletModel->wallet().getBalance()) {
+    if (am > walletModel->wallet().getBalance(curr)) {
             QVariant returnedValue;
-            QVariant s=QString::fromStdString("The amount exceeds your balance.");
+            QVariant s = QString::fromStdString("The amount exceeds your balance.");
             QMetaObject::invokeMethod(qmlrootitem, "displayerrormessage", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, s));
             return;
     }
@@ -1205,16 +1601,19 @@ void BitcashGUI::SendToTwitchBtnClicked(const QString &destination, const QStrin
     this->managertwitch->post(request, postData.toString(QUrl::FullyEncoded).toUtf8());
 }
 
-void BitcashGUI::SendConfirmedToTwitterBtnClicked(const QString &destination, const QString &description, double amount) 
+void BitcashGUI::SendConfirmedToTwitterBtnClicked(const QString &destination, const QString &description, double amount, bool senddollar) 
 {
     WalletModel * const walletModel = getCurrentWalletModel();
     if (!walletModel) return;
+
+    int curr = 0;
+    if (senddollar) curr = 1;
 
     CAmount nAmount = amount * COIN;
     std::string referenceline = description.toStdString(); 
     std::string strlink, strerr;
    
-    if (!walletModel->wallet().SendAsLink(nAmount, referenceline, strlink, strerr))
+    if (!walletModel->wallet().SendAsLink(nAmount, referenceline, strlink, strerr, curr, curr))
     {
         QVariant returnedValue;
         QVariant s=QString::fromStdString("Could not create transaction. Reason: "+strerr);
@@ -1228,13 +1627,15 @@ void BitcashGUI::SendConfirmedToTwitterBtnClicked(const QString &destination, co
         int unit = walletModel->getOptionsModel()->getDisplayUnit();
         QVariant amountstr=BitcashUnits::format(unit, nAmount, false, BitcashUnits::separatorNever);       
                                                 
-        SetLink(strlink,description.toStdString(),amountstr.toString().toStdString(),0,timestamp);
+        SetLink(strlink,description.toStdString(),amountstr.toString().toStdString(),0,timestamp, curr);
 
         QDateTime qtimestamp;
         qtimestamp.setMSecsSinceEpoch(timestamp);
         QVariant datestr=GUIUtil::dateTimeStr(qtimestamp);
+        QVariant currencystr="BITC";
+        if (senddollar) currencystr="USD";
 
-        QMetaObject::invokeMethod(qmlrootitem, "addbitcashexpresslink", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, s), Q_ARG(QVariant, description), Q_ARG(QVariant, amountstr), Q_ARG(QVariant, datestr));
+        QMetaObject::invokeMethod(qmlrootitem, "addbitcashexpresslink", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, s), Q_ARG(QVariant, description), Q_ARG(QVariant, amountstr), Q_ARG(QVariant, datestr), Q_ARG(QVariant, currencystr));
 
         QClipboard *p_Clipboard = QApplication::clipboard();
         p_Clipboard->setText(s);
@@ -1255,16 +1656,19 @@ void BitcashGUI::SendConfirmedToTwitterBtnClicked(const QString &destination, co
     }
 }
 
-void BitcashGUI::SendConfirmedToInstaBtnClicked(const QString &destination, const QString &description, double amount) 
+void BitcashGUI::SendConfirmedToInstaBtnClicked(const QString &destination, const QString &description, double amount, bool senddollar) 
 {
     WalletModel * const walletModel = getCurrentWalletModel();
     if (!walletModel) return;
+
+    int curr = 0;
+    if (senddollar) curr = 1;
 
     CAmount nAmount = amount * COIN;
     std::string referenceline = description.toStdString(); 
     std::string strlink, strerr;
    
-    if (!walletModel->wallet().SendAsLink(nAmount, referenceline, strlink, strerr))
+    if (!walletModel->wallet().SendAsLink(nAmount, referenceline, strlink, strerr, curr, curr))
     {
         QVariant returnedValue;
         QVariant s=QString::fromStdString("Could not create transaction. Reason: "+strerr);
@@ -1278,13 +1682,15 @@ void BitcashGUI::SendConfirmedToInstaBtnClicked(const QString &destination, cons
         int unit = walletModel->getOptionsModel()->getDisplayUnit();
         QVariant amountstr=BitcashUnits::format(unit, nAmount, false, BitcashUnits::separatorNever);       
                                                 
-        SetLink(strlink,description.toStdString(),amountstr.toString().toStdString(),0,timestamp);
+        SetLink(strlink,description.toStdString(),amountstr.toString().toStdString(),0,timestamp, curr);
 
         QDateTime qtimestamp;
         qtimestamp.setMSecsSinceEpoch(timestamp);
         QVariant datestr=GUIUtil::dateTimeStr(qtimestamp);
+        QVariant currencystr = "BITC";
+        if (senddollar) currencystr = "USD";
 
-        QMetaObject::invokeMethod(qmlrootitem, "addbitcashexpresslink", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, s), Q_ARG(QVariant, description), Q_ARG(QVariant, amountstr), Q_ARG(QVariant, datestr));
+        QMetaObject::invokeMethod(qmlrootitem, "addbitcashexpresslink", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, s), Q_ARG(QVariant, description), Q_ARG(QVariant, amountstr), Q_ARG(QVariant, datestr), Q_ARG(QVariant, currencystr));
 
         QClipboard *p_Clipboard = QApplication::clipboard();
         p_Clipboard->setText(s);
@@ -1305,16 +1711,19 @@ void BitcashGUI::SendConfirmedToInstaBtnClicked(const QString &destination, cons
     }
 }
 
-void BitcashGUI::SendConfirmedToTwitchBtnClicked(const QString &destination, const QString &description, double amount) 
+void BitcashGUI::SendConfirmedToTwitchBtnClicked(const QString &destination, const QString &description, double amount, bool senddollar) 
 {
     WalletModel * const walletModel = getCurrentWalletModel();
     if (!walletModel) return;
+
+    int curr = 0;
+    if (senddollar) curr = 1;
 
     CAmount nAmount = amount * COIN;
     std::string referenceline = description.toStdString(); 
     std::string strlink, strerr;
    
-    if (!walletModel->wallet().SendAsLink(nAmount, referenceline, strlink, strerr))
+    if (!walletModel->wallet().SendAsLink(nAmount, referenceline, strlink, strerr, curr, curr))
     {
         QVariant returnedValue;
         QVariant s=QString::fromStdString("Could not create transaction. Reason: "+strerr);
@@ -1328,13 +1737,15 @@ void BitcashGUI::SendConfirmedToTwitchBtnClicked(const QString &destination, con
         int unit = walletModel->getOptionsModel()->getDisplayUnit();
         QVariant amountstr=BitcashUnits::format(unit, nAmount, false, BitcashUnits::separatorNever);       
                                                 
-        SetLink(strlink,description.toStdString(),amountstr.toString().toStdString(),0,timestamp);
+        SetLink(strlink,description.toStdString(),amountstr.toString().toStdString(),0,timestamp, curr);
 
         QDateTime qtimestamp;
         qtimestamp.setMSecsSinceEpoch(timestamp);
         QVariant datestr=GUIUtil::dateTimeStr(qtimestamp);
+        QVariant currencystr = "BITC";
+        if (senddollar) currencystr = "USD";
 
-        QMetaObject::invokeMethod(qmlrootitem, "addbitcashexpresslink", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, s), Q_ARG(QVariant, description), Q_ARG(QVariant, amountstr), Q_ARG(QVariant, datestr));
+        QMetaObject::invokeMethod(qmlrootitem, "addbitcashexpresslink", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, s), Q_ARG(QVariant, description), Q_ARG(QVariant, amountstr), Q_ARG(QVariant, datestr), Q_ARG(QVariant, currencystr));
 
         QClipboard *p_Clipboard = QApplication::clipboard();
         p_Clipboard->setText(s);
@@ -1355,7 +1766,7 @@ void BitcashGUI::SendConfirmedToTwitchBtnClicked(const QString &destination, con
     }
 }
 
-bool BitcashGUI::SendBtnClickedIntern(const QString &destination, const QString &label, const QString &description, double amount, bool substractfee, bool dialog) 
+bool BitcashGUI::SendBtnClickedIntern(const QString &destination, const QString &label, const QString &description, double amount, bool substractfee, bool dialog, unsigned char currency, bool nomessages) 
 {
     if (!UserKnowsPassword()) return false;
     WalletModel * const model = getCurrentWalletModel();
@@ -1365,11 +1776,11 @@ bool BitcashGUI::SendBtnClickedIntern(const QString &destination, const QString 
     bool valid = true;
 
     SendCoinsRecipient entry = SendCoinsRecipient();
-    entry.address=destination;
-    entry.referenceline=description;
-    entry.label=label;
-    entry.amount=amount*COIN;
-    entry.fSubtractFeeFromAmount=substractfee;;
+    entry.address = destination;
+    entry.referenceline = description;
+    entry.label = label;
+    entry.amount = amount*COIN;
+    entry.fSubtractFeeFromAmount = substractfee;;
 
     recipients.push_back(entry);
    
@@ -1387,7 +1798,8 @@ bool BitcashGUI::SendBtnClickedIntern(const QString &destination, const QString 
     }
 
     // prepare transaction for getting txFee earlier
-    WalletModelTransaction currentTransaction(recipients);
+    WalletModelTransaction currentTransaction(recipients, currency);
+
     WalletModel::SendCoinsReturn prepareStatus;
 
     // Always use a CCoinControl instance, use the CoinControlDialog instance if CoinControl has been enabled
@@ -1397,11 +1809,13 @@ bool BitcashGUI::SendBtnClickedIntern(const QString &destination, const QString 
 
     //updateCoinControlState(ctrl);
 
-    prepareStatus = model->prepareTransaction(currentTransaction, ctrl);
+    prepareStatus = model->prepareTransaction(currentTransaction, ctrl, currency, nomessages);
 
     // process prepareStatus and on error generate message shown to user
-    processSendCoinsReturn(model, prepareStatus,
-        BitcashUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), currentTransaction.getTransactionFee()));
+    if (!nomessages) {
+        processSendCoinsReturn(model, prepareStatus,
+            BitcashUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), currentTransaction.getTransactionFee()));
+    }
 
     if(prepareStatus.status != WalletModel::OK) {
 
@@ -1415,7 +1829,10 @@ bool BitcashGUI::SendBtnClickedIntern(const QString &destination, const QString 
     for (const SendCoinsRecipient &rcp : currentTransaction.getRecipients())
     {
         // generate bold amount string with wallet name in case of multiwallet
-        QString amount = "<b>" + BitcashUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), rcp.amount);
+        QString amount;
+        if (currency == 1) 
+        amount = "<b>" + BitcashUnits::formatHtmlWithUnit(BitcashUnits::DOLLAR, rcp.amount);else
+        amount = "<b>" + BitcashUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), rcp.amount);
         if (model->isMultiwallet()) {
             amount.append(" <u>"+tr("from wallet %1").arg(GUIUtil::HtmlEscape(model->getWalletName()))+"</u> ");
         }
@@ -1457,6 +1874,8 @@ bool BitcashGUI::SendBtnClickedIntern(const QString &destination, const QString 
     {
         // append fee string if a fee is required
         questionString.append("<hr /><span style='color:#aa0000;'>");
+        if (currency == 1) 
+        questionString.append(BitcashUnits::formatHtmlWithUnit(BitcashUnits::DOLLAR, txFee));else
         questionString.append(BitcashUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), txFee));
         questionString.append("</span> ");
         questionString.append(tr("added as transaction fee"));
@@ -1503,7 +1922,9 @@ bool BitcashGUI::SendBtnClickedIntern(const QString &destination, const QString 
     // now send the prepared transaction
     WalletModel::SendCoinsReturn sendStatus = model->sendCoins(currentTransaction);
     // process sendStatus and on error generate message shown to user
-    processSendCoinsReturn(model, sendStatus);
+    if (!nomessages) {
+        processSendCoinsReturn(model, sendStatus);
+    }
 
     if (sendStatus.status == WalletModel::OK)
     {
@@ -1518,7 +1939,12 @@ bool BitcashGUI::SendBtnClickedIntern(const QString &destination, const QString 
 
 void BitcashGUI::SendBtnClicked(const QString &destination, const QString &label, const QString &description, double amount, bool substractfee) 
 {
-    SendBtnClickedIntern(destination, label, description, amount, substractfee, true);
+    SendBtnClickedIntern(destination, label, description, amount, substractfee, true, 0, false);
+}
+
+void BitcashGUI::SendBtnDoClicked(const QString &destination, const QString &label, const QString &description, double amount, bool substractfee) 
+{
+    SendBtnClickedIntern(destination, label, description, amount, substractfee, true, 1, false);
 }
 
 
@@ -1583,31 +2009,30 @@ void BitcashGUI::replyFinished(QNetworkReply *reply){
 
    if (sendmode == 0)
    {
-       if (replystr=="OkayBITCTwitter")
+       if (replystr == "OkayBITCTwitter")
        {
             QVariant returnedValue;
             QVariant msg;
             QMetaObject::invokeMethod(qmlrootitem, "twitterlinkokay", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, msg));
-
        } else
        {
             QVariant returnedValue;
-            QVariant msg=QString::fromStdString(replystr);
+            QVariant msg = QString::fromStdString(replystr);
             QMetaObject::invokeMethod(qmlrootitem, "displayerrormessage", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, msg));
        }   
    } else
    if (sendmode == 1)
    {
-       if (replystr!="")
+       if (replystr != "")
        {
            QVariant returnedValue;
-           QVariant msg=QString::fromStdString(replystr);
+           QVariant msg = QString::fromStdString(replystr);
            QMetaObject::invokeMethod(qmlrootitem, "showconfirmtwitter", Q_RETURN_ARG(QVariant, returnedValue),Q_ARG(QVariant, msg));
            QMetaObject::invokeMethod(qmlrootitem, "setbacksendbtn", Q_RETURN_ARG(QVariant, returnedValue));
        } else
        {
             QVariant returnedValue;
-            QVariant msg="This is not a valid Twitter user name!";
+            QVariant msg = "This is not a valid Twitter user name!";
             QMetaObject::invokeMethod(qmlrootitem, "displayerrormessage", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, msg));
        }   
    }
@@ -1615,11 +2040,11 @@ void BitcashGUI::replyFinished(QNetworkReply *reply){
 
 void BitcashGUI::replyFinishedInsta(QNetworkReply *reply){
     //Use the reply as you wish
-   std::string replystr=reply->readAll().toStdString();
+   std::string replystr = reply->readAll().toStdString();
 
    if (sendmode == 0)
    {
-       if (replystr=="OkayBITCInsta")
+       if (replystr == "OkayBITCInsta")
        {
             QVariant returnedValue;
             QVariant msg;
@@ -1628,22 +2053,22 @@ void BitcashGUI::replyFinishedInsta(QNetworkReply *reply){
        } else
        {
             QVariant returnedValue;
-            QVariant msg=QString::fromStdString(replystr);
+            QVariant msg = QString::fromStdString(replystr);
             QMetaObject::invokeMethod(qmlrootitem, "displayerrormessage", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, msg));
        }   
    } else
    if (sendmode == 1)
    {
-       if (replystr!="")
+       if (replystr != "")
        {
            QVariant returnedValue;
-           QVariant msg=QString::fromStdString(replystr);
+           QVariant msg = QString::fromStdString(replystr);
            QMetaObject::invokeMethod(qmlrootitem, "showconfirminsta", Q_RETURN_ARG(QVariant, returnedValue),Q_ARG(QVariant, msg));
            QMetaObject::invokeMethod(qmlrootitem, "setbacksendbtn", Q_RETURN_ARG(QVariant, returnedValue));
        } else
        {
             QVariant returnedValue;
-            QVariant msg="This is not a valid Instagram user name!";
+            QVariant msg = "This is not a valid Instagram user name!";
             QMetaObject::invokeMethod(qmlrootitem, "displayerrormessage", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, msg));
        }   
    }
@@ -1651,35 +2076,34 @@ void BitcashGUI::replyFinishedInsta(QNetworkReply *reply){
 
 void BitcashGUI::replyFinishedTwitch(QNetworkReply *reply){
     //Use the reply as you wish
-    std::string replystr=reply->readAll().toStdString();
+   std::string replystr=reply->readAll().toStdString();
 
-    if (sendmode == 0)
-    {
-       if (replystr=="OkayBITCTwitch")
+   if (sendmode == 0)
+   {
+       if (replystr == "OkayBITCTwitch")
        {
             QVariant returnedValue;
             QVariant msg;
             QMetaObject::invokeMethod(qmlrootitem, "twitchlinkokay", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, msg));
-
        } else
        {
             QVariant returnedValue;
-            QVariant msg=QString::fromStdString(replystr);
+            QVariant msg = QString::fromStdString(replystr);
             QMetaObject::invokeMethod(qmlrootitem, "displayerrormessage", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, msg));
        }   
-    } else
-    if (sendmode == 1)
-    {
-       if (replystr!="")
+   } else
+   if (sendmode == 1)
+   {
+       if (replystr != "")
        {
            QVariant returnedValue;
-           QVariant msg=QString::fromStdString(replystr);
+           QVariant msg = QString::fromStdString(replystr);
            QMetaObject::invokeMethod(qmlrootitem, "showconfirmtwitch", Q_RETURN_ARG(QVariant, returnedValue),Q_ARG(QVariant, msg));
            QMetaObject::invokeMethod(qmlrootitem, "setbacksendbtn", Q_RETURN_ARG(QVariant, returnedValue));
        } else
        {
             QVariant returnedValue;
-            QVariant msg="This is not a valid Twitch user name!";
+            QVariant msg = "This is not a valid Twitch user name!";
             QMetaObject::invokeMethod(qmlrootitem, "displayerrormessage", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, msg));
        }   
     }
@@ -1712,7 +2136,6 @@ void BitcashGUI::replyFinishedcheckversion(QNetworkReply *reply){
         }
     }  
 }
-
 
 BitcashGUI::BitcashGUI(interfaces::Node& node, const PlatformStyle *_platformStyle, const NetworkStyle *networkStyle, QWidget *parent) :
     QMainWindow(parent),
@@ -1808,7 +2231,7 @@ BitcashGUI::BitcashGUI(interfaces::Node& node, const PlatformStyle *_platformSty
         walletFrame = new WalletFrame(_platformStyle, this);
         //setCentralWidget(walletFrame);
 
-//    qInstallMessageHandler(myMessageOutput); // Install the handler
+    //qInstallMessageHandler(myMessageOutput); // Install the handler
 
     QFontDatabase::addApplicationFont(":/res/assets/Montserrat-Bold.otf");
     QFontDatabase::addApplicationFont(":/res/assets/Montserrat-Light.otf");
@@ -1835,16 +2258,16 @@ BitcashGUI::BitcashGUI(interfaces::Node& node, const PlatformStyle *_platformSty
                       this, SLOT(StartMiningBtnClicked()));
     QObject::connect(qmlrootitem, SIGNAL(stopMiningSignal()),
                       this, SLOT(StopMiningBtnClicked()));
-    QObject::connect(qmlrootitem, SIGNAL(sendBtnSignal(QString,QString,QString,double,bool)),
-                      this, SLOT(SendBtnClicked(QString,QString,QString,double,bool)));
-    QObject::connect(qmlrootitem, SIGNAL(registerNickSignal(QString,QString)),
-                      this, SLOT(RegisterNickBtnClicked(QString,QString)));
-    QObject::connect(qmlrootitem, SIGNAL(sendlinkBtnSignal(QString,double)),
-                      this, SLOT(SendLinksBtnClicked(QString,double)));
+    QObject::connect(qmlrootitem, SIGNAL(sendBtnSignal(QString, QString, QString, double, bool)),
+                      this, SLOT(SendBtnClicked(QString, QString, QString, double, bool)));
+    QObject::connect(qmlrootitem, SIGNAL(sendBtnDoSignal(QString, QString, QString, double, bool)),
+                      this, SLOT(SendBtnDoClicked(QString, QString, QString, double, bool)));
+    QObject::connect(qmlrootitem, SIGNAL(registerNickSignal(QString, QString)),
+                      this, SLOT(RegisterNickBtnClicked(QString, QString)));
+    QObject::connect(qmlrootitem, SIGNAL(sendlinkBtnSignal(QString, double, bool)),
+                      this, SLOT(SendLinksBtnClicked(QString, double, bool)));
     QObject::connect(qmlrootitem, SIGNAL(claimlinkBtnSignal(QString)),
                       this, SLOT(ClaimLinksBtnClicked(QString)));
-    QObject::connect(qmlrootitem, SIGNAL(minereducedSignal(bool)),
-                      this, SLOT(Onminereduced(bool)));
     QObject::connect(qmlrootitem, SIGNAL(helpSignal()),
                       this, SLOT(HelpBtnClicked()));
     QObject::connect(qmlrootitem, SIGNAL(deletelinksignal(QString)),
@@ -1859,34 +2282,45 @@ BitcashGUI::BitcashGUI(interfaces::Node& node, const PlatformStyle *_platformSty
                       this, SLOT(importKeyBtnClicked(QString)));
     QObject::connect(qmlrootitem, SIGNAL(backupBtnSignal()),
                       this, SLOT(printMainWalletClicked()));
-    QObject::connect(qmlrootitem, SIGNAL(createPaymentBtnSignal(QString,QString,double, int, int)),
-                      this, SLOT(createPaymentClicked(QString,QString, double, int, int)));
+    QObject::connect(qmlrootitem, SIGNAL(tradingBtnSignal()),
+                      this, SLOT(openTradingWindowBtnClicked()));
+    QObject::connect(qmlrootitem, SIGNAL(createPaymentBtnSignal(QString, QString, double, int, int, bool)),
+                      this, SLOT(createPaymentClicked(QString,QString, double, int, int, bool)));
+    QObject::connect(qmlrootitem, SIGNAL(createOrderBtnSignal(double, double, bool, bool)),
+                      this, SLOT(createOrderBtnClicked(double, double, bool, bool)));
     QObject::connect(qmlrootitem, SIGNAL(deletepaymentsignal(QString)),
                       this, SLOT(DeletePaymentsClicked(QString)));
+    QObject::connect(qmlrootitem, SIGNAL(deleteordersignal(QString)),
+                      this, SLOT(DeleteOrdersClicked(QString)));
     QObject::connect(qmlrootitem, SIGNAL(undopaymentremovalSignal()),
                       this, SLOT(undoPaymentsRemovalClicked()));
 
-    QObject::connect(qmlrootitem, SIGNAL(sendconfirmedBtntwSignal(QString,QString,double)),
-                      this, SLOT(SendConfirmedToTwitterBtnClicked(QString,QString,double)));
-    QObject::connect(qmlrootitem, SIGNAL(sendBtntwSignal(QString,QString,double)),
-                      this, SLOT(SendToTwitterBtnClicked(QString,QString,double)));
-    QObject::connect(qmlrootitem, SIGNAL(sendtoTwitterSignal(QString,QString)),
-                      this, SLOT(sendtoTwitterClicked(QString,QString)));
+    QObject::connect(qmlrootitem, SIGNAL(sendconfirmedBtntwSignal(QString, QString, double, bool)),
+                      this, SLOT(SendConfirmedToTwitterBtnClicked(QString, QString, double, bool)));
+    QObject::connect(qmlrootitem, SIGNAL(sendBtntwSignal(QString, QString, double, bool)),
+                      this, SLOT(SendToTwitterBtnClicked(QString, QString, double, bool)));
+    QObject::connect(qmlrootitem, SIGNAL(sendtoTwitterSignal(QString, QString)),
+                      this, SLOT(sendtoTwitterClicked(QString, QString)));
 
-    QObject::connect(qmlrootitem, SIGNAL(sendconfirmedBtninSignal(QString,QString,double)),
-                      this, SLOT(SendConfirmedToInstaBtnClicked(QString,QString,double)));
-    QObject::connect(qmlrootitem, SIGNAL(sendBtninSignal(QString,QString,double)),
-                      this, SLOT(SendToInstaBtnClicked(QString,QString,double)));
-    QObject::connect(qmlrootitem, SIGNAL(sendtoInstaSignal(QString,QString)),
-                      this, SLOT(sendtoInstaClicked(QString,QString)));
+    QObject::connect(qmlrootitem, SIGNAL(sendconfirmedBtninSignal(QString, QString, double, bool)),
+                      this, SLOT(SendConfirmedToInstaBtnClicked(QString, QString, double, bool)));
+    QObject::connect(qmlrootitem, SIGNAL(sendBtninSignal(QString, QString, double, bool)),
+                      this, SLOT(SendToInstaBtnClicked(QString, QString, double, bool)));
+    QObject::connect(qmlrootitem, SIGNAL(sendtoInstaSignal(QString, QString)),
+                      this, SLOT(sendtoInstaClicked(QString, QString)));
 
-    QObject::connect(qmlrootitem, SIGNAL(sendconfirmedBtnreSignal(QString,QString,double)),
-                      this, SLOT(SendConfirmedToTwitchBtnClicked(QString,QString,double)));
-    QObject::connect(qmlrootitem, SIGNAL(sendBtnreSignal(QString,QString,double)),
-                      this, SLOT(SendToTwitchBtnClicked(QString,QString,double)));
-    QObject::connect(qmlrootitem, SIGNAL(sendtoTwitchSignal(QString,QString)),
-                      this, SLOT(sendtoTwitchClicked(QString,QString)));
-
+    QObject::connect(qmlrootitem, SIGNAL(sendconfirmedBtnreSignal(QString, QString, double, bool)),
+                      this, SLOT(SendConfirmedToTwitchBtnClicked(QString, QString, double, bool)));
+    QObject::connect(qmlrootitem, SIGNAL(sendBtnreSignal(QString, QString, double, bool)),
+                      this, SLOT(SendToTwitchBtnClicked(QString, QString, double, bool)));
+    QObject::connect(qmlrootitem, SIGNAL(sendtoTwitchSignal(QString, QString)),
+                      this, SLOT(sendtoTwitchClicked(QString, QString)));
+    QObject::connect(qmlrootitem, SIGNAL(generateBillSignal(int)),
+                      this, SLOT(generateBillClicked(int)));
+    QObject::connect(qmlrootitem, SIGNAL(printfrontbillSignal()),
+                      this, SLOT(printfrontbillClicked()));
+    QObject::connect(qmlrootitem, SIGNAL(printbackbillSignal()),
+                      this, SLOT(printbackbillClicked()));
 
     QTimer *timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(recurringpayments()));
@@ -1917,6 +2351,11 @@ BitcashGUI::BitcashGUI(interfaces::Node& node, const PlatformStyle *_platformSty
 
     miningtimer = new QTimer(this);
     connect(miningtimer, SIGNAL(timeout()), this, SLOT(updateminingstats()));    
+
+    priceupdatetimer = new QTimer(this);
+    connect(priceupdatetimer, SIGNAL(timeout()), this, SLOT(updateprice()));    
+    priceupdatetimer->start(10000);
+    updateprice();
 
     } else
 #endif // ENABLE_WALLET
@@ -2018,7 +2457,7 @@ BitcashGUI::BitcashGUI(interfaces::Node& node, const PlatformStyle *_platformSty
         QTimer::singleShot(2000, this, SLOT(toggleHidden()));
     }
 
-    this->managercheckversion->get(QNetworkRequest(QUrl("https://wallet.choosebitcash.com/versioninfo.txt")));
+    this->managercheckversion->get(QNetworkRequest(QUrl("https://wallet.choosebitcash.com/versioninfostable.txt")));
 
 }
 
@@ -2154,6 +2593,9 @@ void BitcashGUI::createActions()
     repairSyncAction = new QAction(platformStyle->TextColorIcon(":/icons/debugwindow"), tr("&Try to solve syncing issues"), this);
     repairSyncAction->setStatusTip(tr("Removes the invalid flag of all blocks. Tries to resolve syncing issues for example after a hard fork. "));
 
+    resendWalletTxesAction = new QAction(platformStyle->TextColorIcon(":/icons/debugwindow"), tr("&Resend wallet transactions"), this);
+    resendWalletTxesAction->setStatusTip(tr("This command will broadcast all transaction in the mempool to the peers immediately. "));
+
     printWalletAction = new QAction(platformStyle->TextColorIcon(":/res/assets/Navigation/receive-active.png"), tr("&Backup wallet"), this);
     printWalletAction->setStatusTip(tr("Make a backup copy of your wallet."));
 
@@ -2205,6 +2647,7 @@ void BitcashGUI::createActions()
     connect(printWalletAction, SIGNAL(triggered()), this, SLOT(printMainWalletClicked()));
     connect(importKeyAction, SIGNAL(triggered()), this, SLOT(importKeyClicked()));
     connect(repairSyncAction, SIGNAL(triggered()), this, SLOT(repairSyncIssuesClicked()));
+    connect(resendWalletTxesAction, SIGNAL(triggered()), this, SLOT(resendWalletTxesClicked()));
 
 #ifdef ENABLE_WALLET
     if(walletFrame)
@@ -2279,6 +2722,7 @@ void BitcashGUI::createMenuBar()
     if(walletFrame)
     {
         repairwallet->addAction(repairSyncAction);
+        repairwallet->addAction(resendWalletTxesAction);
     }
 
     QMenu *settings = appMenuBar->addMenu(tr("&Settings"));
@@ -2373,6 +2817,7 @@ void BitcashGUI::setClientModel(ClientModel *_clientModel)
         }
         SendLinksToModel();
         SendPaymentsToModel();
+        SendOrdersToModel();
     } else {
         // Disable possibility to show main window via action
         toggleHideAction->setEnabled(false);

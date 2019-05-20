@@ -22,7 +22,7 @@ class PendingWalletTx;
 class WalletModelTransaction
 {
 public:
-    explicit WalletModelTransaction(const QList<SendCoinsRecipient> &recipients);
+    explicit WalletModelTransaction(const QList<SendCoinsRecipient> &recipients, unsigned char currency);
 
     QList<SendCoinsRecipient> getRecipients() const;
 
@@ -33,6 +33,7 @@ public:
     CAmount getTransactionFee() const;
 
     CAmount getTotalTransactionAmount() const;
+    unsigned char getFromCurrency() const { return fromcurrency;}
 
     void reassignAmounts(int nChangePosRet); // needed for the subtract-fee-from-amount feature
 
@@ -40,6 +41,7 @@ private:
     QList<SendCoinsRecipient> recipients;
     std::unique_ptr<interfaces::PendingWalletTx> wtx;
     CAmount fee;
+    unsigned char fromcurrency;
 };
 
 #endif // BITCASH_QT_WALLETMODELTRANSACTION_H

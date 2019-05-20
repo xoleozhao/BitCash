@@ -5,12 +5,15 @@
 
 #include <chainparams.h>
 #include <consensus/merkle.h>
+#include <consensus/params.h>
 #include "cuckoo/cuckoo.h"
 #include "cuckoo/miner.h"
 
+#include <streams.h>
 #include <tinyformat.h>
 #include <util.h>
 #include <utilstrencodings.h>
+#include "core_io.h"
 
 #include <assert.h>
 
@@ -18,7 +21,7 @@
 //#include <boost/filesystem.hpp>
 //#include <boost/filesystem/fstream.hpp>
 
-static CBlock CreateGenesisBlock(const char* pszTimestamp, const CScript& genesisOutputScript, uint32_t nTime, uint32_t nNonce, uint32_t nBits, uint8_t nEdgeBits, int32_t nVersion, const CAmount& genesisReward)
+static CBlock CreateGenesisBlock(const char* pszTimestamp, const CScript& genesisOutputScript, uint32_t nTime, uint32_t nNonce, uint32_t nBits, uint8_t nEdgeBits, int32_t nVersion, const CAmount& genesisReward,const char *priceinfo, const char*signature)
 {
     CMutableTransaction txNew;
     txNew.nVersion = 1;
@@ -27,6 +30,7 @@ static CBlock CreateGenesisBlock(const char* pszTimestamp, const CScript& genesi
     txNew.vin[0].scriptSig = CScript() << 486604799 << CScriptNum(4) << std::vector<unsigned char>((const unsigned char*)pszTimestamp, (const unsigned char*)pszTimestamp + strlen(pszTimestamp));
     txNew.vin[0].isnickname=false;
     txNew.vout[0].nValue = genesisReward;
+    txNew.vout[0].nValueBitCash = genesisReward;
     txNew.vout[0].scriptPubKey = genesisOutputScript;
 
     CBlock genesis;
@@ -36,8 +40,26 @@ static CBlock CreateGenesisBlock(const char* pszTimestamp, const CScript& genesi
     genesis.nEdgeBits = nEdgeBits;
     genesis.nVersion = nVersion;
     genesis.vtx.push_back(MakeTransactionRef(std::move(txNew)));
+
     genesis.hashPrevBlock.SetNull();
     genesis.hashMerkleRoot = BlockMerkleRoot(genesis);
+
+/*    genesis.nPriceInfo.priceTime=0;
+    genesis.nPriceInfo.priceCount=1;
+    genesis.nPriceInfo.prices[0]=0;
+    genesis.priceSig.clear();*/
+
+    if (IsHex(priceinfo)) { 
+        std::vector<unsigned char> txData(ParseHex(priceinfo));
+        CDataStream ssData(txData, SER_NETWORK, PROTOCOL_VERSION);
+        try {
+            ssData >> genesis.nPriceInfo;
+        } catch (const std::exception&) {
+            // Fall through.
+        }    
+    }
+    genesis.priceSig = DecodeBase64(signature);
+
     return genesis;
 }
 
@@ -52,11 +74,11 @@ static CBlock CreateGenesisBlock(const char* pszTimestamp, const CScript& genesi
  *     CTxOut(nValue=50.00000000, scriptPubKey=0x5F1DF16B2B704C8A578D0B)
  *   vMerkleTree: 4a5e1e
  */
-static CBlock CreateGenesisBlock(uint32_t nTime, uint32_t nNonce, uint32_t nBits, uint8_t nEdgeBits, int32_t nVersion, const CAmount& genesisReward)
+static CBlock CreateGenesisBlock(uint32_t nTime, uint32_t nNonce, uint32_t nBits, uint8_t nEdgeBits, int32_t nVersion, const CAmount& genesisReward,const char *priceinfo, const char*signature)
 {
     const char* pszTimestamp = "The Times 03/Jan/2009 Chancellor on brink of second bailout for banks";
     const CScript genesisOutputScript = CScript() << ParseHex("04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5f") << OP_CHECKSIG;
-    return CreateGenesisBlock(pszTimestamp, genesisOutputScript, nTime, nNonce, nBits, nEdgeBits, nVersion, genesisReward);
+    return CreateGenesisBlock(pszTimestamp, genesisOutputScript, nTime, nNonce, nBits, nEdgeBits, nVersion, genesisReward, priceinfo, signature);
 }
 
 void CChainParams::UpdateVersionBitsParameters(Consensus::DeploymentPos d, int64_t nStartTime, int64_t nTimeout)
@@ -113,6 +135,7 @@ public:
         consensus.nCuckooProofSize = 42;
         consensus.X16RTIME = 1550923200;//Time of X16R fork
         consensus.NONPRIVACY = 1552176000;//Time of nonprivacy
+        consensus.STABLETIME = 1561204800;//Time of Stable coin fork
 
         // The best chain should have at least this much work.                                                
         consensus.nMinimumChainWork = uint256S("0x00");
@@ -138,7 +161,14 @@ public:
         assert(consensus.hashGenesisBlock == uint256S("0x000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"));
         assert(genesis.hashMerkleRoot == uint256S("0x4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b"));*/
 
-        genesis = CreateGenesisBlock(1531846964, 0x2e, 0x207fffff, 27, 1, 21500 * MILLICOIN);
+        genesis = CreateGenesisBlock(1531846964, 0x2e, 0x207fffff, 27, 1, 21500 * MILLICOIN,
+/*"6d54335c0100ca9a3b00000000",
+   "3045022100abcb23f82ef8904c8dad6825756ab6c98b939af098edc92dd5c66f5cc454dcc40220564c44c065110e52c50b1431bbfe6b77ea487424990552f748304299aa5054d7");*/
+ 
+/*"9752335c0100ca9a3b00000000",
+  "MEUCIQC/Gg/srvd/Bv6G7xB500a8sIbYbM1B6pjaeb4IIEzfqAIgEOiIwJ09GubGqcMsPS0HGoe2x3UA7WRFPBOZSJFd0ZM=");*/
+
+"a34b335c0124bd7c0100000000", "MEQCIEiAA0H7qfQ0Y5A9vHP96pUz8SLQXxW1vsMf+39Wrs+6AiA56R3hoKHjlfivLWtu2QXXW7A6dCxLeBrKjnUqEvfnig==");
 
 
 // ******* BEGIN GENERATE GENESIS BLOCK ********
@@ -148,6 +178,8 @@ public:
         std::set<uint32_t> cycle;
         ctpl::thread_pool pool{1};
         int nMaxTries=10000;
+        bool trygpumining=false;
+        bool gpuminingfailed;
         static const int nInnerLoopCount = 0x10000;
             std::cout << "Start loop " << std::endl;
         while (nMaxTries > 0
@@ -217,6 +249,7 @@ copy merkle root
         std::cout << "Genesis Block Nonce: 0x" << genesis.nNonce << std::endl;
         std::cout << std::endl<< "bitcash new hashGenesisBlock hash: " << genesis.GetHash().ToString() << std::endl;
 */
+//        std::cout << std::endl<< "bitcash new hashGenesisBlock hash: " << genesis.GetHash().ToString() << std::endl;
                                                          
         assert(consensus.hashGenesisBlock == uint256S("0x7d57d87ff3c15a521530af60edee1887fba9c193eb518face926785c4cd8f4f1"));
         assert(genesis.hashMerkleRoot == uint256S("0xaac1dca23e43e68fe32133292a4698f42f60a48e5321bef9bda0c95f3580b667"));
@@ -250,6 +283,7 @@ copy merkle root
         fRequireStandard = true;
         fMineBlocksOnDemand = false;
 
+        //checkpoints are the merkle roots of these blocks
         checkpointData = {
             {
                 { 0, uint256S("0x7d57d87ff3c15a521530af60edee1887fba9c193eb518face926785c4cd8f4f1")},
@@ -264,6 +298,7 @@ copy merkle root
                 { 200000, uint256S("0x5cf251696d27e34b8b818b00b5613d2ca662677f924423872b58e88fafdd8b29")},
                 { 250000, uint256S("0xa883a07a7dbae7286fc664edfe488c433325003efcdfd803f09e6a30021dd449")},
                 { 300000, uint256S("0x6fc9ac59a21b8722df1bd650c05cff490d8e2d39814b1ea0bc9bc4892f3e99c8")},
+                { 400000, uint256S("0xb4073b529c85feef2c7ba96eeaa33e06762944fb03b8eff7271df3370be1c651")},
             }
         };
 
@@ -295,16 +330,7 @@ public:
         consensus.BIP66Height = 1; 
         consensus.sEdgeBitsAllowed = {16,17,18,19,20, 21, 22, 23, 24, 25, 26};
         consensus.powLimit = Consensus::PoWLimit{
-/*1f0bc3d9
-1f234b8d
-1f69e2aa
-20013da8
-2003b8fa
-                      000b
-                        23 
-                        69
-                      01
-                      03*/
+
             uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"),
             *consensus.sEdgeBitsAllowed.begin()};
         consensus.nPowTargetTimespan = 24 * 60 * 60; // one for nBits adjustment
@@ -326,6 +352,7 @@ public:
         consensus.nCuckooProofSize = 42;
         consensus.X16RTIME = 1549108800;//Time of X16R fork
         consensus.NONPRIVACY = 1552176000;//Time of nonprivacy
+        consensus.STABLETIME = 1561204800;//Time of Stable coin fork
 
         // The best chain should have at least this much work.
         consensus.nMinimumChainWork = uint256S("0x00");
@@ -340,7 +367,7 @@ public:
         nDefaultPort = 15723;
         nPruneAfterHeight = 1000;
 
-        genesis = CreateGenesisBlock(1531846965 , 0x1f, 0x207fffff, 16, 1, 21500 * MILLICOIN);
+        genesis = CreateGenesisBlock(1531846965, 0x1f, 0x207fffff, 16, 1, 21500 * MILLICOIN, "a34b335c0124bd7c0100000000", "MEQCIEiAA0H7qfQ0Y5A9vHP96pUz8SLQXxW1vsMf+39Wrs+6AiA56R3hoKHjlfivLWtu2QXXW7A6dCxLeBrKjnUqEvfnig==");
 
 // ******* BEGIN GENERATE GENESIS BLOCK ********
 
@@ -402,8 +429,6 @@ if (cuckoo::VerifyProofOfWork(genesis.GetHash(), genesis.nBits, genesis.nEdgeBit
 
         genesis.sCycle = {
 0xdf, 0x56e, 0xadc, 0xbd9, 0xc3b, 0xde4, 0x136a, 0x1a42, 0x1b98, 0x21f2, 0x2621, 0x2840, 0x2cdb, 0x3e02, 0x4b87, 0x560b, 0x57a0, 0x6027, 0x62cc, 0x6f8a, 0x75a9, 0x773a, 0x7cde, 0x8372, 0x8478, 0x8dda, 0x9f72, 0xa68b, 0xa6da, 0xae71, 0xb67f, 0xb973, 0xbad3, 0xbe06, 0xc0a5, 0xc171, 0xd185, 0xd39f, 0xde16, 0xe47c, 0xed87, 0xfe8b
-
-
         };
 
         consensus.hashGenesisBlock = genesis.GetHash();
@@ -411,8 +436,8 @@ if (cuckoo::VerifyProofOfWork(genesis.GetHash(), genesis.nBits, genesis.nEdgeBit
 /*
         std::cout << "bitcash new hashMerkleRoot hash: " << genesis.hashMerkleRoot.ToString() << std::endl;
         std::cout << "Genesis Block Nonce: 0x" << genesis.nNonce << std::endl;
-        std::cout << std::endl<< "bitcash new hashGenesisBlock hash: " << genesis.GetHash().ToString() << std::endl;
-*/
+        std::cout << std::endl<< "bitcash new hashGenesisBlock hash: " << genesis.GetHash().ToString() << std::endl;*/
+
         assert(consensus.hashGenesisBlock == uint256S("0x50d97c38f8a673c4758718d4900bef9192f0318a8aa9ee415eeb27c3c431ff43"));
         assert(genesis.hashMerkleRoot == uint256S("0xaac1dca23e43e68fe32133292a4698f42f60a48e5321bef9bda0c95f3580b667"));
 
@@ -496,6 +521,7 @@ public:
         consensus.nCuckooProofSize = 42;
         consensus.X16RTIME = 1549108800;//Time of X16R fork
         consensus.NONPRIVACY = 1551299320;//Time of nonprivacy
+        consensus.STABLETIME = 1561204800;//Time of Stable coin fork
 
         // The best chain should have at least this much work.
         consensus.nMinimumChainWork = uint256S("0x00");
@@ -510,10 +536,10 @@ public:
         nDefaultPort = 18534;
         nPruneAfterHeight = 1000;
 
-        genesis = CreateGenesisBlock(1531846966, 2, 0x207fffff, 24, 1, 21500 * MILLICOIN);
+        genesis = CreateGenesisBlock(1546865679, 2, 0x207fffff, 24, 1, 21500 * MILLICOIN, "a34b335c0124bd7c0100000000", "MEQCIEiAA0H7qfQ0Y5A9vHP96pUz8SLQXxW1vsMf+39Wrs+6AiA56R3hoKHjlfivLWtu2QXXW7A6dCxLeBrKjnUqEvfnig==");
         consensus.hashGenesisBlock = genesis.GetHash();
 
-        std::cout << "REGTEST bitcash new hashGenesisBlock hash: " << genesis.GetHash().ToString() << std::endl;
+//        std::cout << "REGTEST bitcash new hashGenesisBlock hash: " << genesis.GetHash().ToString() << std::endl;
 
         assert(consensus.hashGenesisBlock == uint256S("0x0f9188f13cb7b2c71f2a335e3a4fc328bf5beb436012afca590b1a11466e2206"));
         assert(genesis.hashMerkleRoot == uint256S("0x4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b"));
