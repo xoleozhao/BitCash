@@ -269,7 +269,7 @@ Item {
         anchors.top: sendcap.bottom
         anchors.topMargin: 30
         //height: 590
-        height: 590
+        height: 600
 
         TabBar {
             id: tabBar
