@@ -2847,9 +2847,9 @@ static UniValue getbalanceforaddress(const JSONRPCRequest& request)
         return NullUniValue;
     }
 
-    if (request.fHelp || request.params.size() > 3 || request.params.size() < 1)
+    if (request.fHelp || request.params.size() > 4 || request.params.size() < 1)
         throw std::runtime_error(
-            "getbalanceforaddress ( \"address\" mode include_watchonly )\n"
+            "getbalanceforaddress ( \"address\" mode include_watchonly currency)\n"
             "\nReturn the total available balance for the address.\n"
             "The available balance is what the wallet considers currently spendable, and is\n"
             "thus affected by options which limit spendability such as -spendzeroconfchange.\n"
@@ -2857,6 +2857,7 @@ static UniValue getbalanceforaddress(const JSONRPCRequest& request)
             "1. \"toaddress\"     (string, required) The bitcash address.\n"
             "2. mode              (numeric, optional, default=0) 0=available balance 1=unconfirmed balance 2=immature balance 3=total balance\n" 
             "3. watchonly         (bool, optional, default=false) \n"
+            "4. currency          (numeric, optional, default=0) The currency account from which to send 0=BitCash 1=US Dollar\n"
             "\nResult:\n"
             "amount              (numeric) The total amount in " + CURRENCY_UNIT + " received for this account.\n"
             "\nExamples:\n"
@@ -2887,16 +2888,27 @@ static UniValue getbalanceforaddress(const JSONRPCRequest& request)
     if (!request.params[1].isNull())
     include_watchonly = request.params[2].get_bool();
 
+    int currency = 0;
+    if (!request.params[3].isNull()) {
+       const UniValue& mode = request.params[3];
+       if (!mode.isNull())
+           currency = mode.get_int();    
+    }
+
     if(!include_watchonly) {
-       if (nmode==1) return ValueFromAmount(pwallet->GetUnconfirmedBalanceForAddress(dest,0));else
-       if (nmode==2) return ValueFromAmount(pwallet->GetImmatureBalanceForAddress(dest,0));else
-       if (nmode==3) return ValueFromAmount(pwallet->GetImmatureBalanceForAddress(dest,0)+pwallet->GetUnconfirmedBalanceForAddress(dest,0)+pwallet->GetBalanceForAddress(dest,0));else
-       return ValueFromAmount(pwallet->GetBalanceForAddress(dest,0));
+       if (nmode==1) return ValueFromAmount(pwallet->GetUnconfirmedBalanceForAddress(dest, currency));else
+       if (nmode==2) return ValueFromAmount(pwallet->GetImmatureBalanceForAddress(dest, currency));else
+       if (nmode==3) return ValueFromAmount(pwallet->GetImmatureBalanceForAddress(dest, currency)+
+                            pwallet->GetUnconfirmedBalanceForAddress(dest,currency)+
+                            pwallet->GetBalanceForAddress(dest, currency));else
+       return ValueFromAmount(pwallet->GetBalanceForAddress(dest, currency));
     } else {
-       if (nmode==1) return ValueFromAmount(pwallet->GetUnconfirmedWatchOnlyBalanceForAddress(dest,0));else
-       if (nmode==2) return ValueFromAmount(pwallet->GetImmatureWatchOnlyBalanceForAddress(dest,0));else
-       if (nmode==3) return ValueFromAmount(pwallet->GetImmatureWatchOnlyBalanceForAddress(dest,0)+pwallet->GetUnconfirmedWatchOnlyBalanceForAddress(dest,0)+pwallet->GetWatchOnlyBalanceForAddress(dest,0));else
-       return ValueFromAmount(pwallet->GetWatchOnlyBalanceForAddress(dest,0));
+       if (nmode==1) return ValueFromAmount(pwallet->GetUnconfirmedWatchOnlyBalanceForAddress(dest, currency));else
+       if (nmode==2) return ValueFromAmount(pwallet->GetImmatureWatchOnlyBalanceForAddress(dest, currency));else
+       if (nmode==3) return ValueFromAmount(pwallet->GetImmatureWatchOnlyBalanceForAddress(dest, currency)+
+                            pwallet->GetUnconfirmedWatchOnlyBalanceForAddress(dest,currency)+
+                            pwallet->GetWatchOnlyBalanceForAddress(dest, currency));else
+       return ValueFromAmount(pwallet->GetWatchOnlyBalanceForAddress(dest, currency));
     }
 }
 
@@ -4234,7 +4246,7 @@ UniValue listtransactions(const JSONRPCRequest& request)
         help_text = "listtransactionsforcurrency ( currency \"account\" count skip include_watchonly)\n"
             "\nReturns up to 'count' most recent transactions skipping the first 'from' transactions for account 'account'.\n"
             "\nArguments:\n"
-    	    "1. currency       (numeric, optional, default=0) 0=BitCash, 1=Dollar\n"
+    	    "1. currency       (numeric, optional, default=0) 0=BitCash, 1=Dollar, 255=all currencies\n"
             "2. \"account\"    (string, optional) DEPRECATED. This argument will be removed in V0.18. The account name. Should be \"*\".\n"
             "3. count          (numeric, optional, default=10) The number of transactions to return\n"
             "4. skip           (numeric, optional, default=0) The number of transactions to skip\n"
@@ -4386,7 +4398,7 @@ UniValue listtransactionsforaddress(const JSONRPCRequest& request)
     if (request.strMethod == "listtransactionsforaddress")
     {
 
-        help_text = "listtransactionsforaddress \"address\" (count skip include_watchonly)\n"
+        help_text = "listtransactionsforaddress \"address\" (count skip)\n"
             "\nReturns up to 'count' most recent transactions skipping the first 'from' transactions for account 'account'.\n"
             "\nArguments:\n"
             "1. \"address\"            (string, required) The bitcash address.\n"
@@ -4443,11 +4455,11 @@ UniValue listtransactionsforaddress(const JSONRPCRequest& request)
     } else
     {
 
-        help_text = "listtransactionsforcurrencyaddress \"address\" (currency count skip include_watchonly)\n"
+        help_text = "listtransactionsforcurrencyaddress \"address\" (currency count skip)\n"
             "\nReturns up to 'count' most recent transactions skipping the first 'from' transactions for account 'account'.\n"
             "\nArguments:\n"
             "1. \"address\"            (string, required) The bitcash address.\n"
-            "2. currency       (numeric, optional, default=0) 0=BitCash, 1=Dollar\n"
+            "2. currency       (numeric, optional, default=0) 0=BitCash, 1=Dollar, 255=all currencies\n"
             "3. count          (numeric, optional, default=10) The number of transactions to return\n"
             "4. skip           (numeric, optional, default=0) The number of transactions to skip\n"
 
@@ -7131,7 +7143,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "encryptwallet",                    &encryptwallet,                 {"passphrase"} },
     { "wallet",             "getaddressinfo",                   &getaddressinfo,                {"address"} },
     { "wallet",             "getbalance",                       &getbalance,                    {"account","minconf","include_watchonly"} },
-    { "wallet",             "getbalanceforaddress",             &getbalanceforaddress,          {"address","minconf","include_watchonly"} },
+    { "wallet",             "getbalanceforaddress",             &getbalanceforaddress,          {"address","minconf","include_watchonly", "currency"} },
     { "wallet",             "getbalanceforcurrency",            &getbalance,                    {"currency", "account","minconf","include_watchonly"} },
     { "wallet",             "getaddressfornickname",            &getaddressfornickname,             {} },
     { "wallet",             "getaddressforprivkey",             &getaddressforprivkey,          {"privkey"} },

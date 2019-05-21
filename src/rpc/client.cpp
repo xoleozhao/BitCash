@@ -132,6 +132,7 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "getbalanceforcurrency", 3, "include_watchonly" },
     { "getbalanceforaddress", 1, "minconf" },
     { "getbalanceforaddress", 2, "include_watchonly" },
+    { "getbalanceforaddress", 3, "currency" },
     { "getblockhash", 0, "height" },
     { "getunconfirmedbalanceforcurrency", 0, "currency" },
     { "waitforblockheight", 0, "height" },
