@@ -24,7 +24,7 @@ class CPriceInfo
 public:
     uint32_t priceTime;//Time of price information
     unsigned char priceCount;//number of stored price information
-    CAmount prices[256];
+    CAmount prices[2];//only 2 of 256 prices for now to reduce memory usage
 
     CPriceInfo()
     {
