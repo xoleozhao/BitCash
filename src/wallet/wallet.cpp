@@ -510,6 +510,7 @@ std::string CWallet::DecryptRefLineTxOut(CTxOut out) const
         {
             //Decrypt as receiver of the transaction...
             for (const std::pair<CTxDestination, CAddressBookData>& item : mapAddressBook) {
+                if (GetNonPrivateForDestination(item.first)) continue;
                 CPubKey pubkey=GetSecondPubKeyForDestination(item.first);
 
                 if (out.hasrecipientid) {
@@ -589,6 +590,7 @@ bool CWallet::GetRealAddressAsReceiver(CTxOut txout, CPubKey& recipientpubkey) c
     }
 
     for (const std::pair<CTxDestination, CAddressBookData>& item : mapAddressBook) {
+        if (GetNonPrivateForDestination(item.first)) continue;
         CPubKey pubkey=GetSecondPubKeyForDestination(item.first);
 
         if (txout.hasrecipientid) {
@@ -2229,6 +2231,8 @@ isminetype CWallet::IsMine(const CTxOut& txout, int nr)
         {
             bool found = false;
             for (const std::pair<CTxDestination, CAddressBookData>& item : mapAddressBook) {
+                if (GetNonPrivateForDestination(item.first)) continue;
+
                 CPubKey pubkey=GetSecondPubKeyForDestination(item.first);
     
                 if (txout.hasrecipientid) {
@@ -3580,6 +3584,7 @@ CAmount CWallet::GetLegacyBalance(const isminefilter& filter, int minDepth, cons
                 
                             bool found=false;
                             for (const std::pair<CTxDestination, CAddressBookData>& item : mapAddressBook) {
+                                if (GetNonPrivateForDestination(item.first)) continue;
                                 if (item.second.name==*account) {
                                     CPubKey pubkey=GetSecondPubKeyForDestination(item.first);
 
