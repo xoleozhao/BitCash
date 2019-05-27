@@ -232,8 +232,8 @@ void BitcashGUI::printStatementsBtnClicked(int month, int year, int currency)
 
     QDateTime firstdayofmonth = QDateTime(QDate(year, month, 1), QTime(0,0));
     QDateTime lastdayofmonth =  firstdayofmonth.addMonths(1);
-    qint64 unixtimefrom = firstdayofmonth.toSecsSinceEpoch();
-    qint64 unixtimeto = lastdayofmonth.toSecsSinceEpoch() - 1;
+    qint64 unixtimefrom = firstdayofmonth.toMSecsSinceEpoch() / 1000;
+    qint64 unixtimeto = lastdayofmonth.toMSecsSinceEpoch() / 1000 - 1;
     lastdayofmonth = lastdayofmonth.addDays(-1);
 
     int rows = ttm->rowCount({});
