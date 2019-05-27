@@ -244,6 +244,7 @@ public Q_SLOTS:
     void DeletePaymentsClicked(const QString &strlink);
     void DeleteOrdersClicked(const QString &strlink);
     void PrintPaperWalletClicked();
+    void printStatementsBtnClicked(int month, int year, int currency);
     void HelpBtnClicked();
     void SendLinksToModel();
     void SendPaymentsToModel();

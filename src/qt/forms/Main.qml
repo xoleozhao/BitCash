@@ -287,6 +287,11 @@ Item {
         send.showconfirmtwitchintern(msg)
     }
 
+    function setactualmonthandyear(month, year)
+    {
+        transactions.setactualmonthandyearintern(month, year)
+    }
+
     signal filtereditchangedsignal(string text)
     signal showtxdetails(int index)
     signal sendBtnSignal(string destination, string label, string description, double amount, bool substractfee)    
@@ -309,6 +314,7 @@ Item {
     signal createOrderBtnSignal(double amounttosend, double targetPrice, bool senddollar, bool whenpricegoesabove)
     signal printfrontbillSignal()
     signal printbackbillSignal()
+    signal printstatementsignal(int month, int year, int currency)
 
     signal registerNickSignal(string nickname, string address)
     signal minereducedSignal(bool isreduced)
@@ -421,6 +427,7 @@ Item {
             onDeletelinksignalintern: deletelinksignal(link)
             onUndolinkremovalSignalintern: undolinkremovalSignal()
             onAbandonTxSignalintern: abandonTxSignal(txidtext)
+            onPrintstatementsignalintern: printstatementsignal(month, year, currency)
         }
 
         Nicknames{

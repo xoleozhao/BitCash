@@ -37,6 +37,13 @@ Item {
     signal deletelinksignalintern(string link)
     signal undolinkremovalSignalintern()
     signal abandonTxSignalintern(string txidtext)
+    signal printstatementsignalintern(int month, int year, int currency)
+
+    function setactualmonthandyearintern(month, year)
+    {
+        printstatements.spinBox.value = month;
+        printstatements.spinBoxyear.value = year;
+    }
 
     function addbitcashexpresslinkintern(link,desc,amount,date,currency) {
         linksmodel.insert(0,{
@@ -142,14 +149,6 @@ Item {
                 verticalAlignment: Text.AlignVCenter
                 elide: Text.ElideRight
             }
-            /*Image {
-                id: imagebitcash
-                anchors.verticalCenter: parent.verticalCenter
-                anchors.left: parent.left
-                anchors.leftMargin: 35
-                fillMode: Image.PreserveAspectFit
-                source: "../res/assets/Miscellaneous/bitcashicon.png"
-            }*/
         }
 
         TabButton {
@@ -171,15 +170,28 @@ Item {
                 verticalAlignment: Text.AlignVCenter
                 elide: Text.ElideRight
             }
-            /*Image {
-                id: imageanyone
-                anchors.verticalCenter: parent.verticalCenter
-                anchors.left: parent.left
-                anchors.leftMargin: 15
-                fillMode: Image.PreserveAspectFit
-                source: "../res/assets/Miscellaneous/anyoneicon.png"
-            }*/
         }
+        TabButton {
+            id: tabButton3
+            text: qsTr("Print eStatements")
+            rightPadding: 15
+            font.capitalization: Font.MixedCase
+            leftPadding: 15
+            width: implicitWidth
+            height: 60
+
+            contentItem: Text {
+                id: textstatements
+                text: parent.text
+                font: parent.font
+                opacity: enabled ? 1.0 : 0.3
+                color: "#4d505e"
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                elide: Text.ElideRight
+            }
+        }
+
     }
 
     SwipeView {
@@ -196,651 +208,649 @@ Item {
             id: transactions
 
 
-    Row {
-        id: header        
-        clip: true
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.leftMargin: 30
-        anchors.rightMargin: 30
-        anchors.top: filterEdit.bottom
-        anchors.topMargin: 30
-        spacing: 0
-        height: 44
-
-
-        Label {
-            //without this column the background color of the next colum is not displayed???
-            width: 1
-            height: 44
-            text: ""
-        }
-                        Label {
-                            width: datewidth
-                            height: 44
-                            text: "Date"
-                            verticalAlignment: Text.AlignVCenter
-                            anchors.verticalCenter: parent.verticalCenter
-                            rightPadding: 20
-                            leftPadding: 20
-                            font.family: "Montserrat SemiBold"
-                            font.weight: Font.DemiBold                            
-                            font.pixelSize: 13
-                            color:"#202124"
-                            padding: 10
-                            background: Rectangle { color: "#ebebeb" }
-                        }
-                        Label {
-                            width: typewidth
-                            height: 44
-                            text: "Type"
-                            verticalAlignment: Text.AlignVCenter
-                            anchors.verticalCenter: parent.verticalCenter
-                            rightPadding: 20
-                            leftPadding: 20
-                            font.family: "Montserrat SemiBold"
-                            font.weight: Font.DemiBold                            
-                            font.pixelSize: 13
-                            color:"#202124"
-                            padding: 10
-                            background: Rectangle { color: "#ebebeb" }
-                        }
-                        Label {
-                            width: addresswidth
-                            height: 44
-                            text: "Address"
-                            verticalAlignment: Text.AlignVCenter
-                            anchors.verticalCenter: parent.verticalCenter
-                            rightPadding: 20
-                            leftPadding: 20
-                            font.family: "Montserrat SemiBold"
-                            font.weight: Font.DemiBold                            
-                            font.pixelSize: 13
-                            color:"#202124"
-                            padding: 10
-                            background: Rectangle { color: "#ebebeb" }
-                        }
-                        Label {
-                            width: transactionsForm.width-datewidth-typewidth-addresswidth-amountwidth-amountusdwidth-30-30
-                            height: 44
-                            text: "Description"
-                            verticalAlignment: Text.AlignVCenter
-                            anchors.verticalCenter: parent.verticalCenter
-                            rightPadding: 20
-                            leftPadding: 20
-                            font.family: "Montserrat SemiBold"
-                            font.weight: Font.DemiBold                            
-                            font.pixelSize: 13
-                            color:"#202124"
-                            padding: 10
-                            background: Rectangle { color: "#ebebeb" }
-                        }
-                        Label {
-                            width: amountwidth
-                            height: 44
-                            text: "BITC"
-                            verticalAlignment: Text.AlignVCenter
-                            anchors.verticalCenter: parent.verticalCenter
-                            rightPadding: 20
-                            leftPadding: 20
-                            font.family: "Montserrat SemiBold"
-                            font.weight: Font.DemiBold
-                            horizontalAlignment: Text.AlignRight                            
-                            font.pixelSize: 13
-                            color:"#202124"
-                            padding: 10
-                            background: Rectangle { color: "#ebebeb" }
-                        }
-                        Label {
-                            width: amountusdwidth
-                            height: 44
-                            text: "USD"
-                            verticalAlignment: Text.AlignVCenter
-                            anchors.verticalCenter: parent.verticalCenter
-                            rightPadding: 20
-                            leftPadding: 20
-                            font.family: "Montserrat SemiBold"
-                            font.weight: Font.DemiBold
-                            horizontalAlignment: Text.AlignRight
-                            font.pixelSize: 13
-                            color:"#202124"
-                            padding: 10
-                            background: Rectangle { color: "#ebebeb" }
-                        }
-
-
-    }
-    TextField
-    {
-        id: copytextfield
-        width: 0
-        height: 0
-        visible: false
-    }
-
-    ListView {
-        id: listView
-        anchors.bottomMargin: 0        
-        anchors.top: header.bottom
-        anchors.right: parent.right
-        anchors.bottom: parent.bottom
-        anchors.left: parent.left
-        clip: true
-
-            contentWidth: header.width
-            flickableDirection: Flickable.VerticalFlick
-
-            model: transactionsmodel
-            delegate: Column {
-                id: delegate
-                property int row: index
-
-
-                Row {
-                        anchors.left: parent.left
-                        anchors.right: parent.right
-                        anchors.leftMargin: 30
-                        anchors.rightMargin: 30
-                        height: 65
-                        spacing: 0
-                        ItemDelegate {
-                            property int column: 0
-                            width: datewidth
-                            id: date
-                            text: ""
-                            clip: true
-                            Label {
-                                text: transactiondate
-                                anchors.leftMargin: 20
-                                anchors.rightMargin: 8
-                                anchors.left: parent.left
-                                anchors.right: parent.right
-                                anchors.verticalCenter: parent.verticalCenter                                
-                                font.weight: Font.DemiBold
-                                font.family: "Montserrat SemiBold"
-                                font.pixelSize: 14
-                                color: "#202124"
-                            }
-                            ToolTip.delay: 1000
-                            ToolTip.timeout: 5000
-                            ToolTip.visible: hovered
-                            ToolTip.text: transactiondate+"\n"+tooltip
-                            MouseArea {
-                                anchors.fill: parent
-                                acceptedButtons: Qt.RightButton
-                                hoverEnabled: true
-                                onClicked: {
-                                    contextMenu.x = mouse.x;
-                                    contextMenu.y = mouse.y;
-                                    contextMenu.open();
-                                }
-                                onPressAndHold: {
-                                    if (mouse.source === Qt.MouseEventNotSynthesized) {
-                                        contextMenu.x = mouse.x;
-                                        contextMenu.y = mouse.y;
-                                        contextMenu.open();
-                                    }
-                                }
-                            }
-                            Menu {
-                                id: contextMenu
-                                MenuItem {
-                                    text: "Copy date"
-                                    onTriggered: {
-                                        copytextfield.text=transactiondate
-                                        copytextfield.selectAll()
-                                        copytextfield.copy()
-                                    }
-                                }
-                            }
-                            onDoubleClicked: {
-                                showtxdetailsintern(index)
-                            }
-                        }
-                        ItemDelegate {
-                            property int column: 1
-                            width: typewidth
-                            text: ""
-                            clip: true
-                            Image {
-                                id: typimage
-                                anchors.left: parent.left
-                                anchors.leftMargin: 20
-                                anchors.verticalCenter: parent.verticalCenter
-
-                                fillMode: Image.PreserveAspectFit
-                                source: geticonname(transactiontypeno)
-                            }
-                            Label {
-                                text: transactiontype
-                                anchors.leftMargin: 8
-                                anchors.rightMargin: 8
-                                anchors.left: typimage.right
-                                anchors.right: parent.right
-                                anchors.verticalCenter: parent.verticalCenter                                
-                                font.weight: Font.Normal
-                                font.family: "Montserrat"                                
-                                font.pixelSize: 14
-                                color: "#202124"
-                            }
-                            ToolTip.delay: 1000
-                            ToolTip.timeout: 5000
-                            ToolTip.visible: hovered
-                            ToolTip.text: transactiontype+"\n"+tooltip
-                            MouseArea {
-                                anchors.fill: parent
-                                acceptedButtons: Qt.RightButton
-                                hoverEnabled: true
-                                onClicked: {
-                                    contextMenutyp.x = mouse.x;
-                                    contextMenutyp.y = mouse.y;
-                                    contextMenutyp.open();
-                                }
-                                onPressAndHold: {
-                                    if (mouse.source === Qt.MouseEventNotSynthesized) {
-                                        contextMenutyp.x = mouse.x;
-                                        contextMenutyp.y = mouse.y;
-                                        contextMenutyp.open();
-                                    }
-                                }
-                            }
-                            Menu {
-                                id: contextMenutyp
-                                MenuItem {
-                                    text: "Copy type"
-                                    onTriggered: {
-                                        copytextfield.text=transactiontype
-                                        copytextfield.selectAll()
-                                        copytextfield.copy()
-                                    }
-                                }
-                            }
-                            onDoubleClicked: {
-                                showtxdetailsintern(index)
-                            }
-                        }
-                        ItemDelegate {
-                            property int column: 2
-                            width: addresswidth
-                            text: ""
-                            Label {
-                                text: transactionaddress
-                                anchors.leftMargin: 20
-                                anchors.rightMargin: 8
-                                anchors.left: parent.left
-                                anchors.right: parent.right
-                                anchors.verticalCenter: parent.verticalCenter                                
-                                font.weight: Font.Normal
-                                font.family: "Montserrat"                                
-                                font.pixelSize: 14
-                                color: "#202124"
-                            }
-                            clip: true
-                            ToolTip.delay: 1000
-                            ToolTip.timeout: 5000
-                            ToolTip.visible: hovered
-                            ToolTip.text: transactionaddress+"\n"+tooltip
-                            MouseArea {
-                                anchors.fill: parent
-                                acceptedButtons: Qt.RightButton
-                                hoverEnabled: true
-                                onClicked: {
-                                    contextMenuaddress.x = mouse.x;
-                                    contextMenuaddress.y = mouse.y;
-                                    contextMenuaddress.open();
-                                }
-                                onPressAndHold: {
-                                    if (mouse.source === Qt.MouseEventNotSynthesized) {
-                                        contextMenuaddress.x = mouse.x;
-                                        contextMenuaddress.y = mouse.y;
-                                        contextMenuaddress.open();
-                                    }
-                                }
-                            }
-                            Menu {
-                                id: contextMenuaddress
-                                MenuItem {
-                                    text: "Copy address"
-                                    onTriggered: {
-                                        copytextfield.text=transactionaddress
-                                        copytextfield.selectAll()
-                                        copytextfield.copy()
-                                    }
-                                }
-                            }
-                            onDoubleClicked: {
-                                showtxdetailsintern(index)
-                            }
-                        }
-                        ItemDelegate {
-                            property int column: 3
-                            width: transactionsForm.width-datewidth-typewidth-addresswidth-amountwidth-amountusdwidth-30-30
-                            text: ""
-                            Label {
-                                text: transactionreferenceline
-                                anchors.leftMargin: 20
-                                anchors.rightMargin: 8
-                                anchors.left: parent.left
-                                anchors.right: parent.right
-                                anchors.verticalCenter: parent.verticalCenter                                
-                                font.weight: Font.Normal
-                                font.family: "Montserrat"                                
-                                font.pixelSize: 14
-                                color: "#202124"
-                            }
-                            clip: true
-                            ToolTip.delay: 1000
-                            ToolTip.timeout: 5000
-                            ToolTip.visible: hovered
-                            ToolTip.text: transactionreferenceline+"\n"+tooltip
-                            MouseArea {
-                                anchors.fill: parent
-                                acceptedButtons: Qt.RightButton
-                                hoverEnabled: true
-                                onClicked: {
-                                    contextMenurefline.x = mouse.x;
-                                    contextMenurefline.y = mouse.y;
-                                    contextMenurefline.open();
-                                }
-                                onPressAndHold: {
-                                    if (mouse.source === Qt.MouseEventNotSynthesized) {
-                                        contextMenurefline.x = mouse.x;
-                                        contextMenurefline.y = mouse.y;
-                                        contextMenurefline.open();
-                                    }
-                                }
-                            }
-                            Menu {
-                                id: contextMenurefline
-                                MenuItem {
-                                    text: "Copy description"
-                                    onTriggered: {
-                                        copytextfield.text=transactionreferenceline
-                                        copytextfield.selectAll()
-                                        copytextfield.copy()
-                                    }
-                                }
-                            }
-                            onDoubleClicked: {
-                                showtxdetailsintern(index)
-                            }
-                        }
-                        ItemDelegate {
-                            property int column: 4
-                            width: amountwidth
-                            text: ""
-                            Label {
-                                text: transactionamountbitc
-                                anchors.leftMargin: 8
-                                anchors.rightMargin: 20
-                                anchors.left: parent.left
-                                anchors.right: parent.right
-                                anchors.verticalCenter: parent.verticalCenter
-                                horizontalAlignment: Text.AlignRight                                
-                                font.weight: Font.Bold
-                                font.family: "Montserrat"                                
-                                font.pixelSize: 14
-                                color: "#202124"
-                            }
-                            clip: true
-                            ToolTip.delay: 1000
-                            ToolTip.timeout: 5000
-                            ToolTip.visible: hovered
-                            ToolTip.text: transactionamountbitc+"\n"+tooltip
-                            MouseArea {
-                                anchors.fill: parent
-                                acceptedButtons: Qt.RightButton
-                                hoverEnabled: true
-                                onClicked: {
-                                    contextMenuamount.x = mouse.x;
-                                    contextMenuamount.y = mouse.y;
-                                    contextMenuamount.open();
-                                }
-                                onPressAndHold: {
-                                    if (mouse.source === Qt.MouseEventNotSynthesized) {
-                                        contextMenuamount.x = mouse.x;
-                                        contextMenuamount.y = mouse.y;
-                                        contextMenuamount.open();
-                                    }
-                                }
-                            }
-                            Menu {
-                                id: contextMenuamount
-                                MenuItem {
-                                    text: "Copy amount BITC"
-                                    onTriggered: {
-                                        copytextfield.text= transactionamountbitc
-                                        copytextfield.selectAll()
-                                        copytextfield.copy()
-                                    }
-                                }
-                            }
-                            onDoubleClicked: {
-                                showtxdetailsintern(index)
-                            }
-                        }
-                        ItemDelegate {
-                            property int column: 5
-                            width: amountusdwidth
-                            text: ""
-                            Label {
-                                text: transactionamountusd
-                                anchors.leftMargin: 8
-                                anchors.rightMargin: 20
-                                anchors.left: parent.left
-                                anchors.right: parent.right
-                                anchors.verticalCenter: parent.verticalCenter
-                                horizontalAlignment: Text.AlignRight
-                                font.weight: Font.Bold
-                                font.family: "Montserrat"
-                                font.pixelSize: 14
-                                color: "#202124"
-                            }
-                            clip: true
-                            ToolTip.delay: 1000
-                            ToolTip.timeout: 5000
-                            ToolTip.visible: hovered
-                            ToolTip.text: transactionamountusd+"\n"+tooltip
-                            MouseArea {
-                                anchors.fill: parent
-                                acceptedButtons: Qt.RightButton
-                                hoverEnabled: true
-                                onClicked: {
-                                    contextMenuamountusd.x = mouse.x;
-                                    contextMenuamountusd.y = mouse.y;
-                                    contextMenuamountusd.open();
-                                }
-                                onPressAndHold: {
-                                    if (mouse.source === Qt.MouseEventNotSynthesized) {
-                                        contextMenuamountusd.x = mouse.x;
-                                        contextMenuamountusd.y = mouse.y;
-                                        contextMenuamountusd.open();
-                                    }
-                                }
-                            }
-                            Menu {
-                                id: contextMenuamountusd
-                                MenuItem {
-                                    text: "Copy amount USD"
-                                    onTriggered: {
-                                        copytextfield.text=transactionamountusd
-                                        copytextfield.selectAll()
-                                        copytextfield.copy()
-                                    }
-                                }
-                            }
-                            onDoubleClicked: {
-                                showtxdetailsintern(index)
-                            }
-                        }
-
-                }
-                Rectangle {
-                    width: parent.width
-                    height: 1
-                    color: Material.accent
-                }
-            }
-
-            ScrollIndicator.horizontal: ScrollIndicator { }
-            ScrollIndicator.vertical: ScrollIndicator { }
-    }
-
-        MenuTextField {
-            id: filterEdit
-            y: 31
-            height: 44
-            text: ""
-            font.pixelSize: 14
-            font.family: "Montserrat"
-            placeholderText: "Search for address, transaction id or description..."
-            bottomPadding: 10
-            topPadding: 10
-            rightPadding: 16
-            leftPadding: 46
-            anchors.topMargin: 30
-            anchors.top:parent.top
-            anchors.right: downloadlistbtn.left
-            anchors.rightMargin: 20
-            anchors.left: dateselect.right
-            anchors.leftMargin: 20
-            selectByMouse: true
-            onTextChanged: filtereditchangedsignalintern(text)
-            background: Rectangle
-            {
-                radius: 3
-                border.width: 1
-                border.color: "#eeeeef"
-                Image {
-                    anchors.verticalCenter: parent.verticalCenter
-                    anchors.left: parent.left
-                    anchors.leftMargin: 20
-                    fillMode: Image.PreserveAspectFit
-                    source: "../res/assets/Miscellaneous/search.png"
-                }
-
-            }
-
-        }
-
-        Rectangle {
-            id: detaildialog
-            width: 600
-            height: 500
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.verticalCenter: parent.verticalCenter
-            color:Material.background
-            radius: 10
-            border.width: 3
-            visible: false
-
-            TextArea{
-                id: detailarea
-                textFormat: Text.RichText
-                readOnly: true
-                anchors.left:parent.left
-                anchors.leftMargin: 10
-                anchors.top:parent.top
-                anchors.topMargin: 10
+            Row {
+                id: header
+                clip: true
+                anchors.left: parent.left
                 anchors.right: parent.right
-                anchors.rightMargin: 10
-                anchors.bottom:parent.bottom
-                anchors.bottomMargin: 70
-                selectByMouse: true
-                wrapMode: TextEdit.Wrap                
-            }
-            Button{
-                text: "Ok"
-                anchors.horizontalCenterOffset: -100
-                id: okBtn
-                anchors.top:detailarea.bottom
-                anchors.topMargin: 10
-                anchors.horizontalCenter: parent.horizontalCenter
-                onClicked: detaildialog.visible=false
-            }
-            Button{
-                text: "Copy TX ID"
-                anchors.left: okBtn.right
-                anchors.leftMargin: 20
-                id: copyTxIdBtn
-                anchors.top:detailarea.bottom
-                anchors.topMargin: 10
-                onClicked: {
-                    copytextfieldlinks.text = txidtext
-                    copytextfieldlinks.selectAll()
-                    copytextfieldlinks.copy()
-                    text = "Copied"
-                    timer.setTimeout(function(){
-                        text = "Copy TX ID"
-                    }, 3000);
-                }
-            }
-            Button{
-                text: "Abandon"
-                anchors.left: copyTxIdBtn.right
-                anchors.leftMargin: 20
-                id: removeBtn
-                anchors.top:detailarea.bottom
-                anchors.topMargin: 10
-                onClicked:abandonTxSignalintern(txidtext)
-            }
-
-        }
-
-        ComboBox {
-            currentIndex: 4
-            id: dateselect
-            onActivated: datefiltersignalintern(index)
-            width: 200
-            font.pixelSize: 14
-            font.family: "Montserrat"
-            anchors.top: parent.top
-            anchors.topMargin: 28
-            anchors.left: parent.left
-            anchors.leftMargin: 30
-            textRole: "key"
-            model: ListModel {
-                   ListElement { key: "Last month"; value: 1 }
-                   ListElement { key: "Last 3 months"; value: 2 }
-                   ListElement { key: "Last 6 months"; value: 3 }
-                   ListElement { key: "Last year"; value: 4 }
-                   ListElement { key: "Anytime"; value: 5 }
-            }
-        }
+                anchors.leftMargin: 30
+                anchors.rightMargin: 30
+                anchors.top: filterEdit.bottom
+                anchors.topMargin: 30
+                spacing: 0
+                height: 44
 
 
-        Button {
-            id: downloadlistbtn
-            anchors.right: parent.right
-            anchors.rightMargin: 40
-            anchors.verticalCenter: filterEdit.verticalCenter
-            width: 207
-            onClicked: {
-                downloadtransactionsSignalintern()
-            }
-            y: 13
-            background: Image {
-                id: imageforbutton                
-                fillMode: Image.PreserveAspectFit
-                source: "../res/assets/Miscellaneous/download.png"
                 Label {
-                    id: labelforbutton
-                    color: "#3e45ac"
-                    text: qsTr("Download list of transactions")
-                    font.weight: Font.DemiBold
-                    anchors.verticalCenterOffset: 0
-                    font.pixelSize: 13
-                    font.family: "Montserrat SemiBold"
-                    anchors.left: parent.right
-                    anchors.leftMargin: 10
+                    //without this column the background color of the next colum is not displayed???
+                    width: 1
+                    height: 44
+                    text: ""
+                }
+                Label {
+                    width: datewidth
+                    height: 44
+                    text: "Date"
+                    verticalAlignment: Text.AlignVCenter
                     anchors.verticalCenter: parent.verticalCenter
+                    rightPadding: 20
+                    leftPadding: 20
+                    font.family: "Montserrat SemiBold"
+                    font.weight: Font.DemiBold
+                    font.pixelSize: 13
+                    color:"#202124"
+                    padding: 10
+                    background: Rectangle { color: "#ebebeb" }
+                }
+                Label {
+                    width: typewidth
+                    height: 44
+                    text: "Type"
+                    verticalAlignment: Text.AlignVCenter
+                    anchors.verticalCenter: parent.verticalCenter
+                    rightPadding: 20
+                    leftPadding: 20
+                    font.family: "Montserrat SemiBold"
+                    font.weight: Font.DemiBold
+                    font.pixelSize: 13
+                    color:"#202124"
+                    padding: 10
+                    background: Rectangle { color: "#ebebeb" }
+                }
+                Label {
+                    width: addresswidth
+                    height: 44
+                    text: "Address"
+                    verticalAlignment: Text.AlignVCenter
+                    anchors.verticalCenter: parent.verticalCenter
+                    rightPadding: 20
+                    leftPadding: 20
+                    font.family: "Montserrat SemiBold"
+                    font.weight: Font.DemiBold
+                    font.pixelSize: 13
+                    color:"#202124"
+                    padding: 10
+                    background: Rectangle { color: "#ebebeb" }
+                }
+                Label {
+                    width: transactionsForm.width-datewidth-typewidth-addresswidth-amountwidth-amountusdwidth-30-30
+                    height: 44
+                    text: "Description"
+                    verticalAlignment: Text.AlignVCenter
+                    anchors.verticalCenter: parent.verticalCenter
+                    rightPadding: 20
+                    leftPadding: 20
+                    font.family: "Montserrat SemiBold"
+                    font.weight: Font.DemiBold
+                    font.pixelSize: 13
+                    color:"#202124"
+                    padding: 10
+                    background: Rectangle { color: "#ebebeb" }
+                }
+                Label {
+                    width: amountwidth
+                    height: 44
+                    text: "BITC"
+                    verticalAlignment: Text.AlignVCenter
+                    anchors.verticalCenter: parent.verticalCenter
+                    rightPadding: 20
+                    leftPadding: 20
+                    font.family: "Montserrat SemiBold"
+                    font.weight: Font.DemiBold
+                    horizontalAlignment: Text.AlignRight
+                    font.pixelSize: 13
+                    color:"#202124"
+                    padding: 10
+                    background: Rectangle { color: "#ebebeb" }
+                }
+                Label {
+                    width: amountusdwidth
+                    height: 44
+                    text: "USD"
+                    verticalAlignment: Text.AlignVCenter
+                    anchors.verticalCenter: parent.verticalCenter
+                    rightPadding: 20
+                    leftPadding: 20
+                    font.family: "Montserrat SemiBold"
+                    font.weight: Font.DemiBold
+                    horizontalAlignment: Text.AlignRight
+                    font.pixelSize: 13
+                    color:"#202124"
+                    padding: 10
+                    background: Rectangle { color: "#ebebeb" }
                 }
             }
-        }        
-     }
-        Item {
+            TextField
+            {
+                id: copytextfield
+                width: 0
+                height: 0
+                visible: false
+            }
+
+            ListView {
+                id: listView
+                anchors.bottomMargin: 0
+                anchors.top: header.bottom
+                anchors.right: parent.right
+                anchors.bottom: parent.bottom
+                anchors.left: parent.left
+                clip: true
+
+                    contentWidth: header.width
+                    flickableDirection: Flickable.VerticalFlick
+
+                    model: transactionsmodel
+                    delegate: Column {
+                        id: delegate
+                        property int row: index
+
+
+                        Row {
+                                anchors.left: parent.left
+                                anchors.right: parent.right
+                                anchors.leftMargin: 30
+                                anchors.rightMargin: 30
+                                height: 65
+                                spacing: 0
+                                ItemDelegate {
+                                    property int column: 0
+                                    width: datewidth
+                                    id: date
+                                    text: ""
+                                    clip: true
+                                    Label {
+                                        text: transactiondate
+                                        anchors.leftMargin: 20
+                                        anchors.rightMargin: 8
+                                        anchors.left: parent.left
+                                        anchors.right: parent.right
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        font.weight: Font.DemiBold
+                                        font.family: "Montserrat SemiBold"
+                                        font.pixelSize: 14
+                                        color: "#202124"
+                                    }
+                                    ToolTip.delay: 1000
+                                    ToolTip.timeout: 5000
+                                    ToolTip.visible: hovered
+                                    ToolTip.text: transactiondate+"\n"+tooltip
+                                    MouseArea {
+                                        anchors.fill: parent
+                                        acceptedButtons: Qt.RightButton
+                                        hoverEnabled: true
+                                        onClicked: {
+                                            contextMenu.x = mouse.x;
+                                            contextMenu.y = mouse.y;
+                                            contextMenu.open();
+                                        }
+                                        onPressAndHold: {
+                                            if (mouse.source === Qt.MouseEventNotSynthesized) {
+                                                contextMenu.x = mouse.x;
+                                                contextMenu.y = mouse.y;
+                                                contextMenu.open();
+                                            }
+                                        }
+                                    }
+                                    Menu {
+                                        id: contextMenu
+                                        MenuItem {
+                                            text: "Copy date"
+                                            onTriggered: {
+                                                copytextfield.text=transactiondate
+                                                copytextfield.selectAll()
+                                                copytextfield.copy()
+                                            }
+                                        }
+                                    }
+                                    onDoubleClicked: {
+                                        showtxdetailsintern(index)
+                                    }
+                                }
+                                ItemDelegate {
+                                    property int column: 1
+                                    width: typewidth
+                                    text: ""
+                                    clip: true
+                                    Image {
+                                        id: typimage
+                                        anchors.left: parent.left
+                                        anchors.leftMargin: 20
+                                        anchors.verticalCenter: parent.verticalCenter
+
+                                        fillMode: Image.PreserveAspectFit
+                                        source: geticonname(transactiontypeno)
+                                    }
+                                    Label {
+                                        text: transactiontype
+                                        anchors.leftMargin: 8
+                                        anchors.rightMargin: 8
+                                        anchors.left: typimage.right
+                                        anchors.right: parent.right
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        font.weight: Font.Normal
+                                        font.family: "Montserrat"
+                                        font.pixelSize: 14
+                                        color: "#202124"
+                                    }
+                                    ToolTip.delay: 1000
+                                    ToolTip.timeout: 5000
+                                    ToolTip.visible: hovered
+                                    ToolTip.text: transactiontype+"\n"+tooltip
+                                    MouseArea {
+                                        anchors.fill: parent
+                                        acceptedButtons: Qt.RightButton
+                                        hoverEnabled: true
+                                        onClicked: {
+                                            contextMenutyp.x = mouse.x;
+                                            contextMenutyp.y = mouse.y;
+                                            contextMenutyp.open();
+                                        }
+                                        onPressAndHold: {
+                                            if (mouse.source === Qt.MouseEventNotSynthesized) {
+                                                contextMenutyp.x = mouse.x;
+                                                contextMenutyp.y = mouse.y;
+                                                contextMenutyp.open();
+                                            }
+                                        }
+                                    }
+                                    Menu {
+                                        id: contextMenutyp
+                                        MenuItem {
+                                            text: "Copy type"
+                                            onTriggered: {
+                                                copytextfield.text=transactiontype
+                                                copytextfield.selectAll()
+                                                copytextfield.copy()
+                                            }
+                                        }
+                                    }
+                                    onDoubleClicked: {
+                                        showtxdetailsintern(index)
+                                    }
+                                }
+                                ItemDelegate {
+                                    property int column: 2
+                                    width: addresswidth
+                                    text: ""
+                                    Label {
+                                        text: transactionaddress
+                                        anchors.leftMargin: 20
+                                        anchors.rightMargin: 8
+                                        anchors.left: parent.left
+                                        anchors.right: parent.right
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        font.weight: Font.Normal
+                                        font.family: "Montserrat"
+                                        font.pixelSize: 14
+                                        color: "#202124"
+                                    }
+                                    clip: true
+                                    ToolTip.delay: 1000
+                                    ToolTip.timeout: 5000
+                                    ToolTip.visible: hovered
+                                    ToolTip.text: transactionaddress+"\n"+tooltip
+                                    MouseArea {
+                                        anchors.fill: parent
+                                        acceptedButtons: Qt.RightButton
+                                        hoverEnabled: true
+                                        onClicked: {
+                                            contextMenuaddress.x = mouse.x;
+                                            contextMenuaddress.y = mouse.y;
+                                            contextMenuaddress.open();
+                                        }
+                                        onPressAndHold: {
+                                            if (mouse.source === Qt.MouseEventNotSynthesized) {
+                                                contextMenuaddress.x = mouse.x;
+                                                contextMenuaddress.y = mouse.y;
+                                                contextMenuaddress.open();
+                                            }
+                                        }
+                                    }
+                                    Menu {
+                                        id: contextMenuaddress
+                                        MenuItem {
+                                            text: "Copy address"
+                                            onTriggered: {
+                                                copytextfield.text=transactionaddress
+                                                copytextfield.selectAll()
+                                                copytextfield.copy()
+                                            }
+                                        }
+                                    }
+                                    onDoubleClicked: {
+                                        showtxdetailsintern(index)
+                                    }
+                                }
+                                ItemDelegate {
+                                    property int column: 3
+                                    width: transactionsForm.width-datewidth-typewidth-addresswidth-amountwidth-amountusdwidth-30-30
+                                    text: ""
+                                    Label {
+                                        text: transactionreferenceline
+                                        anchors.leftMargin: 20
+                                        anchors.rightMargin: 8
+                                        anchors.left: parent.left
+                                        anchors.right: parent.right
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        font.weight: Font.Normal
+                                        font.family: "Montserrat"
+                                        font.pixelSize: 14
+                                        color: "#202124"
+                                    }
+                                    clip: true
+                                    ToolTip.delay: 1000
+                                    ToolTip.timeout: 5000
+                                    ToolTip.visible: hovered
+                                    ToolTip.text: transactionreferenceline+"\n"+tooltip
+                                    MouseArea {
+                                        anchors.fill: parent
+                                        acceptedButtons: Qt.RightButton
+                                        hoverEnabled: true
+                                        onClicked: {
+                                            contextMenurefline.x = mouse.x;
+                                            contextMenurefline.y = mouse.y;
+                                            contextMenurefline.open();
+                                        }
+                                        onPressAndHold: {
+                                            if (mouse.source === Qt.MouseEventNotSynthesized) {
+                                                contextMenurefline.x = mouse.x;
+                                                contextMenurefline.y = mouse.y;
+                                                contextMenurefline.open();
+                                            }
+                                        }
+                                    }
+                                    Menu {
+                                        id: contextMenurefline
+                                        MenuItem {
+                                            text: "Copy description"
+                                            onTriggered: {
+                                                copytextfield.text=transactionreferenceline
+                                                copytextfield.selectAll()
+                                                copytextfield.copy()
+                                            }
+                                        }
+                                    }
+                                    onDoubleClicked: {
+                                        showtxdetailsintern(index)
+                                    }
+                                }
+                                ItemDelegate {
+                                    property int column: 4
+                                    width: amountwidth
+                                    text: ""
+                                    Label {
+                                        text: transactionamountbitc
+                                        anchors.leftMargin: 8
+                                        anchors.rightMargin: 20
+                                        anchors.left: parent.left
+                                        anchors.right: parent.right
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        horizontalAlignment: Text.AlignRight
+                                        font.weight: Font.Bold
+                                        font.family: "Montserrat"
+                                        font.pixelSize: 14
+                                        color: "#202124"
+                                    }
+                                    clip: true
+                                    ToolTip.delay: 1000
+                                    ToolTip.timeout: 5000
+                                    ToolTip.visible: hovered
+                                    ToolTip.text: transactionamountbitc+"\n"+tooltip
+                                    MouseArea {
+                                        anchors.fill: parent
+                                        acceptedButtons: Qt.RightButton
+                                        hoverEnabled: true
+                                        onClicked: {
+                                            contextMenuamount.x = mouse.x;
+                                            contextMenuamount.y = mouse.y;
+                                            contextMenuamount.open();
+                                        }
+                                        onPressAndHold: {
+                                            if (mouse.source === Qt.MouseEventNotSynthesized) {
+                                                contextMenuamount.x = mouse.x;
+                                                contextMenuamount.y = mouse.y;
+                                                contextMenuamount.open();
+                                            }
+                                        }
+                                    }
+                                    Menu {
+                                        id: contextMenuamount
+                                        MenuItem {
+                                            text: "Copy amount BITC"
+                                            onTriggered: {
+                                                copytextfield.text= transactionamountbitc
+                                                copytextfield.selectAll()
+                                                copytextfield.copy()
+                                            }
+                                        }
+                                    }
+                                    onDoubleClicked: {
+                                        showtxdetailsintern(index)
+                                    }
+                                }
+                                ItemDelegate {
+                                    property int column: 5
+                                    width: amountusdwidth
+                                    text: ""
+                                    Label {
+                                        text: transactionamountusd
+                                        anchors.leftMargin: 8
+                                        anchors.rightMargin: 20
+                                        anchors.left: parent.left
+                                        anchors.right: parent.right
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        horizontalAlignment: Text.AlignRight
+                                        font.weight: Font.Bold
+                                        font.family: "Montserrat"
+                                        font.pixelSize: 14
+                                        color: "#202124"
+                                    }
+                                    clip: true
+                                    ToolTip.delay: 1000
+                                    ToolTip.timeout: 5000
+                                    ToolTip.visible: hovered
+                                    ToolTip.text: transactionamountusd+"\n"+tooltip
+                                    MouseArea {
+                                        anchors.fill: parent
+                                        acceptedButtons: Qt.RightButton
+                                        hoverEnabled: true
+                                        onClicked: {
+                                            contextMenuamountusd.x = mouse.x;
+                                            contextMenuamountusd.y = mouse.y;
+                                            contextMenuamountusd.open();
+                                        }
+                                        onPressAndHold: {
+                                            if (mouse.source === Qt.MouseEventNotSynthesized) {
+                                                contextMenuamountusd.x = mouse.x;
+                                                contextMenuamountusd.y = mouse.y;
+                                                contextMenuamountusd.open();
+                                            }
+                                        }
+                                    }
+                                    Menu {
+                                        id: contextMenuamountusd
+                                        MenuItem {
+                                            text: "Copy amount USD"
+                                            onTriggered: {
+                                                copytextfield.text=transactionamountusd
+                                                copytextfield.selectAll()
+                                                copytextfield.copy()
+                                            }
+                                        }
+                                    }
+                                    onDoubleClicked: {
+                                        showtxdetailsintern(index)
+                                    }
+                                }
+
+                        }
+                        Rectangle {
+                            width: parent.width
+                            height: 1
+                            color: Material.accent
+                        }
+                    }
+
+                    ScrollIndicator.horizontal: ScrollIndicator { }
+                    ScrollIndicator.vertical: ScrollIndicator { }
+            }
+
+            MenuTextField {
+                id: filterEdit
+                y: 31
+                height: 44
+                text: ""
+                font.pixelSize: 14
+                font.family: "Montserrat"
+                placeholderText: "Search for address, transaction id or description..."
+                bottomPadding: 10
+                topPadding: 10
+                rightPadding: 16
+                leftPadding: 46
+                anchors.topMargin: 30
+                anchors.top:parent.top
+                anchors.right: downloadlistbtn.left
+                anchors.rightMargin: 20
+                anchors.left: dateselect.right
+                anchors.leftMargin: 20
+                selectByMouse: true
+                onTextChanged: filtereditchangedsignalintern(text)
+                background: Rectangle
+                {
+                    radius: 3
+                    border.width: 1
+                    border.color: "#eeeeef"
+                    Image {
+                        anchors.verticalCenter: parent.verticalCenter
+                        anchors.left: parent.left
+                        anchors.leftMargin: 20
+                        fillMode: Image.PreserveAspectFit
+                        source: "../res/assets/Miscellaneous/search.png"
+                    }
+
+                }
+
+            }
+
+            Rectangle {
+                id: detaildialog
+                width: 600
+                height: 500
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.verticalCenter: parent.verticalCenter
+                color:Material.background
+                radius: 10
+                border.width: 3
+                visible: false
+
+                TextArea{
+                    id: detailarea
+                    textFormat: Text.RichText
+                    readOnly: true
+                    anchors.left:parent.left
+                    anchors.leftMargin: 10
+                    anchors.top:parent.top
+                    anchors.topMargin: 10
+                    anchors.right: parent.right
+                    anchors.rightMargin: 10
+                    anchors.bottom:parent.bottom
+                    anchors.bottomMargin: 70
+                    selectByMouse: true
+                    wrapMode: TextEdit.Wrap
+                }
+                Button{
+                    text: "Ok"
+                    anchors.horizontalCenterOffset: -100
+                    id: okBtn
+                    anchors.top:detailarea.bottom
+                    anchors.topMargin: 10
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    onClicked: detaildialog.visible=false
+                }
+                Button{
+                    text: "Copy TX ID"
+                    anchors.left: okBtn.right
+                    anchors.leftMargin: 20
+                    id: copyTxIdBtn
+                    anchors.top:detailarea.bottom
+                    anchors.topMargin: 10
+                    onClicked: {
+                        copytextfieldlinks.text = txidtext
+                        copytextfieldlinks.selectAll()
+                        copytextfieldlinks.copy()
+                        text = "Copied"
+                        timer.setTimeout(function(){
+                            text = "Copy TX ID"
+                        }, 3000);
+                    }
+                }
+                Button{
+                    text: "Abandon"
+                    anchors.left: copyTxIdBtn.right
+                    anchors.leftMargin: 20
+                    id: removeBtn
+                    anchors.top:detailarea.bottom
+                    anchors.topMargin: 10
+                    onClicked:abandonTxSignalintern(txidtext)
+                }
+
+            }
+
+            ComboBox {
+                currentIndex: 4
+                id: dateselect
+                onActivated: datefiltersignalintern(index)
+                width: 200
+                font.pixelSize: 14
+                font.family: "Montserrat"
+                anchors.top: parent.top
+                anchors.topMargin: 28
+                anchors.left: parent.left
+                anchors.leftMargin: 30
+                textRole: "key"
+                model: ListModel {
+                       ListElement { key: "Last month"; value: 1 }
+                       ListElement { key: "Last 3 months"; value: 2 }
+                       ListElement { key: "Last 6 months"; value: 3 }
+                       ListElement { key: "Last year"; value: 4 }
+                       ListElement { key: "Anytime"; value: 5 }
+                }
+            }
+
+
+            Button {
+                id: downloadlistbtn
+                anchors.right: parent.right
+                anchors.rightMargin: 40
+                anchors.verticalCenter: filterEdit.verticalCenter
+                width: 207
+                onClicked: {
+                    downloadtransactionsSignalintern()
+                }
+                y: 13
+                background: Image {
+                    id: imageforbutton
+                    fillMode: Image.PreserveAspectFit
+                    source: "../res/assets/Miscellaneous/download.png"
+                    Label {
+                        id: labelforbutton
+                        color: "#3e45ac"
+                        text: qsTr("Download list of transactions")
+                        font.weight: Font.DemiBold
+                        anchors.verticalCenterOffset: 0
+                        font.pixelSize: 13
+                        font.family: "Montserrat SemiBold"
+                        anchors.left: parent.right
+                        anchors.leftMargin: 10
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+                }
+            }
+        } /////////////////// ENDE: transaction history
+
+        Item {//////////// Generated links
             id: anyonelinke
-////////////
 
             Row {
                 id: headerlinks
@@ -876,99 +886,99 @@ Item {
                     padding: 10
                     background: Rectangle { color: "#ebebeb" }
                 }
-                                Label {
-                                    width: transactionsForm.width-amountwidthan-linkwidthan-btnswidth2an-btnswidthan-datewidthan-currencywidthan-30-30
-                                    height: 44
-                                    text: "Description"
-                                    verticalAlignment: Text.AlignVCenter
-                                    anchors.verticalCenter: parent.verticalCenter
-                                    rightPadding: 20
-                                    leftPadding: 20
-                                    font.weight: Font.DemiBold
-                                    font.pixelSize: 13
-                                    font.family: "Montserrat SemiBold"
-                                    color:"#202124"
-                                    padding: 10
-                                    background: Rectangle { color: "#ebebeb" }
-                                }
+                Label {
+                    width: transactionsForm.width-amountwidthan-linkwidthan-btnswidth2an-btnswidthan-datewidthan-currencywidthan-30-30
+                    height: 44
+                    text: "Description"
+                    verticalAlignment: Text.AlignVCenter
+                    anchors.verticalCenter: parent.verticalCenter
+                    rightPadding: 20
+                    leftPadding: 20
+                    font.weight: Font.DemiBold
+                    font.pixelSize: 13
+                    font.family: "Montserrat SemiBold"
+                    color:"#202124"
+                    padding: 10
+                    background: Rectangle { color: "#ebebeb" }
+                }
 
-                                Label {
-                                    width: linkwidthan
-                                    height: 44
-                                    text: "Link"
-                                    verticalAlignment: Text.AlignVCenter
-                                    anchors.verticalCenter: parent.verticalCenter
-                                    rightPadding: 20
-                                    leftPadding: 20
-                                    font.weight: Font.DemiBold
-                                    font.pixelSize: 13
-                                    font.family: "Montserrat SemiBold"
-                                    color:"#202124"
-                                    padding: 10
-                                    background: Rectangle { color: "#ebebeb" }
-                                }
-                                Label {
-                                    width: btnswidthan
-                                    height: 44
-                                    text: ""
-                                    verticalAlignment: Text.AlignVCenter
-                                    anchors.verticalCenter: parent.verticalCenter
-                                    rightPadding: 20
-                                    leftPadding: 20
-                                    font.weight: Font.DemiBold
-                                    font.pixelSize: 13
-                                    font.family: "Montserrat SemiBold"
-                                    color:"black"
-                                    padding: 10
-                                    background: Rectangle { color: "#ebebeb" }
-                                }
-                                Label {
-                                    width: amountwidthan
-                                    height: 44
-                                    text: "Amount"
-                                    verticalAlignment: Text.AlignVCenter
-                                    anchors.verticalCenter: parent.verticalCenter
-                                    rightPadding: 20
-                                    leftPadding: 20
-                                    font.weight: Font.DemiBold
-                                    horizontalAlignment: Text.AlignRight
-                                    font.pixelSize: 13
-                                    font.family: "Montserrat SemiBold"
-                                    color:"black"
-                                    padding: 10
-                                    background: Rectangle { color: "#ebebeb" }
-                                }
-                                Label {
-                                    width: currencywidthan
-                                    height: 44
-                                    text: ""
-                                    verticalAlignment: Text.AlignVCenter
-                                    anchors.verticalCenter: parent.verticalCenter
-                                    rightPadding: 20
-                                    leftPadding: 20
-                                    font.weight: Font.DemiBold
-                                    horizontalAlignment: Text.AlignRight
-                                    font.pixelSize: 13
-                                    font.family: "Montserrat SemiBold"
-                                    color:"black"
-                                    padding: 10
-                                    background: Rectangle { color: "#ebebeb" }
-                                }
-                                Label {
-                                    width: btnswidth2an
-                                    height: 44
-                                    text: ""
-                                    verticalAlignment: Text.AlignVCenter
-                                    anchors.verticalCenter: parent.verticalCenter
-                                    rightPadding: 20
-                                    leftPadding: 20
-                                    font.weight: Font.DemiBold
-                                    font.pixelSize: 13
-                                    font.family: "Montserrat SemiBold"
-                                    color:"black"
-                                    padding: 10
-                                    background: Rectangle { color: "#ebebeb" }
-                                }
+                Label {
+                    width: linkwidthan
+                    height: 44
+                    text: "Link"
+                    verticalAlignment: Text.AlignVCenter
+                    anchors.verticalCenter: parent.verticalCenter
+                    rightPadding: 20
+                    leftPadding: 20
+                    font.weight: Font.DemiBold
+                    font.pixelSize: 13
+                    font.family: "Montserrat SemiBold"
+                    color:"#202124"
+                    padding: 10
+                    background: Rectangle { color: "#ebebeb" }
+                }
+                Label {
+                    width: btnswidthan
+                    height: 44
+                    text: ""
+                    verticalAlignment: Text.AlignVCenter
+                    anchors.verticalCenter: parent.verticalCenter
+                    rightPadding: 20
+                    leftPadding: 20
+                    font.weight: Font.DemiBold
+                    font.pixelSize: 13
+                    font.family: "Montserrat SemiBold"
+                    color:"black"
+                    padding: 10
+                    background: Rectangle { color: "#ebebeb" }
+                }
+                Label {
+                    width: amountwidthan
+                    height: 44
+                    text: "Amount"
+                    verticalAlignment: Text.AlignVCenter
+                    anchors.verticalCenter: parent.verticalCenter
+                    rightPadding: 20
+                    leftPadding: 20
+                    font.weight: Font.DemiBold
+                    horizontalAlignment: Text.AlignRight
+                    font.pixelSize: 13
+                    font.family: "Montserrat SemiBold"
+                    color:"black"
+                    padding: 10
+                    background: Rectangle { color: "#ebebeb" }
+                }
+                Label {
+                    width: currencywidthan
+                    height: 44
+                    text: ""
+                    verticalAlignment: Text.AlignVCenter
+                    anchors.verticalCenter: parent.verticalCenter
+                    rightPadding: 20
+                    leftPadding: 20
+                    font.weight: Font.DemiBold
+                    horizontalAlignment: Text.AlignRight
+                    font.pixelSize: 13
+                    font.family: "Montserrat SemiBold"
+                    color:"black"
+                    padding: 10
+                    background: Rectangle { color: "#ebebeb" }
+                }
+                Label {
+                    width: btnswidth2an
+                    height: 44
+                    text: ""
+                    verticalAlignment: Text.AlignVCenter
+                    anchors.verticalCenter: parent.verticalCenter
+                    rightPadding: 20
+                    leftPadding: 20
+                    font.weight: Font.DemiBold
+                    font.pixelSize: 13
+                    font.family: "Montserrat SemiBold"
+                    color:"black"
+                    padding: 10
+                    background: Rectangle { color: "#ebebeb" }
+                }
             }
 
             TextField
@@ -1491,7 +1501,18 @@ Item {
                 }
 
             }
-///////////////
+        }/////////////// END generated links
+
+        PrinteStatements {
+            id: printstatements
+            printbtn.onClicked: {
+                var currencyforstatement = 0;
+                if (radioButtonDollar.checked) {
+                    currencyforstatement = 1;
+                }
+
+                printstatementsignalintern(spinBox.value, spinBoxyear.value, currencyforstatement)
+            }
         }
   }
 

@@ -616,12 +616,24 @@ QVariant TransactionTableModel::data(const QModelIndex &index, int role) const
             return rec->time;
         case Type:
             return formatTxType(rec);
+        case Ismined:
+            if (rec->status.status == TransactionStatus::Confirming || rec->status.status == TransactionStatus::Confirmed || rec->status.status == TransactionStatus::Immature)
+            {
+                return (true);
+            } else
+            {
+                return (false);
+            }
         case Watchonly:
             return (rec->involvesWatchAddress ? 1 : 0);
         case ToAddress:
             return formatTxToAddress(rec, true);
         case Amount:
             return qint64(rec->credit + rec->debit);
+        case Amountusd:
+            return qint64(rec->creditusd + rec->debitusd);
+        case Amountbitc:
+            return qint64(rec->creditbitc + rec->debitbitc);
         }
         break;
     case Qt::ToolTipRole:

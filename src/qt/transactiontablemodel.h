@@ -42,6 +42,7 @@ public:
         Amountusd = 7,
         Amount = 8,
         Currency = 9,
+        Ismined = 10
     };
 
     /** Roles to get specific information from a transaction row.

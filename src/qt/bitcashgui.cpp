@@ -18,6 +18,7 @@
 #include <qt/rpcconsole.h>
 #include <qt/utilitydialog.h>
 #include <qt/transactiondescdialog.h>
+#include <qt/transactiontablemodel.h>
 
 #ifdef ENABLE_WALLET
 #include <qt/walletframe.h>
@@ -200,6 +201,276 @@ std::string timestr(time_t t) {
    std::stringstream strm;
    strm << t;
    return strm.str();
+}
+
+struct TTransaction {
+    qint64 timestamp;
+    CAmount amount;
+    QString desc, typestr, toaddressstr, amountstr, datestr;
+    bool displayaddress;
+};
+
+void BitcashGUI::printStatementsBtnClicked(int month, int year, int currency)
+{
+    std::list<TTransaction> transactions;
+    TTransaction trans;
+
+    WalletModel * const walletModel = getCurrentWalletModel();
+    if (!walletModel) return;
+
+    TransactionTableModel *ttm = walletModel->getTransactionTableModel();
+    if (!ttm || ttm->processingQueuedTransactions())
+        return;
+
+    CAmount balancenow = walletModel->wallet().getBalance(currency);
+    CAmount balanceafter = 0;
+    CAmount balancetosubstract = 0;
+    CAmount sentamount = 0;
+    CAmount receivedamount = 0;
+
+//    std::cout << "Balance" << FormatMoney(balancenow) << std::endl;
+
+    QDateTime firstdayofmonth = QDateTime(QDate(year, month, 1), QTime(0,0));
+    QDateTime lastdayofmonth =  firstdayofmonth.addMonths(1);
+    qint64 unixtimefrom = firstdayofmonth.toSecsSinceEpoch();
+    qint64 unixtimeto = lastdayofmonth.toSecsSinceEpoch() - 1;
+    lastdayofmonth = lastdayofmonth.addDays(-1);
+
+    int rows = ttm->rowCount({});
+    for (int row = 0; row < rows; ++row) {
+        QModelIndex index = ttm->index(row, TransactionTableModel::Date, {});
+        qint64 unixtime = ttm->data(index, Qt::EditRole).toInt();
+        if (currency == 1) {
+            index = ttm->index(row, TransactionTableModel::Amountusd, {});
+        } else  {
+            index = ttm->index(row, TransactionTableModel::Amountbitc, {});
+        }
+        CAmount amount = ttm->data(index, Qt::EditRole).toLongLong();
+
+        if (unixtime >= unixtimefrom && unixtime <= unixtimeto) {
+            
+            index = ttm->index(row, TransactionTableModel::Ismined, {});
+            bool ismined = ttm->data(index, Qt::EditRole).toBool();         
+            bool displayaddress = false;
+
+            if (ismined && amount != 0) {
+           
+                QString amountstr = "";
+                if (currency == 1) {
+                    index = ttm->index(row, TransactionTableModel::Amountusd, {});
+                    amountstr = ttm->data(index, Qt::DisplayRole).toString();
+
+                    //std::cout << "USD:" << amountusdstr.toStdString() << std::endl;
+                } else  {
+                    index = ttm->index(row, TransactionTableModel::Amountbitc, {});
+                    amountstr = ttm->data(index, Qt::DisplayRole).toString();
+
+                    //std::cout << "BITC:" << amountstr.toStdString() << std::endl;
+                }
+                index = ttm->index(row, TransactionTableModel::Date, {});
+                QString datestr = ttm->data(index, Qt::DisplayRole).toString();
+                //std::cout << "Date:" << dater.toStdString() << std::endl;
+
+                index = ttm->index(row, TransactionTableModel::Type, {});
+                displayaddress = (ttm->data(index, TransactionTableModel::TableTypeAsNumberRole).toInt() == 1);
+
+                index = ttm->index(row, TransactionTableModel::Type, {});
+                QString typestr = ttm->data(index, Qt::DisplayRole).toString();
+
+                QString toaddressstr = "";
+                if (amount < 0) {
+                    index = ttm->index(row, TransactionTableModel::ToAddress, {});
+                    toaddressstr = ttm->data(index, Qt::DisplayRole).toString();
+                    //std::cout << "ToAddress:" << toaddressstr.toStdString() << std::endl;
+                }
+
+                index = ttm->index(row, TransactionTableModel::ReferenceLine, {});
+                QString desc = ttm->data(index, Qt::DisplayRole).toString();
+                //std::cout << "desc:" << desc.toStdString() << std::endl;
+
+                balancetosubstract += amount;
+                trans.timestamp = unixtime;
+                trans.amount = amount;
+                if (amount < 0) {
+                    sentamount += amount;
+                } else {
+                    receivedamount += amount;
+                }
+                trans.desc = desc;
+                trans.typestr = typestr;
+                trans.toaddressstr = toaddressstr;
+                trans.amountstr = amountstr;
+                trans.datestr = datestr;
+                trans.displayaddress = displayaddress;
+                transactions.push_back(trans);
+            }
+        } else
+        if (unixtime > unixtimeto) {
+            balanceafter += amount;
+        }
+    }
+    
+    if (transactions.size() == 0)
+    {
+        QMessageBox::StandardButton reply = QMessageBox::question(this, "No transactions for this month", 
+                                            "There are no transactions for the selected month. Do you want to print the eStatement anyway?", QMessageBox::Yes|QMessageBox::No);
+        if (reply == QMessageBox::No) {
+            return;
+        }
+
+    }
+
+
+//    std::cout << "Balance to substract" << FormatMoney(balancetosubstract) << std::endl;
+//    std::cout << "Balance after" << FormatMoney(balanceafter) << std::endl;
+    CAmount balanceatthebeginning = balancenow - balanceafter - balancetosubstract;
+    CAmount balanceattheend = balancenow - balanceafter;
+//    std::cout << "Balance at the beginning" << FormatMoney(balanceatthebeginning) << std::endl;
+//    std::cout << "Balance at the end" << FormatMoney(balanceattheend) << std::endl;
+
+    transactions.sort([](const TTransaction & a, const TTransaction & b) { return a.timestamp < b.timestamp; });
+
+    QPrinter printer;
+
+    QPrintDialog *dialog = new QPrintDialog(&printer, this);
+    dialog->setWindowTitle(tr("Print eStatement"));
+    if (dialog->exec() != QDialog::Accepted)
+        return;
+    
+    QPainter painter;
+    painter.begin(&printer);
+
+
+    int x, y, margintop, y2, x2, marginright, x3, pagebreakaty, apage, pagenumbery, headery;
+
+    painter.setFont(QFont("Montserrat DemiBold", 14));
+
+    x = 0.5 * printer.resolution();
+    y = 0.5 * printer.resolution() + painter.font().pointSize();
+    x2 = x + printer.resolution();
+    marginright = printer.pageRect().width() - 0.5 * printer.resolution();
+    pagebreakaty = printer.pageRect().height() - 2 * printer.resolution();
+    pagenumbery = printer.pageRect().height() - 0.25 * printer.resolution();
+    headery = 0.25 * printer.resolution();
+
+    x3 = marginright - 1.5 * printer.resolution();
+    margintop = y;
+
+    painter.setPen(QColor(0x20,0x21,0x24));
+    QString currstr;
+    if (currency == 1) currstr = "BitCash Dollar"; else currstr = "BitCash";
+    painter.drawText(x, y, QString(currstr + " eStatement %1/%2").arg(QString::number(month)).arg(QString::number(year)));
+    y = y + painter.font().pointSize() * 1.5;
+    y = y + painter.font().pointSize() * 1.5;
+
+    painter.setFont(QFont("Montserrat", 11));
+
+    QDateTime dt;
+    QDate lastdate;
+    QRect boundingRect;
+    bool isfirst = true;
+
+    apage = 1;
+    
+    painter.setFont(QFont("Montserrat", 9));
+
+    painter.drawText(QRect(x, pagenumbery - painter.font().pointSize() * 1.5, marginright - x, 100000000), Qt::AlignHCenter, QString("- Page %1 -").arg(QString::number(apage)));
+    painter.drawText(QRect(x, headery - painter.font().pointSize() * 1.5, marginright - x, 100000000), Qt::AlignHCenter, 
+                        QString(currstr + " eStatement %1/%2").arg(QString::number(month)).arg(QString::number(year)));
+
+    painter.setFont(QFont("Montserrat", 11));
+
+    if (balanceatthebeginning < 0)
+        painter.setPen(QColor(0xa2,0x06,0x35));
+    else
+        painter.setPen(QColor(0x06,0x72,0x35));
+
+    painter.drawText(QRect(x2, y - painter.font().pointSize()*1.5, marginright - x2, 100000000), Qt::AlignRight | 
+                Qt::TextWrapAnywhere, QString("Balance on " + firstdayofmonth.date().toString(Qt::SystemLocaleShortDate)+": "+QString::fromStdString(FormatMoney(balanceatthebeginning))));
+    painter.setPen(QColor(0x20,0x21,0x24));
+    y = y + painter.font().pointSize() * 2.0;
+
+
+    for (const auto& atrans : transactions)
+    {
+//    QString desc, typestr, toaddressstr, amountstr, datestr;
+        dt.setTime_t(atrans.timestamp);
+
+        if (y > pagebreakaty) {
+            printer.newPage();
+            apage++;
+            isfirst = true;
+            y = margintop;
+            painter.setFont(QFont("Montserrat", 9));
+            painter.drawText(QRect(x, pagenumbery - painter.font().pointSize() * 1.5, marginright - x, 100000000), Qt::AlignHCenter, QString("- Page %1 -").arg(QString::number(apage)));
+            painter.drawText(QRect(x, headery - painter.font().pointSize() * 1.5, marginright - x, 100000000), Qt::AlignHCenter, 
+                         QString(currstr + " eStatement %1/%2").arg(QString::number(month)).arg(QString::number(year)));
+
+
+            painter.setFont(QFont("Montserrat", 11));
+        }
+
+        if (isfirst || dt.date() != lastdate)
+        {
+            painter.setFont(QFont("Montserrat DemiBold", 11));
+            painter.drawText(x, y, dt.date().toString(Qt::SystemLocaleShortDate));
+            y = y + painter.font().pointSize() * 2.0;
+            painter.setFont(QFont("Montserrat", 11));
+        }
+        isfirst = false;
+        lastdate = dt.date();
+
+        painter.drawText(x, y, dt.toString("hh:mm"));
+        //y = y + painter.font().pointSize()*1.5;
+
+        if (atrans.amount < 0)
+            painter.setPen(QColor(0xa2,0x06,0x35));
+        else
+            painter.setPen(QColor(0x06,0x72,0x35));
+
+        painter.drawText(QRect(x2, y - painter.font().pointSize()*1.5, marginright - x2, 100000000), Qt::AlignRight | Qt::TextWrapAnywhere, atrans.amountstr);
+
+        painter.setPen(QColor(0x20,0x21,0x24));
+
+        painter.drawText(QRect(x2, y - painter.font().pointSize() * 1.5, x3 - x2, 100000000), Qt::AlignLeft | Qt::TextWrapAnywhere, atrans.typestr, &boundingRect);
+        y = y + boundingRect.height() + painter.font().pointSize() * 0.5;
+
+        if (atrans.displayaddress) {
+            painter.drawText(QRect(x2, y - painter.font().pointSize() * 1.5, x3 - x2, 100000000), Qt::AlignLeft | Qt::TextWrapAnywhere, "To: " + atrans.toaddressstr, &boundingRect);
+            y = y + boundingRect.height() + painter.font().pointSize() * 0.5;
+        }
+
+        if (atrans.desc != "") {
+            painter.setFont(QFont("Montserrat DemiBold", 11));
+            y = y + painter.font().pointSize() * 0.5;
+            painter.drawText(QRect(x2, y - painter.font().pointSize() * 1.5, x3 - x2, 100000000), Qt::AlignLeft | Qt::TextWrapAnywhere, atrans.desc, &boundingRect);
+            y = y + boundingRect.height();
+            painter.setFont(QFont("Montserrat", 11));
+        }
+        y = y + painter.font().pointSize() * 1.5;
+    }
+
+    if (balanceattheend < 0)
+        painter.setPen(QColor(0xa2,0x06,0x35));
+    else
+        painter.setPen(QColor(0x06,0x72,0x35));
+
+    painter.drawText(QRect(x2, y - painter.font().pointSize()*1.5, marginright - x2, 100000000), Qt::AlignRight | 
+                Qt::TextWrapAnywhere, QString("Balance on " + lastdayofmonth.date().toString(Qt::SystemLocaleShortDate)+": "+QString::fromStdString(FormatMoney(balanceattheend))));
+    painter.setPen(QColor(0x20,0x21,0x24));
+    y = y + painter.font().pointSize() * 2.0;
+
+    painter.drawText(QRect(x2, y - painter.font().pointSize()*1.5, marginright - x2, 100000000), Qt::AlignRight | 
+                Qt::TextWrapAnywhere, QString("Sum sent: "+QString::fromStdString(FormatMoney(sentamount))));
+    painter.setPen(QColor(0x20,0x21,0x24));
+    y = y + painter.font().pointSize() * 2.0;
+    painter.drawText(QRect(x2, y - painter.font().pointSize()*1.5, marginright - x2, 100000000), Qt::AlignRight | 
+                Qt::TextWrapAnywhere, QString("Sum received: "+QString::fromStdString(FormatMoney(receivedamount))));
+    painter.setPen(QColor(0x20,0x21,0x24));
+    y = y + painter.font().pointSize() * 2.0;
+
+    painter.end();
+
 }
 
 void BitcashGUI::printfrontbillClicked()
@@ -2321,6 +2592,8 @@ BitcashGUI::BitcashGUI(interfaces::Node& node, const PlatformStyle *_platformSty
                       this, SLOT(printfrontbillClicked()));
     QObject::connect(qmlrootitem, SIGNAL(printbackbillSignal()),
                       this, SLOT(printbackbillClicked()));
+    QObject::connect(qmlrootitem, SIGNAL(printstatementsignal(int, int, int)),
+                      this, SLOT(printStatementsBtnClicked(int, int, int)));
 
     QTimer *timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(recurringpayments()));
@@ -2348,6 +2621,11 @@ BitcashGUI::BitcashGUI(interfaces::Node& node, const PlatformStyle *_platformSty
     fs::path path=GetWalletDir() / "wallet.dat";
     QVariant folder=QString::fromStdString(path.string());
     QMetaObject::invokeMethod(qmlrootitem, "setwalletfolder", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, folder));
+    
+    QVariant month = QDate::currentDate().month();
+    QVariant year = QDate::currentDate().year();
+    QMetaObject::invokeMethod(qmlrootitem, "setactualmonthandyear", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, month), Q_ARG(QVariant, year));
+
 
     miningtimer = new QTimer(this);
     connect(miningtimer, SIGNAL(timeout()), this, SLOT(updateminingstats()));    

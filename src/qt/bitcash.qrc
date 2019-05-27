@@ -314,5 +314,6 @@
         <file>res/assets/bills/bill2back.png</file>
         <file>res/assets/bills/bill1front.png</file>
         <file>res/assets/bills/bill1back.png</file>
+        <file>forms/PrinteStatements.qml</file>
     </qresource>
 </RCC>
