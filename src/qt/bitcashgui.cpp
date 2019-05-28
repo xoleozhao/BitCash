@@ -376,7 +376,21 @@ void BitcashGUI::printStatementsBtnClicked(int month, int year, int currency)
 
     painter.drawText(QRect(x, pagenumbery - painter.font().pointSize() * 1.5, marginright - x, 100000000), Qt::AlignHCenter, QString("- Page %1 -").arg(QString::number(apage)));
     painter.drawText(QRect(x, headery - painter.font().pointSize() * 1.5, marginright - x, 100000000), Qt::AlignHCenter, 
-                        QString(currstr + " eStatement %1/%2").arg(QString::number(month)).arg(QString::number(year)));
+                        QString(currstr + " eStatement %1/%2").arg(QString::number(month)).arg(QString::number(year)), &boundingRect);
+
+    QImage myImage;
+    myImage.load(":/icons/bitcash");
+
+    if (myImage.width() != 0){
+        double scale = (x / 2) / double(myImage.width());
+        painter.save();
+        painter.scale(scale, scale);
+        int picx = boundingRect.left();
+        int picy = boundingRect.top();
+        painter.drawImage(picx/scale-myImage.width(), picy/scale-myImage.height()/6, myImage);
+        painter.restore();
+    }
+
 
     painter.setFont(QFont("Montserrat", 11));
 
@@ -404,11 +418,22 @@ void BitcashGUI::printStatementsBtnClicked(int month, int year, int currency)
             painter.setFont(QFont("Montserrat", 9));
             painter.drawText(QRect(x, pagenumbery - painter.font().pointSize() * 1.5, marginright - x, 100000000), Qt::AlignHCenter, QString("- Page %1 -").arg(QString::number(apage)));
             painter.drawText(QRect(x, headery - painter.font().pointSize() * 1.5, marginright - x, 100000000), Qt::AlignHCenter, 
-                         QString(currstr + " eStatement %1/%2").arg(QString::number(month)).arg(QString::number(year)));
+                         QString(currstr + " eStatement %1/%2").arg(QString::number(month)).arg(QString::number(year)), &boundingRect);
 
+            if (myImage.width() != 0){
+                double scale = (x / 2) / double(myImage.width());
+                painter.save();
+                painter.scale(scale, scale);
+                int picx = boundingRect.left();
+                int picy = boundingRect.top();
+                painter.drawImage(picx/scale-myImage.width(), picy/scale-myImage.height()/6, myImage);
+                painter.restore();
+            }
 
             painter.setFont(QFont("Montserrat", 11));
         }
+
+        int starty = y - painter.font().pointSize() * 1.5;
 
         if (isfirst || dt.date() != lastdate)
         {
@@ -448,6 +473,16 @@ void BitcashGUI::printStatementsBtnClicked(int month, int year, int currency)
             painter.setFont(QFont("Montserrat", 11));
         }
         y = y + painter.font().pointSize() * 1.5;
+
+        int endy = y - painter.font().pointSize() * 1.5;
+
+        painter.drawLine(x2 - 5, starty, x2 - 5, endy);
+//        painter.drawLine(x3 - 5, starty, x3 - 5, endy);
+        painter.drawLine(x - 5, starty, x - 5, endy);
+        painter.drawLine(marginright + 5, starty, marginright + 5, endy);
+
+        painter.drawLine(x - 5, starty, marginright + 5, starty);
+        painter.drawLine(x - 5, endy, marginright + 5, endy);
     }
 
     if (balanceattheend < 0)
