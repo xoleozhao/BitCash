@@ -310,6 +310,15 @@ Item {
                   totalLabel.font.letterSpacing-=0.05;
                }
 
+               totalLabelDo.font.pixelSize = totalLabel.font.pixelSize
+               totalLabelDo.font.letterSpacing = totalLabel.font.letterSpacing
+               totalLabelDo.font.letterSpacing = totalLabel.font.letterSpacing
+               totalbitcashiconDo.font.pixelSize = totalbitcashicon.font.pixelSize
+
+               priceLabelDo.font.pixelSize = totalLabel.font.pixelSize
+               priceLabelDo.font.letterSpacing = totalLabel.font.letterSpacing
+               priceLabelDo.font.letterSpacing = totalLabel.font.letterSpacing
+               totalbitcashiconDo.font.pixelSize = totalbitcashicon.font.pixelSize
             }
             y: 25
             radius: 1
