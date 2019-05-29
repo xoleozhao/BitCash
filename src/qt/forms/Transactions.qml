@@ -171,7 +171,7 @@ Item {
                 elide: Text.ElideRight
             }
         }
-        TabButton {
+        /*TabButton {
             id: tabButton3
             text: qsTr("Print eStatements")
             rightPadding: 15
@@ -190,7 +190,7 @@ Item {
                 verticalAlignment: Text.AlignVCenter
                 elide: Text.ElideRight
             }
-        }
+        }*/
 
     }
 
@@ -1503,7 +1503,7 @@ Item {
             }
         }/////////////// END generated links
 
-        PrinteStatements {
+        /*PrinteStatements {
             id: printstatements
             printbtn.onClicked: {
                 var currencyforstatement = 0;
@@ -1513,7 +1513,7 @@ Item {
 
                 printstatementsignalintern(spinBox.value, spinBoxyear.value, currencyforstatement)
             }
-        }
+        }*/
   }
 
 }
