@@ -986,6 +986,8 @@ Item {
     property alias percentlabel: percentlabel
     property alias progressinfolabel: progressinfolabel
     property alias progressinfolabel2: progressinfolabel2
+    property alias fullysynced: fullysynced
+    property alias fullysyncedimage: fullysyncedimage
 
     Rectangle {
         id: statusbar
@@ -1025,6 +1027,29 @@ Item {
             font.family: "Montserrat"
             visible: false
         }
+
+        Label {
+            id: fullysynced
+            x: 1176
+            y: 14
+            color: "#1bb846"
+            text: qsTr("Fully synced.")
+            anchors.right: parent.right
+            anchors.rightMargin: 20
+            anchors.verticalCenter: parent.verticalCenter
+            font.pixelSize: 13
+            font.family: "Montserrat"
+            visible: true
+        }
+
+        Image {
+            id: fullysyncedimage
+            fillMode: Image.PreserveAspectFit
+            anchors.right: fullysynced.left
+            anchors.rightMargin: 10
+            anchors.verticalCenter: parent.verticalCenter
+            source: "../res/assets/Notification Alerts/success-icon.png"
+         }
 
         Label {
             id: progressinfolabel

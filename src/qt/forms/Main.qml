@@ -53,6 +53,8 @@ Item {
         overview.percentlabel.visible=show
         overview.progressBar.value=percent
         overview.percentlabel.text=Math.round(percent*100*100)/100+"%";
+        overview.fullysynced.visible=!show
+        overview.fullysyncedimage.visible=!show
     }        
 
     function setimportprogress(percent) {
