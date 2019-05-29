@@ -254,8 +254,8 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state, bool fChe
 
             if (!validcharacters)
                 return state.Invalid(false, REJECT_INVALID, "Bad transaction: the nickname contains invalid characters.");
-            if (checkdblnicks && DoesNicknameExist(tx.vin[i].nickname) && GetHashForNickname(tx.vin[i].nickname)!=blockhash)
-                return state.Invalid(false, REJECT_INVALID, "Bad transaction: the nickname already exists.");
+            if (checkdblnicks && DoesNicknameExist(tx.vin[i].nickname) && GetHashForNickname(tx.vin[i].nickname) != blockhash)
+                return state.Invalid(false, REJECT_INVALID, "Bad transaction: the nickname " + tx.vin[i].nickname + "already exists. New block: "+blockhash.ToString()+" Old block:"+ GetHashForNickname(tx.vin[i].nickname).ToString());
             if (!tx.vin[i].address.IsValid())
                 return state.Invalid(false, REJECT_INVALID, "Bad transaction: the address is invalid.");
 
