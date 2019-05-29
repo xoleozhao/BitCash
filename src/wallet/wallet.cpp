@@ -2892,8 +2892,10 @@ CBlockIndex* CWallet::ScanForWalletTransactions(CBlockIndex* pindexStart, CBlock
                     ret = pindex;
                     break;
                 }
-                for (size_t posInBlock = 0; posInBlock < block.vtx.size(); ++posInBlock) {
-                    AddToWalletIfInvolvingMe(block.vtx[posInBlock], pindex, posInBlock, fUpdate);
+                if (!gArgs.GetBoolArg("-donotscan", false)) {
+                    for (size_t posInBlock = 0; posInBlock < block.vtx.size(); ++posInBlock) {
+                        AddToWalletIfInvolvingMe(block.vtx[posInBlock], pindex, posInBlock, fUpdate);
+                    }
                 }
             } else {
                 ret = pindex;
