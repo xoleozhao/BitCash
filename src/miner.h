@@ -31,6 +31,10 @@ const int DEFAULT_MINING_POW_THREADS = 2;
 void GetExchangesListFromWebserver();
 CAmount GetPriceInformation();
 CAmount GetCachedPriceInformation(uint64_t cachetime);
+std::string CheckPriceServers();
+std::string GetPriceServerName(int i);
+int GetPriceServerCount();
+std::string CheckPriceServer(int i);
 
 /** Run the miner threads */
 void GenerateBitCash(interfaces::Wallet* iwallet,

@@ -615,6 +615,55 @@ CAmount GetOnePriceInformation(std::string &price, std::string &signature)
     return res;   
 }
 
+int GetPriceServerCount()
+{
+    return exchanges.size();
+}
+
+std::string GetPriceServerName(int i)
+{   
+    std::string outstr = "";
+    
+    if (i >= 0 && i < exchanges.size())
+    {
+        //get the i. element of exchanges
+	    std::set<std::string>::iterator it = exchanges.begin();
+	    std::advance(it, i);
+
+        outstr = *it;
+
+    } else outstr = "FAILED.";
+
+    return outstr;   
+}
+
+std::string CheckPriceServer(int i)
+{   
+    std::string outstr = "";
+    std::string price;
+    std::string signature;
+    
+    if (i >= 0 && i < exchanges.size())
+    {
+        //get the i. element of exchanges
+	    std::set<std::string>::iterator it = exchanges.begin();
+	    std::advance(it, i);
+        std::string ex = *it;
+
+        int64_t nTime1 = GetTimeMicros();
+        CAmount amount = GetPriceInformationFromWebserver(ex, price, signature);
+        if (amount == 0)
+        {
+            outstr += "FAILED ( " + std::to_string( ( GetTimeMicros()- nTime1 ) / 1000 ) + "ms ).";
+        } else
+        {
+            outstr += "SUCCESSFUL ( " + FormatMoney(amount) + "; " + std::to_string( ( GetTimeMicros()- nTime1 ) / 1000 ) + "ms ).";
+        }
+    } else outstr = "FAILED.";
+
+    return outstr;   
+}
+
 
 CAmount GetPriceInformation(std::string &price, std::string &signature, std::string &price2, std::string &signature2, std::string &price3, std::string &signature3)
 {   
@@ -628,10 +677,11 @@ CAmount GetPriceInformation(std::string &price, std::string &signature, std::str
         int i = rand() % size;
         i1 = i;
         //get the i. element of exchanges
-	std::set<std::string>::iterator it = exchanges.begin();
-	std::advance(it, i);
+    	std::set<std::string>::iterator it = exchanges.begin();
+	    std::advance(it, i);
         std::string ex = *it;
 
+        
         res = GetPriceInformationFromWebserver(ex, price, signature);
         count++;
     }

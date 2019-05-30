@@ -222,6 +222,34 @@ UniValue getmininginfo(const JSONRPCRequest& request)
 }
 
 
+static UniValue checkpriceservers(const JSONRPCRequest& request)
+{
+    if (request.fHelp || request.params.size() != 0)
+        throw std::runtime_error(
+            "checkpriceservers\n"
+            "Checks the status of all price servers.\n"
+            "\nResult:\n"
+            "{\n"
+            "  \"serverurl1\": \"...\"       (string) Returns the status of this price server\n"
+            "  \"serverurl2\": \"...\"       (string) Returns the status of this price server\n"
+            "}\n"
+            "\nExamples:\n"
+            + HelpExampleCli("checkpriceservers", "")
+            + HelpExampleRpc("checkpriceservers", "")
+        );
+
+
+    UniValue obj(UniValue::VOBJ);
+    int count = GetPriceServerCount(); 
+    for (int i = 0; i < count; i++)
+    {
+        obj.push_back(Pair(GetPriceServerName(i),             CheckPriceServer(i)));
+    }
+
+    return obj;
+}
+
+
 // NOTE: Unlike wallet RPC (which use BITC values), mining RPCs follow GBT (BIP 22) in using satoshi amounts
 static UniValue prioritisetransaction(const JSONRPCRequest& request)
 {
@@ -960,6 +988,7 @@ UniValue getmining(const JSONRPCRequest& request)
 static const CRPCCommand commands[] =
 { //  category              name                      actor (function)         argNames
   //  --------------------- ------------------------  -----------------------  ----------
+    { "mining",             "checkpriceservers",       &checkpriceservers,     {} },
     { "mining",             "getnetworkhashps",       &getnetworkhashps,       {"nblocks","height"} },
     { "mining",             "getmininginfo",          &getmininginfo,          {} },
     { "mining",             "prioritisetransaction",  &prioritisetransaction,  {"txid","dummy","fee_delta"} },

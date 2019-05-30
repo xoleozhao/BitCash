@@ -739,7 +739,7 @@ Item {
         }
     }
 
-    Button {
+    /*Button {
         id: helpbtn
         onClicked: helpSignal()
         anchors.right: parent.right
@@ -752,7 +752,7 @@ Item {
             fillMode: Image.PreserveAspectFit
             source: "../res/assets/Navigation/help-inactive.png"
         }
-    }
+    }*/
 
 
     Paperwallet
