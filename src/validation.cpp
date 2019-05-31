@@ -3567,7 +3567,7 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
                 return state.DoS(100, false, REJECT_INVALID, "bad-tx-version", false, "A version 5 transaction with currency information is not allowed before the time of the fork.");
             }
         } else
-        if (block.nTime > consensusParams.STABLETIME + 30 * 60) //30 minutes after the fork only version 5 transactions are allowed
+        if (block.nTime > consensusParams.STABLETIME + 60 * 5) //5 minutes after the fork only version 5 transactions are allowed
         {
             if (tx->nVersion < 5) {
                 return state.DoS(100, false, REJECT_INVALID, "bad-tx-version", false, "Only version 5 transactions with currency information are allowed after the time of the fork.");

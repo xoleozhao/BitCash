@@ -352,7 +352,7 @@ public:
         consensus.nCuckooProofSize = 42;
         consensus.X16RTIME = 1549108800;//Time of X16R fork
         consensus.NONPRIVACY = 1552176000;//Time of nonprivacy
-        consensus.STABLETIME = 1559300400;//Time of Stable coin fork
+        consensus.STABLETIME = 1559302200;//Time of Stable coin fork
 
         // The best chain should have at least this much work.
         consensus.nMinimumChainWork = uint256S("0x00");
