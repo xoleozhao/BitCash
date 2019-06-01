@@ -251,8 +251,6 @@ UniValue getaddressforprivkey(const JSONRPCRequest& request)
             "\nReturns the public address for the private key.\n"
             "\nArguments:\n"
             "1. \"privkey\"          (string, required) The private key (see dumpprivkey)\n"
-            "\nExamples:\n"
-            "\nImport the private key with rescan\n"
             + HelpExampleCli("getaddressforprivkey", "\"mykey\"") +
             "\nAs a JSON-RPC call\n"
             + HelpExampleRpc("getaddressforprivkey", "\"mykey\"")
@@ -268,6 +266,30 @@ UniValue getaddressforprivkey(const JSONRPCRequest& request)
     std::string str=EncodeDestinationHasSecondKey(dest);
     assert(key.VerifyPubKey(pubkey));
 
+    return str;
+}
+
+UniValue getaddressforpubkey(const JSONRPCRequest& request)
+{
+    CWallet * const pwallet = GetWalletForJSONRPCRequest(request);
+    if (!EnsureWalletIsAvailable(pwallet, request.fHelp)) {
+        return NullUniValue;
+    }
+
+    if (request.fHelp || request.params.size() < 1 || request.params.size() > 1)
+        throw std::runtime_error(
+            "getaddressforpubkey \"pubkey\"\n"
+            "\nReturns the public address for the public key.\n"
+            "\nArguments:\n"
+            "1. \"pubkey\"          (string, required) The public key\n"
+            + HelpExampleCli("getaddressforpubkey", "\"mykey\"") +
+            "\nAs a JSON-RPC call\n"
+            + HelpExampleRpc("getaddressforpubkey", "\"mykey\"")
+        );
+
+    CPubKey pubkey(ParseHex(request.params[0].get_str()));
+    CTxDestination dest = GetDestinationForKey(pubkey, OutputType::LEGACY);
+    std::string str = EncodeDestinationHasSecondKey(dest);
     return str;
 }
 
@@ -1038,7 +1060,6 @@ std::cout << "Private Key:" << EncodeSecret(key) << std::endl;
     }
     return EncodeSecret(vchSecret);
 }
-
 
 UniValue dumpwallet(const JSONRPCRequest& request)
 {

@@ -7107,6 +7107,7 @@ extern UniValue abortrescan(const JSONRPCRequest& request); // in rpcdump.cpp
 extern UniValue dumpprivkey(const JSONRPCRequest& request); // in rpcdump.cpp
 extern UniValue importprivkey(const JSONRPCRequest& request);
 extern UniValue getaddressforprivkey(const JSONRPCRequest& request);
+extern UniValue getaddressforpubkey(const JSONRPCRequest& request);
 extern UniValue importprivkeysfromfile(const JSONRPCRequest& request);
 extern UniValue importaddress(const JSONRPCRequest& request);
 extern UniValue importpubkey(const JSONRPCRequest& request);
@@ -7146,6 +7147,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "getbalanceforaddress",             &getbalanceforaddress,          {"address","minconf","include_watchonly", "currency"} },
     { "wallet",             "getbalanceforcurrency",            &getbalance,                    {"currency", "account","minconf","include_watchonly"} },
     { "wallet",             "getaddressfornickname",            &getaddressfornickname,             {} },
+    { "wallet",             "getaddressforpubkey",              &getaddressforpubkey,           {"pubkey"} },
     { "wallet",             "getaddressforprivkey",             &getaddressforprivkey,          {"privkey"} },
     { "wallet",             "getchildkeyforprivkey",            &getchildkeyforprivkey,         {"privkey", "childkeynumber"} },
     { "wallet",             "getinfoaboutlink",                 &getinfoaboutlink,              {"link"} },
