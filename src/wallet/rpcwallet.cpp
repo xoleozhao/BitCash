@@ -988,7 +988,7 @@ static UniValue getaddressesbyaccount(const JSONRPCRequest& request)
     return ret;
 }
 
-static CTransactionRef SendMoney(CWallet * const pwallet, const CTxDestination &address, CAmount nValue, bool fSubtractFeeFromAmount, const CCoinControl& coin_control, mapValue_t mapValue, std::string fromAccount, std::string referenceline, bool onlyfromoneaddress, CTxDestination fromaddress, bool provideprivatekey, CKey privatekey, unsigned char fromcurrency)
+static CTransactionRef SendMoney(CWallet * const pwallet, const CTxDestination &address, CAmount nValue, bool fSubtractFeeFromAmount, const CCoinControl& coin_control, mapValue_t mapValue, std::string fromAccount, std::string referenceline, bool onlyfromoneaddress, CTxDestination fromaddress, bool provideprivatekey, CKey privatekey, unsigned char fromcurrency, bool donotsignnow)
 {
     CAmount curBalance;
     if (provideprivatekey) {        
@@ -996,10 +996,13 @@ static CTransactionRef SendMoney(CWallet * const pwallet, const CTxDestination &
         CTxDestination dest=pubkey.GetID();
         SetSecondPubKeyForDestination(dest,pubkey);
 
-        curBalance = pwallet->GetWatchOnlyBalanceForAddress(dest,fromcurrency);   
+        curBalance = pwallet->GetWatchOnlyBalanceForAddress(dest, fromcurrency);   
     } else 
+    if (donotsignnow) {
+        curBalance = pwallet->GetWatchOnlyBalanceForAddress(fromaddress, fromcurrency);   
+    } else
     if (onlyfromoneaddress) {    
-       curBalance = pwallet->GetBalanceForAddress(fromaddress,fromcurrency);   
+       curBalance = pwallet->GetBalanceForAddress(fromaddress, fromcurrency);   
     } else {    
         curBalance = pwallet->GetBalance(fromcurrency);
     }
@@ -1029,11 +1032,21 @@ static CTransactionRef SendMoney(CWallet * const pwallet, const CTxDestination &
     CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount, referenceline, GetCurrencyForDestination(address), nonprivate, GetSecondPubKeyForDestination(address), isdeposit};
     vecSend.push_back(recipient);
     CTransactionRef tx;
-    if (!pwallet->CreateTransaction(vecSend, tx, reservekey, nFeeRequired, nChangePosRet, strError, coin_control, true, onlyfromoneaddress, fromaddress, provideprivatekey, privatekey, fromcurrency)) {
+    bool sign = true;
+    if (donotsignnow) {
+        sign = false;
+        provideprivatekey = true;
+    }
+    if (!pwallet->CreateTransaction(vecSend, tx, reservekey, nFeeRequired, nChangePosRet, strError, coin_control, 
+                                    sign, onlyfromoneaddress, fromaddress, provideprivatekey, privatekey, fromcurrency)) {
         if (!fSubtractFeeFromAmount && nValue + nFeeRequired > curBalance)
             strError = strprintf("Error: This transaction requires a transaction fee of at least %s", FormatMoney(nFeeRequired));
         throw JSONRPCError(RPC_WALLET_ERROR, strError);
     }
+    if (donotsignnow) {
+        return tx;
+    }
+    
     CValidationState state;
     if (!pwallet->CommitTransaction(tx, std::move(mapValue), {} /* orderForm */, std::move(fromAccount), reservekey, g_connman.get(), state)) {
         strError = strprintf("Error: The transaction was rejected! Reason given: %s", FormatStateMessage(state));
@@ -1347,7 +1360,7 @@ static UniValue sendaslink(const JSONRPCRequest& request)
 
     EnsureWalletIsUnlocked(pwallet);
 
-    CTransactionRef tx = SendMoney(pwallet, dest, nAmount, fSubtractFeeFromAmount, coin_control, std::move(mapValue), {} /* fromAccount */, referenceline, false, CNoDestination(), false, CKey(), currency);
+    CTransactionRef tx = SendMoney(pwallet, dest, nAmount, fSubtractFeeFromAmount, coin_control, std::move(mapValue), {} /* fromAccount */, referenceline, false, CNoDestination(), false, CKey(), currency, false);
 
     strlink+="&txid="+tx->GetHash().GetHex();
     return strlink;
@@ -1506,7 +1519,7 @@ static UniValue sendaslinkfromaddress(const JSONRPCRequest& request)
 
     EnsureWalletIsUnlocked(pwallet);
 
-    CTransactionRef tx = SendMoney(pwallet, dest, nAmount, fSubtractFeeFromAmount, coin_control, std::move(mapValue), {} /* fromAccount */, referenceline, true, destfrom, false, CKey(), currency);
+    CTransactionRef tx = SendMoney(pwallet, dest, nAmount, fSubtractFeeFromAmount, coin_control, std::move(mapValue), {} /* fromAccount */, referenceline, true, destfrom, false, CKey(), currency, false);
 
     strlink+="&txid="+tx->GetHash().GetHex();
     return strlink;
@@ -1668,7 +1681,7 @@ static UniValue sendaslinkwithprivkey(const JSONRPCRequest& request)
     CTxDestination destfrom=GetDestinationForKey(pubkeyfrom, OutputType::LEGACY);
     assert(key.VerifyPubKey(pubkeyfrom));
 
-    CTransactionRef tx = SendMoney(pwallet, dest, nAmount, fSubtractFeeFromAmount, coin_control, std::move(mapValue), {} /* fromAccount */, referenceline, true, destfrom, true, key, currency);
+    CTransactionRef tx = SendMoney(pwallet, dest, nAmount, fSubtractFeeFromAmount, coin_control, std::move(mapValue), {} /* fromAccount */, referenceline, true, destfrom, true, key, currency, false);
 
     strlink+="&txid="+tx->GetHash().GetHex();
     return strlink;
@@ -1988,7 +2001,7 @@ static UniValue sendtoaddress(const JSONRPCRequest& request)
 
 
     EnsureWalletIsUnlocked(pwallet);
-    CTransactionRef tx = SendMoney(pwallet, dest, nAmount, fSubtractFeeFromAmount, coin_control, std::move(mapValue), {} /* fromAccount */, referenceline, false, CNoDestination(), false, CKey(), 0);
+    CTransactionRef tx = SendMoney(pwallet, dest, nAmount, fSubtractFeeFromAmount, coin_control, std::move(mapValue), {} /* fromAccount */, referenceline, false, CNoDestination(), false, CKey(), 0, false);
     return tx->GetHash().GetHex();
 }
 
@@ -2001,7 +2014,7 @@ static UniValue sendtoaddressfromcurrency(const JSONRPCRequest& request)
 
     if (request.fHelp || request.params.size() < 3 || request.params.size() > 10)
         throw std::runtime_error(
-            "sendtoaddressfromcurrency \"address\" amount ( \"referenceline\" \"comment\" \"comment_to\" subtractfeefromamount replaceable conf_target \"estimate_mode\")\n"
+            "sendtoaddressfromcurrency currency \"address\" amount ( \"referenceline\" \"comment\" \"comment_to\" subtractfeefromamount replaceable conf_target \"estimate_mode\")\n"
             "\nSend an amount to a given address from a given currency account.\n"
             + HelpRequiringPassphrase(pwallet) +
             "\nArguments:\n"
@@ -2089,7 +2102,8 @@ static UniValue sendtoaddressfromcurrency(const JSONRPCRequest& request)
 
 
     EnsureWalletIsUnlocked(pwallet);
-    CTransactionRef tx = SendMoney(pwallet, dest, nAmount, fSubtractFeeFromAmount, coin_control, std::move(mapValue), {} /* fromAccount */, referenceline, false, CNoDestination(), false, CKey(), currency);
+    CTransactionRef tx = SendMoney(pwallet, dest, nAmount, fSubtractFeeFromAmount, coin_control, std::move(mapValue), {} /* fromAccount */, 
+                                    referenceline, false, CNoDestination(), false, CKey(), currency, false);
     return tx->GetHash().GetHex();
 }
 
@@ -2100,7 +2114,7 @@ static UniValue sendtoaddressfromaddress(const JSONRPCRequest& request)
         return NullUniValue;
     }
 
-    if (request.fHelp || request.params.size() < 3 || request.params.size() > 11)
+    if (request.fHelp || request.params.size() < 4 || request.params.size() > 11)
         throw std::runtime_error(
             "sendtoaddressfromaddress currency \"fromaddress\" \"address\" amount ( \"referenceline\" \"comment\" \"comment_to\" subtractfeefromamount replaceable conf_target \"estimate_mode\")\n"
             "\nSend an amount to a given address from a given address.\n"
@@ -2197,7 +2211,7 @@ static UniValue sendtoaddressfromaddress(const JSONRPCRequest& request)
 
     EnsureWalletIsUnlocked(pwallet);
 
-    CTransactionRef tx = SendMoney(pwallet, dest, nAmount, fSubtractFeeFromAmount, coin_control, std::move(mapValue), {} , referenceline, true, destfrom, false, CKey(), currency);
+    CTransactionRef tx = SendMoney(pwallet, dest, nAmount, fSubtractFeeFromAmount, coin_control, std::move(mapValue), {} , referenceline, true, destfrom, false, CKey(), currency, false);
     return tx->GetHash().GetHex();
 //   return NullUniValue;
 }
@@ -2357,10 +2371,122 @@ static UniValue sendtoaddresswithprivkey(const JSONRPCRequest& request)
 //std::cout << str << std::endl;
 
 
-    CTransactionRef tx = SendMoney(pwallet, dest, nAmount, fSubtractFeeFromAmount, coin_control, std::move(mapValue), {} , referenceline, true, destfrom, true, key, currency);
+    CTransactionRef tx = SendMoney(pwallet, dest, nAmount, fSubtractFeeFromAmount, coin_control, std::move(mapValue), {} , referenceline, true, destfrom, true, key, currency, false);
     return tx->GetHash().GetHex();
 //   return NullUniValue;
 }
+
+static UniValue sendtoaddressandsignlater(const JSONRPCRequest& request)
+{
+    CWallet * const pwallet = GetWalletForJSONRPCRequest(request);
+    if (!EnsureWalletIsAvailable(pwallet, request.fHelp)) {
+        return NullUniValue;
+    }
+
+    if (request.fHelp || request.params.size() < 4 || request.params.size() > 11)
+        throw std::runtime_error(
+            "sendtoaddressandsignlater currency \"fromaddress\" \"address\" amount ( \"referenceline\" \"comment\" \"comment_to\" subtractfeefromamount replaceable conf_target \"estimate_mode\")\n"
+            "\nCreate an unsigned transaction to send an amount to a given address from a given address. This command can also spend funds from a watch only address (watch addresses only work with the master private key).\n"
+            + HelpRequiringPassphrase(pwallet) +
+            "\nArguments:\n"
+            "1. currency               (numeric, required) The currency account from which to send 0=BitCash 1=US Dollar\n"
+            "2. \"fromaddress\"        (string, required) The bitcash address to send from\n"
+            "3. \"address\"            (string, required) The bitcash address to send to.\n"
+            "4. \"amount\"             (numeric or string, required) The amount in " + CURRENCY_UNIT + " to send. eg 0.1\n"
+            "5. \"referenceline\"      (string, optional) A reference line used to store what the transaction is for. \n"
+            "                             This is part of the transaction.\n"
+            "6. \"comment\"            (string, optional) A comment used to store what the transaction is for. \n"
+            "                             This is not part of the transaction, just kept in your wallet.\n"
+            "7. \"comment_to\"         (string, optional) A comment to store the name of the person or organization \n"
+            "                             to which you're sending the transaction. This is not part of the \n"
+            "                             transaction, just kept in your wallet.\n"
+            "8. subtractfeefromamount  (boolean, optional, default=false) The fee will be deducted from the amount being sent.\n"
+            "                             The recipient will receive less bitcashs than you enter in the amount field.\n"
+            "9. replaceable            (boolean, optional) Allow this transaction to be replaced by a transaction with higher fees via BIP 125\n"
+            "10. conf_target            (numeric, optional) Confirmation target (in blocks)\n"
+            "11. \"estimate_mode\"      (string, optional, default=UNSET) The fee estimate mode, must be one of:\n"
+            "       \"UNSET\"\n"
+            "       \"ECONOMICAL\"\n"
+            "       \"CONSERVATIVE\"\n"
+            "\nResult:\n"
+            "\"txid\"                  (string) The transaction id.\n"
+            "\nExamples:\n"
+            + HelpExampleCli("sendtoaddressandsignlater", "0 \"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" \"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1")
+            + HelpExampleCli("sendtoaddressandsignlater", "0 \"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" \"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 \"donation\" \"seans outpost\"")
+            + HelpExampleCli("sendtoaddressandsignlater", "0 \"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" \"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 \"\" \"\" \"\" true")
+            + HelpExampleRpc("sendtoaddressandsignlater", "0 \"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" \"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\", 0.1, \"donation\", \"seans outpost\"")
+        );
+
+
+    // Make sure the results are valid at least up to the most recent block
+    // the user could have gotten from another RPC command prior to now
+    pwallet->BlockUntilSyncedToCurrentChain();
+
+    LOCK2(cs_main, pwallet->cs_wallet);
+
+    int currency = 0;
+    int addindex = 0;
+    addindex = 1;
+    if (!request.params[0].isNull()) {
+        const UniValue& mode = request.params[0];    
+        if (!mode.isNull())
+                currency = mode.get_int();
+    }
+
+    CTxDestination destfrom = DecodeDestination(request.params[1].get_str());
+    if (!IsValidDestination(destfrom)) {
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid from address");
+    }
+
+    CTxDestination dest = DecodeDestination(request.params[1 + addindex].get_str());
+    if (!IsValidDestination(dest)) {
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid address");
+    }
+
+    // Amount
+    CAmount nAmount = AmountFromValue(request.params[2 + addindex]);
+    if (nAmount <= 0)
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for send");
+
+    std::string referenceline = "";
+    if (!request.params[3 + addindex].isNull() && !request.params[3 + addindex].get_str().empty())
+        referenceline = request.params[3 + addindex].get_str();
+
+    // Wallet comments
+    mapValue_t mapValue;
+    if (!request.params[4 + addindex].isNull() && !request.params[4 + addindex].get_str().empty())
+        mapValue["comment"] = request.params[4 + addindex].get_str();
+  
+    if (!request.params[5 + addindex].isNull() && !request.params[5 + addindex].get_str().empty())
+        mapValue["to"] = request.params[5 + addindex].get_str();
+
+    bool fSubtractFeeFromAmount = false;
+    if (!request.params[6 + addindex].isNull()) {
+        fSubtractFeeFromAmount = request.params[6 + addindex].get_bool();
+    }
+
+    CCoinControl coin_control;
+    if (!request.params[7 + addindex].isNull()) {
+        coin_control.m_signal_bip125_rbf = request.params[7 + addindex].get_bool();
+    }
+
+    if (!request.params[8 + addindex].isNull()) {
+        coin_control.m_confirm_target = ParseConfirmTarget(request.params[8 + addindex]);
+    }
+
+    if (!request.params[9 + addindex].isNull()) {
+        if (!FeeModeFromString(request.params[9 + addindex].get_str(), coin_control.m_fee_mode)) {
+            throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid estimate_mode parameter");
+        }
+    }
+
+    EnsureWalletIsUnlocked(pwallet);
+
+    CTransactionRef tx = SendMoney(pwallet, dest, nAmount, fSubtractFeeFromAmount, coin_control, std::move(mapValue), {} , referenceline, true, destfrom, false, CKey(), currency, true);
+    return EncodeHexTx(*tx, RPCSerializationFlags());
+//   return NullUniValue;
+}
+
 
 static UniValue listaddressgroupings(const JSONRPCRequest& request)
 {
@@ -3149,7 +3275,7 @@ static UniValue sendfrom(const JSONRPCRequest& request)
         throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, "Account has insufficient funds");
 
     CCoinControl no_coin_control; // This is a deprecated API
-    CTransactionRef tx = SendMoney(pwallet, dest, nAmount, fSubtractFeeFromAmount, no_coin_control, std::move(mapValue), std::move(strAccount),referenceline, false, CNoDestination(), false, CKey(), currency);
+    CTransactionRef tx = SendMoney(pwallet, dest, nAmount, fSubtractFeeFromAmount, no_coin_control, std::move(mapValue), std::move(strAccount),referenceline, false, CNoDestination(), false, CKey(), currency, false);
     return tx->GetHash().GetHex();
 }
 
@@ -7166,7 +7292,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "getunconfirmedbalanceforcurrency", &getunconfirmedbalance,         {"currency"} },
     { "wallet",             "getwalletinfo",                    &getwalletinfo,                 {} },
     { "wallet",             "importmulti",                      &importmulti,                   {"requests","options"} },
-    { "wallet",             "importprivkey",                    &importprivkey,                 {"privkey","label","rescan", "importchildkeys", "settomainkey"} },
+    { "wallet",             "importprivkey",                    &importprivkey,                 {"privkey","label","rescan", "importchildkeys", "settomainkey", "importashex"} },
     { "wallet",             "importprivkeysfromfile",           &importprivkeysfromfile,        {"filename","label","rescan"} },
     { "wallet",             "importwallet",                     &importwallet,                  {"filename"} },
     { "wallet",             "importaddress",                    &importaddress,                 {"address","label","rescan","p2sh"} },
@@ -7202,6 +7328,8 @@ static const CRPCCommand commands[] =
     { "wallet",             "sendaslinkwithprivkeyfromcurrency",&sendaslinkwithprivkey,                    {"privkey", "amount", "currency", "comment","comment_to","subtractfeefromamount","replaceable","conf_target","estimate_mode"} },
     { "wallet",             "sendtoaddress",                    &sendtoaddress,                
  {"address","amount","comment","comment_to","subtractfeefromamount","replaceable","conf_target","estimate_mode"} },
+    { "wallet",             "sendtoaddressandsignlater",        &sendtoaddressandsignlater,                
+ {"currency", "fromaddress","address","amount","comment","comment_to","subtractfeefromamount","replaceable","conf_target","estimate_mode"} },
     { "wallet",             "sendtoaddressfromaddress",         &sendtoaddressfromaddress,                
  {"currency", "fromaddress","address","amount","comment","comment_to","subtractfeefromamount","replaceable","conf_target","estimate_mode"} },
     { "wallet",             "sendtoaddressfromcurrency",        &sendtoaddressfromcurrency,                

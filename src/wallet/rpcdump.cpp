@@ -251,6 +251,8 @@ UniValue getaddressforprivkey(const JSONRPCRequest& request)
             "\nReturns the public address for the private key.\n"
             "\nArguments:\n"
             "1. \"privkey\"          (string, required) The private key (see dumpprivkey)\n"
+            "\nExamples:\n"
+            "\nImport the private key with rescan\n"
             + HelpExampleCli("getaddressforprivkey", "\"mykey\"") +
             "\nAs a JSON-RPC call\n"
             + HelpExampleRpc("getaddressforprivkey", "\"mykey\"")
@@ -1060,6 +1062,7 @@ std::cout << "Private Key:" << EncodeSecret(key) << std::endl;
     }
     return EncodeSecret(vchSecret);
 }
+
 
 UniValue dumpwallet(const JSONRPCRequest& request)
 {
