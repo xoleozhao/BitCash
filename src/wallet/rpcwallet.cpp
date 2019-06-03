@@ -999,7 +999,7 @@ static CTransactionRef SendMoney(CWallet * const pwallet, const CTxDestination &
         curBalance = pwallet->GetWatchOnlyBalanceForAddress(dest, fromcurrency);   
     } else 
     if (donotsignnow) {
-        curBalance = pwallet->GetWatchOnlyBalanceForAddress(fromaddress, fromcurrency);   
+        curBalance = pwallet->GetWatchOnlyBalanceForAddress(fromaddress, fromcurrency) + pwallet->GetBalanceForAddress(fromaddress, fromcurrency);   
     } else
     if (onlyfromoneaddress) {    
        curBalance = pwallet->GetBalanceForAddress(fromaddress, fromcurrency);   
@@ -2386,7 +2386,7 @@ static UniValue sendtoaddressandsignlater(const JSONRPCRequest& request)
     if (request.fHelp || request.params.size() < 4 || request.params.size() > 11)
         throw std::runtime_error(
             "sendtoaddressandsignlater currency \"fromaddress\" \"address\" amount ( \"referenceline\" \"comment\" \"comment_to\" subtractfeefromamount replaceable conf_target \"estimate_mode\")\n"
-            "\nCreate an unsigned transaction to send an amount to a given address from a given address. This command can also spend funds from a watch only address (watch addresses only work with the master private key).\n"
+            "\nCreate an unsigned transaction to send an amount to a given address from a given address. It will return the created HEX encoded transaction as well as all HEX encoded input transactions. This command can also spend funds from a watch only address (watch addresses only work with the master private key).\n"
             + HelpRequiringPassphrase(pwallet) +
             "\nArguments:\n"
             "1. currency               (numeric, required) The currency account from which to send 0=BitCash 1=US Dollar\n"
@@ -2409,7 +2409,12 @@ static UniValue sendtoaddressandsignlater(const JSONRPCRequest& request)
             "       \"ECONOMICAL\"\n"
             "       \"CONSERVATIVE\"\n"
             "\nResult:\n"
-            "\"txid\"                  (string) The transaction id.\n"
+            "\"tx\"                  (string) The HEX encoded transaction.\n"
+            "\"numberofinputs\"      (int) The number of transaction inputs.\n"
+            "\"txinput0\"            (string) The HEX encoded transaction for transaction input 0.\n"
+            "\"txinput1\"            (string) The HEX encoded transaction for transaction input 1.\n"
+            "\"txinputx\"            (string) The HEX encoded transaction for transaction input x.\n"
+
             "\nExamples:\n"
             + HelpExampleCli("sendtoaddressandsignlater", "0 \"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" \"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1")
             + HelpExampleCli("sendtoaddressandsignlater", "0 \"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" \"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 \"donation\" \"seans outpost\"")
@@ -2483,8 +2488,21 @@ static UniValue sendtoaddressandsignlater(const JSONRPCRequest& request)
     EnsureWalletIsUnlocked(pwallet);
 
     CTransactionRef tx = SendMoney(pwallet, dest, nAmount, fSubtractFeeFromAmount, coin_control, std::move(mapValue), {} , referenceline, true, destfrom, false, CKey(), currency, true);
-    return EncodeHexTx(*tx, RPCSerializationFlags());
-//   return NullUniValue;
+
+    UniValue result(UniValue::VOBJ);
+    result.pushKV("tx", EncodeHexTx(*tx, RPCSerializationFlags()));
+    result.pushKV("numberofinputs", tx->vin.size());
+    for (unsigned i = 0; i < tx->vin.size(); i++)
+    {
+        CTransactionRef tx2;
+        uint256 hashBlock = uint256();
+        if (!GetTransaction(tx->vin[i].prevout.hash, tx2, Params().GetConsensus(), hashBlock, true))
+            throw JSONRPCError(RPC_MISC_ERROR, "Could in find input transaction");
+        
+        result.pushKV("txinput" + std::to_string(i), EncodeHexTx(*tx2, RPCSerializationFlags()));
+    }
+    
+    return result;
 }
 
 
