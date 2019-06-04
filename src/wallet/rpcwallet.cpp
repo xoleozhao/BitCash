@@ -2491,7 +2491,7 @@ static UniValue sendtoaddressandsignlater(const JSONRPCRequest& request)
 
     UniValue result(UniValue::VOBJ);
     result.pushKV("tx", EncodeHexTx(*tx, RPCSerializationFlags()));
-    result.pushKV("numberofinputs", tx->vin.size());
+    result.pushKV("numberofinputs", (uint64_t)tx->vin.size());
     for (unsigned i = 0; i < tx->vin.size(); i++)
     {
         CTransactionRef tx2;
