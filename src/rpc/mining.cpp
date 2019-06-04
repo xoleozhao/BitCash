@@ -663,6 +663,21 @@ UniValue getblocktemplate(const JSONRPCRequest& request)
         }
     }
     result.pushKV("version", pblock->nVersion);
+    if (isstabletimeactive(pblock->nVersion)) {	
+        result.pushKV("needpriceinfo", true);
+        CDataStream price(SER_NETWORK, PROTOCOL_VERSION);
+    
+        price <<  pblock->nPriceInfo <<
+                  pblock->priceSig <<
+                  pblock->nPriceInfo2 <<
+                  pblock->priceSig2 <<
+                  pblock->nPriceInfo3 <<
+                  pblock->priceSig3;
+        result.pushKV("priceinfo",  HexStr(price.begin(), price.end()));
+    } else {
+        result.pushKV("needpriceinfo", false);
+    }
+
     result.pushKV("rules", aRules);
     result.pushKV("vbavailable", vbavailable);
     result.pushKV("vbrequired", int(0));
