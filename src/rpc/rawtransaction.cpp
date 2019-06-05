@@ -821,6 +821,35 @@ static UniValue decoderawtransaction(const JSONRPCRequest& request)
     return result;
 }
 
+static UniValue gethashofrawtransaction(const JSONRPCRequest& request)
+{
+    if (request.fHelp || request.params.size() < 1 || request.params.size() > 1)
+        throw std::runtime_error(
+            "gethashofrawtransaction \"hexstring\"\n"
+            "\nReturn the hash of the raw transaction. The nValue field is not included into the hash.\n"
+
+            "\nArguments:\n"
+            "1. \"hexstring\"      (string, required) The transaction hex string\n"
+            "\nResult:\n"
+            "  \"txid\" : \"id\",        (string) The transaction id\n"
+
+            "\nExamples:\n"
+            + HelpExampleCli("gethashofrawtransaction", "\"hexstring\"")
+            + HelpExampleRpc("gethashofrawtransaction", "\"hexstring\"")
+        );
+
+    LOCK(cs_main);
+    RPCTypeCheck(request.params, {UniValue::VSTR, UniValue::VBOOL});
+
+    CMutableTransaction mtx;
+
+    if (!DecodeHexTx(mtx, request.params[0].get_str(), true, true)) {
+        throw JSONRPCError(RPC_DESERIALIZATION_ERROR, "TX decode failed");
+    }  
+
+    return mtx.GetHash().GetHex();
+}
+
 static UniValue decoderawtransactionmk(const JSONRPCRequest& request)
 {
     if (request.fHelp || request.params.size() < 2 || request.params.size() > 3)
@@ -1517,6 +1546,7 @@ static UniValue testmempoolaccept(const JSONRPCRequest& request)
 static const CRPCCommand commands[] =
 { //  category              name                            actor (function)            argNames
   //  --------------------- ------------------------        -----------------------     ----------
+    { "rawtransactions",    "gethashofrawtransaction",      &gethashofrawtransaction,   {"hexstring"} },
     { "rawtransactions",    "getrawtransaction",            &getrawtransaction,         {"txid","verbose","blockhash"} },
     { "rawtransactions",    "createrawtransaction",         &createrawtransaction,      {"inputs","outputs","locktime","replaceable"} },
     { "rawtransactions",    "createrawtransactionfromscript",&createrawtransactionfromscript,{"inputs","outputs","locktime","replaceable"} },
