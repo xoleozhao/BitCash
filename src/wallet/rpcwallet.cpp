@@ -152,9 +152,11 @@ static UniValue createcoinbaseforaddress(const JSONRPCRequest& request)
             "1. \"address\"          (string, required) The BitCash address.\n"
             "2. \"blockheight\"      (numeric, required) The blockheight of the new block to calculate.\n"
             "\nResult:\n"
-            "\"coinbase\"         (string) Coinbase as HEX string.\n"
-            "\"coinbasepart1\"    (string) Coinbase part 1 as HEX string.\n"
-            "\"coinbasepart2\"    (string) Coinbase part 2 as HEX string.\n"
+            "\"coinbase\"                (string) Coinbase as HEX string.\n"
+            "\"coinbasepart1\"           (string) Coinbase part 1 as HEX string.\n"
+            "\"coinbasepart2\"           (string) Coinbase part 2 as HEX string.\n"
+            "\"coinbaseforhashpart1\"    (string) Coinbase part 1 as HEX string.\n"
+            "\"coinbaseforhashpart2\"    (string) Coinbase part 2 as HEX string.\n"
             "\nExamples:\n"
             + HelpExampleCli("createcoinbaseforaddress", "address blockheight")
             + HelpExampleRpc("createcoinbaseforaddress", "address, blockheight")
@@ -196,10 +198,24 @@ static UniValue createcoinbaseforaddress(const JSONRPCRequest& request)
        str1=str.substr(0,found+32);
        str2=str.substr(found+32,str.size()-found+32);
     }
+
+    CDataStream stream2(SER_NETWORK | SER_GETHASH, PROTOCOL_VERSION);
+    stream2 << coinbaseTx;
+    std::string str0=HexStr(stream2.begin(),stream2.end());
+    std::size_t found2 = str0.find("ffbbaaee003344bbffbbaaee003344bb");
+    std::string str3=str0;
+    std::string str4="";
+    if (found2!=std::string::npos) {
+       str3=str0.substr(0,found2+32);
+       str4=str0.substr(found2+32,str0.size()-found2+32);
+    }
+
     UniValue result(UniValue::VOBJ);
     result.pushKV("coinbase", str);
     result.pushKV("coinbasepart1", str1);
     result.pushKV("coinbasepart2", str2);
+    result.pushKV("coinbaseforhashpart1", str3);
+    result.pushKV("coinbaseforhashpart2", str4);
     return result;
 }
 static UniValue createcoinbaseforaddresswithpoolfee(const JSONRPCRequest& request)
@@ -220,9 +236,11 @@ static UniValue createcoinbaseforaddresswithpoolfee(const JSONRPCRequest& reques
             "4. \"pool fee permille\" (numeric, required) The permille of the block reward for the pool operator.\n"
 
             "\nResult:\n"
-            "\"coinbase\"         (string) Coinbase as HEX string.\n"
-            "\"coinbasepart1\"    (string) Coinbase part 1 as HEX string.\n"
-            "\"coinbasepart2\"    (string) Coinbase part 2 as HEX string.\n"
+            "\"coinbase\"                (string) Coinbase as HEX string.\n"
+            "\"coinbasepart1\"           (string) Coinbase part 1 as HEX string.\n"
+            "\"coinbasepart2\"           (string) Coinbase part 2 as HEX string.\n"
+            "\"coinbaseforhashpart1\"    (string) Coinbase part 1 as HEX string.\n"
+            "\"coinbaseforhashpart2\"    (string) Coinbase part 2 as HEX string.\n"
             "\nExamples:\n"
             + HelpExampleCli("createcoinbaseforaddresswithpoolfee", "address blockheight poolfeeaddress poolfeepermille")
             + HelpExampleRpc("createcoinbaseforaddresswithpoolfee", "address, blockheight poolfeeaddress poolfeepermille")
@@ -283,10 +301,24 @@ static UniValue createcoinbaseforaddresswithpoolfee(const JSONRPCRequest& reques
        str1=str.substr(0,found+32);
        str2=str.substr(found+32,str.size()-found+32);
     }
+
+    CDataStream stream2(SER_NETWORK | SER_GETHASH, PROTOCOL_VERSION);
+    stream2 << coinbaseTx;
+    std::string str0=HexStr(stream2.begin(),stream2.end());
+    std::size_t found2 = str0.find("ffbbaaee003344bbffbbaaee003344bb");
+    std::string str3=str0;
+    std::string str4="";
+    if (found2!=std::string::npos) {
+       str3=str0.substr(0,found2+32);
+       str4=str0.substr(found2+32,str0.size()-found2+32);
+    }
+
     UniValue result(UniValue::VOBJ);
     result.pushKV("coinbase", str);
     result.pushKV("coinbasepart1", str1);
     result.pushKV("coinbasepart2", str2);
+    result.pushKV("coinbaseforhashpart1", str3);
+    result.pushKV("coinbaseforhashpart2", str4);
     return result;
 }
 

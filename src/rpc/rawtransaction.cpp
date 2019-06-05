@@ -847,7 +847,10 @@ static UniValue gethashofrawtransaction(const JSONRPCRequest& request)
         throw JSONRPCError(RPC_DESERIALIZATION_ERROR, "TX decode failed");
     }  
 
-    return mtx.GetHash().GetHex();
+    UniValue entry(UniValue::VOBJ);
+    entry.pushKV("txid", mtx.GetHash().GetHex());
+
+    return entry;
 }
 
 static UniValue decoderawtransactionmk(const JSONRPCRequest& request)
