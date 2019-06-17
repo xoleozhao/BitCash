@@ -1004,7 +1004,7 @@ public:
     bool SignTransaction(CMutableTransaction& tx);
 
     bool CreateNicknameTransaction( std::string nickname, std::string address, CTransactionRef& tx, std::string& strFailReason, bool sign = true, 
-                                    CKey masterkey = CKey(), bool usemasterkey = false, bool isnonprivate = false);
+                                    CKey masterkey = CKey(), bool usemasterkey = false, bool isnonprivate = false, bool donotsignnow = false);
     /**
      * Create a new transaction paying the recipients with a set of coins
      * selected by SelectCoins(); Also create the change output, when needed

@@ -1087,7 +1087,7 @@ static CTransactionRef SendMoney(CWallet * const pwallet, const CTxDestination &
     return tx;
 }
 
-static CTransactionRef RegisterNickname(CWallet * const pwallet, std::string nick, std::string address, CKey masterkey, bool usemasterkey, bool isnonprivate)
+static CTransactionRef RegisterNickname(CWallet * const pwallet, std::string nick, std::string address, CKey masterkey, bool usemasterkey, bool isnonprivate, bool donotsignnow)
 {
 
     if (!g_connman || g_connman->GetNodeCount(CConnman::CONNECTIONS_ALL) == 0)
@@ -1102,8 +1102,12 @@ static CTransactionRef RegisterNickname(CWallet * const pwallet, std::string nic
     std::string fromAccount="";
     std::string strError;
     CTransactionRef tx;
-        if (!pwallet->CreateNicknameTransaction(nick,address, tx, strError, true, masterkey, usemasterkey, isnonprivate)) {
+        if (!pwallet->CreateNicknameTransaction(nick,address, tx, strError, true, masterkey, usemasterkey, isnonprivate, donotsignnow)) {
         throw JSONRPCError(RPC_WALLET_ERROR, strError);
+    }
+
+    if (donotsignnow) {
+        return tx;
     }
     
     CValidationState state;
@@ -1158,7 +1162,7 @@ static UniValue registernicknamewithmasterkey(const JSONRPCRequest& request)
 
     EnsureWalletIsUnlocked(pwallet);
 
-    CTransactionRef tx = RegisterNickname(pwallet, nick, address, key, true, false);
+    CTransactionRef tx = RegisterNickname(pwallet, nick, address, key, true, false, false);
 
     return tx->GetHash().GetHex();
 }
@@ -1172,7 +1176,7 @@ static UniValue registernicknamewithprivatekey(const JSONRPCRequest& request)
 
     if (request.fHelp || request.params.size() < 3 || request.params.size() > 3)
         throw std::runtime_error(
-            "registernicknamewithprivatekey \"nickname\" \"address\" \"masterkey\"\n"
+            "registernicknamewithprivatekey \"nickname\" \"address\" \"privatekey\"\n"
             "\nRegister a nickname for a given address and the private key belonging to the address. The address does not need to be part of the wallet.\n"
             + HelpRequiringPassphrase(pwallet) +
             "\nArguments:\n"
@@ -1200,9 +1204,54 @@ static UniValue registernicknamewithprivatekey(const JSONRPCRequest& request)
 
     EnsureWalletIsUnlocked(pwallet);
 
-    CTransactionRef tx = RegisterNickname(pwallet, nick, address, key, true, false);
+    CTransactionRef tx = RegisterNickname(pwallet, nick, address, key, true, false, false);
 
     return tx->GetHash().GetHex();
+}
+
+static UniValue registernicknameandsignlater(const JSONRPCRequest& request)
+{
+    CWallet * const pwallet = GetWalletForJSONRPCRequest(request);
+    if (!EnsureWalletIsAvailable(pwallet, request.fHelp)) {
+        return NullUniValue;
+    }
+
+    if (request.fHelp || request.params.size() < 2 || request.params.size() > 3)
+        throw std::runtime_error(
+            "registernicknameandsignlater \"nickname\" \"address\" (nonprivate)\n"
+            "\nCreate a transaction to create nickname for a given address. Returns the unsigned HEX encoded transaction.\n"
+            + HelpRequiringPassphrase(pwallet) +
+            "\nArguments:\n"
+            "1. \"nickname\"           (string, required) The nickname to register.\n"
+            "2. \"address\"            (string, required) The bitcash address.\n"
+            "3. nonprivate             (boolean, optional, default=false) A nonprivate nickname will not use stealth addresses to receive coins.\n"
+            "\nResult:\n"
+            "\"tx\"                    (string) The HEX encoded transaction.\n"
+            "\nExamples:\n"
+            + HelpExampleCli("registernicknameandsignlater", "\"nick\" \"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\"")
+        );
+
+    // Make sure the results are valid at least up to the most recent block
+    // the user could have gotten from another RPC command prior to now
+    pwallet->BlockUntilSyncedToCurrentChain();
+
+    LOCK2(cs_main, pwallet->cs_wallet);
+
+    std::string nick = request.params[0].get_str();
+    std::string address = request.params[1].get_str();
+    bool isnonprivate = false;
+    if (!request.params[2].isNull()) {
+        isnonprivate = request.params[2].get_bool();
+    }
+
+    EnsureWalletIsUnlocked(pwallet);
+
+    CTransactionRef tx = RegisterNickname(pwallet, nick, address, CKey(), false, isnonprivate, true);
+
+    UniValue result(UniValue::VOBJ);
+    result.pushKV("tx", EncodeHexTx(*tx, RPCSerializationFlags()));
+
+    return result;
 }
 
 static UniValue registernickname(const JSONRPCRequest& request)
@@ -1242,7 +1291,7 @@ static UniValue registernickname(const JSONRPCRequest& request)
 
     EnsureWalletIsUnlocked(pwallet);
 
-    CTransactionRef tx = RegisterNickname(pwallet, nick, address, CKey(), false, isnonprivate);
+    CTransactionRef tx = RegisterNickname(pwallet, nick, address, CKey(), false, isnonprivate, false);
 
     return tx->GetHash().GetHex();
 }
@@ -7368,6 +7417,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "sendmany",                         &sendmany,                      {"fromaccount|dummy","amounts","minconf","comment","subtractfeefrom","replaceable","conf_target","estimate_mode"} },
     { "wallet",             "sendmanyfromcurrency",             &sendmany,                      {"currency", "fromaccount|dummy","amounts","minconf","comment","subtractfeefrom","replaceable","conf_target","estimate_mode"} },
     { "wallet",             "registernickname",                 &registernickname,              {"nickname","address", "nonprivate"} },
+    { "wallet",             "registernicknameandsignlater",     &registernicknameandsignlater,  {"nickname","address", "nonprivate"} },
     { "wallet",             "registernicknamewithmasterkey",    &registernicknamewithmasterkey, {"nickname","address","masterkey"} },
     { "wallet",             "registernicknamewithprivatekey",   &registernicknamewithprivatekey, {"nickname","address","privatekey"} },   
     { "wallet",             "sendaslink",                       &sendaslink,                    {"amount", "comment","comment_to","subtractfeefromamount","replaceable","conf_target","estimate_mode"} },

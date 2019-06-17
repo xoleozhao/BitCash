@@ -4222,7 +4222,7 @@ bool CWallet::FillTxOutForTransaction(CTxOut& out,CTxDestination destination,std
     return FillTxOutForTransaction(out,GetSecondPubKeyForDestination(destination),referenceline, currency, nonprivate);
 }
 
-bool CWallet::CreateNicknameTransaction(std::string nickname, std::string address, CTransactionRef& tx, std::string& strFailReason, bool sign, CKey masterkey, bool usemasterkey, bool isnonprivate)
+bool CWallet::CreateNicknameTransaction(std::string nickname, std::string address, CTransactionRef& tx, std::string& strFailReason, bool sign, CKey masterkey, bool usemasterkey, bool isnonprivate, bool donotsignnow)
 {
     CMutableTransaction txNew;
         LogPrintf("CreateTransaction Version %d",txNew.nVersion);
@@ -4267,12 +4267,12 @@ bool CWallet::CreateNicknameTransaction(std::string nickname, std::string addres
         }
     }
 
-    CKey vchSecret;
+    CKey vchSecret;    
     if (usemasterkey)
     {
       vchSecret=masterkey;
     } else
-    if (!GetKey(pubkey.GetID(), vchSecret)){    
+    if (!donotsignnow && !GetKey(pubkey.GetID(), vchSecret)){    
         strFailReason = _("This address does not belong to this wallet.");
         return false;
     }
@@ -4280,12 +4280,12 @@ bool CWallet::CreateNicknameTransaction(std::string nickname, std::string addres
  
     uint256 hash=Hash(txNew.vin[0].nickname.begin(),txNew.vin[0].nickname.end(),txNew.vin[0].address.begin(),txNew.vin[0].address.end());
 
-    if (!vchSecret.Sign(hash,txNew.vin[0].nicknamesig)){
+    if (!donotsignnow && !vchSecret.Sign(hash,txNew.vin[0].nicknamesig)){
         strFailReason = _("Could not sign transaction.");
         return false;
     }
 
-    if (!CheckTransaction(txNew, state)){
+    if (!donotsignnow && !CheckTransaction(txNew, state)){
         strFailReason = strprintf("Error: The transaction was rejected! Reason given: %s", FormatStateMessage(state));
         return false; 
     }
