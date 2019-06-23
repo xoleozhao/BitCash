@@ -84,6 +84,8 @@ Item {
        }
     }
 
+    signal sendtobitcashsignalintern()
+    signal sendtodollarsignalintern()
     signal startMiningSignalInternoverview()
     signal startBackupSignalInternoverview()
     signal startTradingSignalInternoverview()
@@ -103,7 +105,12 @@ Item {
     }
 
     function setpriceDointern(price) {
-        priceLabelDo.text = price
+        priceLabelDo.text = price        
+    }
+
+    function setwalletvalueintern(value)
+    {
+        valueLabel.text= value
     }
 
     function geticonname(nr)
@@ -112,6 +119,12 @@ Item {
         if (nr===2) return "../res/assets/Type of Transaction/history-type-mined.png";else
         return "../res/assets/Type of Transaction/history-type-received.png";
     } 
+
+    function setsupplyintern(bitcash, dollar, blockheight) {
+        supplyLabel.text = bitcash
+        supplyusdLabel.text = dollar
+        blockheightLabel.text = blockheight;
+    }
 
     ShadowBox {
         id: balancerect
@@ -135,6 +148,58 @@ Item {
             anchors.left: label2.left
             anchors.leftMargin: 0
             anchors.top: availLabel.top
+            anchors.topMargin: 0
+            color: "#202124"
+        }
+
+        Label {
+            id: labelvalue1
+            text: qsTr("Value of wallet")
+            font.weight: Font.Normal
+            font.pixelSize: 13
+            font.family: "Montserrat"
+            anchors.left: label2.left
+            anchors.leftMargin: 0
+            anchors.top: valueLabel.top
+            anchors.topMargin: 0
+            color: "#202124"
+        }
+
+        Label {
+            id: labelsupply1
+            text: qsTr("BitCash supply")
+            font.pixelSize: 12
+            font.family: "Montserrat Light"
+            font.weight: Font.Light
+            anchors.left: label2.left
+            anchors.leftMargin: 0
+            anchors.top: labelvalue1.bottom
+            anchors.topMargin: 0
+            color: "#202124"
+        }
+
+        Label {
+            id: labelsupply2
+            text: qsTr("Dollar supply")
+            font.pixelSize: 12
+            font.family: "Montserrat Light"
+            font.weight: Font.Light
+            anchors.left: label2.left
+            anchors.leftMargin: 0
+            anchors.top: labelsupply1.bottom
+            anchors.topMargin: 0
+            color: "#202124"
+        }
+
+        Label {
+            id: labelblockheight
+            text: qsTr("Blockheight")
+            font.pixelSize: 12
+            font.family: "Montserrat Light"
+            font.weight: Font.Light
+            anchors.left: label2.left
+            anchors.leftMargin: 0
+            anchors.top: labelsupply2.bottom
             anchors.topMargin: 0
             color: "#202124"
         }
@@ -182,6 +247,100 @@ Item {
                 anchors.fill: parent
                 hoverEnabled: true
             }
+        }
+
+        Label {
+            id: valueicon
+            anchors.right: valueLabel.left
+            anchors.verticalCenter: valueLabel.verticalCenter
+            font.pixelSize: 14
+            font.family: "Montserrat SemiBold"
+            font.weight: Font.DemiBold
+            color: "#202124"
+            text: "$"
+        }
+
+        Label {
+            id: valueLabel
+            x: 285
+            y: 33
+            text: qsTr("32.950000000")
+            font.pixelSize: 14
+            font.family: "Montserrat SemiBold"
+            font.weight: Font.DemiBold
+            leftPadding: 0
+            anchors.bottom: availLabel.top
+            anchors.bottomMargin: 56
+            anchors.right: parent.right
+            anchors.rightMargin: 36
+            color: "#202124"
+        }
+
+        Label {
+            id: supplyicon
+            anchors.right: supplyLabel.left
+            anchors.verticalCenter: supplyLabel.verticalCenter
+            font.pixelSize: 12
+            font.family: "Montserrat Light"
+            font.weight: Font.Light
+            color: "#202124"
+            text: "₡"
+        }
+
+        Label {
+            id: supplyLabel
+            x: 285
+            y: 33
+            text: qsTr("-")
+            font.pixelSize: 12
+            font.family: "Montserrat Light"
+            font.weight: Font.Light
+            leftPadding: 0
+            anchors.top: labelsupply1.top
+            anchors.right: parent.right
+            anchors.rightMargin: 36
+            color: "#202124"
+        }
+
+        Label {
+            id: supplyusdicon
+            anchors.right: supplyusdLabel.left
+            anchors.verticalCenter: supplyusdLabel.verticalCenter
+            font.pixelSize: 12
+            font.family: "Montserrat Light"
+            font.weight: Font.Light
+            color: "#202124"
+            text: "$"
+        }
+
+        Label {
+            id: supplyusdLabel
+            x: 285
+            y: 33
+            text: qsTr("-")
+            font.pixelSize: 12
+            font.family: "Montserrat Light"
+            font.weight: Font.Light
+            leftPadding: 0
+            anchors.top: labelsupply2.top
+            anchors.right: parent.right
+            anchors.rightMargin: 36
+            color: "#202124"
+        }
+
+        Label {
+            id: blockheightLabel
+            x: 285
+            y: 33
+            text: qsTr("-")
+            font.pixelSize: 12
+            font.family: "Montserrat Light"
+            font.weight: Font.Light
+            leftPadding: 0
+            anchors.top: labelblockheight.top
+            anchors.right: parent.right
+            anchors.rightMargin: 36
+            color: "#202124"
         }
 
         Label {
@@ -369,6 +528,56 @@ Item {
             font.weight: Font.Light
             color: "#3e45ac"
             text: "₡"
+        }
+
+        Image {
+            id: downarrow
+            width: 16
+            height: 16
+            anchors.bottom: label3Do.top
+            fillMode: Image.PreserveAspectFit
+            anchors.left: label3Do.left
+            anchors.leftMargin: 20
+            source: "../res/assets/Miscellaneous/arrowdown.png"
+
+            property string toolTipText: qsTr("Convert BitCash into BitCash Dollars (prefills the transaction: just enter the amount and click on Send)")
+            ToolTip.text: toolTipText
+            ToolTip.visible: toolTipText ? madown2.containsMouse : false
+            ToolTip.delay: 100
+            ToolTip.timeout: 5000
+            MouseArea {
+                id: madown2
+                anchors.fill: parent
+                hoverEnabled: true
+                onClicked: {
+                    sendtodollarsignalintern()
+                }
+            }
+        }
+
+        Image {
+            id: uparrow
+            width: 16
+            height: 16
+            anchors.bottom: label3Do.top
+            fillMode: Image.PreserveAspectFit
+            anchors.left: downarrow.right
+            anchors.leftMargin: 20
+            source: "../res/assets/Miscellaneous/arrowup.png"
+
+            property string toolTipText: qsTr("Convert BitCash Dollars into BitCash (prefills the transaction: just enter the amount and click on Send)")
+            ToolTip.text: toolTipText
+            ToolTip.visible: toolTipText ? maup2.containsMouse : false
+            ToolTip.delay: 100
+            ToolTip.timeout: 5000
+            MouseArea {
+                id: maup2
+                anchors.fill: parent
+                hoverEnabled: true
+                onClicked: {
+                    sendtobitcashsignalintern()
+                }
+            }
         }
 
         Label {

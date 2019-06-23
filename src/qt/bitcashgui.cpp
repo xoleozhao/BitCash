@@ -341,7 +341,7 @@ void BitcashGUI::printStatementsBtnClicked(int month, int year, int currency)
     painter.begin(&printer);
 
 
-    int x, y, margintop, y2, x2, marginright, x3, pagebreakaty, apage, pagenumbery, headery;
+    int x, y, margintop, x2, marginright, x3, pagebreakaty, apage, pagenumbery, headery;
 
     painter.setFont(QFont("Montserrat DemiBold", 14));
 
@@ -971,7 +971,7 @@ void BitcashGUI::importKeyBtnClicked(QString keystr)
         }
     }
     inimporting  =true;
-    int64_t scanned_time = pwallet->RescanFromTime(TIMESTAMP_MIN, reserver, true /* update */);
+    pwallet->RescanFromTime(TIMESTAMP_MIN, reserver, true /* update */);
     inimporting = false;
     QVariant returnedValue;
     QVariant s = QString::fromStdString("The private key has been successfully imported. You may need to restart the wallet.");
@@ -1204,6 +1204,22 @@ void BitcashGUI::updateprice()
     }
 
     QMetaObject::invokeMethod(qmlrootitem, "setpriceDo",  Q_RETURN_ARG(QVariant, returnedValue), Q_RETURN_ARG(QVariant, price));
+
+    QVariant supplybitcash, supplydollar, blockheight;
+    CAmount bitcash, dollar;
+    int64_t height;
+
+    if (pri > 1) {
+        getsupplyinfo(bitcash, dollar, height);
+
+        supplybitcash = QString::fromStdString(FormatMoney(bitcash));
+        supplydollar = QString::fromStdString(FormatMoney(dollar));
+        blockheight = (qlonglong)height;   
+
+        QMetaObject::invokeMethod(qmlrootitem, "setsupply",  Q_RETURN_ARG(QVariant, returnedValue), Q_RETURN_ARG(QVariant, supplybitcash), 
+                                                                                                    Q_RETURN_ARG(QVariant, supplydollar), 
+                                                                                                    Q_RETURN_ARG(QVariant, blockheight));
+    }
 }
 
 void BitcashGUI::updateminingstats()

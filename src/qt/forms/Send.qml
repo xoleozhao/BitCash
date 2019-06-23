@@ -33,6 +33,23 @@ SendForm {
             timer.start()
         }
     }
+
+    function sendtodollarintern(address)
+    {
+        tabBar.currentIndex=0
+        paytoEdit.text = address
+        descriptionEdit.text = "Convert BitCash into BitCash Dollars"
+        amountEdit.forceActiveFocus()
+    }
+
+    function sendtobitcashintern(address)
+    {
+        tabBar.currentIndex=1
+        paytoEditDo.text = address
+        descriptionEditDo.text = "Convert BitCash Dollars into BitCash"
+        amountEditDo.forceActiveFocus()
+    }
+
     function displayerrormessageintern(msg) {
         errorlabel.text = msg
         infoboxerror.visible = true

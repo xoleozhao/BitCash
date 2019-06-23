@@ -5,6 +5,7 @@
 #ifndef BITCASH_RPC_BLOCKCHAIN_H
 #define BITCASH_RPC_BLOCKCHAIN_H
 
+#include <amount.h>
 class CBlock;
 class CBlockIndex;
 class UniValue;
@@ -19,6 +20,7 @@ class UniValue;
 double GetDifficulty(const CBlockIndex* blockindex = nullptr);
 double GetNextDifficulty(const CBlockIndex* blockindex = nullptr);
 double GetBlockPrice(const CBlockIndex* blockindex = nullptr);
+void getsupplyinfo(CAmount &bitcash, CAmount &dollar, int64_t &blockheight);
 
 /** Callback for when block tip changed. */
 void RPCNotifyBlockChange(bool ibd, const CBlockIndex *);

@@ -22,6 +22,28 @@ ReceiveForm {
         }, 5000);
     }
 
+    function getmybitcashaddress()
+    {
+        if (receivingnickname.text==="")
+        {
+            return receivingaddress.text
+        } else
+        {
+            return receivingnickname.text
+        }
+    }
+
+    function getmydollaraddress()
+    {
+        if (receivingnickname.text==="")
+        {
+            return receivingaddressDo.text
+        } else
+        {
+            return receivingnicknameDo.text
+        }
+    }
+
     function setreceivingaddressintern(address,nick) {
         receivingaddress.text=address
         receivingaddressDo.text="dollar@"+address

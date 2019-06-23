@@ -17,6 +17,20 @@ Item {
         color: "#f7f7f7"
     }
 
+    function sendtodollar()
+    {
+        //jump to send tab
+        tabBar.currentIndex = tabBar.currentIndex+2
+        send.sendtodollarintern(receive.getmydollaraddress())
+    }
+
+    function sendtobitcash()
+    {
+        //jump to send tab
+        tabBar.currentIndex = tabBar.currentIndex+2
+        send.sendtobitcashintern(receive.getmybitcashaddress())
+    }
+
     function getminingpool()
     {
         return mining.getminingpoolintern()
@@ -46,6 +60,10 @@ Item {
     function setprogressbarlabel2(show,infotext) {
         overview.progressinfolabel2.visible=show
         overview.progressinfolabel2.text=infotext
+    }
+
+    function setsupply(bitcash, dollar, blockheight) {
+        overview.setsupplyintern(bitcash, dollar, blockheight)
     }
 
     function setprogressbarpercent(show,percent) {
@@ -220,6 +238,11 @@ Item {
         overview.setpriceDointern(price)
     }
 
+    function setwalletvalue(value)
+    {
+        overview.setwalletvalueintern(value)
+    }
+
     function setreceivingaddress(address, nick) {
         if (nick!=="")
         {
@@ -357,6 +380,8 @@ Item {
             onStartMiningSignalInternoverview: tabBar.currentIndex=tabBar.currentIndex+1
             onStartBackupSignalInternoverview: backupBtnSignal();
             onStartTradingSignalInternoverview: tradingBtnSignal();
+            onSendtobitcashsignalintern: sendtobitcash()
+            onSendtodollarsignalintern: sendtodollar()
         }
         Mining{
             id: mining

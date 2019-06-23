@@ -172,6 +172,9 @@ UniValue importprivkey(const JSONRPCRequest& request)
 
             // Don't throw error in case a key is already there
             if (pwallet->HaveKey(vchAddress)) {
+                if (settomainkey) {
+                    pwallet->SetLabelDestination(pubkey, "");
+                }
                 return NullUniValue;
             }
 

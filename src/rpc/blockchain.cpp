@@ -22,7 +22,7 @@
 #include <txdb.h>
 #include <txmempool.h>
 #include <util.h>
-#include <utilstrencodings.h>
+#include <utilmoneystr.h>
 #include <hash.h>
 #include <validationinterface.h>
 #include <warnings.h>
@@ -306,6 +306,24 @@ static UniValue getbestblockhash(const JSONRPCRequest& request)
     LOCK(cs_main);
     return chainActive.Tip()->GetBlockHash().GetHex();
 }
+
+static UniValue getprice(const JSONRPCRequest& request)
+{
+    if (request.fHelp || request.params.size() != 0)
+        throw std::runtime_error(
+            "getprice\n"
+            "\nReturns the price stored in the latest block.\n"
+            "\nResult:\n"
+            "\"price\"      (double) the price of one BitCash\n"
+            "\nExamples:\n"
+            + HelpExampleCli("getprice", "")
+            + HelpExampleRpc("getprice", "")
+        );
+
+    LOCK(cs_main);
+    return ValueFromAmount(GetBlockPrice());
+}
+
 
 void RPCNotifyBlockChange(bool ibd, const CBlockIndex * pindex)
 {
@@ -1088,6 +1106,22 @@ static UniValue pruneblockchain(const JSONRPCRequest& request)
     return uint64_t(height);
 }
 
+void getsupplyinfo(CAmount &bitcash, CAmount &dollar, int64_t &blockheight)
+{
+    bitcash = 0;
+    dollar = 0;
+    blockheight = 0;
+
+    CCoinsStats stats;
+    FlushStateToDisk();
+
+    if (GetUTXOStats(pcoinsdbview.get(), stats)) {
+        blockheight = (int64_t)stats.nHeight;
+        bitcash = stats.nTotalAmount[0];
+        dollar = stats.nTotalAmount[1];
+    }
+}
+
 static UniValue gettxoutsetinfo(const JSONRPCRequest& request)
 {
     if (request.fHelp || request.params.size() != 0)
@@ -1860,6 +1894,7 @@ static const CRPCCommand commands[] =
     { "blockchain",         "getmempooldescendants",  &getmempooldescendants,  {"txid","verbose"} },
     { "blockchain",         "getmempoolentry",        &getmempoolentry,        {"txid"} },
     { "blockchain",         "getmempoolinfo",         &getmempoolinfo,         {} },
+    { "blockchain",         "getprice",               &getprice,               {} },
     { "blockchain",         "getrawmempool",          &getrawmempool,          {"verbose"} },
     { "blockchain",         "gettxout",               &gettxout,               {"txid","n","include_mempool"} },
     { "blockchain",         "gettxoutsetinfo",        &gettxoutsetinfo,        {} },
