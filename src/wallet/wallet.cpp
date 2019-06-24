@@ -2660,7 +2660,7 @@ void CWalletTx::GetAmounts(std::list<COutputEntry>& listReceived,
     for (unsigned int i = 0; i < tx->vout.size(); ++i)
     {
         const CTxOut& txout = tx->vout[i];
-        if (txout.currency != currency && ! currency == 255) continue;//255 -> all currencies
+        if (txout.currency != currency && currency != 255) continue;//255 -> all currencies
         isminetype fIsMine = pwallet->IsMineConst(txout,41);
         // Only need to handle txouts if AT LEAST one of these is true:
         //   1) they debit from us (sent)
@@ -2737,7 +2737,7 @@ void CWalletTx::GetAmountsForAddress(CTxDestination dest, std::list<COutputEntry
     for (unsigned int i = 0; i < tx->vout.size(); ++i)
     {
         const CTxOut& txout = tx->vout[i];
-        if (txout.currency != currency && ! currency == 255) continue;//255 -> all currencies
+        if (txout.currency != currency && currency != 255) continue;//255 -> all currencies
         isminetype fIsMine = ISMINE_NO;
         // Only need to handle txouts if AT LEAST one of these is true:
         //   1) they debit from us (sent)
