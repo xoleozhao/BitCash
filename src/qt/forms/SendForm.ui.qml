@@ -737,7 +737,7 @@ Item {
                 Label {
                     id: infolabel2
                     color: "#3e45ac"
-                    text: qsTr("available balance left on your acccount")
+                    text: qsTr("available balance left on your account")
                     font.pixelSize: 13
                     font.weight: Font.DemiBold
                     font.family: "Montserrat SemiBold"
@@ -1032,7 +1032,7 @@ Item {
                 Label {
                     id: infolabel2Do
                     color: "#3e45ac"
-                    text: qsTr("available balance left on your acccount")
+                    text: qsTr("available balance left on your account")
                     font.pixelSize: 13
                     font.weight: Font.DemiBold
                     font.family: "Montserrat SemiBold"
@@ -1319,7 +1319,7 @@ Item {
                 Label {
                     id: infolabel2tw
                     color: "#3e45ac"
-                    text: qsTr("available balance left on your acccount")
+                    text: qsTr("available balance left on your account")
                     font.pixelSize: 13
                     font.weight: Font.DemiBold
                     font.family: "Montserrat SemiBold"
@@ -1619,7 +1619,7 @@ Item {
                 Label {
                     id: infolabel2in
                     color: "#3e45ac"
-                    text: qsTr("available balance left on your acccount")
+                    text: qsTr("available balance left on your account")
                     font.pixelSize: 13
                     font.weight: Font.DemiBold
                     font.family: "Montserrat SemiBold"
@@ -1918,7 +1918,7 @@ Item {
                 Label {
                     id: infolabel2re
                     color: "#3e45ac"
-                    text: qsTr("available balance left on your acccount")
+                    text: qsTr("available balance left on your account")
                     font.pixelSize: 13
                     font.weight: Font.DemiBold
                     font.family: "Montserrat SemiBold"
@@ -2144,7 +2144,7 @@ Item {
                 Label {
                     id: infolabel2an
                     color: "#3e45ac"
-                    text: qsTr("available balance left on your acccount")
+                    text: qsTr("available balance left on your account")
                     font.pixelSize: 13
                     font.weight: Font.DemiBold
                     font.family: "Montserrat SemiBold"

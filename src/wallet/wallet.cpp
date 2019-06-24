@@ -3240,27 +3240,8 @@ bool CWalletTx::IsTrusted() const
     int nDepth = GetDepthInMainChain();
     if (nDepth >= 1)
         return true;
-    if (nDepth < 0)
-        return false;
-    if (!pwallet->m_spend_zero_conf_change || !IsFromMe(ISMINE_ALL)) // using wtx's cached debit
-        return false;
-
-    // Don't trust unconfirmed transactions from us unless they are in the mempool.
-    if (!InMempool())
-        return false;
-
-    // Trusted if all inputs are from us and are in the mempool:
-    for (const CTxIn& txin : tx->vin)
-    {
-        // Transactions not sent by us: not trusted
-        const CWalletTx* parent = pwallet->GetWalletTx(txin.prevout.hash);
-        if (parent == nullptr)
-            return false;
-        const CTxOut& parentOut = parent->tx->vout[txin.prevout.n];
-        if (pwallet->IsMineConst(parentOut,51) != ISMINE_SPENDABLE)
-            return false;
-    }
-    return true;
+    //it is not allowed to spend coins which are not yet mined since the introduction of the BitCash Dollar
+    return false;
 }
 
 unsigned char CWalletTx::GetInputCurrency() const

@@ -2101,7 +2101,7 @@ bool BitcashGUI::SendBtnClickedIntern(const QString &destination, const QString 
     entry.address = destination;
     entry.referenceline = description;
     entry.label = label;
-    entry.amount = amount*COIN;
+    entry.amount = amount * COIN;
     entry.fSubtractFeeFromAmount = substractfee;;
 
     recipients.push_back(entry);
@@ -2152,6 +2152,7 @@ bool BitcashGUI::SendBtnClickedIntern(const QString &destination, const QString 
     {
         // generate bold amount string with wallet name in case of multiwallet
         QString amount;
+        
         if (currency == 1) 
         amount = "<b>" + BitcashUnits::formatHtmlWithUnit(BitcashUnits::DOLLAR, rcp.amount);else
         amount = "<b>" + BitcashUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), rcp.amount);
