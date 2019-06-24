@@ -10,6 +10,7 @@ T.Button {
     property color txtcolordown: "#f2f2f2"    
     property color btnbordercolor: "#3e45ac"
     property int borderwidth: 0
+    property int imagestartleft: 20
 
     font.family: "Montserrat SemiBold"
 
@@ -32,7 +33,7 @@ T.Button {
 
         Image {
             id: buttonimage
-            x: 20
+            x: imagestartleft
             anchors.verticalCenter: parent.verticalCenter
             source: iconname
         }

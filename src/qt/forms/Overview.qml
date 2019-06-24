@@ -132,12 +132,123 @@ Item {
         radius: 1
         border.width: 0
         clip: true
-        height: 369
+        height: 374
         color: "white"
         anchors.left: parent.left
         anchors.leftMargin: 24
         anchors.right: image.left
         anchors.rightMargin: 24
+
+        Mybutton {
+            id: converttodollarbtn
+            width: 76
+            height: 44
+            anchors.right: converttobitcashbtn.left
+            anchors.rightMargin: 20
+            font.bold: false
+            font.weight: Font.DemiBold
+            font.pixelSize: 14
+            imagestartleft: 15
+            rightPadding: 20
+            leftPadding: 20
+            font.family: "Montserrat SemiBold"
+            font.capitalization: Font.MixedCase
+            anchors.top: immatureLabelDo.bottom
+            anchors.topMargin: 25
+            iconname: "../res/assets/Miscellaneous/converttodollar.png"
+            onClicked: sendtodollarsignalintern()
+        }
+
+        Mybutton {
+            id: converttobitcashbtn
+            width: 76
+            height: 44
+            anchors.right: immatureLabelDo.right
+            anchors.rightMargin: 0
+            font.bold: false
+            font.weight: Font.DemiBold
+            font.pixelSize: 14
+            imagestartleft: 15
+            rightPadding: 20
+            leftPadding: 20
+            font.family: "Montserrat SemiBold"
+            font.capitalization: Font.MixedCase
+            anchors.top: immatureLabelDo.bottom
+            anchors.topMargin: 25
+            iconname: "../res/assets/Miscellaneous/converttobitcash.png"
+            onClicked: sendtobitcashsignalintern()
+        }
+
+        Image {
+            id: convertinfo
+            width: 16
+            height: 16
+            anchors.verticalCenter: convertcaption.verticalCenter
+            fillMode: Image.PreserveAspectFit
+            anchors.left: convertcaption.right
+            anchors.leftMargin: 5
+            source: "../res/assets/Navigation/help-inactive.png"
+            property string toolTipText: qsTr("You can convert BitCash into BitCash Dollars (c->d) and BitCash Dollars into BitCash (d->c) with these two buttons.")
+            ToolTip.text: toolTipText
+            ToolTip.visible: toolTipText ? ma6.containsMouse : false
+            ToolTip.delay: 100
+            ToolTip.timeout: 5000
+            MouseArea {
+                id: ma6
+                anchors.fill: parent
+                hoverEnabled: true
+            }
+        }
+
+        Rectangle {
+            id: rectangle4
+            height: 1
+            radius: 10
+            anchors.top: immatureLabelDo.bottom
+            anchors.topMargin: 10
+            color: "#eaeaea"
+            anchors.right: immatureLabel.right
+            anchors.rightMargin: 0
+            anchors.left: label2.left
+            anchors.leftMargin: 0
+        }
+
+        Label {
+            id: convertcaption
+            text: qsTr("Convert")
+            font.weight: Font.Normal
+            font.pixelSize: 13
+            font.family: "Montserrat"
+            anchors.top: immatureLabelDo.bottom
+            anchors.topMargin: 25
+            anchors.left: label2.left
+            anchors.leftMargin: 0
+            color: "#202124"
+            property string toolTipText: qsTr("You can convert BitCash into BitCash Dollars (c->d) and BitCash Dollars into BitCash (d->c) with these two buttons.")
+            ToolTip.text: toolTipText
+            ToolTip.visible: toolTipText ? ma4.containsMouse : false
+            ToolTip.delay: 100
+            ToolTip.timeout: 5000
+            MouseArea {
+                id: ma4
+                anchors.fill: parent
+                hoverEnabled: true
+            }
+        }
+
+        Rectangle {
+        id: rectangle5
+        height: 1
+        color: "#eaeaea"
+        radius: 10
+        anchors.bottomMargin: 10
+        anchors.right: immatureLabel.right
+        anchors.bottom: label1.top
+        anchors.left: label2.left
+        anchors.topMargin: 10
+        anchors.rightMargin: 0
+        anchors.leftMargin: 0
+        }
 
         Label {
             id: label1
@@ -270,7 +381,7 @@ Item {
             font.weight: Font.DemiBold
             leftPadding: 0
             anchors.bottom: availLabel.top
-            anchors.bottomMargin: 56
+            anchors.bottomMargin: 65
             anchors.right: parent.right
             anchors.rightMargin: 36
             color: "#202124"
@@ -353,7 +464,7 @@ Item {
             font.weight: Font.DemiBold
             leftPadding: 0
             anchors.bottom: pendingLabel.top
-            anchors.bottomMargin: 56
+            anchors.bottomMargin: 45
             anchors.right: parent.right
             anchors.rightMargin: 36
             color: "#202124"
@@ -530,56 +641,6 @@ Item {
             text: "₡"
         }
 
-        Image {
-            id: downarrow
-            width: 16
-            height: 16
-            anchors.bottom: label3Do.top
-            fillMode: Image.PreserveAspectFit
-            anchors.left: label3Do.left
-            anchors.leftMargin: 20
-            source: "../res/assets/Miscellaneous/arrowdown.png"
-
-            property string toolTipText: qsTr("Convert BitCash into BitCash Dollars (prefills the transaction: just enter the amount and click on Send)")
-            ToolTip.text: toolTipText
-            ToolTip.visible: toolTipText ? madown2.containsMouse : false
-            ToolTip.delay: 100
-            ToolTip.timeout: 5000
-            MouseArea {
-                id: madown2
-                anchors.fill: parent
-                hoverEnabled: true
-                onClicked: {
-                    sendtodollarsignalintern()
-                }
-            }
-        }
-
-        Image {
-            id: uparrow
-            width: 16
-            height: 16
-            anchors.bottom: label3Do.top
-            fillMode: Image.PreserveAspectFit
-            anchors.left: downarrow.right
-            anchors.leftMargin: 20
-            source: "../res/assets/Miscellaneous/arrowup.png"
-
-            property string toolTipText: qsTr("Convert BitCash Dollars into BitCash (prefills the transaction: just enter the amount and click on Send)")
-            ToolTip.text: toolTipText
-            ToolTip.visible: toolTipText ? maup2.containsMouse : false
-            ToolTip.delay: 100
-            ToolTip.timeout: 5000
-            MouseArea {
-                id: maup2
-                anchors.fill: parent
-                hoverEnabled: true
-                onClicked: {
-                    sendtobitcashsignalintern()
-                }
-            }
-        }
-
         Label {
             id: label3Do
             text: qsTr("Total Dollar balance")
@@ -693,11 +754,11 @@ Item {
             source: "../res/assets/Navigation/help-inactive.png"
             property string toolTipText: qsTr("You have received Bitcash from mining,<br> but it has not yet been confirmed by<br> the Bitcash blockchain network. Once it<br> has been confirmed, it will become<br> available for you to spend. This usually<br> takes a few minutes but can take up to<br> one hour.")
             ToolTip.text: toolTipText
-            ToolTip.visible: toolTipText ? ma4.containsMouse : false
+            ToolTip.visible: toolTipText ? ma5.containsMouse : false
             ToolTip.delay: 100
             ToolTip.timeout: 5000
             MouseArea {
-                id: ma4
+                id: ma5
                 anchors.fill: parent
                 hoverEnabled: true
             }
@@ -778,7 +839,7 @@ Item {
             height: 1
             radius: 10
             anchors.bottom: pendingLabel.top
-            anchors.bottomMargin: 20
+            anchors.bottomMargin: 15
             color: "#eaeaea"
             anchors.right: immatureLabel.right
             anchors.rightMargin: 0
