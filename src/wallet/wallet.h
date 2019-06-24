@@ -594,6 +594,7 @@ public:
     mapValue_t mapValue;
     int64_t nOrderPos; //!< position in ordered transaction list
     uint64_t nEntryNo;
+    unsigned char currency;
 
     CAccountingEntry()
     {
@@ -609,6 +610,7 @@ public:
         strComment.clear();
         nOrderPos = -1;
         nEntryNo = 0;
+        currency = 0;
     }
 
     template <typename Stream>
@@ -624,6 +626,7 @@ public:
         WriteOrderPos(nOrderPos, mapValueCopy);
 
         std::string strCommentCopy = strComment;
+        if (currency == 1) strCommentCopy = "dollar@" + strCommentCopy;
         if (!mapValueCopy.empty() || !_ssExtra.empty()) {
             CDataStream ss(s.GetType(), s.GetVersion());
             ss.insert(ss.begin(), '\0');
@@ -632,6 +635,7 @@ public:
             strCommentCopy.append(ss.str());
         }
         s << strCommentCopy;
+
     }
 
     template <typename Stream>
@@ -653,6 +657,13 @@ public:
         ReadOrderPos(nOrderPos, mapValue);
         if (std::string::npos != nSepPos) {
             strComment.erase(nSepPos);
+        }
+
+        currency = 0;
+        size_t nSepPos2 = strComment.find("dollar@");
+        if (nSepPos2 == 0) {
+            currency = 1;
+            strComment.erase(0, 7);
         }
 
         mapValue.erase("n");
@@ -961,7 +972,7 @@ public:
      */
     int64_t IncOrderPosNext(WalletBatch *batch = nullptr);
     DBErrors ReorderTransactions();
-    bool AccountMove(std::string strFrom, std::string strTo, CAmount nAmount, std::string strComment = "");
+    bool AccountMove(std::string strFrom, std::string strTo, CAmount nAmount, std::string strComment = "", unsigned char currency = 0);
     bool GetLabelDestination(CTxDestination &dest, const std::string& label, bool createnonprivate = false);
     void SetLabelDestination(CPubKey &vchPubKey, const std::string& label);
 

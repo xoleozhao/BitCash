@@ -1560,7 +1560,7 @@ int64_t CWallet::IncOrderPosNext(WalletBatch *batch)
     return nRet;
 }
 
-bool CWallet::AccountMove(std::string strFrom, std::string strTo, CAmount nAmount, std::string strComment)
+bool CWallet::AccountMove(std::string strFrom, std::string strTo, CAmount nAmount, std::string strComment, unsigned char currency)
 {
     WalletBatch batch(*database);
     if (!batch.TxnBegin())
@@ -1576,6 +1576,7 @@ bool CWallet::AccountMove(std::string strFrom, std::string strTo, CAmount nAmoun
     debit.nTime = nNow;
     debit.strOtherAccount = strTo;
     debit.strComment = strComment;
+    debit.currency = currency;
     AddAccountingEntry(debit, &batch);
 
     // Credit
@@ -1586,6 +1587,7 @@ bool CWallet::AccountMove(std::string strFrom, std::string strTo, CAmount nAmoun
     credit.nTime = nNow;
     credit.strOtherAccount = strFrom;
     credit.strComment = strComment;
+    credit.currency = currency;
     AddAccountingEntry(credit, &batch);
 
     if (!batch.TxnCommit())
@@ -3629,7 +3631,7 @@ std::cout << ":" << mapAddressBook[dest].name << std::endl;*/
     }
 
     if (account) {
-        balance += WalletBatch(*database).GetAccountCreditDebit(*account);
+        balance += WalletBatch(*database).GetAccountCreditDebit(*account, currency);
     }
 
     return balance;

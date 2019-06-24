@@ -3233,13 +3233,70 @@ static UniValue movecmd(const JSONRPCRequest& request)
     if (!request.params[4].isNull())
         strComment = request.params[4].get_str();
 
-    if (!pwallet->AccountMove(strFrom, strTo, nAmount, strComment)) {
+    if (!pwallet->AccountMove(strFrom, strTo, nAmount, strComment, 0)) {
         throw JSONRPCError(RPC_DATABASE_ERROR, "database error");
     }
 
     return true;
 }
 
+static UniValue movecurrencycmd(const JSONRPCRequest& request)
+{
+    CWallet * const pwallet = GetWalletForJSONRPCRequest(request);
+    if (!EnsureWalletIsAvailable(pwallet, request.fHelp)) {
+        return NullUniValue;
+    }
+
+    if (!IsDeprecatedRPCEnabled("accounts")) {
+        if (request.fHelp) {
+            throw std::runtime_error("movecurrency (Deprecated, will be removed in V0.18. To use this command, start bitcashd with -deprecatedrpc=accounts)");
+        }
+        throw JSONRPCError(RPC_METHOD_DEPRECATED, "movecurrency is deprecated and will be removed in V0.18. To use this command, start bitcashd with -deprecatedrpc=accounts.");
+    }
+
+    if (request.fHelp || request.params.size() < 4 || request.params.size() > 6)
+        throw std::runtime_error(
+            "movecurrency currency \"fromaccount\" \"toaccount\" amount ( minconf \"comment\" )\n"
+            "\nDEPRECATED. Move a specified amount from one account in your wallet to another.\n"
+            "\nArguments:\n"
+            "1. currency          (numeric, required) The currency account from which to send 0 = BitCash 1 = US Dollar\n"
+            "2. \"fromaccount\"   (string, required) The name of the account to move funds from. May be the default account using \"\".\n"
+            "3. \"toaccount\"     (string, required) The name of the account to move funds to. May be the default account using \"\".\n"
+            "4. amount            (numeric) Quantity of " + CURRENCY_UNIT + " to move between accounts.\n"
+            "5. (dummy)           (numeric, optional) Ignored. Remains for backward compatibility.\n"
+            "6. \"comment\"       (string, optional) An optional comment, stored in the wallet only.\n"
+            "\nResult:\n"
+            "true|false           (boolean) true if successful.\n"
+            "\nExamples:\n"
+            "\nMove 0.01 " + CURRENCY_UNIT + " from the default account to the account named tabby\n"
+            + HelpExampleCli("move", "0 \"\" \"tabby\" 0.01") +
+            "\nMove 0.01 " + CURRENCY_UNIT + " timotei to akiko with a comment and funds have 6 confirmations\n"
+            + HelpExampleCli("move", "0 \"timotei\" \"akiko\" 0.01 6 \"happy birthday!\"") +
+            "\nAs a json rpc call\n"
+            + HelpExampleRpc("move", "0 \"timotei\", \"akiko\", 0.01, 6, \"happy birthday!\"")
+        );
+
+    LOCK2(cs_main, pwallet->cs_wallet);
+
+    int currency = request.params[0].get_int();;    
+    std::string strFrom = LabelFromValue(request.params[1]);
+    std::string strTo = LabelFromValue(request.params[2]);
+    CAmount nAmount = AmountFromValue(request.params[3]);
+    if (nAmount <= 0)
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for send");
+    if (!request.params[4].isNull())
+        // unused parameter, used to be nMinDepth, keep type-checking it though
+        (void)request.params[4].get_int();
+    std::string strComment;
+    if (!request.params[5].isNull())
+        strComment = request.params[5].get_str();
+
+    if (!pwallet->AccountMove(strFrom, strTo, nAmount, strComment, currency)) {
+        throw JSONRPCError(RPC_DATABASE_ERROR, "database error");
+    }
+
+    return true;
+}
 
 static UniValue sendfrom(const JSONRPCRequest& request)
 {
@@ -3287,7 +3344,7 @@ static UniValue sendfrom(const JSONRPCRequest& request)
     } else {
     if (request.fHelp || request.params.size() < 3 || request.params.size() > 9)
         throw std::runtime_error(
-            "sendfromcurrency currency \"fromaccount\" \"toaddress\" amount ( currency \"referenceline\" minconf \"comment\" \"comment_to\" subtractfeefromamount)\n"
+            "sendfromcurrency \"fromaccount\" \"toaddress\" amount ( currency \"referenceline\" minconf \"comment\" \"comment_to\" subtractfeefromamount)\n"
             "\nDEPRECATED (use sendtoaddress). Sent an amount from an account to a bitcash address."
             + HelpRequiringPassphrase(pwallet) + "\n"
             "\nArguments:\n"
@@ -4344,6 +4401,7 @@ static void AcentryToJSON(const CAccountingEntry& acentry, const std::string& st
     {
         UniValue entry(UniValue::VOBJ);
         entry.pushKV("account", acentry.strAccount);
+        entry.pushKV("currency", acentry.currency);
         entry.pushKV("category", "move");
         entry.pushKV("time", acentry.nTime);
         entry.pushKV("amount", ValueFromAmount(acentry.nCreditDebit));
@@ -4829,13 +4887,14 @@ static UniValue listaccounts(const JSONRPCRequest& request)
         throw JSONRPCError(RPC_METHOD_DEPRECATED, "listaccounts is deprecated and will be removed in V0.18. To use this command, start bitcashd with -deprecatedrpc=accounts.");
     }
 
-    if (request.fHelp || request.params.size() > 2)
+    if (request.fHelp || request.params.size() > 3)
         throw std::runtime_error(
             "listaccounts ( minconf include_watchonly)\n"
             "\nDEPRECATED. Returns Object that has account names as keys, account balances as values.\n"
             "\nArguments:\n"
             "1. minconf             (numeric, optional, default=1) Only include transactions with at least this many confirmations\n"
             "2. include_watchonly   (bool, optional, default=false) Include balances in watch-only addresses (see 'importaddress')\n"
+            "3. currency            (numeric, optional, default=0) 0=BitCash 1=US Dollar\n" 
             "\nResult:\n"
             "{                      (json object where keys are account names, and values are numeric balances\n"
             "  \"account\": x.xxx,  (numeric) The property name is the account name, and the value is the total balance for the account.\n"
@@ -4866,6 +4925,13 @@ static UniValue listaccounts(const JSONRPCRequest& request)
         if(request.params[1].get_bool())
             includeWatchonly = includeWatchonly | ISMINE_WATCH_ONLY;
 
+    int currency = 0;
+    if (!request.params[2].isNull()) {
+        const UniValue& mode = request.params[2];    
+        if (!mode.isNull())
+            currency = mode.get_int();    
+    }
+
     std::map<std::string, CAmount> mapAccountBalances;
     for (const std::pair<CTxDestination, CAddressBookData>& entry : pwallet->mapAddressBook) {
         if (IsMine(*pwallet, entry.first) & includeWatchonly) {  // This address belongs to me
@@ -4882,7 +4948,7 @@ static UniValue listaccounts(const JSONRPCRequest& request)
         int nDepth = wtx.GetDepthInMainChain();
         if (wtx.GetBlocksToMaturity() > 0 || nDepth < 0)
             continue;
-        wtx.GetAmounts(listReceived, listSent, nFee, strSentAccount, includeWatchonly, 0);
+        wtx.GetAmounts(listReceived, listSent, nFee, strSentAccount, includeWatchonly, currency);
         mapAccountBalances[strSentAccount] -= nFee;
         for (const COutputEntry& s : listSent)
             mapAccountBalances[strSentAccount] -= s.amount;
@@ -4899,6 +4965,7 @@ static UniValue listaccounts(const JSONRPCRequest& request)
 
     const std::list<CAccountingEntry>& acentries = pwallet->laccentries;
     for (const CAccountingEntry& entry : acentries)
+        if (entry.currency == currency)
         mapAccountBalances[entry.strAccount] += entry.nCreditDebit;
 
     UniValue ret(UniValue::VOBJ);
@@ -7453,11 +7520,13 @@ static const CRPCCommand commands[] =
     { "wallet",             "getaddressesbyaccount",            &getaddressesbyaccount,         {"account"} },
     { "wallet",             "getreceivedbyaccount",             &getreceivedbylabel,            {"account","minconf"} },
     { "wallet",             "getreceivedbyaccountforcurrency",  &getreceivedbylabel,            {"currency", "account","minconf"} },
-    { "wallet",             "listaccounts",                     &listaccounts,                  {"minconf","include_watchonly"} },
+    { "wallet",             "listaccounts",                     &listaccounts,                  {"minconf","include_watchonly", "currency"} },
     { "wallet",             "listreceivedbyaccount",            &listreceivedbylabel,           {"minconf","include_empty","include_watchonly"} },
     { "wallet",             "listreceivedbyaccountforcurrency", &listreceivedbylabel,           {"currency", "minconf","include_empty","include_watchonly"} },
     { "wallet",             "setaccount",                       &setlabel,                      {"address","account"} },
     { "wallet",             "move",                             &movecmd,                       {"fromaccount","toaccount","amount","minconf","comment"} },
+    { "wallet",             "movecurrency",                     &movecurrencycmd,               {"currency", "fromaccount","toaccount","amount","minconf","comment"} },
+
 
     /** Label functions (to replace non-balance account functions) */
     { "wallet",             "getlabeladdress",                  &getlabeladdress,               {"label","force"} },
