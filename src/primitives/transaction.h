@@ -393,7 +393,7 @@ public:
     // and bypass the constness. This is safe, as they update the entire
     // structure, including the hash.
     const std::vector<CTxIn> vin;
-    /*const*/ std::vector<CTxOut> vout;
+    const std::vector<CTxOut> vout;
     const int32_t nVersion;
     const uint32_t nLockTime;
 
