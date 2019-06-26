@@ -44,6 +44,7 @@
 #include <validationinterface.h>
 #include <warnings.h>
 #include "cuckoo/miner.h"
+#include <core_io.h>
 
 #include <future>
 #include <sstream>
@@ -3697,6 +3698,7 @@ std::vector<unsigned char> GenerateCoinbaseCommitment(CBlock& block, const CBloc
             CHash256().Write(witnessroot.begin(), 32).Write(ret.data(), 32).Finalize(witnessroot.begin());
             CTxOut out;
             out.nValue = 0;
+            out.nValueBitCash = 0;
             out.scriptPubKey.resize(38);
             out.scriptPubKey[0] = OP_RETURN;
             out.scriptPubKey[1] = 0x24;
@@ -4121,6 +4123,8 @@ bool ProcessNewBlock(
                         //wrongly created coinbase due to a bug
                     } else
                     {
+                    std::cout << EncodeHexTx(tx) << std::endl;
+                        if (tx.IsCoinBase())                         LogPrintf("iscoinbase\n");
                         LogPrintf("Inputcurrency: %i \n",inputcurrency);
                         LogPrintf("Tx to change in ProcessNewBlock: %s \n",tx.GetHash().ToString());
                         LogPrintf("Set nValue to nValueBitCash: %s new: %s \n",FormatMoney(tx.vout[j].nValue),FormatMoney(tx.vout[j].nValueBitCash));

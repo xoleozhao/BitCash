@@ -252,6 +252,9 @@ public:
     }
 };
 
+std::vector <uint256> delmetx;
+std::vector <uint256> addmetx;
+
 static bool
 ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
              CWalletScanState &wss, std::string& strType, std::string& strErr)
@@ -280,7 +283,7 @@ ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
             CWalletTx wtx(nullptr /* pwallet */, MakeTransactionRef());
             ssValue >> wtx;
             CValidationState state;
-            if (!(CheckTransaction(*wtx.tx, state,true,uint256S("0x0"),false) && (wtx.GetHash() == hash) && state.IsValid()))
+            if (!(CheckTransaction(*wtx.tx, state,true,uint256S("0x0"),false) && state.IsValid()))
                 return false;
 
             // Undo serialize changes in 31600
@@ -307,6 +310,11 @@ ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
                 wss.fAnyUnordered = true;
 
             pwallet->LoadToWallet(wtx);
+            if (wtx.GetHash() != hash) {
+                //stored under the wrong hash...
+                addmetx.push_back(wtx.GetHash());
+                delmetx.push_back(hash);
+            }
         }
         else if (strType == "acentry")
         {
@@ -539,6 +547,8 @@ DBErrors WalletBatch::LoadWallet(CWallet* pwallet)
     DBErrors result = DBErrors::LOAD_OK;
 
     LOCK(pwallet->cs_wallet);
+    delmetx.clear();
+    addmetx.clear();
     try {
         int nMinVersion = 0;
         if (m_batch.Read((std::string)"minversion", nMinVersion))
@@ -615,6 +625,12 @@ DBErrors WalletBatch::LoadWallet(CWallet* pwallet)
     // nTimeFirstKey is only reliable if all keys have metadata
     if ((wss.nKeys + wss.nCKeys + wss.nWatchKeys) != wss.nKeyMeta)
         pwallet->UpdateTimeFirstKey(1);
+
+    for (uint256 hash : delmetx)
+        EraseTx(hash);
+
+    for (uint256 hash : addmetx)
+        WriteTx(pwallet->mapWallet.at(hash));
 
     for (uint256 hash : wss.vWalletUpgrade)
         WriteTx(pwallet->mapWallet.at(hash));
