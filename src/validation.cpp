@@ -4060,6 +4060,8 @@ bool ProcessNewBlock(
     for (int i = 0; i < pblocknew->vtx.size(); i++) {
         CMutableTransaction tx(*pblocknew->vtx[i]);
         
+        //is the stable coin feature active for this transaction?
+        if (tx.nVersion >= 5) {
         int inputcurrency = 0;//Currency of transaction inputs
         //only one input currency is allowed for all inputs
         for (j = 0; j < tx.vin.size(); j++) {               
@@ -4071,6 +4073,7 @@ bool ProcessNewBlock(
                 CTransactionRef txfound;
                 uint256 hash_block;
                 CBlockIndex* blockindex = nullptr;
+                //does fail if we referring to a tx input in the same block, but this is no longer allows since the stable coin fork
                 if (!GetTransaction(tx.vin[j].prevout.hash, txfound, Params().GetConsensus(), hash_block, true, blockindex)) {
                     return error("%s: AcceptBlock FAILED: %s", __func__, "Could not get input transaction");
                 }
@@ -4127,6 +4130,7 @@ bool ProcessNewBlock(
                 }
             }
         } 
+        }
     }
 
 
