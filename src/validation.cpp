@@ -4068,7 +4068,6 @@ bool ProcessNewBlock(
             CCoinsViewCache theview(pcoinsTip.get());
 
             if (!theview.HaveCoin(tx.vin[j].prevout)) {
-                bool GetTransaction(const uint256& hash, CTransactionRef& tx, const Consensus::Params& params, uint256& hashBlock, bool fAllowSlow = false, CBlockIndex* blockIndex = nullptr);
                 CTransactionRef txfound;
                 uint256 hash_block;
                 CBlockIndex* blockindex = nullptr;
