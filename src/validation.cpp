@@ -44,7 +44,6 @@
 #include <validationinterface.h>
 #include <warnings.h>
 #include "cuckoo/miner.h"
-#include <core_io.h>
 
 #include <future>
 #include <sstream>
@@ -4123,8 +4122,6 @@ bool ProcessNewBlock(
                         //wrongly created coinbase due to a bug
                     } else
                     {
-                    std::cout << EncodeHexTx(tx) << std::endl;
-                        if (tx.IsCoinBase())                         LogPrintf("iscoinbase\n");
                         LogPrintf("Inputcurrency: %i \n",inputcurrency);
                         LogPrintf("Tx to change in ProcessNewBlock: %s \n",tx.GetHash().ToString());
                         LogPrintf("Set nValue to nValueBitCash: %s new: %s \n",FormatMoney(tx.vout[j].nValue),FormatMoney(tx.vout[j].nValueBitCash));
