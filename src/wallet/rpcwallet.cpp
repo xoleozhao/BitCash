@@ -185,6 +185,7 @@ static UniValue createcoinbaseforaddress(const JSONRPCRequest& request)
     //Pay to the development fund....
     coinbaseTx.vout[1].scriptPubKey = GetScriptForRawPubKey(CPubKey(ParseHex(Dev1scriptPubKey)));
     coinbaseTx.vout[1].nValue = GetBlockSubsidyDevs(nHeight, Params().GetConsensus());
+    coinbaseTx.vout[1].nValueBitCash = coinbaseTx.vout[1].nValue;
     
     coinbaseTx.vin[0].scriptSig = CScript() << nHeight << ParseHex("FFBBAAEE003344BBFFBBAAEE003344BB") << OP_0;
 
@@ -288,6 +289,7 @@ static UniValue createcoinbaseforaddresswithpoolfee(const JSONRPCRequest& reques
     //Pay to the development fund....
     coinbaseTx.vout[2].scriptPubKey = GetScriptForRawPubKey(CPubKey(ParseHex(Dev1scriptPubKey)));
     coinbaseTx.vout[2].nValue = GetBlockSubsidyDevs(nHeight, Params().GetConsensus());
+    coinbaseTx.vout[2].nValueBitCash = coinbaseTx.vout[2].nValue;
     
     coinbaseTx.vin[0].scriptSig = CScript() << nHeight << ParseHex("FFBBAAEE003344BBFFBBAAEE003344BB") << OP_0;
 

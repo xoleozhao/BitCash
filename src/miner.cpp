@@ -211,13 +211,13 @@ void BlockAssembler::ConvertCurrenciesForBlockTemplate()
                     tx.vout[j].nValue = (__int128_t)tx.vout[j].nValueBitCash * (__int128_t)pricerate / (__int128_t)COIN;
                     //std::cout << "Converted to Dollar: " << FormatMoney(tx.vout[j].nValue) << std::endl;
                 } else
-		if (inputcurrency == 1 && tx.vout[j].currency == 0) {
+                if (inputcurrency == 1 && tx.vout[j].currency == 0) {
                     //std::cout << "Input Dollar: " << FormatMoney(tx.vout[j].nValueBitCash) << std::endl;
                     //Convert Dollars into BitCash
                     tx.vout[j].nValue = (__int128_t)tx.vout[j].nValueBitCash * (__int128_t)COIN / (__int128_t)pricerate;
                     //std::cout << "Converted to BitCash: " << FormatMoney(tx.vout[j].nValue) << std::endl;
                 }
-            }
+            } else tx.vout[j].nValue = tx.vout[j].nValueBitCash;
         } 
 	pblock->vtx[i] = MakeTransactionRef(std::move(tx));
     }

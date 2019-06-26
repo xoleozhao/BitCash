@@ -393,7 +393,7 @@ public:
     // and bypass the constness. This is safe, as they update the entire
     // structure, including the hash.
     const std::vector<CTxIn> vin;
-    const std::vector<CTxOut> vout;
+    /*const*/ std::vector<CTxOut> vout;
     const int32_t nVersion;
     const uint32_t nLockTime;
 
@@ -520,6 +520,12 @@ struct CMutableTransaction
         }
         return false;
     }
+
+    bool IsCoinBase() const
+    {
+        return (vin.size() == 1 && vin[0].prevout.IsNull() && !vin[0].isnickname);
+    }
+
 };
 
 typedef std::shared_ptr<const CTransaction> CTransactionRef;

@@ -136,7 +136,7 @@ CAmount CTransaction::GetValueOutInCurrency(unsigned char currency, CAmount pric
 //std::cout << "Output Currency: " << (int)tx_out.currency << std::endl;
 
         CAmount value = tx_out.nValue;
-	if (tx_out.currency != currency) {
+        if (tx_out.currency != currency) {
                 if (currency == 1 && tx_out.currency == 0) {
                     //Convert BitCash into Dollars
 //std::cout << "Input BitCash: " << FormatMoney(tx_out.nValue) << std::endl;
@@ -149,7 +149,7 @@ CAmount CTransaction::GetValueOutInCurrency(unsigned char currency, CAmount pric
                     value = (__int128_t)tx_out.nValue * (__int128_t)COIN / (__int128_t)price;
 //std::cout << "Conv BitCash: " << FormatMoney(value) << std::endl;
                 }
-            }
+        }
 
         nValueOut += value;
         if (!MoneyRange(value) || !MoneyRange(nValueOut))
@@ -162,6 +162,10 @@ CAmount CTransaction::GetValueOut() const
 {
     CAmount nValueOut = 0;
     for (const auto& tx_out : vout) {
+        if (IsCoinBase() && tx_out.nValue == 2.15 * COIN && tx_out.nValueBitCash == -1) {
+            //correct this, this happend due to a bug
+            nValueOut += tx_out.nValue;
+        } else
         nValueOut += tx_out.nValueBitCash;
         if (!MoneyRange(tx_out.nValue) || !MoneyRange(nValueOut))
             throw std::runtime_error(std::string(__func__) + ": value out of range");

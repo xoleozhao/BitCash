@@ -2247,9 +2247,10 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
         {
             std::vector<CScriptCheck> vChecks;
             bool fCacheResults = fJustCheck; /* Don't cache results if we're actually connecting blocks (still consult the cache, though) */
-            if (!CheckInputs(tx, state, view, fScriptChecks, flags, fCacheResults, fCacheResults, txdata[i], nScriptCheckThreads ? &vChecks : nullptr))
+            if (!CheckInputs(tx, state, view, fScriptChecks, flags, fCacheResults, fCacheResults, txdata[i], nScriptCheckThreads ? &vChecks : nullptr)) {
                 return error("ConnectBlock(): CheckInputs on %s failed with %s",
                     tx.GetHash().ToString(), FormatStateMessage(state));
+            }
             control.Add(vChecks);
         }
 
@@ -2337,6 +2338,17 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
                     if (tx.vout[j].nValue != (__int128_t)tx.vout[j].nValueBitCash * (__int128_t)COIN / (__int128_t)pricerate) {
                         return state.DoS(100, false, REJECT_INVALID, "bad-currency-conversion", false, "The currency conversion is not correct.");
                     }               
+                }
+            } else
+            {
+                if (tx.vout[j].nValue != tx.vout[j].nValueBitCash) {
+                    if (tx.IsCoinBase() && tx.vout[j].nValue == 2.15 * COIN && tx.vout[j].nValueBitCash == -1)
+                    {
+                        //wrongly created coinbase due to a bug
+                    } else
+                    {
+                        return state.DoS(100, false, REJECT_INVALID, "nValue-unequal-nValueBitCash", false, "The currency conversion is not correct: nValue is not equal to nValueBitCash.");
+                    }
                 }
             }
         } 
@@ -3420,6 +3432,7 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
         (!(block.nPriceInfo.priceTime == block.nTime || (block.nPriceInfo.priceTime > block.nTime && block.nPriceInfo.priceTime <= block.nTime + MAX_PRICETIME_DIFFERENCE) 
                                                       || (block.nPriceInfo.priceTime < block.nTime && block.nPriceInfo.priceTime + MAX_PRICETIME_DIFFERENCE >= block.nTime)))) {
         //Time of Price information is not near enough to block time
+        LogPrintf("Blockhash %f \n", blockhash.ToString());
         LogPrintf("priceTime %f \n", block.nPriceInfo.priceTime);
         LogPrintf("nTime %f \n", block.nTime);
         LogPrintf("consensusParams.STABLETIME %f \n", consensusParams.STABLETIME);
@@ -3429,6 +3442,7 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
         (!(block.nPriceInfo2.priceTime == block.nTime || (block.nPriceInfo2.priceTime > block.nTime && block.nPriceInfo2.priceTime <= block.nTime + MAX_PRICETIME_DIFFERENCE) 
                                                       || (block.nPriceInfo2.priceTime < block.nTime && block.nPriceInfo2.priceTime + MAX_PRICETIME_DIFFERENCE >= block.nTime)))) {
         //Time of Price information is not near enough to block time
+        LogPrintf("Blockhash %f \n", blockhash.ToString());
         LogPrintf("priceTime2 %f \n", block.nPriceInfo2.priceTime);
         LogPrintf("nTime %f \n", block.nTime);
         LogPrintf("consensusParams.STABLETIME %f \n", consensusParams.STABLETIME);
@@ -3438,6 +3452,7 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
         (!(block.nPriceInfo3.priceTime == block.nTime || (block.nPriceInfo3.priceTime > block.nTime && block.nPriceInfo3.priceTime <= block.nTime + MAX_PRICETIME_DIFFERENCE) 
                                                       || (block.nPriceInfo3.priceTime < block.nTime && block.nPriceInfo3.priceTime + MAX_PRICETIME_DIFFERENCE >= block.nTime)))) {
         //Time of Price information is not near enough to block time
+        LogPrintf("Blockhash %f \n", blockhash.ToString());
         LogPrintf("priceTime3 %f \n", block.nPriceInfo3.priceTime);
         LogPrintf("nTime %f \n", block.nTime);
         LogPrintf("consensusParams.STABLETIME %f \n", consensusParams.STABLETIME);
@@ -4048,16 +4063,29 @@ bool ProcessNewBlock(
         int inputcurrency = 0;//Currency of transaction inputs
         //only one input currency is allowed for all inputs
         for (j = 0; j < tx.vin.size(); j++) {               
-            if (tx.vin[j].isnickname) 
+            if (tx.vin[j].isnickname || tx.IsCoinBase()) 
                 continue;
             CCoinsViewCache theview(pcoinsTip.get());
-            const Coin& coin = theview.AccessCoin(tx.vin[j].prevout);
-            if (coin.IsCoinBase()) {
-                inputcurrency = 0;
+
+            if (!theview.HaveCoin(tx.vin[j].prevout)) {
+                bool GetTransaction(const uint256& hash, CTransactionRef& tx, const Consensus::Params& params, uint256& hashBlock, bool fAllowSlow = false, CBlockIndex* blockIndex = nullptr);
+                CTransactionRef txfound;
+                uint256 hash_block;
+                CBlockIndex* blockindex = nullptr;
+                if (!GetTransaction(tx.vin[j].prevout.hash, txfound, Params().GetConsensus(), hash_block, true, blockindex)) {
+                    return error("%s: AcceptBlock FAILED: %s", __func__, "Could not get input transaction");
+                }
+                inputcurrency = txfound->vout[tx.vin[j].prevout.n].currency;
+                break;
             } else {
-                inputcurrency = coin.out.currency;
+                const Coin& coin = theview.AccessCoin(tx.vin[j].prevout);
+                if (coin.IsCoinBase()) {
+                    inputcurrency = 0;
+                } else {
+                    inputcurrency = coin.out.currency;
+                }
+                break;
             }
-            break;
         }
         for (j = 0; j < tx.vout.size(); j++) {
    
@@ -4066,6 +4094,8 @@ bool ProcessNewBlock(
                     //Convert BitCash into Dollars
                     CAmount amount = (__int128_t)tx.vout[j].nValueBitCash * (__int128_t)pricerate / (__int128_t)COIN;
                     if (tx.vout[j].nValue != amount ) {
+                        LogPrintf("Inputcurrency: %i \n",inputcurrency);
+                        LogPrintf("Tx to change in ProcessNewBlock: %s \n",tx.GetHash().ToString());
                         LogPrintf("Convert BitCash into Dollars: %s new: %s \n",FormatMoney(tx.vout[j].nValue),FormatMoney(amount));
                         tx.vout[j].nValue = amount;
                         pblocknew->vtx[i] = MakeTransactionRef(std::move(tx));
@@ -4075,10 +4105,26 @@ bool ProcessNewBlock(
                     //Convert Dollars into BitCash
                     CAmount amount = (__int128_t)tx.vout[j].nValueBitCash * (__int128_t)COIN / (__int128_t)pricerate;
                     if (tx.vout[j].nValue != amount ) {
+                        LogPrintf("Inputcurrency: %i \n",inputcurrency);
+                        LogPrintf("Tx to change in ProcessNewBlock: %s \n",tx.GetHash().ToString());
                         LogPrintf("Convert Dollars into BitCash: %s new: %s \n",FormatMoney(tx.vout[j].nValue),FormatMoney(amount));
                         tx.vout[j].nValue = amount;
                         pblocknew->vtx[i] = MakeTransactionRef(std::move(tx));
                     }               
+                }
+            } else {
+                if (tx.vout[j].nValue != tx.vout[j].nValueBitCash) {
+                    if (tx.IsCoinBase() && tx.vout[j].nValue == 2.15 * COIN && tx.vout[j].nValueBitCash == -1)
+                    {
+                        //wrongly created coinbase due to a bug
+                    } else
+                    {
+                        LogPrintf("Inputcurrency: %i \n",inputcurrency);
+                        LogPrintf("Tx to change in ProcessNewBlock: %s \n",tx.GetHash().ToString());
+                        LogPrintf("Set nValue to nValueBitCash: %s new: %s \n",FormatMoney(tx.vout[j].nValue),FormatMoney(tx.vout[j].nValueBitCash));
+                        tx.vout[j].nValue = tx.vout[j].nValueBitCash;
+                        pblocknew->vtx[i] = MakeTransactionRef(std::move(tx));
+                    }
                 }
             }
         } 
