@@ -3344,6 +3344,7 @@ CAmount CWallet::GetBalance(unsigned char currency) const
                 nTotal += pcoin->GetAvailableCredit(currency);
         }
     }
+    if (nTotal > 1 && currency == 1) nTotal--;//display 1 less to circumvent rounding problems
 
     return nTotal;
 }
@@ -3361,6 +3362,8 @@ CAmount CWallet::GetBalanceForAddress(CTxDestination dest,unsigned char currency
         }
     }
 
+    if (nTotal > 1 && currency == 1) nTotal--;//display 1 less to circumvent rounding problems
+
     return nTotal;
 }
 
@@ -3376,6 +3379,8 @@ CAmount CWallet::GetUnconfirmedBalance(unsigned char currency) const
                 nTotal += pcoin->GetAvailableCredit(currency);
         }
     }
+
+    if (nTotal > 1 && currency == 1) nTotal--;//display 1 less to circumvent rounding problems
     return nTotal;
 }
 
@@ -3391,6 +3396,8 @@ CAmount CWallet::GetUnconfirmedBalanceForAddress(CTxDestination dest,unsigned ch
                 nTotal += pcoin->GetAvailableCreditForOneDestination(dest, currency);
         }
     }
+
+    if (nTotal > 1 && currency == 1) nTotal--;//display 1 less to circumvent rounding problems
     return nTotal;
 }
 
@@ -3406,6 +3413,8 @@ CAmount CWallet::GetImmatureBalance(unsigned char currency) const
             nTotal += pcoin->GetImmatureCredit(currency);
         }
     }
+
+    if (nTotal > 1 && currency == 1) nTotal--;//display 1 less to circumvent rounding problems
     return nTotal;
 }
 
@@ -3420,6 +3429,7 @@ CAmount CWallet::GetImmatureBalanceForAddress(CTxDestination dest,unsigned char 
             nTotal += pcoin->GetImmatureCreditForOneDestination(dest, currency);
         }
     }
+    if (nTotal > 1 && currency == 1) nTotal--;//display 1 less to circumvent rounding problems
     return nTotal;
 }
 
@@ -3437,6 +3447,7 @@ CAmount CWallet::GetWatchOnlyBalance(unsigned char currency) const
         }
     }
 
+    if (nTotal > 1 && currency == 1) nTotal--;//display 1 less to circumvent rounding problems
     return nTotal;
 }
 
@@ -3453,6 +3464,7 @@ CAmount CWallet::GetWatchOnlyBalanceForAddress(CTxDestination dest, unsigned cha
         }
     }
 
+    if (nTotal > 1 && currency == 1) nTotal--;//display 1 less to circumvent rounding problems
     return nTotal;
 }
 
@@ -3468,6 +3480,7 @@ CAmount CWallet::GetUnconfirmedWatchOnlyBalance(unsigned char currency) const
                 nTotal += pcoin->GetAvailableWatchOnlyCredit(currency);
         }
     }
+    if (nTotal > 1 && currency == 1) nTotal--;//display 1 less to circumvent rounding problems
     return nTotal;
 }
 
@@ -3483,6 +3496,7 @@ CAmount CWallet::GetUnconfirmedWatchOnlyBalanceForAddress(CTxDestination dest,un
                 nTotal += pcoin->GetAvailableWatchOnlyCreditForOneDestination(dest,currency);
         }
     }
+    if (nTotal > 1 && currency == 1) nTotal--;//display 1 less to circumvent rounding problems
     return nTotal;
 }
 
@@ -3497,6 +3511,7 @@ CAmount CWallet::GetImmatureWatchOnlyBalance(unsigned char currency) const
             nTotal += pcoin->GetImmatureWatchOnlyCredit(currency);
         }
     }
+    if (nTotal > 1 && currency == 1) nTotal--;//display 1 less to circumvent rounding problems
     return nTotal;
 }
 
@@ -3511,6 +3526,7 @@ CAmount CWallet::GetImmatureWatchOnlyBalanceForAddress(CTxDestination dest,unsig
             nTotal += pcoin->GetImmatureWatchOnlyCreditForOneDestination(dest,currency);
         }
     }
+    if (nTotal > 1 && currency == 1) nTotal--;//display 1 less to circumvent rounding problems
     return nTotal;
 }
 
@@ -3634,6 +3650,7 @@ std::cout << ":" << mapAddressBook[dest].name << std::endl;*/
         balance += WalletBatch(*database).GetAccountCreditDebit(*account, currency);
     }
 
+    if (balance > 1 && currency == 1) balance--;//display 1 less to circumvent rounding problems
     return balance;
 }
 
@@ -3650,6 +3667,7 @@ CAmount CWallet::GetAvailableBalance(unsigned char currency, const CCoinControl*
             balance += out.tx->tx->vout[out.i].nValue;
         }
     }
+    if (balance > 1 && currency == 1) balance--;//display 1 less to circumvent rounding problems
     return balance;
 }
 
