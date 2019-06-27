@@ -733,6 +733,10 @@ Item {
                     leftPadding: 0
                     anchors.left: bitcashicon.right
                     anchors.top: infolabel.top
+                    MouseArea {
+                        onClicked: amountEdit.text = leftamountlabel.text
+                        anchors.fill: parent
+                    }
                 }
                 Label {
                     id: infolabel2
@@ -1028,6 +1032,10 @@ Item {
                     leftPadding: 0
                     anchors.left: bitcashiconDo.right
                     anchors.top: infolabelDo.top
+                    MouseArea {
+                        onClicked: amountEditDo.text = leftamountlabelDo.text
+                        anchors.fill: parent
+                    }
                 }
                 Label {
                     id: infolabel2Do
@@ -1315,6 +1323,10 @@ Item {
                     leftPadding: 0
                     anchors.left: bitcashicontw.right
                     anchors.top: infolabeltw.top
+                    MouseArea {
+                        onClicked: amountEdittw.text = leftamountlabeltw.text
+                        anchors.fill: parent
+                    }
                 }
                 Label {
                     id: infolabel2tw
@@ -1615,6 +1627,10 @@ Item {
                     leftPadding: 0
                     anchors.left: bitcashiconin.right
                     anchors.top: infolabelin.top
+                    MouseArea {
+                        onClicked: amountEditin.text = leftamountlabelin.text
+                        anchors.fill: parent
+                    }
                 }
                 Label {
                     id: infolabel2in
@@ -1914,6 +1930,10 @@ Item {
                     leftPadding: 0
                     anchors.left: bitcashiconre.right
                     anchors.top: infolabelre.top
+                    MouseArea {
+                        onClicked: amountEditre.text = leftamountlabelre.text
+                        anchors.fill: parent
+                    }
                 }
                 Label {
                     id: infolabel2re
@@ -2140,6 +2160,10 @@ Item {
                     leftPadding: 0
                     anchors.left: bitcashiconan.right
                     anchors.top: infolabelan.top
+                    MouseArea {
+                        onClicked: amountEditan.text = leftamountlabelan.text
+                        anchors.fill: parent
+                    }
                 }
                 Label {
                     id: infolabel2an
