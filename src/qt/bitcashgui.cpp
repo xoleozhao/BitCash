@@ -2102,7 +2102,7 @@ bool BitcashGUI::SendBtnClickedIntern(const QString &destination, const QString 
     entry.referenceline = description;
     entry.label = label;
     entry.amount = amount * COIN;
-    entry.fSubtractFeeFromAmount = substractfee;;
+    entry.fSubtractFeeFromAmount = substractfee;
 
     recipients.push_back(entry);
    
