@@ -143,7 +143,7 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
         if (rcp.fSubtractFeeFromAmount)
             fSubtractFeeFromAmount = true;
 
-        if (rcp.paymentRequest.IsInitialized())
+        /*if (rcp.paymentRequest.IsInitialized())
         {   // PaymentRequest...
             CAmount subtotal = 0;
             const payments::PaymentDetails& details = rcp.paymentRequest.getDetails();
@@ -164,7 +164,7 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
             }
             total += subtotal;
         }
-        else
+        else*/
         {   // User-entered bitcash address / amount:
             if(!validateAddress(rcp.address))
             {
@@ -178,10 +178,12 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
             ++nAddresses;
 
             CScript scriptPubKey = GetScriptForDestination(DecodeDestination(rcp.address.toStdString()));
+            bool nonprivate = GetNonPrivateForDestination(DecodeDestination(rcp.address.toStdString()));
+            LogPrintf("preparetransaction nonprivate %d\n",*(unsigned char*)&nonprivate);
             CRecipient recipient = {scriptPubKey, rcp.amount, rcp.fSubtractFeeFromAmount,
                 rcp.referenceline.toUtf8().constData(),
                 GetCurrencyForDestination(DecodeDestination(rcp.address.toStdString())),
-                GetNonPrivateForDestination(DecodeDestination(rcp.address.toStdString())),
+                nonprivate,
                 GetSecondPubKeyForDestination(DecodeDestination(rcp.address.toStdString())),
                 GetDepositForDestination(DecodeDestination(rcp.address.toStdString())) };
 

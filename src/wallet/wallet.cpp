@@ -4338,6 +4338,7 @@ bool CWallet::CreateTransaction(const std::vector<CRecipient>& vecSend, CTransac
     unsigned int nSubtractFeeFromAmount = 0;
     for (const auto& recipient : vecSend)
     {
+        LogPrintf("loop before recipient.nonprivate Isnonprivate as byte %d\n",(char)recipient.nonprivate);
         if (nValue < 0 || recipient.nAmount < 0)
         {
             strFailReason = _("Transaction amounts must not be negative");

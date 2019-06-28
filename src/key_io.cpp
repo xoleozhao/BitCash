@@ -105,6 +105,7 @@ CTxDestination DecodeDestinationNoNickname(const std::string& str, const CChainP
             key=CKeyID(hash);      
             key.recokey.resize(33);
             key.nonprivate = std::equal(pubkey_prefixnonprivate.begin(), pubkey_prefixnonprivate.end(), data.begin());
+            LogPrintf("key.nonprivate %d\n",*(unsigned char*)&key.nonprivate);
             std::copy(data.begin() + pubkey_prefix.size(), data.begin() + pubkey_prefix.size()+33, key.recokey.begin());
             return key;
         }
@@ -306,6 +307,7 @@ void LocalSetNonPrivateForDestination(CTxDestination& dest, bool nonprivate)
 {
     if (auto id = boost::get<CKeyID>(&dest)) {
         id->nonprivate = nonprivate;
+        LogPrintf("id->nonprivate %d\n",*(unsigned char*)&id->nonprivate);
     }
 }
 
