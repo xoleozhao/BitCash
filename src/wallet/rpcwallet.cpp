@@ -35,6 +35,8 @@
 #include <wallet/walletutil.h>
 #include <interfaces/wallet.h>
 
+#include <future>
+
 #include <init.h>  // For StartShutdown
 
 #include <stdint.h>
@@ -5183,6 +5185,46 @@ static UniValue listsinceblock(const JSONRPCRequest& request)
     return ret;
 }
 
+static UniValue addtransactiontowallet(const JSONRPCRequest& request)
+{
+    CWallet * const pwallet = GetWalletForJSONRPCRequest(request);
+    if (!EnsureWalletIsAvailable(pwallet, request.fHelp)) {
+        return NullUniValue;
+    }
+
+    if (request.fHelp || request.params.size() < 1 || request.params.size() > 1)
+        throw std::runtime_error(
+            "addtransactiontowallet \"hexstring\"\n"
+            "\nAdds a raw transaction (serialized, hex-encoded) to the wallet without submitting it.\n"
+            "\nArguments:\n"
+            "1. \"hexstring\"    (string, required) The hex string of the raw transaction)\n"
+            "\nResult:\n"
+            "\"hex\"             (string) The transaction hash in hex\n"
+            "\nExamples:\n"
+            + HelpExampleRpc("addtransactiontowallet", "\"signedhex\"")
+        );
+
+    RPCTypeCheck(request.params, {UniValue::VSTR});
+
+    // parse hex string from parameter
+    CMutableTransaction mtx;
+    if (!DecodeHexTx(mtx, request.params[0].get_str()))
+        throw JSONRPCError(RPC_DESERIALIZATION_ERROR, "TX decode failed");
+
+//    return EncodeHexTx(mtx);
+
+    CTransactionRef tx(MakeTransactionRef(std::move(mtx)));
+    const uint256& hashTx = tx->GetHash();
+
+    CWalletTx wtx(pwallet, tx);
+
+    if (!pwallet->AddToWallet(wtx, false))
+    {
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Couldn't add transaction to wallet.");
+    }
+    return hashTx.GetHex();
+}
+
 static UniValue gettransaction(const JSONRPCRequest& request)
 {
     CWallet * const pwallet = GetWalletForJSONRPCRequest(request);
@@ -7425,6 +7467,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "abandontransaction",               &abandontransaction,            {"txid"} },
     { "wallet",             "abortrescan",                      &abortrescan,                   {} },
     { "wallet",             "addmultisigaddress",               &addmultisigaddress,            {"nrequired","keys","label|account","address_type"} },
+    { "wallet",             "addtransactiontowallet",           &addtransactiontowallet,        {"hexstring"} },
     { "hidden",             "addwitnessaddress",                &addwitnessaddress,             {"address","p2sh"} },
     { "wallet",             "backupwallet",                     &backupwallet,                  {"destination"} },
     { "wallet",             "bumpfee",                          &bumpfee,                       {"txid", "options"} },

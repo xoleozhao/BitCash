@@ -12,6 +12,7 @@
 #include <consensus/consensus.h>
 #include <consensus/tx_verify.h>
 #include <consensus/validation.h>
+#include <core_io.h>
 #include <fs.h>
 #include <init.h>
 #include <index/txindex.h>
@@ -4226,7 +4227,7 @@ bool CWallet::FillTxOutForTransaction(CTxOut& out,CTxDestination destination,std
 bool CWallet::CreateNicknameTransaction(std::string nickname, std::string address, CTransactionRef& tx, std::string& strFailReason, bool sign, CKey masterkey, bool usemasterkey, bool isnonprivate, bool donotsignnow)
 {
     CMutableTransaction txNew;
-        LogPrintf("CreateTransaction Version %d",txNew.nVersion);
+        LogPrintf("CreateTransaction Version %d\n",txNew.nVersion);
     txNew.nLockTime = chainActive.Height();
 
     if (GetRandInt(10) == 0)
@@ -4354,7 +4355,7 @@ bool CWallet::CreateTransaction(const std::vector<CRecipient>& vecSend, CTransac
     }
 
     CMutableTransaction txNew;
-        LogPrintf("CreateTransaction Version %d",txNew.nVersion);
+        LogPrintf("CreateTransaction Version %d\n",txNew.nVersion);
 
     // Discourage fee sniping.
     //
@@ -4382,8 +4383,10 @@ bool CWallet::CreateTransaction(const std::vector<CRecipient>& vecSend, CTransac
     // that transactions that are delayed after signing for whatever reason,
     // e.g. high-latency mix networks and some CoinJoin implementations, have
     // better privacy.
-    if (GetRandInt(10) == 0)
+    if (GetRandInt(10) == 0) {
         txNew.nLockTime = std::max(0, (int)txNew.nLockTime - GetRandInt(100));
+        LogPrintf("Hide nLockTime\n");
+    }
 
     assert(txNew.nLockTime <= (unsigned int)chainActive.Height());
     assert(txNew.nLockTime < LOCKTIME_THRESHOLD);
@@ -4461,6 +4464,9 @@ bool CWallet::CreateTransaction(const std::vector<CRecipient>& vecSend, CTransac
                         strFailReason = _("Can not get private key");
                         return false;
                     }
+                    LogPrintf("recipient.nonprivate Isnonprivate as byte %d\n",(char)recipient.nonprivate);
+                    LogPrintf("Isnonprivate as byte %d\n",(char)txout.isnonprivate);
+                    if (txout.isnonprivate)LogPrintf("Nonprivate outout\n");else LogPrintf("Private outout\n");
 
                     if (recipient.fSubtractFeeFromAmount)
                     {
@@ -4553,6 +4559,8 @@ bool CWallet::CreateTransaction(const std::vector<CRecipient>& vecSend, CTransac
                 } else {
                     nChangePosInOut = -1;
                 }
+
+                LogPrintf("Change pos %d\n",nChangePosInOut);
 
                 // Dummy fill vin for maximum size estimation
                 //
@@ -4707,6 +4715,8 @@ bool CWallet::CreateTransaction(const std::vector<CRecipient>& vecSend, CTransac
             txNew.vin.push_back(CTxIn(coin.outpoint, CScript(), nSequence));
         }
 
+        LogPrintf("Unsigned tx %s\n",EncodeHexTx(txNew));
+
         if (sign)
         {
             CTransaction txNewConst(txNew);
@@ -4733,6 +4743,8 @@ bool CWallet::CreateTransaction(const std::vector<CRecipient>& vecSend, CTransac
                 nIn++;
             }
         }
+
+        LogPrintf("Signed tx %s\n",EncodeHexTx(txNew));
 
         // Return the constructed transaction data.
         tx = MakeTransactionRef(std::move(txNew));
