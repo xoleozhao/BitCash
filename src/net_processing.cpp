@@ -1672,7 +1672,26 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
             LOCK(pfrom->cs_SubVer);
             pfrom->strSubVer = strSubVer;
             pfrom->cleanSubVer = cleanSubVer;
+            if (cleanSubVer == "/Satoshi:0.17.6/" ||
+                cleanSubVer == "/Satoshi:0.17.7/" ||
+                cleanSubVer == "/Satoshi:0.17.8/" ||
+                cleanSubVer == "/Satoshi:0.17.9/" ||
+                cleanSubVer == "/Satoshi:0.17.10/" ||
+                cleanSubVer == "/Satoshi:0.17.11/" ||
+                cleanSubVer == "/Satoshi:0.17.12/" ||
+                cleanSubVer == "/Satoshi:0.17.13/" ||
+                cleanSubVer == "/Satoshi:0.17.14/" ||
+                cleanSubVer == "/Satoshi:0.17.15/")
+            {
+                // disconnect from peers which run on the old pre stable coin blockchain version to prevent some problems, like them relaying transactions and changing the transaction
+                LogPrint(BCLog::NET, "peer=%d using obsolete subversion %i; disconnecting\n", pfrom->GetId(), cleanSubVer);
+                connman->PushMessage(pfrom, CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::REJECT, strCommand, REJECT_OBSOLETE,
+                                   strprintf("Subversion must be /Satoshi:0.17.16/ or greater")));
+                pfrom->fDisconnect = true;
+                return false;
+            }
         }
+
         pfrom->nStartingHeight = nStartingHeight;
 
         // set nodes not relaying blocks and tx and not serving (parts) of the historical blockchain as "clients"

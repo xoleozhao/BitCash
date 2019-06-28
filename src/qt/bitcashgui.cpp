@@ -2210,16 +2210,23 @@ bool BitcashGUI::SendBtnClickedIntern(const QString &destination, const QString 
     // add total amount in all subdivision units
     questionString.append("<hr />");
     CAmount totalAmount = currentTransaction.getTotalTransactionAmount() + txFee;
-    QStringList alternativeUnits;
+/*    QStringList alternativeUnits;
     for (BitcashUnits::Unit u : BitcashUnits::availableUnits())
     {
         if(u != model->getOptionsModel()->getDisplayUnit())
             alternativeUnits.append(BitcashUnits::formatHtmlWithUnit(u, totalAmount));
+    }*/
+    if (currency == 1) 
+    {
+        questionString.append(tr("Total Amount %1")
+            .arg(BitcashUnits::formatHtmlWithUnit(BitcashUnits::DOLLAR, totalAmount)));
+    } else
+    {
+        questionString.append(tr("Total Amount %1")
+            .arg(BitcashUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), totalAmount)));
     }
-    questionString.append(tr("Total Amount %1")
-        .arg(BitcashUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), totalAmount)));
-    questionString.append(QString("<span style='font-size:10pt;font-weight:normal;'><br />(=%1)</span>")
-        .arg(alternativeUnits.join(" " + tr("or") + "<br />")));
+/*    questionString.append(QString("<span style='font-size:10pt;font-weight:normal;'><br />(=%1)</span>")
+        .arg(alternativeUnits.join(" " + tr("or") + "<br />")));*/
 
     questionString.append("<hr /><span>");
 /*    if (ui->optInRBF->isChecked()) {
