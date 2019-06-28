@@ -4745,8 +4745,22 @@ bool CWallet::CreateTransaction(const std::vector<CRecipient>& vecSend, CTransac
 
         LogPrintf("Signed tx %s\n",EncodeHexTx(txNew));
 
+        CMutableTransaction mtx;
+        DecodeHexTx(mtx, EncodeHexTx(txNew));
+
         // Return the constructed transaction data.
         tx = MakeTransactionRef(std::move(txNew));
+
+        const uint256& hashTx = tx->GetHash();
+
+        CTransactionRef txtest(MakeTransactionRef(std::move(mtx)));
+        const uint256& hashTxtest = txtest->GetHash();
+        
+        if (hashTxtest != hashTx)
+        {
+            strFailReason = _("Invalid transaction created. This is a bug. Please report this and send the file debug.log as zip file to the developer.");
+            return false;
+        }
 
         // Limit size
         if (GetTransactionWeight(*tx) >= MAX_STANDARD_TX_WEIGHT)
