@@ -12,7 +12,6 @@
 #include <consensus/consensus.h>
 #include <consensus/tx_verify.h>
 #include <consensus/validation.h>
-#include <core_io.h>
 #include <fs.h>
 #include <init.h>
 #include <index/txindex.h>
@@ -4385,7 +4384,6 @@ bool CWallet::CreateTransaction(const std::vector<CRecipient>& vecSend, CTransac
     // better privacy.
     if (GetRandInt(10) == 0) {
         txNew.nLockTime = std::max(0, (int)txNew.nLockTime - GetRandInt(100));
-        LogPrintf("Hide nLockTime\n");
     }
 
     assert(txNew.nLockTime <= (unsigned int)chainActive.Height());
@@ -4464,9 +4462,6 @@ bool CWallet::CreateTransaction(const std::vector<CRecipient>& vecSend, CTransac
                         strFailReason = _("Can not get private key");
                         return false;
                     }
-                    LogPrintf("recipient.nonprivate Isnonprivate as byte %d\n",(char)recipient.nonprivate);
-                    LogPrintf("Isnonprivate as byte %d\n",(char)txout.isnonprivate);
-                    if (txout.isnonprivate)LogPrintf("Nonprivate outout\n");else LogPrintf("Private outout\n");
 
                     if (recipient.fSubtractFeeFromAmount)
                     {
@@ -4559,8 +4554,6 @@ bool CWallet::CreateTransaction(const std::vector<CRecipient>& vecSend, CTransac
                 } else {
                     nChangePosInOut = -1;
                 }
-
-                LogPrintf("Change pos %d\n",nChangePosInOut);
 
                 // Dummy fill vin for maximum size estimation
                 //
@@ -4715,8 +4708,6 @@ bool CWallet::CreateTransaction(const std::vector<CRecipient>& vecSend, CTransac
             txNew.vin.push_back(CTxIn(coin.outpoint, CScript(), nSequence));
         }
 
-        LogPrintf("Unsigned tx %s\n",EncodeHexTx(txNew));
-
         if (sign)
         {
             CTransaction txNewConst(txNew);
@@ -4743,8 +4734,6 @@ bool CWallet::CreateTransaction(const std::vector<CRecipient>& vecSend, CTransac
                 nIn++;
             }
         }
-
-        LogPrintf("Signed tx %s\n",EncodeHexTx(txNew));
 
         // Return the constructed transaction data.
         tx = MakeTransactionRef(std::move(txNew));

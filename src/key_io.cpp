@@ -331,6 +331,7 @@ CTxDestination DecodeDestination(const std::string& strinput, const CChainParams
     CTxDestination dest = DecodeDestinationNoNickname(str, params);
     LocalSetCurrencyForDestination(dest, currency);
     LocalSetDepositForDestination(dest, isdeposit);
+    LocalSetNonPrivateForDestination(dest, false);
     if (auto id = boost::get<CNoDestination>(&dest)) {
        //try to search nickname       
        CPubKey pubkey = GetAddressForNickname(str);
