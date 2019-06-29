@@ -61,7 +61,7 @@ SendForm {
     function gotosendtoanyone()
     {
         /**************************************/
-        tabBar.currentIndex=4
+        tabBar.currentIndex=5
         /**************************************/
     }
 
@@ -432,7 +432,6 @@ SendForm {
         whitebox2.visible = false
         whitebox3.visible = false
         whitebox.visible = true
-        shadow2.visible = false
     }
     viewaccounthistory.onClicked: viewaccounthistorysignal()
     gotooverview.onClicked: gotooverviewsignal()

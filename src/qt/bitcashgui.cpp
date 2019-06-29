@@ -3152,6 +3152,8 @@ void BitcashGUI::setClientModel(ClientModel *_clientModel)
             // initialize the disable state of the tray icon with the current value in the model.
             setTrayIconVisible(optionsModel->getHideTrayIcon());
         }
+        QVariant returnedValue;
+        QMetaObject::invokeMethod(qmlrootitem, "clearpaymentlistmodel", Q_RETURN_ARG(QVariant, returnedValue));//need to clear model, sometimes model already has been filled by timer
         SendLinksToModel();
         SendPaymentsToModel();
         SendOrdersToModel();
