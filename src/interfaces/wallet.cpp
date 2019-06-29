@@ -166,6 +166,7 @@ public:
     }
     std::string DecryptRefLineTxOut(CTxOut out)  override { return m_wallet.DecryptRefLineTxOut(out); }
     bool GetRealAddressAsSender(CTxOut out,CPubKey& recipientpubkey) override { return m_wallet.GetRealAddressAsSender(out, recipientpubkey); }
+    bool GetViewKeyForAddressAsSender(CTxOut out, CKey& ViewKey) override { return m_wallet.GetViewKeyForAddressAsSender(out, ViewKey); }
     std::string DecryptRefLineTxOutWithOnePrivateKey(CTxOut out,CKey key) override { return m_wallet.DecryptRefLineTxOutWithOnePrivateKey(out,key); }
 
     bool FillTxOutForTransaction(CTxOut& out, CPubKey recipientpubkey, std::string referenceline, unsigned char currency, bool nonprivate) override { return m_wallet. FillTxOutForTransaction(out, recipientpubkey, referenceline, currency, nonprivate); }

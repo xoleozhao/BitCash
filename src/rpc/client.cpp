@@ -217,6 +217,8 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "createrawtransaction", 3, "locktime" },
     { "createrawtransaction", 4, "replaceable" },
     { "decoderawtransaction", 1, "iswitness" },
+    { "decoderawtransactionmk", 2, "iswitness" },
+    { "decoderawtransactionvk", 2, "iswitness" },
     { "signrawtransaction", 1, "prevtxs" },
     { "signrawtransaction", 2, "privkeys" },
     { "signrawtransactionwithkey", 1, "privkeys" },

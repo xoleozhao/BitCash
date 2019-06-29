@@ -127,6 +127,11 @@ void TxToUnivWithWallet(const CWallet* pwallet,const CTransaction& tx, const uin
         std::string referenceline;
         out.pushKV("encrypted referenceline", txout.referenceline);
 #ifdef ENABLE_WALLET
+        CKey viewkey;
+        if (pwallet->GetViewKeyForAddressAsSender(txout, viewkey))
+        {
+            out.pushKV("viewkey", EncodeSecret(viewkey));
+        }
         if (pwallet->GetRealAddressAndRefline(txout,recipientpubkey,referenceline,"",false))
         {         
             if (txout.isnonprivate) {
@@ -205,6 +210,11 @@ void TxToUnivWithWalletMK(const CWallet* pwallet,std::string masterprivatekey, c
         CPubKey recipientpubkey;
         std::string referenceline;
 #ifdef ENABLE_WALLET
+        CKey viewkey;
+        if (pwallet->GetViewKeyForAddressAsSender(txout, viewkey))
+        {
+            out.pushKV("viewkey", EncodeSecret(viewkey));
+        }
         if (pwallet->GetRealAddressAndRefline(txout,recipientpubkey,referenceline,masterprivatekey,true))
         {         
             if (txout.isnonprivate) {
@@ -228,6 +238,82 @@ void TxToUnivWithWalletMK(const CWallet* pwallet,std::string masterprivatekey, c
     }
 }
 
+void TxToUnivWithWalletVK(const CWallet* pwallet,CKey &viewkey, const CTransaction& tx, const uint256& hashBlock, UniValue& entry, bool include_hex, int serialize_flags)
+{
+
+    entry.pushKV("txid", tx.GetHash().GetHex());
+    entry.pushKV("hash", tx.GetWitnessHash().GetHex());
+    entry.pushKV("version", tx.nVersion);
+    entry.pushKV("size", (int)::GetSerializeSize(tx, SER_NETWORK, PROTOCOL_VERSION));
+    entry.pushKV("vsize", (GetTransactionWeight(tx) + WITNESS_SCALE_FACTOR - 1) / WITNESS_SCALE_FACTOR);
+    entry.pushKV("weight", GetTransactionWeight(tx));
+    entry.pushKV("locktime", (int64_t)tx.nLockTime);
+
+    UniValue vin(UniValue::VARR);
+    for (unsigned int i = 0; i < tx.vin.size(); i++) {
+        const CTxIn& txin = tx.vin[i];
+        UniValue in(UniValue::VOBJ);
+        if (tx.IsCoinBase())
+            in.pushKV("coinbase", HexStr(txin.scriptSig.begin(), txin.scriptSig.end()));
+        else {
+            in.pushKV("txid", txin.prevout.hash.GetHex());
+            in.pushKV("vout", (int64_t)txin.prevout.n);
+            UniValue o(UniValue::VOBJ);
+            o.pushKV("asm", ScriptToAsmStr(txin.scriptSig, true));
+            o.pushKV("hex", HexStr(txin.scriptSig.begin(), txin.scriptSig.end()));
+            in.pushKV("scriptSig", o);
+            if (!tx.vin[i].scriptWitness.IsNull()) {
+                UniValue txinwitness(UniValue::VARR);
+                for (const auto& item : tx.vin[i].scriptWitness.stack) {
+                    txinwitness.push_back(HexStr(item.begin(), item.end()));
+                }
+                in.pushKV("txinwitness", txinwitness);
+            }
+        }
+        in.pushKV("sequence", (int64_t)txin.nSequence);
+        vin.push_back(in);
+    }
+    entry.pushKV("vin", vin);
+
+    UniValue vout(UniValue::VARR);
+    for (unsigned int i = 0; i < tx.vout.size(); i++) {
+        const CTxOut& txout = tx.vout[i];
+
+        UniValue out(UniValue::VOBJ);
+
+        out.pushKV("value", ValueFromAmount(txout.nValue));
+        out.pushKV("valueBitCash", ValueFromAmount(txout.nValueBitCash));
+        out.pushKV("n", (int64_t)i);
+        out.pushKV("currency", txout.currency);
+
+        UniValue o(UniValue::VOBJ);
+        ScriptPubKeyToUniv(txout.scriptPubKey, o, true, txout.isnonprivate);
+        out.pushKV("scriptPubKey", o);
+        CPubKey recipientpubkey;
+        std::string referenceline;
+#ifdef ENABLE_WALLET
+        if (pwallet->GetRealAddressAndReflineWithViewkey(txout, recipientpubkey, referenceline, viewkey))
+        {         
+            if (txout.isnonprivate) {
+                out.pushKV("address", EncodeDestinationHasSecondKey(GetDestinationForKey(recipientpubkey, OutputType::NONPRIVATE)));
+            } else
+            {
+                out.pushKV("address", EncodeDestinationHasSecondKey(GetDestinationForKey(recipientpubkey, OutputType::LEGACY)));
+            }
+            out.pushKV("referenceline", referenceline);
+        }
+#endif
+        vout.push_back(out);
+    }
+    entry.pushKV("vout", vout);
+
+    if (!hashBlock.IsNull())
+        entry.pushKV("blockhash", hashBlock.GetHex());
+
+    if (include_hex) {
+        entry.pushKV("hex", EncodeHexTx(tx, serialize_flags)); // The hex-encoded transaction. Used the name "hex" to be consistent with the verbose output of "getrawtransaction".
+    }
+}
 
 static void TxToJSONWithWallet(const CWallet* pwallet,const CTransaction& tx, const uint256 hashBlock, UniValue& entry)
 {
@@ -908,8 +994,8 @@ static UniValue decoderawtransactionmk(const JSONRPCRequest& request)
             "}\n"
 
             "\nExamples:\n"
-            + HelpExampleCli("decoderawtransaction", "\"hexstring\" \"master private key\"")
-            + HelpExampleRpc("decoderawtransaction", "\"hexstring\" \"master private key\"")
+            + HelpExampleCli("decoderawtransactionmk", "\"hexstring\" \"master private key\"")
+            + HelpExampleRpc("decoderawtransactionmk", "\"hexstring\" \"master private key\"")
         );
 
     LOCK(cs_main);
@@ -930,6 +1016,93 @@ static UniValue decoderawtransactionmk(const JSONRPCRequest& request)
 #ifdef ENABLE_WALLET
             CWallet * const pwallet = GetWalletForJSONRPCRequest(request);
             TxToUnivWithWalletMK(pwallet,MasterPrivatKey,CTransaction(std::move(mtx)), uint256(), result, false,0);
+#else
+    TxToUniv(CTransaction(std::move(mtx)), uint256(), result, false);
+#endif
+
+    return result;
+}
+
+static UniValue decoderawtransactionvk(const JSONRPCRequest& request)
+{
+    if (request.fHelp || request.params.size() < 2 || request.params.size() > 3)
+        throw std::runtime_error(
+            "decoderawtransactionvk \"hexstring\" \"viewkey\" ( iswitness )\n"
+            "\nReturn a JSON object representing the serialized, hex-encoded transaction. Decrypts the real recipients and the reference lines with the viewkey.\n"
+
+            "\nArguments:\n"
+            "1. \"hexstring\"               (string, required) The transaction hex string\n"
+            "2. \"viewkey\"                 (string, required) The viewkey to use to decrypt the the transaction.\n"
+            "3. iswitness                   (boolean, optional) Whether the transaction hex is a serialized witness transaction\n"
+            "                                 If iswitness is not present, heuristic tests will be used in decoding\n"
+
+            "\nResult:\n"
+            "{\n"
+            "  \"txid\" : \"id\",        (string) The transaction id\n"
+            "  \"hash\" : \"id\",        (string) The transaction hash (differs from txid for witness transactions)\n"
+            "  \"size\" : n,             (numeric) The transaction size\n"
+            "  \"vsize\" : n,            (numeric) The virtual transaction size (differs from size for witness transactions)\n"
+            "  \"weight\" : n,           (numeric) The transaction's weight (between vsize*4 - 3 and vsize*4)\n"
+            "  \"version\" : n,          (numeric) The version\n"
+            "  \"locktime\" : ttt,       (numeric) The lock time\n"
+            "  \"vin\" : [               (array of json objects)\n"
+            "     {\n"
+            "       \"txid\": \"id\",    (string) The transaction id\n"
+            "       \"vout\": n,         (numeric) The output number\n"
+            "       \"scriptSig\": {     (json object) The script\n"
+            "         \"asm\": \"asm\",  (string) asm\n"
+            "         \"hex\": \"hex\"   (string) hex\n"
+            "       },\n"
+            "       \"txinwitness\": [\"hex\", ...] (array of string) hex-encoded witness data (if any)\n"
+            "       \"sequence\": n     (numeric) The script sequence number\n"
+            "     }\n"
+            "     ,...\n"
+            "  ],\n"
+            "  \"vout\" : [             (array of json objects)\n"
+            "     {\n"
+            "       \"value\" : x.xxx,            (numeric) The value in " + CURRENCY_UNIT + "\n"
+            "       \"n\" : n,                    (numeric) index\n"
+            "       \"scriptPubKey\" : {          (json object)\n"
+            "         \"asm\" : \"asm\",          (string) the asm\n"
+            "         \"hex\" : \"hex\",          (string) the hex\n"
+            "         \"reqSigs\" : n,            (numeric) The required sigs\n"
+            "         \"type\" : \"pubkeyhash\",  (string) The type, eg 'pubkeyhash'\n"
+            "         \"addresses\" : [           (json array of string)\n"
+            "           \"12tvKAXCxZjSmdNbao16dKXC8tRWfcF5oc\"   (string) bitcash address\n"
+            "           ,...\n"
+            "         ]\n"
+            "       }\n"
+            "     }\n"
+            "     ,...\n"
+            "  ],\n"
+            "}\n"
+
+            "\nExamples:\n"
+            + HelpExampleCli("decoderawtransactionvk", "\"hexstring\" \"viewkey\"")
+            + HelpExampleRpc("decoderawtransactionvk", "\"hexstring\" \"viewkey\"")
+        );
+
+    LOCK(cs_main);
+    RPCTypeCheck(request.params, {UniValue::VSTR,UniValue::VSTR, UniValue::VBOOL});
+
+    CMutableTransaction mtx;
+
+    bool try_witness = request.params[2].isNull() ? true : request.params[1].get_bool();
+    bool try_no_witness = request.params[2].isNull() ? true : !request.params[1].get_bool();
+    CKey viewkey = DecodeSecret(request.params[1].get_str());
+    if (!viewkey.IsValid()) {
+       throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid viewkey");
+    }
+
+    if (!DecodeHexTx(mtx, request.params[0].get_str(), try_no_witness, try_witness)) {
+        throw JSONRPCError(RPC_DESERIALIZATION_ERROR, "TX decode failed");
+    }
+
+    UniValue result(UniValue::VOBJ);
+
+#ifdef ENABLE_WALLET
+            CWallet * const pwallet = GetWalletForJSONRPCRequest(request);
+            TxToUnivWithWalletVK(pwallet, viewkey, CTransaction(std::move(mtx)), uint256(), result, false,0);
 #else
     TxToUniv(CTransaction(std::move(mtx)), uint256(), result, false);
 #endif
@@ -1555,6 +1728,7 @@ static const CRPCCommand commands[] =
     { "rawtransactions",    "createrawtransactionfromscript",&createrawtransactionfromscript,{"inputs","outputs","locktime","replaceable"} },
     { "rawtransactions",    "decoderawtransaction",         &decoderawtransaction,      {"hexstring","iswitness"} },
     { "rawtransactions",    "decoderawtransactionmk",       &decoderawtransactionmk,    {"hexstring","master private key","iswitness"} },
+    { "rawtransactions",    "decoderawtransactionvk",       &decoderawtransactionvk,    {"hexstring","viewkey","iswitness"} },
     { "rawtransactions",    "sendrawtransaction",           &sendrawtransaction,        {"hexstring","allowhighfees"} },
     { "rawtransactions",    "combinerawtransaction",        &combinerawtransaction,     {"txs"} },
     { "rawtransactions",    "signrawtransaction",           &signrawtransaction,        {"hexstring","prevtxs","privkeys","sighashtype"} }, /* uses wallet if enabled */

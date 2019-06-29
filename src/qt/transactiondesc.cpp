@@ -233,6 +233,13 @@ QString TransactionDesc::toHTML(interfaces::Node& node, interfaces::Wallet& wall
                         else if(toSelf & ISMINE_WATCH_ONLY)
                             strHTML += " (watch-only)";
                         strHTML += "<br>";
+                        CKey viewkey;
+                        if (wallet.GetViewKeyForAddressAsSender(txout, viewkey))
+                        {
+                            strHTML += "<b>" + tr("Viewkey") + ":</b> ";
+                            strHTML += QString::fromStdString(EncodeSecret(viewkey));
+                            strHTML += "<br>";
+                        }
                     }
                 }
 

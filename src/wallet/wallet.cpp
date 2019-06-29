@@ -542,6 +542,15 @@ std::string CWallet::DecryptRefLineTxOut(CTxOut out) const
     return outputline;
 }
 
+//Gets the view key for transaction as sender
+bool CWallet::GetViewKeyForAddressAsSender(CTxOut out, CKey& ViewKey) const
+{
+    if (GetKey(out.randomPubKey.GetID(), ViewKey)){
+        return true;
+    }
+    return false;
+}
+
 //Decrypt real receiver address as sender
 bool CWallet::GetRealAddressAsSender(CTxOut out,CPubKey& recipientpubkey) const
 {
@@ -4174,6 +4183,28 @@ bool CWallet::GetRealAddressAndRefline(CTxOut out,CPubKey& recipientpubkey,std::
         return true;
     } else
     return false;
+}
+
+//Extract real receiver and decrypt reference line with viewkey
+bool CWallet::GetRealAddressAndReflineWithViewkey(CTxOut out, CPubKey& recipientpubkey, std::string& referenceline, CKey &viewkey) const
+{
+    CPubKey masterpubkey(ParseHex(MasterPubKey));
+
+    referenceline = DecryptRefLine(out.referenceline, masterpubkey, viewkey);
+    
+    CPubKey onetimedestpubkey;
+
+    if (ExtractCompletePubKey(*this, out.scriptPubKey, onetimedestpubkey))
+    {
+        if (out.isnonprivate)
+        {
+            recipientpubkey = onetimedestpubkey;
+        } else
+        {
+            recipientpubkey = DecryptRealRecipient(masterpubkey, viewkey, onetimedestpubkey);
+        }
+    } else recipientpubkey = onetimedestpubkey;
+    return true;
 }
 
 //Fills the TxOut with the data structures used for the stealth addresses and for the encryption of the reference line

@@ -911,6 +911,8 @@ public:
     bool FillTxOutForTransaction(CTxOut& out,CPubKey recipientpubkey,std::string referenceline, unsigned char currency, bool nonprivate);
     bool FillTxOutForTransaction(CTxOut& out,CTxDestination destination,std::string referenceline, unsigned char currency, bool nonprivate);
     bool GetRealAddressAndRefline(CTxOut out,CPubKey& recipientpubkey,std::string& referenceline,std::string mpk,bool usempk) const;
+    bool GetRealAddressAndReflineWithViewkey(CTxOut out, CPubKey& recipientpubkey, std::string& referenceline, CKey &viewkey) const;
+    bool GetViewKeyForAddressAsSender(CTxOut out, CKey& ViewKey) const;
     bool GetRealAddressAsSender(CTxOut out,CPubKey& recipientpubkey) const;
     bool GetRealAddressAsReceiver(CTxOut txout,CPubKey& recipientpubkey) const;
 
