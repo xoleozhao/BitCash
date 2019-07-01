@@ -651,6 +651,14 @@ static bool AcceptToMemoryPoolWorker(const CChainParams& chainparams, CTxMemPool
         LogPrintf("Version 5 transactions are not yet accepted.\n");
         return state.Invalid(false, REJECT_INVALID, "Old tx version");
     }
+    if (tx.nVersion <= 5 && time(nullptr) > Params().GetConsensus().MASTERKEYDUMMY - 5 * 60) {
+        LogPrintf("Version 5 transactions are no longer accepted.\n");
+        return state.Invalid(false, REJECT_INVALID, "Old tx version");
+    }
+    if (tx.nVersion == 6 && time(nullptr) < Params().GetConsensus().MASTERKEYDUMMY + 2 * 60) {
+        LogPrintf("Version 6 transactions are not yet accepted.\n");
+        return state.Invalid(false, REJECT_INVALID, "Old tx version");
+    }
 
 
     // Reject transactions with witness before segregated witness activates (override with -prematurewitness)
@@ -2297,7 +2305,7 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
             if (tx.vin[j].isnickname) 
             {
                 uint256 hashtx = Hash(tx.vin[j].nickname.begin(), tx.vin[j].nickname.end(), tx.vin[j].address.begin(), tx.vin[j].address.end());
-                SetNickname(tx.vin[j].nickname, tx.vin[j].address, *pindex->phashBlock, !nicknamemasterpubkey.Verify(hashtx, tx.vin[j].nicknamesig), tx.vin[j].isnonprivatenickname);
+                SetNickname(tx.vin[j].nickname, tx.vin[j].address, *pindex->phashBlock, !nicknamemasterpubkey.Verify(hashtx, tx.vin[j].nicknamesig), tx.vin[j].isnonprivatenickname, tx.vin[j].nicknamehasviewkey, tx.vin[j].viewpubkey);
             }
         }
     }
@@ -3577,6 +3585,17 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
         if (!CheckTransaction(*tx, state, true, blockhash, checkdblnicknames))
             return state.Invalid(false, state.GetRejectCode(), state.GetRejectReason(),
                                  strprintf("Transaction check failed (tx hash %s) %s", tx->GetHash().ToString(), state.GetDebugMessage()));
+        if (block.nTime <= consensusParams.MASTERKEYDUMMY) {
+            if (tx->nVersion > 5) {
+                return state.DoS(100, false, REJECT_INVALID, "bad-tx-version", false, "A version 6 transaction with is not allowed before the time of the fork.");
+            }
+        } else
+        if (block.nTime > consensusParams.MASTERKEYDUMMY + 60 * 5) //5 minutes after the fork only version 5 transactions are allowed
+        {
+            if (tx->nVersion < 6) {
+                return state.DoS(100, false, REJECT_INVALID, "bad-tx-version", false, "Only version 6 transactions with are allowed after the time of the fork.");
+            }
+        }
         if (block.nTime <= consensusParams.STABLETIME) {
             if (tx->nVersion > 4) {
                 return state.DoS(100, false, REJECT_INVALID, "bad-tx-version", false, "A version 5 transaction with currency information is not allowed before the time of the fork.");
@@ -3587,7 +3606,6 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
             if (tx->nVersion < 5) {
                 return state.DoS(100, false, REJECT_INVALID, "bad-tx-version", false, "Only version 5 transactions with currency information are allowed after the time of the fork.");
             }
-            
         }
         if (block.nTime < consensusParams.NONPRIVACY) {
             if (tx->nVersion > 3) {
@@ -4701,7 +4719,7 @@ bool CChainState::RollforwardBlock(const CBlockIndex* pindex, CCoinsViewCache& i
             if (tx.vin[j].isnickname) 
             {
                 uint256 hashtx = Hash(tx.vin[j].nickname.begin(), tx.vin[j].nickname.end(), tx.vin[j].address.begin(), tx.vin[j].address.end());
-                SetNickname(tx.vin[j].nickname, tx.vin[j].address, hash, !nicknamemasterpubkey.Verify(hashtx, tx.vin[j].nicknamesig), tx.vin[j].isnonprivatenickname);
+                SetNickname(tx.vin[j].nickname, tx.vin[j].address, hash, !nicknamemasterpubkey.Verify(hashtx, tx.vin[j].nicknamesig), tx.vin[j].isnonprivatenickname, tx.vin[j].nicknamehasviewkey, tx.vin[j].viewpubkey);
             }
         }
     }

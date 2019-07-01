@@ -36,10 +36,21 @@ CPubKey GetAddressForNickname(std::string nick)
     return CPubKey();
 }
 
+CPubKey GetViewKeyNickname(std::string nick)
+{
+    return CPubKey();
+}
+
+bool HasViewKeyNickname(std::string nick)
+{
+    return false;
+}
+
 bool IsNonPrivateNickname(std::string nick) 
 {    
     return false;
 }
+
 
 //
 // This function returns either one of EXIT_ codes when it's expected to stop the process or

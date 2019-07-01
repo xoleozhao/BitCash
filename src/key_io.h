@@ -32,6 +32,7 @@ std::string EncodeDestination(const CPubKey& key2);
 CTxDestination DecodeDestination(const std::string& str);
 CTxDestination DecodeDestinationNoNickname(const std::string& str);
 CTxDestination PubKeyToDestination(CPubKey pkey);
+CTxDestination GetDestinationforNickname(CPubKey pubkey, bool isnonprivatenickname, bool nicknamehasviewkey, CPubKey viewpubkey);
 
 bool IsValidDestinationString(const std::string& str, const CChainParams& params);
 bool IsValidDestinationString(const std::string& str);

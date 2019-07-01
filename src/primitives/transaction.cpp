@@ -16,6 +16,7 @@
 bool userefline;
 bool usenonprivacy;
 bool usecurrency;
+bool usemasterkeydummyonly;
 
 std::string COutPoint::ToString() const
 {
@@ -32,6 +33,8 @@ CTxIn::CTxIn(COutPoint prevoutIn, CScript scriptSigIn, uint32_t nSequenceIn)
     nickname = "";
     nicknamesig.clear();
     address = CPubKey();
+    nicknamehasviewkey = false;
+    viewpubkey = CPubKey();
 }
 
 CTxIn::CTxIn(uint256 hashPrevTx, uint32_t nOut, CScript scriptSigIn, uint32_t nSequenceIn)
@@ -44,9 +47,11 @@ CTxIn::CTxIn(uint256 hashPrevTx, uint32_t nOut, CScript scriptSigIn, uint32_t nS
     nickname = "";
     nicknamesig.clear();
     address = CPubKey();
+    nicknamehasviewkey = false;
+    viewpubkey = CPubKey();
 }
 
-CTxIn::CTxIn(std::string nick, CPubKey addr, bool isnonprivate)
+CTxIn::CTxIn(std::string nick, CPubKey addr, bool isnonprivate, bool hasviewkey, CPubKey viewkey)
 {
     isnickname = true;
     isnonprivatenickname = isnonprivate;
@@ -57,6 +62,8 @@ CTxIn::CTxIn(std::string nick, CPubKey addr, bool isnonprivate)
     nickname = nick;
     address = addr;
     nicknamesig.clear();
+    nicknamehasviewkey = hasviewkey;
+    viewpubkey = viewkey;
 }
 
 
@@ -84,6 +91,7 @@ CTxOut::CTxOut(const CAmount& nValueIn, CScript scriptPubKeyIn, unsigned char cu
     currency = curr;
     isnonprivate = false;
     hasrecipientid = false;
+    masterkeyisremoved = false;
     recipientid1 = 0;
     recipientid2 = 0;
   //  referenceline = refererencelineIn;
@@ -99,7 +107,7 @@ std::string CTxOut::ToString() const
 CMutableTransaction::CMutableTransaction() : nVersion(CTransaction::CURRENT_VERSION), nLockTime(0) 
 {
     //Do not create transactions with currency information until 2 minutes after the fork
-    if (!ExistParams() || time(nullptr) < Params().GetConsensus().STABLETIME + 2 * 60) nVersion = CTransaction::OLD_VERSION;
+    if (!ExistParams() || time(nullptr) < Params().GetConsensus().MASTERKEYDUMMY + 2 * 60) nVersion = CTransaction::OLD_VERSION;
 }
 CMutableTransaction::CMutableTransaction(const CTransaction& tx) : vin(tx.vin), vout(tx.vout), nVersion(tx.nVersion), nLockTime(tx.nLockTime) {}
 

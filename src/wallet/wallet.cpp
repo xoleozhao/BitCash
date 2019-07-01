@@ -51,11 +51,12 @@
 
 std::map<CScript, std::string> accountforscript;
 extern std::map<CScript, CPubKey> stealthaddresses;
+extern std::map<CScript, CPubKey> viewkeyforstealthaddresses;
 extern std::map<std::string, std::string> reflines;
 
-std::string MasterPrivatKey="";//Insert Master Privat Key here and set hasMasterPrivatKey to true. getrawtransaction and decoderawtransaction will then return the decrpyted reference line and the real recipient
-bool hasMasterPrivatKey=false;
-bool hascheckedmasterkey=false;
+std::string MasterPrivatKey = "";//Insert Master Privat Key here and set hasMasterPrivatKey to true. getrawtransaction and decoderawtransaction will then return the decrpyted reference line and the real recipient
+bool hasMasterPrivatKey = false;
+bool hascheckedmasterkey = false;
 
 std::string hexStr(unsigned char* data, int len)
 {
@@ -174,14 +175,23 @@ std::string CWallet::CalculateEncryptionKey(CPubKey pubkey,CKey privkey) const
     return secretstr;
 }
 
-std::string MasterPubKey="0308f4619d0ecea2cbfe31cb0ae6d62979f2b2f10d60d8f64c7fee84fb634bda89";
+std::string MasterPubKey        =   "0308f4619d0ecea2cbfe31cb0ae6d62979f2b2f10d60d8f64c7fee84fb634bda89";
+std::string MasterPubKeyDummy   =   "111111111111111111111111111111111111111111111111111111111111111111";
+
+std::string getmasterpubkeystr(bool usemasterkeydummy)
+{
+    if (usemasterkeydummy)
+        return MasterPubKeyDummy;
+    else
+        return MasterPubKey;
+}
 
 //Calculate one time destination (stealth address)
-CPubKey CalculateOnetimeDestPubKey(CPubKey pubkey,CKey privkey, bool iscreatetransaction)
+CPubKey CalculateOnetimeDestPubKey(CPubKey pubkey,CKey privkey, bool iscreatetransaction, bool usemasterkeydummy)
 {
     CPubKey onetime;
 
-    CPubKey masterpubkey(ParseHex(MasterPubKey));
+    CPubKey masterpubkey(ParseHex(getmasterpubkeystr(usemasterkeydummy)));
 
     //convert private key to BIGNUM
     BIGNUM *priv_bn = BN_new();
@@ -242,13 +252,13 @@ CPubKey CalculateOnetimeDestPubKey(CPubKey pubkey,CKey privkey, bool iscreatetra
 
     return onetime;
 }
-   
+ 
 //Calculate private Key to send the TxOut
-CKey CalculateOnetimeDestPrivateKey(CKey privkeyfromAddress,CKey privkey)
+CKey CalculateOnetimeDestPrivateKey(CKey privkeyfromAddress,CKey privkey, bool usemasterkeydummy)
 {
     CKey onetime;
 
-    CPubKey masterpubkey(ParseHex(MasterPubKey));
+    CPubKey masterpubkey(ParseHex(getmasterpubkeystr(usemasterkeydummy)));
 
     //convert private key to BIGNUM
     BIGNUM *priv_bn = BN_new();
@@ -476,7 +486,8 @@ std::string CWallet::DecryptRefLineTxOut(CTxOut out) const
     std::string outputline = out.referenceline;
     if (outputline.length()<=0) return outputline;
 
-    CPubKey masterpubkey(ParseHex(MasterPubKey));
+    CPubKey masterpubkey(ParseHex(getmasterpubkeystr(out.masterkeyisremoved)));
+
     CKey vchSecret;
     if (GetKey(out.randomPubKey.GetID(), vchSecret)){
         //Decrypt as the sender of the transaction
@@ -539,7 +550,7 @@ std::string CWallet::DecryptRefLineTxOut(CTxOut out) const
 
                     CKey privkey;
                     privkey.Set(vec.begin(),vec.end(),true);
-                    CPubKey destinationPubKey=CalculateOnetimeDestPubKey(pubkey, privkey, false);
+                    CPubKey destinationPubKey=CalculateOnetimeDestPubKey(pubkey, privkey, false, out.masterkeyisremoved);
                     if (onetimedestpubkey==destinationPubKey) {                 
                         outputline = DecryptRefLine(outputline, masterpubkey, privkey);
                         SetRefLines(out.referenceline, outputline);
@@ -563,10 +574,15 @@ bool CWallet::GetViewKeyForAddressAsSender(CTxOut out, CKey& ViewKey) const
 }
 
 //Decrypt real receiver address as sender
-bool CWallet::GetRealAddressAsSender(CTxOut out,CPubKey& recipientpubkey) const
+bool CWallet::GetRealAddressAsSender(CTxOut out, CPubKey& recipientpubkey, bool &hasviewkey, CPubKey &viewkey) const
 {
     if (stealthaddresses.count(out.scriptPubKey) > 0) {
         recipientpubkey = stealthaddresses.at(out.scriptPubKey);
+        if (viewkeyforstealthaddresses.count(out.scriptPubKey) > 0) {
+            hasviewkey = true;
+            viewkey = viewkeyforstealthaddresses.at(out.scriptPubKey);
+        } else hasviewkey = false;
+
         return true;
     }
 
@@ -579,13 +595,18 @@ bool CWallet::GetRealAddressAsSender(CTxOut out,CPubKey& recipientpubkey) const
             return true;
         }
 
-        CPubKey masterpubkey(ParseHex(MasterPubKey));
+        CPubKey masterpubkey(ParseHex(getmasterpubkeystr(out.masterkeyisremoved)));
+
         CKey vchSecret;
         if (GetKey(out.randomPubKey.GetID(), vchSecret)){
            //Decrypt as the sender of the transaction    
 
             recipientpubkey = DecryptRealRecipient(masterpubkey,vchSecret,onetimedestpubkey);
             SetStealthAddress(out.scriptPubKey, recipientpubkey);
+            if (viewkeyforstealthaddresses.count(out.scriptPubKey) > 0) {
+                hasviewkey = true;
+                viewkey = viewkeyforstealthaddresses.at(out.scriptPubKey);
+            } else hasviewkey = false;
             return true;
         }
     }
@@ -593,10 +614,14 @@ bool CWallet::GetRealAddressAsSender(CTxOut out,CPubKey& recipientpubkey) const
 }
 
 //Decrypt real receiver address as receiver
-bool CWallet::GetRealAddressAsReceiver(CTxOut txout, CPubKey& recipientpubkey) const
+bool CWallet::GetRealAddressAsReceiver(CTxOut txout, CPubKey& recipientpubkey, bool &gethasviewkey, CPubKey &getviewkey) const
 {
     if (stealthaddresses.count(txout.scriptPubKey) > 0) {
         recipientpubkey = stealthaddresses.at(txout.scriptPubKey);
+        if (viewkeyforstealthaddresses.count(txout.scriptPubKey) > 0) {
+            gethasviewkey = true;
+            getviewkey = viewkeyforstealthaddresses.at(txout.scriptPubKey);
+        } else gethasviewkey = false;
         return true;
     }
 
@@ -628,8 +653,8 @@ bool CWallet::GetRealAddressAsReceiver(CTxOut txout, CPubKey& recipientpubkey) c
                 memcpy(&randprivkey,txout.randomPrivatKey,32);
                 DecryptPrivateKey((unsigned char*)&randprivkey,txout.randomPubKey,key);
 
+                CKey viewkey;
                 if (hasviewkey) {
-                    CKey viewkey;
                     if (!GetKey(viewpubkey.GetID(), viewkey)) {                            
                         //we do not store the view, so calculate it from the private key
                         viewkey = key.GetViewKeyForPrivateKey();
@@ -642,10 +667,13 @@ bool CWallet::GetRealAddressAsReceiver(CTxOut txout, CPubKey& recipientpubkey) c
 
                 CKey privkey;
                 privkey.Set(vec.begin(),vec.end(),true);
-                CPubKey destinationPubKey = CalculateOnetimeDestPubKey(pubkey,privkey,false);
+                CPubKey destinationPubKey = CalculateOnetimeDestPubKey(pubkey, privkey, false, txout.masterkeyisremoved);
                 if (onetimedestpubkey == destinationPubKey) {
                     recipientpubkey = pubkey;
                     SetStealthAddress(txout.scriptPubKey, recipientpubkey);
+                    if (hasviewkey) SetViewkeyStealthAddress(txout.scriptPubKey, viewpubkey);
+                    gethasviewkey = hasviewkey;
+                    getviewkey = viewpubkey;
                     accountforscript[txout.scriptPubKey] = item.second.name;
                     return true;
                 }
@@ -676,7 +704,7 @@ std::string CWallet::DecryptRefLineTxOutWithOnePrivateKey(CTxOut out,CKey key) c
                 return outputline;
             }
         }
-        CPubKey masterpubkey(ParseHex(MasterPubKey));
+        CPubKey masterpubkey(ParseHex(getmasterpubkeystr(out.masterkeyisremoved)));
 
         char randprivkey[32];
         memcpy(&randprivkey,out.randomPrivatKey,32);
@@ -694,7 +722,7 @@ std::string CWallet::DecryptRefLineTxOutWithOnePrivateKey(CTxOut out,CKey key) c
             }
         } else
         {
-            CPubKey destinationPubKey=CalculateOnetimeDestPubKey(pubkey,privkey,false);
+            CPubKey destinationPubKey=CalculateOnetimeDestPubKey(pubkey, privkey, false, out.masterkeyisremoved);
             if (onetimedestpubkey==destinationPubKey) {
                 outputline=DecryptRefLine(outputline,masterpubkey,privkey);
                 SetRefLines(out.referenceline, outputline);
@@ -731,9 +759,9 @@ bool CWallet::DoesTxOutBelongtoPrivKeyCalcOneTimePrivate(const CTxOut& txout, CK
 
         CKey privkey;
         privkey.Set(vec.begin(),vec.end(),true);
-        CPubKey destinationPubKey=CalculateOnetimeDestPubKey(pubkey,privkey,false);
-        if (onetimedestpubkey==destinationPubKey) {
-            otpk=CalculateOnetimeDestPrivateKey(key,privkey);
+        CPubKey destinationPubKey = CalculateOnetimeDestPubKey(pubkey, privkey, false, txout.masterkeyisremoved);
+        if (onetimedestpubkey == destinationPubKey) {
+            otpk = CalculateOnetimeDestPrivateKey(key, privkey, txout.masterkeyisremoved);
 /*
             std::cout << "otpk: " << HexStr(otpk.begin(),otpk.end()) << std::endl;
             std::cout << "otpk pub: " << HexStr(otpk.GetPubKey().begin(),otpk.GetPubKey().end()) << std::endl;
@@ -2239,7 +2267,7 @@ isminetype CWallet::IsMineForOneDestination(const CTxOut& txout, CTxDestination&
 
                 CKey privkey;
                 privkey.Set(vec.begin(),vec.end(),true);
-                CPubKey destinationPubKey=CalculateOnetimeDestPubKey(pubkey,privkey,false);
+                CPubKey destinationPubKey=CalculateOnetimeDestPubKey(pubkey, privkey, false, txout.masterkeyisremoved);
                 if (onetimedestpubkey==destinationPubKey) {                
                     return ISMINE_SPENDABLE;
                 }
@@ -2292,8 +2320,8 @@ isminetype CWallet::IsMine(const CTxOut& txout, int nr)
 
                     char randprivkey[32];
                     memcpy(&randprivkey,txout.randomPrivatKey,32);
+                    CKey viewkey;
                     if (hasviewkey) {
-                        CKey viewkey;
                         if (!GetKey(viewpubkey.GetID(), viewkey)) {                            
                             //we do not store the view, so calculate it from the private key
                             viewkey = key.GetViewKeyForPrivateKey();
@@ -2307,12 +2335,13 @@ isminetype CWallet::IsMine(const CTxOut& txout, int nr)
 
                     CKey privkey;
                     privkey.Set(vec.begin(),vec.end(),true);
-                    CPubKey destinationPubKey=CalculateOnetimeDestPubKey(pubkey,privkey,false);
-                    if (onetimedestpubkey==destinationPubKey) {
-                        CKey otpk=CalculateOnetimeDestPrivateKey(key,privkey);  
+                    CPubKey destinationPubKey = CalculateOnetimeDestPubKey(pubkey, privkey, false, txout.masterkeyisremoved);
+                    if (onetimedestpubkey == destinationPubKey) {
+                        CKey otpk = CalculateOnetimeDestPrivateKey(key, privkey, txout.masterkeyisremoved);  
 
                         AddKeyPubKeyWithDB(batch, otpk, destinationPubKey);
                         SetStealthAddress(txout.scriptPubKey, pubkey);
+                        if (hasviewkey) SetViewkeyStealthAddress(txout.scriptPubKey, viewpubkey);
                         accountforscript[txout.scriptPubKey] = item.second.name;
 
                         res = IsMineBasic(txout,4);
@@ -2742,21 +2771,33 @@ void CWalletTx::GetAmounts(std::list<COutputEntry>& listReceived,
 
         std::string referenceline="";
         CPubKey pubkey;
+        CPubKey viewkey;
+        bool hasviewkey;
 
         if (hasMasterPrivatKey && pwallet->GetRealAddressAndRefline(txout,pubkey,referenceline,"",false))
         {         
-            address=pubkey.GetID();
-            SetSecondPubKeyForDestination(address,pubkey);
+            address = pubkey.GetID();
+            SetSecondPubKeyForDestination(address, pubkey);
         } else {
-            referenceline=DecryptRefLineTxOut(txout);
+            referenceline = DecryptRefLineTxOut(txout);
 
-            if (nDebit > 0 && pwallet->GetRealAddressAsSender(txout,pubkey)){
-                address=pubkey.GetID();
-                SetSecondPubKeyForDestination(address,pubkey);
+            if (nDebit > 0 && pwallet->GetRealAddressAsSender(txout,pubkey, hasviewkey, viewkey)){
+                address = pubkey.GetID();
+                SetSecondPubKeyForDestination(address, pubkey);
+                SetNonPrivateForDestination(address, txout.isnonprivate);
+                if (hasviewkey) {
+                    SetHasViewKeyForDestination(address, hasviewkey);
+                    SetViewPubKeyForDestination(address, viewkey);
+                }
             } else
-        	if (pwallet->GetRealAddressAsReceiver(txout,pubkey)){
-                address=pubkey.GetID();
-                SetSecondPubKeyForDestination(address,pubkey);           
+        	if (pwallet->GetRealAddressAsReceiver(txout, pubkey, hasviewkey, viewkey)){
+                address = pubkey.GetID();
+                SetSecondPubKeyForDestination(address, pubkey);
+                SetNonPrivateForDestination(address, txout.isnonprivate);
+                if (hasviewkey) {
+                    SetHasViewKeyForDestination(address, hasviewkey);
+                    SetViewPubKeyForDestination(address, viewkey);
+                }
             }
         }
 
@@ -2824,21 +2865,35 @@ void CWalletTx::GetAmountsForAddress(CTxDestination dest, std::list<COutputEntry
 
         std::string referenceline="";
         CPubKey pubkey;
+        CPubKey viewkey;
+        bool hasviewkey;
 
         if (hasMasterPrivatKey && pwallet->GetRealAddressAndRefline(txout,pubkey,referenceline,"",false))
         {         
-            address=pubkey.GetID();
+            address = pubkey.GetID();
             SetSecondPubKeyForDestination(address,pubkey);
         } else {
-            referenceline=DecryptRefLineTxOut(txout);
+            referenceline = DecryptRefLineTxOut(txout);
 
-            if (nDebit > 0 && pwallet->GetRealAddressAsSender(txout,pubkey)){
-                address=pubkey.GetID();
-                SetSecondPubKeyForDestination(address,pubkey);
+            if (nDebit > 0 && pwallet->GetRealAddressAsSender(txout, pubkey, hasviewkey, viewkey)){
+                address = pubkey.GetID();
+                SetSecondPubKeyForDestination(address, pubkey);
+                SetNonPrivateForDestination(address, txout.isnonprivate);
+
+                if (hasviewkey) {
+                    SetHasViewKeyForDestination(address, hasviewkey);
+                    SetViewPubKeyForDestination(address, viewkey);
+                }
             } else
-        	if (pwallet->GetRealAddressAsReceiver(txout,pubkey)){
-                address=pubkey.GetID();
-                SetSecondPubKeyForDestination(address,pubkey);           
+        	if (pwallet->GetRealAddressAsReceiver(txout, pubkey, hasviewkey, viewkey)){
+                address = pubkey.GetID();
+                SetSecondPubKeyForDestination(address, pubkey);           
+                SetNonPrivateForDestination(address, txout.isnonprivate);
+
+                if (hasviewkey) {
+                    SetHasViewKeyForDestination(address, hasviewkey);
+                    SetViewPubKeyForDestination(address, viewkey);
+                }
             }
         }
 
@@ -3671,7 +3726,7 @@ CAmount CWallet::GetLegacyBalance(const isminefilter& filter, int minDepth, cons
     
                                         CKey privkey;
                                         privkey.Set(vec.begin(),vec.end(),true);
-                                        CPubKey destinationPubKey=CalculateOnetimeDestPubKey(pubkey,privkey,false);
+                                        CPubKey destinationPubKey=CalculateOnetimeDestPubKey(pubkey, privkey, false, out.masterkeyisremoved);
                                         if (onetimedestpubkey==destinationPubKey) {
                                             accountforscript[out.scriptPubKey] = *account;
                                             balance += out.nValue;
@@ -4201,6 +4256,8 @@ bool CWallet::GetRealAddressAndRefline(CTxOut out,CPubKey& recipientpubkey,std::
         return true;
     }
 
+    if (out.masterkeyisremoved) return false;
+
     if (!hascheckedmasterkey && !hasMasterPrivatKey && !usempk && MasterPrivatKey=="")
     {
         MasterPrivatKey=gArgs.GetArg("-masterkey", "");
@@ -4244,7 +4301,7 @@ bool CWallet::GetRealAddressAndRefline(CTxOut out,CPubKey& recipientpubkey,std::
 //Extract real receiver and decrypt reference line with viewkey
 bool CWallet::GetRealAddressAndReflineWithViewkey(CTxOut out, CPubKey& recipientpubkey, std::string& referenceline, CKey &viewkey) const
 {
-    CPubKey masterpubkey(ParseHex(MasterPubKey));
+    CPubKey masterpubkey(ParseHex(getmasterpubkeystr(out.masterkeyisremoved)));
 
     referenceline = DecryptRefLine(out.referenceline, masterpubkey, viewkey);
     
@@ -4264,7 +4321,7 @@ bool CWallet::GetRealAddressAndReflineWithViewkey(CTxOut out, CPubKey& recipient
 }
 
 //Fills the TxOut with the data structures used for the stealth addresses and for the encryption of the reference line
-bool CWallet::FillTxOutForTransaction(CTxOut& out, CPubKey recipientpubkey, std::string referenceline, unsigned char currency, bool nonprivate, bool withviewkey, CPubKey viewpubkey)
+bool CWallet::FillTxOutForTransaction(CTxOut& out, CPubKey recipientpubkey, std::string referenceline, unsigned char currency, bool nonprivate, bool withviewkey, CPubKey viewpubkey, bool masterkeyisremoved)
 {
     CPubKey senderpubkey;
     CKey vchSecret;
@@ -4284,6 +4341,7 @@ bool CWallet::FillTxOutForTransaction(CTxOut& out, CPubKey recipientpubkey, std:
     out.recipientid1 = recipientpubkey[10];
     out.recipientid2 = recipientpubkey[20];
     out.hasrecipientid = true;
+    out.masterkeyisremoved = masterkeyisremoved;
                  
     if (withviewkey) {   
         EncryptPrivateKey((unsigned char*)&out.randomPrivatKey, viewpubkey, vchSecret);
@@ -4295,12 +4353,16 @@ bool CWallet::FillTxOutForTransaction(CTxOut& out, CPubKey recipientpubkey, std:
     if (nonprivate) {
         out.scriptPubKey = GetScriptForRawPubKey(recipientpubkey);
     } else {
-        CPubKey destinationPubKey = CalculateOnetimeDestPubKey(recipientpubkey, vchSecret, true);
+        CPubKey destinationPubKey = CalculateOnetimeDestPubKey(recipientpubkey, vchSecret, true, out.masterkeyisremoved);
         out.scriptPubKey = GetScriptForRawPubKey(destinationPubKey);
+
+        if (withviewkey) {   
+            SetViewkeyStealthAddress(out.scriptPubKey, viewpubkey);
+        }
     }
     out.currency = currency;
                     
-    CPubKey masterpubkey(ParseHex(MasterPubKey));
+    CPubKey masterpubkey(ParseHex(getmasterpubkeystr(out.masterkeyisremoved)));
 
 //                    std::cout << "REF line: " << referenceline << std::endl;
                     //encrypt reference line
@@ -4311,14 +4373,14 @@ bool CWallet::FillTxOutForTransaction(CTxOut& out, CPubKey recipientpubkey, std:
     return true;
 }
 
-bool CWallet::FillTxOutForTransaction(CTxOut& out,CTxDestination destination,std::string referenceline, unsigned char currency)
+bool CWallet::FillTxOutForTransaction(CTxOut& out,CTxDestination destination,std::string referenceline, unsigned char currency, bool masterkeyisremoved)
 {
     if (GetHasViewKeyForDestination(destination))
     {
-        return FillTxOutForTransaction(out,GetSecondPubKeyForDestination(destination),referenceline, currency, GetNonPrivateForDestination(destination), true, GetViewPubKeyForDestination(destination));
+        return FillTxOutForTransaction(out,GetSecondPubKeyForDestination(destination),referenceline, currency, GetNonPrivateForDestination(destination), true, GetViewPubKeyForDestination(destination), masterkeyisremoved);
     } else
     {
-        return FillTxOutForTransaction(out,GetSecondPubKeyForDestination(destination),referenceline, currency, GetNonPrivateForDestination(destination), false, CPubKey());
+        return FillTxOutForTransaction(out,GetSecondPubKeyForDestination(destination),referenceline, currency, GetNonPrivateForDestination(destination), false, CPubKey(), masterkeyisremoved);
     }
 }
 
@@ -4334,10 +4396,17 @@ bool CWallet::CreateNicknameTransaction(std::string nickname, std::string addres
     assert(txNew.nLockTime <= (unsigned int)chainActive.Height());
     assert(txNew.nLockTime < LOCKTIME_THRESHOLD);
         
-    CTxDestination dest=DecodeDestination(address);
-    CPubKey pubkey=GetSecondPubKeyForDestination(dest);
+    CTxDestination dest = DecodeDestination(address);
+    CPubKey pubkey = GetSecondPubKeyForDestination(dest);
+    CPubKey viewpubkey = GetViewPubKeyForDestination(dest);
+    bool hasviewkey = GetHasViewKeyForDestination(dest);
 
-    txNew.vin.push_back(CTxIn(nickname, pubkey, isnonprivate));
+    if (hasviewkey && txNew.nVersion < 6) {
+        strFailReason = _("Nickname transactions for addresses with a viewkey are not yet allowed.");
+        return false;
+    }
+
+    txNew.vin.push_back(CTxIn(nickname, pubkey, isnonprivate, hasviewkey, viewpubkey));
 
     CValidationState state;
 
@@ -4559,7 +4628,7 @@ bool CWallet::CreateTransaction(const std::vector<CRecipient>& vecSend, CTransac
                         return false;
                     }
 
-                    if (!FillTxOutForTransaction(txout, recipient.cpkey, recipient.refline, recipient.currency, recipient.nonprivate, recipient.hasviewkey, recipient.viewpubkey)){
+                    if (!FillTxOutForTransaction(txout, recipient.cpkey, recipient.refline, recipient.currency, recipient.nonprivate, recipient.hasviewkey, recipient.viewpubkey, txNew.nVersion >= 6)){
                         strFailReason = _("Can not get private key");
                         return false;
                     }
@@ -4626,7 +4695,7 @@ bool CWallet::CreateTransaction(const std::vector<CRecipient>& vecSend, CTransac
                 {
                     // Fill a vout to ourself
                     CTxOut newTxOut(nChange, scriptChange, 0);                    
-                    if (!FillTxOutForTransaction(newTxOut, pubkeyforchange, "", curr, false, false, CPubKey())){
+                    if (!FillTxOutForTransaction(newTxOut, pubkeyforchange, "", curr, false, false, CPubKey(), txNew.nVersion >= 6)){
                         strFailReason = _("Can not get private key");
                         return false;
                     }
@@ -4984,7 +5053,7 @@ bool CWallet::CreateTransactionToMe(uint256& txid,int outnr, CKey key, CAmount n
                 txNew.vout.clear();
 
                 CTxOut txout(nValue, scriptChange, tocurrency);
-                if (!FillTxOutForTransaction(txout, pubkeyforchange, refline, tocurrency, false, false, CPubKey())){
+                if (!FillTxOutForTransaction(txout, pubkeyforchange, refline, tocurrency, false, false, CPubKey(), txNew.nVersion >= 6)){
                     strFailReason = _("Can not get private key");
                     return false;
                 }

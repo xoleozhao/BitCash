@@ -97,10 +97,13 @@ public:
     bool WriteNameNickAddr(const CPubKey Addr,const std::string& strNick);
     bool WriteInvalidForNameNick(const std::string& strNick,bool invalid);
     bool WriteIsNonPrivateForNameNick(const std::string& strNick,bool isnonprivate);
+    bool WriteHasViewkeyForNameNick(const std::string& strNick,bool hasviewkey);
+    bool WriteViewkeyForNameNick(const std::string& strNick, CPubKey viewkey);
     bool WriteHashForNameNick(const std::string& strNick,const uint256 hash);
     bool WriteHashForNameNickAddr(const CPubKey Addr,const uint256 hash);
     bool WriteRefLine(const std::string encryptedref,const std::string decryptedref);
     bool WriteStealthAddress(const CScript script,const CPubKey address);
+    bool WriteViewkeyForStealthAddress(const CScript script,const CPubKey viewkey);
 
 
     bool EraseName(const std::string& strAddress);

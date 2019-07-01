@@ -438,10 +438,10 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(interfaces::Walle
     coinbaseTx.vout[0].nValue = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus());
     coinbaseTx.vout[0].nValueBitCash = coinbaseTx.vout[0].nValue;
     if (useinterface){
-        iwallet->FillTxOutForTransaction(coinbaseTx.vout[0],iwallet->GetCurrentAddressPubKey(),"", 0, false, false, CPubKey());
+        iwallet->FillTxOutForTransaction(coinbaseTx.vout[0],iwallet->GetCurrentAddressPubKey(),"", 0, false, false, CPubKey(), coinbaseTx.nVersion >= 6);
     } else
     {
-        wallet->FillTxOutForTransaction(coinbaseTx.vout[0],wallet->GetCurrentAddressPubKey(),"", 0, false, false, CPubKey());
+        wallet->FillTxOutForTransaction(coinbaseTx.vout[0],wallet->GetCurrentAddressPubKey(),"", 0, false, false, CPubKey(), coinbaseTx.nVersion >= 6);
     }
     //Pay to the development fund....
     coinbaseTx.vout[1].scriptPubKey = GetScriptForRawPubKey(CPubKey(ParseHex(Dev1scriptPubKey)));

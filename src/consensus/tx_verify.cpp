@@ -258,6 +258,9 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state, bool fChe
                 return state.Invalid(false, REJECT_INVALID, "Bad transaction: the nickname " + tx.vin[i].nickname + "already exists. New block: "+blockhash.ToString()+" Old block:"+ GetHashForNickname(tx.vin[i].nickname).ToString());
             if (!tx.vin[i].address.IsValid())
                 return state.Invalid(false, REJECT_INVALID, "Bad transaction: the address is invalid.");
+            if (tx.vin[i].nicknamehasviewkey && !tx.vin[i].viewpubkey.IsValid())
+                return state.Invalid(false, REJECT_INVALID, "Bad transaction: the viewpubkey is invalid.");
+
 
             uint256 hash=Hash(tx.vin[i].nickname.begin(),tx.vin[i].nickname.end(),tx.vin[i].address.begin(),tx.vin[i].address.end());
 

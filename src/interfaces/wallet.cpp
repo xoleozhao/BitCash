@@ -94,11 +94,17 @@ WalletTx MakeWalletTx(CWallet& wallet, const CWalletTx& wtx)
         } else result.reflines.push_back("");
           
         CPubKey pubkey;
-        if (wallet.GetRealAddressAsSender(wtx.tx->vout[nOut],pubkey)){
+        CPubKey viewkey;
+        bool hasviewkey;
+        if (wallet.GetRealAddressAsSender(wtx.tx->vout[nOut], pubkey, hasviewkey, viewkey)){
             CTxDestination address;
             address = pubkey.GetID();
             SetSecondPubKeyForDestination(address, pubkey);
             SetNonPrivateForDestination(address, wtx.tx->vout[nOut].isnonprivate);
+            if (hasviewkey) {
+                SetHasViewKeyForDestination(address, hasviewkey);
+                SetViewPubKeyForDestination(address, viewkey);
+            }
             result.txout_address[nOut] = address;
         }
     }
@@ -165,11 +171,11 @@ public:
         return m_wallet.GetKeyFromPool(pub_key, internal);
     }
     std::string DecryptRefLineTxOut(CTxOut out)  override { return m_wallet.DecryptRefLineTxOut(out); }
-    bool GetRealAddressAsSender(CTxOut out,CPubKey& recipientpubkey) override { return m_wallet.GetRealAddressAsSender(out, recipientpubkey); }
+    bool GetRealAddressAsSender(CTxOut out,CPubKey& recipientpubkey, bool &hasviewkey, CPubKey &viewkey) override { return m_wallet.GetRealAddressAsSender(out, recipientpubkey, hasviewkey, viewkey); }
     bool GetViewKeyForAddressAsSender(CTxOut out, CKey& ViewKey) override { return m_wallet.GetViewKeyForAddressAsSender(out, ViewKey); }
     std::string DecryptRefLineTxOutWithOnePrivateKey(CTxOut out,CKey key) override { return m_wallet.DecryptRefLineTxOutWithOnePrivateKey(out,key); }
 
-    bool FillTxOutForTransaction(CTxOut& out, CPubKey recipientpubkey, std::string referenceline, unsigned char currency, bool nonprivate, bool withviewkey, CPubKey viewpubkey) override { return m_wallet. FillTxOutForTransaction(out, recipientpubkey, referenceline, currency, nonprivate, withviewkey, viewpubkey); }
+    bool FillTxOutForTransaction(CTxOut& out, CPubKey recipientpubkey, std::string referenceline, unsigned char currency, bool nonprivate, bool withviewkey, CPubKey viewpubkey, bool masterkeyisremoved) override { return m_wallet. FillTxOutForTransaction(out, recipientpubkey, referenceline, currency, nonprivate, withviewkey, viewpubkey, masterkeyisremoved); }
 
     bool DoesTxOutBelongtoPrivKeyCalcOneTimePrivate(const CTxOut& txout, CKey key, CKey& otpk) override { return m_wallet.DoesTxOutBelongtoPrivKeyCalcOneTimePrivate(txout,key,otpk); }
 

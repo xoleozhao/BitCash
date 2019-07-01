@@ -89,7 +89,7 @@ public:
 
     virtual std::string DecryptRefLineTxOut(CTxOut out) = 0;
 
-    virtual bool GetRealAddressAsSender(CTxOut out,CPubKey& recipientpubkey) = 0;
+    virtual bool GetRealAddressAsSender(CTxOut out,CPubKey& recipientpubkey, bool &hasviewkey, CPubKey &viewkey) = 0;
 
     virtual bool GetViewKeyForAddressAsSender(CTxOut out, CKey& ViewKey) = 0;
 
@@ -97,7 +97,7 @@ public:
 
     virtual bool DoesTxOutBelongtoPrivKeyCalcOneTimePrivate(const CTxOut& txout, CKey key, CKey& otpk) = 0;
     
-    virtual bool FillTxOutForTransaction(CTxOut& out, CPubKey recipientpubkey, std::string referenceline, unsigned char currency, bool nonprivate, bool withviewkey, CPubKey viewpubkey) = 0;
+    virtual bool FillTxOutForTransaction(CTxOut& out, CPubKey recipientpubkey, std::string referenceline, unsigned char currency, bool nonprivate, bool withviewkey, CPubKey viewpubkey, bool masterkeyisremoved) = 0;
 
     //! Get public key.
     virtual bool getPubKey(const CKeyID& address, CPubKey& pub_key) = 0;

@@ -204,13 +204,18 @@ QString TransactionDesc::toHTML(interfaces::Node& node, interfaces::Wallet& wall
                     // Offline transaction
                     CTxDestination address;
                     CPubKey pubkey;
+                    CPubKey viewkey;
+                    bool hasviewkey;
                     bool found = false;
-                    if (wallet.GetRealAddressAsSender(txout,pubkey)){
-                        if (txout.isnonprivate) {
-                            address = GetDestinationForKey(pubkey, OutputType::NONPRIVATE);
-                        } else
-                        {
-                            address = GetDestinationForKey(pubkey, OutputType::LEGACY);
+
+                    if (wallet.GetRealAddressAsSender(txout,pubkey, hasviewkey, viewkey)){
+                        address = pubkey.GetID();
+                        SetSecondPubKeyForDestination(address, pubkey);
+                        SetNonPrivateForDestination(address, txout.isnonprivate);
+
+                        if (hasviewkey) {
+                            SetHasViewKeyForDestination(address, hasviewkey);
+                            SetViewPubKeyForDestination(address, viewkey);
                         }
                         found = true;
                     }

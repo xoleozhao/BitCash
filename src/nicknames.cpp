@@ -12,6 +12,7 @@ std::unique_ptr<NicknameDatabase> database;
 std::map<std::string, CNicknameBookData> mapNicknameBook;
 std::map<CPubKey, CNicknameAddrBookData> mapAddressForNicknameBook;
 std::map<CScript, CPubKey> stealthaddresses;
+std::map<CScript, CPubKey> viewkeyforstealthaddresses;
 std::map<std::string, std::string> reflines;
 
 void InitNicknameDB()
@@ -32,6 +33,16 @@ bool SetStealthAddress(const CScript script,const CPubKey address)
     return valid;
 }
 
+bool SetViewkeyStealthAddress(const CScript script,const CPubKey viewkey)
+{
+    bool valid=true;
+    viewkeyforstealthaddresses[script] = viewkey;    
+
+    if (!NicknameBatch(*database).WriteViewkeyForStealthAddress(script, viewkey))valid=false;
+
+    return valid;
+}
+
 bool SetRefLines(const std::string encryptedref,const std::string decryptedref)
 {
     bool valid=true;
@@ -42,7 +53,7 @@ bool SetRefLines(const std::string encryptedref,const std::string decryptedref)
     return valid;
 }
 
-bool SetNickname(const std::string& strName,const CPubKey address, uint256 hash, bool storeblockhash, bool isnonprivate)
+bool SetNickname(const std::string& strName,const CPubKey address, uint256 hash, bool storeblockhash, bool isnonprivate, bool hasviewkey, const CPubKey viewkey)
 {
     bool valid=true;
     std::string oldnick=GetNicknameForAddress(address);
@@ -58,7 +69,9 @@ bool SetNickname(const std::string& strName,const CPubKey address, uint256 hash,
     mapNicknameBook[nick].hash=hash;
     mapNicknameBook[nick].invalid = false;
     mapNicknameBook[nick].isnonprivate = isnonprivate;
-    mapAddressForNicknameBook[address].name=strName;
+    mapNicknameBook[nick].hasviewkey = hasviewkey;
+    mapNicknameBook[nick].viewkey = viewkey;
+    mapAddressForNicknameBook[address].name = strName;
 
     if (storeblockhash) mapAddressForNicknameBook[address].hash=hash;
 
@@ -67,6 +80,8 @@ bool SetNickname(const std::string& strName,const CPubKey address, uint256 hash,
     if (!NicknameBatch(*database).WriteHashForNameNick(nick, hash))valid=false;
     if (!NicknameBatch(*database).WriteInvalidForNameNick(nick, false))valid=false;
     if (!NicknameBatch(*database).WriteIsNonPrivateForNameNick(nick, isnonprivate))valid=false;
+    if (!NicknameBatch(*database).WriteHasViewkeyForNameNick(nick, hasviewkey))valid=false;
+    if (!NicknameBatch(*database).WriteViewkeyForNameNick(nick, viewkey))valid=false;
     if (storeblockhash){
         if (!NicknameBatch(*database).WriteHashForNameNickAddr(address, hash))valid=false;
     }
@@ -90,6 +105,8 @@ bool DeleteNickname(const std::string& strName,CPubKey address)
     if (!NicknameBatch(*database).WriteIsNonPrivateForNameNick(nick, false))valid=false;
     if (!NicknameBatch(*database).WriteHashForNameNick(nick, uint256S("0x0")))valid=false;
     if (!NicknameBatch(*database).WriteHashForNameNickAddr(address, uint256S("0x0")))valid=false;
+    if (!NicknameBatch(*database).WriteHasViewkeyForNameNick(nick, false))valid=false;
+    if (!NicknameBatch(*database).WriteViewkeyForNameNick(nick, CPubKey()))valid=false;
 
     return valid;
 }
@@ -135,6 +152,18 @@ bool IsNonPrivateNickname(std::string nick)
 {
     boost::to_upper(nick); 
     return mapNicknameBook[nick].isnonprivate;
+}
+
+bool HasViewKeyNickname(std::string nick) 
+{
+    boost::to_upper(nick); 
+    return mapNicknameBook[nick].hasviewkey;
+}
+
+CPubKey GetViewKeyNickname(std::string nick) 
+{
+    boost::to_upper(nick); 
+    return mapNicknameBook[nick].viewkey;
 }
 
 uint256 GetHashForAddress(CPubKey address) 

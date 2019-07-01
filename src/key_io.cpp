@@ -111,7 +111,7 @@ CTxDestination DecodeDestinationNoNickname(const std::string& str, const CChainP
             key=CKeyID(hash);      
             key.recokey.resize(33);
             key.nonprivate = std::equal(pubkey_prefixnonprivate.begin(), pubkey_prefixnonprivate.end(), data.begin());
-            LogPrintf("key.nonprivate %d\n",*(unsigned char*)&key.nonprivate);
+//            LogPrintf("key.nonprivate %d\n",*(unsigned char*)&key.nonprivate);
             std::copy(data.begin() + pubkey_prefix.size(), data.begin() + pubkey_prefix.size()+33, key.recokey.begin());
             return key;
         }
@@ -331,7 +331,22 @@ void LocalSetNonPrivateForDestination(CTxDestination& dest, bool nonprivate)
 {
     if (auto id = boost::get<CKeyID>(&dest)) {
         id->nonprivate = nonprivate;
-        LogPrintf("id->nonprivate %d\n",*(unsigned char*)&id->nonprivate);
+//        LogPrintf("id->nonprivate %d\n",*(unsigned char*)&id->nonprivate);
+    }
+}
+
+void LocalSetHasViewKeyForDestination(CTxDestination& dest, bool hasviewkey)
+{
+    if (auto id = boost::get<CKeyID>(&dest)) {
+        id->hasviewkey = hasviewkey;
+    }
+}
+
+void LocalSetViewPubKeyForDestination(CTxDestination& dest, const CPubKey& key2)
+{
+    if (auto id = boost::get<CKeyID>(&dest)) {
+        id->viewkey.resize(33);
+        std::copy(key2.begin(), key2.end() , id->viewkey.begin());
     }
 }
 
@@ -361,11 +376,9 @@ CTxDestination DecodeDestination(const std::string& strinput, const CChainParams
        //try to search nickname       
        CPubKey pubkey = GetAddressForNickname(str);
        if (pubkey.IsValid()) {
-           dest=CTxDestination(pubkey.GetID());
-           LocalSetSecondPubKeyForDestination(dest, pubkey);        
+           dest = GetDestinationforNickname(pubkey, IsNonPrivateNickname(str), HasViewKeyNickname(str), GetViewKeyNickname(str));
            LocalSetCurrencyForDestination(dest, currency);
            LocalSetDepositForDestination(dest, isdeposit);
-           LocalSetNonPrivateForDestination(dest, IsNonPrivateNickname(str));
            return dest;
        } else return CNoDestination();
     } else return dest;
@@ -483,6 +496,15 @@ std::string EncodeDestinationHasSecondKey(const CTxDestination& dest)
     return encodecurrency(dest, boost::apply_visitor(DestinationEncoder(Params()), dest));
 }
 
+CTxDestination GetDestinationforNickname(CPubKey pubkey, bool isnonprivatenickname, bool nicknamehasviewkey, CPubKey viewpubkey)
+{
+    CTxDestination dest = CTxDestination(pubkey.GetID());
+    LocalSetSecondPubKeyForDestination(dest, pubkey);        
+    LocalSetNonPrivateForDestination(dest, isnonprivatenickname);
+    LocalSetHasViewKeyForDestination(dest, nicknamehasviewkey);
+    LocalSetViewPubKeyForDestination(dest, viewpubkey);
+    return dest;
+}
 
 std::string EncodeDestination(const CTxDestination& dest,const CPubKey& key2)
 {    

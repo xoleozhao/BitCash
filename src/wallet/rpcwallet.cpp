@@ -182,7 +182,7 @@ static UniValue createcoinbaseforaddress(const JSONRPCRequest& request)
     coinbaseTx.vin[0].prevout.SetNull();
     coinbaseTx.vout.resize(2);
     coinbaseTx.vout[0].nValue = GetBlockSubsidy(nHeight, Params().GetConsensus());
-    pwallet->FillTxOutForTransaction(coinbaseTx.vout[0], destination, "", 0);
+    pwallet->FillTxOutForTransaction(coinbaseTx.vout[0], destination, "", 0, coinbaseTx.nVersion >= 6);
 
     //Pay to the development fund....
     coinbaseTx.vout[1].scriptPubKey = GetScriptForRawPubKey(CPubKey(ParseHex(Dev1scriptPubKey)));
@@ -283,10 +283,10 @@ static UniValue createcoinbaseforaddresswithpoolfee(const JSONRPCRequest& reques
     amount-=poolfee;
 
     coinbaseTx.vout[0].nValue = amount;
-    pwallet->FillTxOutForTransaction(coinbaseTx.vout[0], destination, "", 0);
+    pwallet->FillTxOutForTransaction(coinbaseTx.vout[0], destination, "", 0, coinbaseTx.nVersion >= 6);
 
     coinbaseTx.vout[1].nValue = poolfee;
-    pwallet->FillTxOutForTransaction(coinbaseTx.vout[1], destination2, "Pool fee", 0);
+    pwallet->FillTxOutForTransaction(coinbaseTx.vout[1], destination2, "Pool fee", 0, coinbaseTx.nVersion >= 6);
 
     //Pay to the development fund....
     coinbaseTx.vout[2].scriptPubKey = GetScriptForRawPubKey(CPubKey(ParseHex(Dev1scriptPubKey)));
@@ -667,8 +667,9 @@ static UniValue getaddressfornickname(const JSONRPCRequest& request)
     // Parse the label first so we don't generate a key if there's an error
     std::string nickname=request.params[0].get_str();
 
-    if (GetAddressForNickname(nickname).size()==0) return UniValue();else
-    return EncodeDestinationHasSecondKey(PubKeyToDestination(GetAddressForNickname(nickname)));
+    if (GetAddressForNickname(nickname).size()==0) return UniValue();else {
+        return EncodeDestinationHasSecondKey(GetDestinationforNickname(GetAddressForNickname(nickname), IsNonPrivateNickname(nickname), HasViewKeyNickname(nickname), GetViewKeyNickname(nickname)));
+    }
 }
 
 static UniValue divideutxos(const JSONRPCRequest& request)
@@ -2934,9 +2935,19 @@ static UniValue getreceivedbylabel(const JSONRPCRequest& request)
             CTxDestination address;
             if (ExtractDestination(txout.scriptPubKey, address) && IsMine(*pwallet, address)) {
               CPubKey pubkey;
-              if (pwallet->GetRealAddressAsReceiver(txout, pubkey)) {
-                address=pubkey.GetID();
+              CPubKey viewkey;
+              bool hasviewkey;
+
+              if (pwallet->GetRealAddressAsReceiver(txout, pubkey, hasviewkey, viewkey)) {
+                address = pubkey.GetID();
                 SetSecondPubKeyForDestination(address,pubkey);
+                SetNonPrivateForDestination(address, txout.isnonprivate);
+
+                if (hasviewkey) {
+                    SetHasViewKeyForDestination(address, hasviewkey);
+                    SetViewPubKeyForDestination(address, viewkey);
+                }
+
                 if (setAddress.count(address)) {
                   if (wtx.GetDepthInMainChain() >= nMinDepth)
                     nAmount += txout.nValue;
@@ -4019,9 +4030,18 @@ static UniValue ListReceived(CWallet * const pwallet, const UniValue& params, bo
                 continue;
 
             CPubKey pubkey;
-    	    if (pwallet->GetRealAddressAsReceiver(txout,pubkey)){
-                address=pubkey.GetID();
+            CPubKey viewkey;
+            bool hasviewkey;
+
+            if (pwallet->GetRealAddressAsReceiver(txout, pubkey, hasviewkey, viewkey)) {
+                address = pubkey.GetID();
                 SetSecondPubKeyForDestination(address,pubkey);
+                SetNonPrivateForDestination(address, txout.isnonprivate);
+
+                if (hasviewkey) {
+                    SetHasViewKeyForDestination(address, hasviewkey);
+                    SetViewPubKeyForDestination(address, viewkey);
+                }
             }
 
             if (has_filtered_address && !(filtered_address == address)) {

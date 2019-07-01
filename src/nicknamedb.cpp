@@ -51,6 +51,16 @@ bool NicknameBatch::WriteIsNonPrivateForNameNick(const std::string& strNick,bool
     return WriteIC(std::make_pair(std::string("nicknonprivate"), strNick), isnonprivate);
 }
 
+bool NicknameBatch::WriteHasViewkeyForNameNick(const std::string& strNick,bool hasviewkey)
+{
+    return WriteIC(std::make_pair(std::string("nickhasviewkey"), strNick), hasviewkey);
+}
+
+bool NicknameBatch::WriteViewkeyForNameNick(const std::string& strNick, CPubKey viewkey)
+{
+    return WriteIC(std::make_pair(std::string("nickviewkey"), strNick), viewkey);
+}
+
 bool NicknameBatch::WriteHashForNameNickAddr(const CPubKey Addr,const uint256 hash)
 {
     return WriteIC(std::make_pair(std::string("addrhash"), Addr), hash);
@@ -59,6 +69,11 @@ bool NicknameBatch::WriteHashForNameNickAddr(const CPubKey Addr,const uint256 ha
 bool NicknameBatch::WriteStealthAddress(const CScript script,const CPubKey address)
 {
     return WriteIC(std::make_pair(std::string("stealth"), script), address);
+}
+
+bool NicknameBatch::WriteViewkeyForStealthAddress(const CScript script,const CPubKey viewkey)
+{
+    return WriteIC(std::make_pair(std::string("stealthviewkey"), script), viewkey);
 }
 
 bool NicknameBatch::WriteRefLine(const std::string encryptedref,const std::string decryptedref)
@@ -130,6 +145,20 @@ ReadKeyValue(CDataStream& ssKey, CDataStream& ssValue,
             ssValue >> mapNicknameBook[strNickname].isnonprivate;
         }
         else
+        if (strType == "nickhasviewkey")
+        {
+            std::string strNickname;
+            ssKey >> strNickname;
+            ssValue >> mapNicknameBook[strNickname].hasviewkey;
+        }
+        else
+        if (strType == "nickviewkey")
+        {
+            std::string strNickname;
+            ssKey >> strNickname;
+            ssValue >> mapNicknameBook[strNickname].viewkey;
+        }
+        else
         if (strType == "nickinvalid")
         {
             std::string strNickname;
@@ -148,6 +177,13 @@ ReadKeyValue(CDataStream& ssKey, CDataStream& ssValue,
             CScript script;
             ssKey >> script;
             ssValue >> stealthaddresses[script];
+        }
+        else
+        if (strType == "stealthviewkey")
+        {
+            CScript script;
+            ssKey >> script;
+            ssValue >> viewkeyforstealthaddresses[script];
         }
         else
         if (strType == "refline")

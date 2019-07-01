@@ -20,6 +20,8 @@ public:
     uint256 hash;
     bool invalid;
     bool isnonprivate;
+    bool hasviewkey;
+    CPubKey viewkey;
 
     CNicknameBookData() {}
 
@@ -38,12 +40,14 @@ public:
 extern std::map<std::string, CNicknameBookData> mapNicknameBook;
 extern std::map<CPubKey, CNicknameAddrBookData> mapAddressForNicknameBook;
 extern std::map<CScript, CPubKey> stealthaddresses;
+extern std::map<CScript, CPubKey> viewkeyforstealthaddresses;
 extern std::map<std::string, std::string> reflines;
 
 bool SetStealthAddress(const CScript script,const CPubKey address);
+bool SetViewkeyStealthAddress(const CScript script,const CPubKey viewkey);
 bool SetRefLines(const std::string encryptedref,const std::string decryptedref);
 
-bool SetNickname(const std::string& strName,const CPubKey address, uint256 hash, bool storeblockhash, bool isnonprivate);
+bool SetNickname(const std::string& strName,const CPubKey address, uint256 hash, bool storeblockhash, bool isnonprivate, bool hasviewkey, const CPubKey viewkey);
 bool DeleteNickname(const std::string& strName,const CPubKey address);
 CPubKey GetAddressForNickname(std::string nick);
 bool DoesNicknameExist(std::string nick);
@@ -51,6 +55,8 @@ std::string GetNicknameForAddress(CPubKey address);
 uint256 GetHashForNickname(std::string nick);
 bool IsNonPrivateNickname(std::string nick);
 uint256 GetHashForAddress(CPubKey address);
+CPubKey GetViewKeyNickname(std::string nick);
+bool HasViewKeyNickname(std::string nick);
 void InitNicknameDB();
 void DeleteAllNicknames();
 

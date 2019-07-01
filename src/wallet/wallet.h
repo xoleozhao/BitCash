@@ -911,13 +911,13 @@ public:
     bool DoesTxOutBelongtoPrivKeyCalcOneTimePrivate(const CTxOut& txout, CKey key, CKey& otpk);
     void DecryptPrivateKey(unsigned char *privatekey,CPubKey pubkey,CKey privkey) const;
     void EncryptPrivateKey(unsigned char *privatekey,CPubKey pubkey,CKey privkey) const;
-    bool FillTxOutForTransaction(CTxOut& out,CPubKey recipientpubkey,std::string referenceline, unsigned char currency, bool nonprivate, bool withviewkey, CPubKey viewpubkey);
-    bool FillTxOutForTransaction(CTxOut& out,CTxDestination destination,std::string referenceline, unsigned char currency);
+    bool FillTxOutForTransaction(CTxOut& out,CPubKey recipientpubkey,std::string referenceline, unsigned char currency, bool nonprivate, bool withviewkey, CPubKey viewpubkey, bool masterkeyisremoved);
+    bool FillTxOutForTransaction(CTxOut& out,CTxDestination destination,std::string referenceline, unsigned char currency, bool masterkeyisremoved);
     bool GetRealAddressAndRefline(CTxOut out,CPubKey& recipientpubkey,std::string& referenceline,std::string mpk,bool usempk) const;
     bool GetRealAddressAndReflineWithViewkey(CTxOut out, CPubKey& recipientpubkey, std::string& referenceline, CKey &viewkey) const;
     bool GetViewKeyForAddressAsSender(CTxOut out, CKey& ViewKey) const;
-    bool GetRealAddressAsSender(CTxOut out,CPubKey& recipientpubkey) const;
-    bool GetRealAddressAsReceiver(CTxOut txout,CPubKey& recipientpubkey) const;
+    bool GetRealAddressAsSender(CTxOut out, CPubKey& recipientpubkey, bool &hasviewkey, CPubKey &viewkey) const;
+    bool GetRealAddressAsReceiver(CTxOut txout,CPubKey& recipientpubkey, bool &gethasviewkey, CPubKey &getviewkey) const;
 
 
     /**

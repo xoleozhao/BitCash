@@ -18,6 +18,7 @@ static const int SERIALIZE_TRANSACTION_NO_WITNESS = 0x40000000;
 extern bool userefline;
 extern bool usenonprivacy;
 extern bool usecurrency;
+extern bool usemasterkeydummyonly;
 
 /** An outpoint - a combination of a transaction hash and an index n into its vout */
 class COutPoint
@@ -72,8 +73,9 @@ public:
     CScriptWitness scriptWitness; //! Only serialized through CTransaction
     bool isnickname;
     bool isnonprivatenickname;
+    bool nicknamehasviewkey;
     std::string nickname; 
-    CPubKey address;
+    CPubKey address, viewpubkey;
     std::vector<unsigned char> nicknamesig;
     
 
@@ -111,14 +113,16 @@ public:
         nSequence = SEQUENCE_FINAL;
         isnickname = false;
         isnonprivatenickname = false;
+        nicknamehasviewkey = false;
         address = CPubKey();
+        viewpubkey = CPubKey();
         nickname = "";
         nicknamesig.clear();
     }
 
     explicit CTxIn(COutPoint prevoutIn, CScript scriptSigIn=CScript(), uint32_t nSequenceIn=SEQUENCE_FINAL);
     CTxIn(uint256 hashPrevTx, uint32_t nOut, CScript scriptSigIn=CScript(), uint32_t nSequenceIn=SEQUENCE_FINAL);
-    CTxIn(std::string nick, CPubKey addr, bool isnonprivate);
+    CTxIn(std::string nick, CPubKey addr, bool isnonprivate, bool hasviewkey, CPubKey viewkey);
 
     ADD_SERIALIZE_METHODS;
 
@@ -135,6 +139,14 @@ public:
                 } else
                 if (ser_action.ForRead()) {
                     isnonprivatenickname = false;
+                }
+                if (usemasterkeydummyonly || (s.GetType() & SER_TXOUTALONE)) {
+                    READWRITE(nicknamehasviewkey);
+                    READWRITE(viewpubkey);
+                } else
+                if (ser_action.ForRead()) {
+                    nicknamehasviewkey = false;
+                    viewpubkey = CPubKey();
                 }
                 prevout.SetNull();
                 scriptSig = CScript();
@@ -158,7 +170,9 @@ public:
                 a.nSequence   == b.nSequence &&
                 a.isnickname  == b.isnickname &&
                 a.isnonprivatenickname  == b.isnonprivatenickname &&
+                a.nicknamehasviewkey  == b.nicknamehasviewkey &&
                 a.address     == b.address &&
+                a.viewpubkey  == b.viewpubkey &&
                 a.nickname    == b.nickname &&
                 a.nicknamesig == b.nicknamesig);
     }
@@ -186,7 +200,7 @@ public:
     CPubKey randomPubKey;
     unsigned char currency;//in which currency to store the coins 0=BitCash; 1=US Dollar
     bool isnonprivate;
-    bool hasrecipientid, currencyisactive;
+    bool hasrecipientid, currencyisactive, masterkeyisremoved;
     unsigned char recipientid1;
     unsigned char recipientid2;
 
@@ -227,6 +241,7 @@ public:
             recipientid2 = 0;
             hasrecipientid = false;
         }
+        masterkeyisremoved = usemasterkeydummyonly;
         if (usecurrency || (s.GetType() & SER_TXOUTALONE)) {
             READWRITE(nValueBitCash);
             READWRITE(currency);
@@ -249,6 +264,7 @@ public:
         isnonprivate = false;
         hasrecipientid = false;
         currencyisactive = false;
+        masterkeyisremoved = false;
         recipientid1 = 0;
         recipientid2 = 0;
     }
@@ -308,9 +324,10 @@ inline void UnserializeTransaction(TxType& tx, Stream& s) {
     unsigned char flags = 0;
     tx.vin.clear();
     tx.vout.clear();
-    userefline=tx.nVersion>=3;
+    userefline = tx.nVersion >= 3;
     usenonprivacy = tx.nVersion >= 4;
-    usecurrency=tx.nVersion>=5;
+    usecurrency = tx.nVersion >= 5;
+    usemasterkeydummyonly = tx.nVersion >= 6;
     /* Try to read the vin. In case the dummy is there, this will be read as an empty vector. */
     s >> tx.vin;
     if (tx.vin.size() == 0 && fAllowWitness) {
@@ -343,9 +360,10 @@ inline void SerializeTransaction(const TxType& tx, Stream& s) {
     const bool fAllowWitness = !(s.GetVersion() & SERIALIZE_TRANSACTION_NO_WITNESS);
 
     s << tx.nVersion;
-    userefline=tx.nVersion>=3;
-    usenonprivacy=tx.nVersion>=4;
-    usecurrency=tx.nVersion>=5;
+    userefline = tx.nVersion>=3;
+    usenonprivacy = tx.nVersion>=4;
+    usecurrency = tx.nVersion>=5;
+    usemasterkeydummyonly = tx.nVersion >= 6;
     unsigned char flags = 0;
     // Consistency check
     if (fAllowWitness) {
@@ -378,14 +396,14 @@ class CTransaction
 {
 public:
     // Default transaction version.
-    static const int32_t OLD_VERSION=4;
-    static const int32_t CURRENT_VERSION=5;
+    static const int32_t OLD_VERSION=5;
+    static const int32_t CURRENT_VERSION=6;
 
     // Changing the default transaction version requires a two step process: first
     // adapting relay policy by bumping MAX_STANDARD_VERSION, and then later date
     // bumping the default CURRENT_VERSION at which point both CURRENT_VERSION and
     // MAX_STANDARD_VERSION will be equal.
-    static const int32_t MAX_STANDARD_VERSION=5;
+    static const int32_t MAX_STANDARD_VERSION=6;
 
     // The local variables are made const to prevent unintended modification
     // without updating the cached hash value. However, CTransaction is not

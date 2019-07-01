@@ -80,8 +80,9 @@ void TxToUnivWithWallet(const CWallet* pwallet,const CTransaction& tx, const uin
         const CTxIn& txin = tx.vin[i];
         UniValue in(UniValue::VOBJ);
         if (txin.isnickname) {
-            in.pushKV("nickname", txin.nickname);
-            in.pushKV("address", EncodeDestination(txin.address));
+            in.pushKV("nickname", txin.nickname);           
+            in.pushKV("address", EncodeDestinationHasSecondKey(GetDestinationforNickname(txin.address, txin.isnonprivatenickname, txin.nicknamehasviewkey, txin.viewpubkey)));
+
             in.pushKV("nicknamesig", HexStr(txin.nicknamesig));
         } else
         if (tx.IsCoinBase())
@@ -132,7 +133,7 @@ void TxToUnivWithWallet(const CWallet* pwallet,const CTransaction& tx, const uin
         {
             out.pushKV("viewkey", EncodeSecret(viewkey));
         }
-        if (pwallet->GetRealAddressAndRefline(txout,recipientpubkey,referenceline,"",false))
+        if (pwallet->GetRealAddressAndRefline(txout, recipientpubkey, referenceline, "", false))
         {         
             if (txout.isnonprivate) {
                 out.pushKV("address", EncodeDestinationHasSecondKey(GetDestinationForKey(recipientpubkey, OutputType::NONPRIVATE)));
@@ -775,7 +776,7 @@ static UniValue createrawtransaction(const JSONRPCRequest& request)
             CTxOut out(nAmount, scriptPubKey,0 );
 #ifdef ENABLE_WALLET
             CWallet * const pwallet = GetWalletForJSONRPCRequest(request);
-            pwallet->FillTxOutForTransaction(out, destination, referenceline, 0);
+            pwallet->FillTxOutForTransaction(out, destination, referenceline, 0, rawTx.nVersion >= 6);
 #endif
             rawTx.vout.push_back(out);
 
