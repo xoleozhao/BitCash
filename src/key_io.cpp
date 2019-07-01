@@ -33,13 +33,19 @@ public:
     std::string operator()(const CKeyID& id) const
     {
         std::vector<unsigned char> data;
+        if (id.hasviewkey) {
+            data = m_params.Base58Prefix(CChainParams::PUBKEY_ADDRESSVIEWKEY);
+        } else {
         if (id.nonprivate) {
            data = m_params.Base58Prefix(CChainParams::PUBKEY_ADDRESSNONPRIVATE);
-        } else {
+        } else 
            data = m_params.Base58Prefix(CChainParams::PUBKEY_ADDRESS);
         }
 //        data.insert(data.end(), id.begin(), id.end());
         data.insert(data.end(), id.recokey.begin(), id.recokey.end());
+        if (id.hasviewkey) {
+            data.insert(data.end(), id.viewkey.begin(), id.viewkey.end());
+        }
         return EncodeBase58Check(data);
     }
 
@@ -107,6 +113,24 @@ CTxDestination DecodeDestinationNoNickname(const std::string& str, const CChainP
             key.nonprivate = std::equal(pubkey_prefixnonprivate.begin(), pubkey_prefixnonprivate.end(), data.begin());
             LogPrintf("key.nonprivate %d\n",*(unsigned char*)&key.nonprivate);
             std::copy(data.begin() + pubkey_prefix.size(), data.begin() + pubkey_prefix.size()+33, key.recokey.begin());
+            return key;
+        }
+        //Address with viewkey / 2 pubkeys
+        const std::vector<unsigned char>& pubkey_prefixviewkey = params.Base58Prefix(CChainParams::PUBKEY_ADDRESSVIEWKEY);
+        if (data.size() == 2* 33 + pubkey_prefixviewkey.size() && (std::equal(pubkey_prefixviewkey.begin(), pubkey_prefixviewkey.end(), data.begin()))) {
+            temprecokey.resize(33);
+            std::copy(data.begin() + pubkey_prefix.size(), data.begin() + pubkey_prefix.size()+33, temprecokey.begin());
+            CPubKey pkey;
+            pkey.Set(temprecokey.begin(),temprecokey.end());
+            hash = pkey.GetID();
+            CKeyID key;
+            key = CKeyID(hash);      
+            key.nonprivate = false;
+            key.hasviewkey = true;
+            key.recokey.resize(33);
+            std::copy(data.begin() + pubkey_prefixviewkey.size(), data.begin() + pubkey_prefixviewkey.size() + 33, key.recokey.begin());
+            key.viewkey.resize(33);
+            std::copy(data.begin() + pubkey_prefixviewkey.size() + 33, data.begin() + pubkey_prefixviewkey.size()+ 2 * 33, key.viewkey.begin());
             return key;
         }
         // Script-hash-addresses have version 5 (or 196 testnet).

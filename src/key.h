@@ -100,6 +100,15 @@ public:
 
     void DeleteFirstBit();//Need to limit range, so that addition of a 248 bit BN is possible without overflow
 
+    CKey GetViewKeyForPrivateKey() const
+    {
+        uint256 hashofprivatekey = Hash(keydata.begin(), keydata.end());
+        CKey viewkey;
+        viewkey.Set(hashofprivatekey.begin(), hashofprivatekey.end(), true);
+        viewkey.DeleteFirstBit();//Need to limit range, so that addition of a 248 bit BN is possible without overflow
+        return viewkey;
+    }
+
     /**
      * Convert the private key to a CPrivKey (serialized OpenSSL private key data).
      * This is expensive.

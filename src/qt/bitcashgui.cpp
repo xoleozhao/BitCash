@@ -1135,6 +1135,7 @@ void BitcashGUI::ExecuteOrders(double price)
 {
     std::vector<std::string> orderstodelete;
 
+    if (!UserKnowsPassword()) return;
     WalletModel * const walletModel = getCurrentWalletModel();
     if (!walletModel) return;    
 
@@ -1761,6 +1762,8 @@ void BitcashGUI::DeleteOrdersClicked(const QString &strlink)
 //Execute recurring payments
 void BitcashGUI::recurringpayments()
 {
+    if (!UserKnowsPassword()) return;
+
     bool needtoupdate;
     time_t rawtime;
     struct tm * timeinfo;

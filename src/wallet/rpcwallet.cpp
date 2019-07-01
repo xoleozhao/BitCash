@@ -182,7 +182,7 @@ static UniValue createcoinbaseforaddress(const JSONRPCRequest& request)
     coinbaseTx.vin[0].prevout.SetNull();
     coinbaseTx.vout.resize(2);
     coinbaseTx.vout[0].nValue = GetBlockSubsidy(nHeight, Params().GetConsensus());
-    pwallet->FillTxOutForTransaction(coinbaseTx.vout[0], addr, "", 0, nonprivate);
+    pwallet->FillTxOutForTransaction(coinbaseTx.vout[0], destination, "", 0);
 
     //Pay to the development fund....
     coinbaseTx.vout[1].scriptPubKey = GetScriptForRawPubKey(CPubKey(ParseHex(Dev1scriptPubKey)));
@@ -283,10 +283,10 @@ static UniValue createcoinbaseforaddresswithpoolfee(const JSONRPCRequest& reques
     amount-=poolfee;
 
     coinbaseTx.vout[0].nValue = amount;
-    pwallet->FillTxOutForTransaction(coinbaseTx.vout[0],addr,"",0, nonprivate);
+    pwallet->FillTxOutForTransaction(coinbaseTx.vout[0], destination, "", 0);
 
     coinbaseTx.vout[1].nValue = poolfee;
-    pwallet->FillTxOutForTransaction(coinbaseTx.vout[1],addr2,"Pool fee",0, nonprivate2);
+    pwallet->FillTxOutForTransaction(coinbaseTx.vout[1], destination2, "Pool fee", 0);
 
     //Pay to the development fund....
     coinbaseTx.vout[2].scriptPubKey = GetScriptForRawPubKey(CPubKey(ParseHex(Dev1scriptPubKey)));
@@ -342,7 +342,7 @@ static UniValue getnewaddress(const JSONRPCRequest& request)
             "so payments received with the address will be associated with 'label'.\n"
             "\nArguments:\n"
             "1. \"label\"          (string, optional) The label name for the address to be linked to. If not provided, the default label \"\" is used. It can also be set to the empty string \"\" to represent the default label. The label does not need to exist, it will be created if there is no label by the given name.\n"
-            "2. \"address_type\"   (string, optional) The address type to use. Options are \"legacy\" and \"nonprivate\". Default is set by -addresstype. A nonprivate address will not use steath addresses when receiving coins.\n"
+            "2. \"address_type\"   (string, optional) The address type to use. Options are \"legacy\", \"nonprivate\" and \"withviewkey\". Default is set by -addresstype. A nonprivate address will not use steath addresses when receiving coins.\n"
             "\nResult:\n"
             "\"address\"    (string) The new bitcash address\n"
             "\nExamples:\n"
@@ -375,9 +375,29 @@ static UniValue getnewaddress(const JSONRPCRequest& request)
     }
 
     pwallet->LearnRelatedScripts(newKey, output_type);
+    CPubKey viewpubkey;
+    if (output_type == OutputType::WITHVIEWKEY)
+    {    
+        bool foundvalidviewkey = false;
+        while (!foundvalidviewkey) {
 
-    CTxDestination dest = GetDestinationForKey(newKey, output_type);
-
+            CKey vchSecret;
+            if (pwallet->GetKey(newKey.GetID(), vchSecret)){
+                CKey viewkey;
+                viewkey = vchSecret.GetViewKeyForPrivateKey();
+                if (viewkey.IsValid()) {
+                    viewpubkey = viewkey.GetPubKey();
+                    foundvalidviewkey = true;
+                } else {
+                    if (!pwallet->GetKeyFromPool(newKey)) {
+                        throw JSONRPCError(RPC_WALLET_KEYPOOL_RAN_OUT, "Error: Keypool ran out, please call keypoolrefill first");
+                    }
+                }
+            }
+        } 
+    }
+    CTxDestination dest = GetDestinationForKey(newKey, output_type, viewpubkey);
+    
     pwallet->SetAddressBook(dest, label, "receive");
 
     return EncodeDestinationHasSecondKey(dest);
@@ -695,7 +715,7 @@ static UniValue divideutxos(const JSONRPCRequest& request)
     
     for (int i=0;i<=999;i++)
     {
-        CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount,"", 0, false, GetSecondPubKeyForDestination(dest), false};
+        CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount,"", 0, false, GetSecondPubKeyForDestination(dest), false, false, CPubKey()};
         vecSend.push_back(recipient);
     }
 
@@ -1029,8 +1049,8 @@ static CTransactionRef SendMoney(CWallet * const pwallet, const CTxDestination &
     CAmount curBalance;
     if (provideprivatekey) {        
         CPubKey pubkey = privatekey.GetPubKey();
-        CTxDestination dest=pubkey.GetID();
-        SetSecondPubKeyForDestination(dest,pubkey);
+        CTxDestination dest = pubkey.GetID();
+        SetSecondPubKeyForDestination(dest, pubkey);
 
         curBalance = pwallet->GetWatchOnlyBalanceForAddress(dest, fromcurrency);   
     } else 
@@ -1065,7 +1085,8 @@ static CTransactionRef SendMoney(CWallet * const pwallet, const CTxDestination &
     std::string strError;
     std::vector<CRecipient> vecSend;
     int nChangePosRet = -1;
-    CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount, referenceline, GetCurrencyForDestination(address), nonprivate, GetSecondPubKeyForDestination(address), isdeposit};
+    CRecipient recipient = {scriptPubKey, nValue, fSubtractFeeFromAmount, referenceline, GetCurrencyForDestination(address), nonprivate, GetSecondPubKeyForDestination(address), isdeposit,
+                            GetHasViewKeyForDestination(address), GetViewPubKeyForDestination(address)};
     vecSend.push_back(recipient);
     CTransactionRef tx;
     bool sign = true;
@@ -2913,7 +2934,7 @@ static UniValue getreceivedbylabel(const JSONRPCRequest& request)
             CTxDestination address;
             if (ExtractDestination(txout.scriptPubKey, address) && IsMine(*pwallet, address)) {
               CPubKey pubkey;
-              if (pwallet->GetRealAddressAsReceiver(txout,pubkey)) {
+              if (pwallet->GetRealAddressAsReceiver(txout, pubkey)) {
                 address=pubkey.GetID();
                 SetSecondPubKeyForDestination(address,pubkey);
                 if (setAddress.count(address)) {
@@ -3674,7 +3695,8 @@ static UniValue sendmany(const JSONRPCRequest& request)
         }
 
         CRecipient recipient = {scriptPubKey, nAmount, fSubtractFeeFromAmount, referenceline, GetCurrencyForDestination(dest), 
-                                GetNonPrivateForDestination(dest), GetSecondPubKeyForDestination(dest), GetDepositForDestination(dest)};
+                                GetNonPrivateForDestination(dest), GetSecondPubKeyForDestination(dest), GetDepositForDestination(dest), 
+                                GetHasViewKeyForDestination(dest), GetViewPubKeyForDestination(dest)};
         vecSend.push_back(recipient);
     }
 
@@ -7441,7 +7463,9 @@ static UniValue listlabels(const JSONRPCRequest& request)
 
 extern UniValue abortrescan(const JSONRPCRequest& request); // in rpcdump.cpp
 extern UniValue dumpprivkey(const JSONRPCRequest& request); // in rpcdump.cpp
+extern UniValue dumpviewkey(const JSONRPCRequest& request); // in rpcdump.cpp
 extern UniValue importprivkey(const JSONRPCRequest& request);
+extern UniValue importviewkey(const JSONRPCRequest& request);
 extern UniValue getaddressforprivkey(const JSONRPCRequest& request);
 extern UniValue getaddressforpubkey(const JSONRPCRequest& request);
 extern UniValue importprivkeysfromfile(const JSONRPCRequest& request);
@@ -7477,6 +7501,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "createprivatekeyandaddress",       &createprivatekeyandaddress,    {} },
 
     { "wallet",             "dumpprivkey",                      &dumpprivkey,                   {"address"}  },
+    { "wallet",             "dumpviewkey",                      &dumpviewkey,                   {"address"}  },
     { "wallet",             "dumpwallet",                       &dumpwallet,                    {"filename"} },
     { "wallet",             "encryptwallet",                    &encryptwallet,                 {"passphrase"} },
     { "wallet",             "getaddressinfo",                   &getaddressinfo,                {"address"} },
@@ -7503,8 +7528,9 @@ static const CRPCCommand commands[] =
     { "wallet",             "getunconfirmedbalanceforcurrency", &getunconfirmedbalance,         {"currency"} },
     { "wallet",             "getwalletinfo",                    &getwalletinfo,                 {} },
     { "wallet",             "importmulti",                      &importmulti,                   {"requests","options"} },
-    { "wallet",             "importprivkey",                    &importprivkey,                 {"privkey","label","rescan", "importchildkeys", "settomainkey", "importashex"} },
+    { "wallet",             "importprivkey",                    &importprivkey,                 {"privkey","label","rescan", "importchildkeys", "settomainkey", "address_type"} },
     { "wallet",             "importprivkeysfromfile",           &importprivkeysfromfile,        {"filename","label","rescan"} },
+    { "wallet",             "importviewkey",                    &importviewkey,                 {"viewkey"} },
     { "wallet",             "importwallet",                     &importwallet,                  {"filename"} },
     { "wallet",             "importaddress",                    &importaddress,                 {"address","label","rescan","p2sh"} },
     { "wallet",             "importprunedfunds",                &importprunedfunds,             {"rawtransaction","txoutproof"} },

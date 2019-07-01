@@ -169,7 +169,7 @@ public:
     bool GetViewKeyForAddressAsSender(CTxOut out, CKey& ViewKey) override { return m_wallet.GetViewKeyForAddressAsSender(out, ViewKey); }
     std::string DecryptRefLineTxOutWithOnePrivateKey(CTxOut out,CKey key) override { return m_wallet.DecryptRefLineTxOutWithOnePrivateKey(out,key); }
 
-    bool FillTxOutForTransaction(CTxOut& out, CPubKey recipientpubkey, std::string referenceline, unsigned char currency, bool nonprivate) override { return m_wallet. FillTxOutForTransaction(out, recipientpubkey, referenceline, currency, nonprivate); }
+    bool FillTxOutForTransaction(CTxOut& out, CPubKey recipientpubkey, std::string referenceline, unsigned char currency, bool nonprivate, bool withviewkey, CPubKey viewpubkey) override { return m_wallet. FillTxOutForTransaction(out, recipientpubkey, referenceline, currency, nonprivate, withviewkey, viewpubkey); }
 
     bool DoesTxOutBelongtoPrivKeyCalcOneTimePrivate(const CTxOut& txout, CKey key, CKey& otpk) override { return m_wallet.DoesTxOutBelongtoPrivKeyCalcOneTimePrivate(txout,key,otpk); }
 

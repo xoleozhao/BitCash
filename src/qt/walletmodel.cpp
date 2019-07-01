@@ -177,15 +177,19 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
             setAddress.insert(rcp.address);
             ++nAddresses;
 
-            CScript scriptPubKey = GetScriptForDestination(DecodeDestination(rcp.address.toStdString()));
-            bool nonprivate = GetNonPrivateForDestination(DecodeDestination(rcp.address.toStdString()));
+            CTxDestination destination = DecodeDestination(rcp.address.toStdString());
+            CScript scriptPubKey = GetScriptForDestination(destination);
+            bool nonprivate = GetNonPrivateForDestination(destination);
             LogPrintf("preparetransaction nonprivate %d\n",*(unsigned char*)&nonprivate);
+
             CRecipient recipient = {scriptPubKey, rcp.amount, rcp.fSubtractFeeFromAmount,
                 rcp.referenceline.toUtf8().constData(),
-                GetCurrencyForDestination(DecodeDestination(rcp.address.toStdString())),
+                GetCurrencyForDestination(destination),
                 nonprivate,
-                GetSecondPubKeyForDestination(DecodeDestination(rcp.address.toStdString())),
-                GetDepositForDestination(DecodeDestination(rcp.address.toStdString())) };
+                GetSecondPubKeyForDestination(destination),
+                GetDepositForDestination(destination),
+                GetHasViewKeyForDestination(destination), 
+                GetViewPubKeyForDestination(destination) };
 
             vecSend.push_back(recipient);
 

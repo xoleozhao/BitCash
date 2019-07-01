@@ -95,6 +95,7 @@ enum WalletFeature
 enum class OutputType {
     LEGACY,
     NONPRIVATE,
+    WITHVIEWKEY,
     P2SH_SEGWIT,
     BECH32,
 
@@ -172,6 +173,8 @@ struct CRecipient
     bool nonprivate;
     CPubKey cpkey;
     bool isdeposit;
+    bool hasviewkey;
+    CPubKey viewpubkey;
 };
 
 typedef std::map<std::string, std::string> mapValue_t;
@@ -908,8 +911,8 @@ public:
     bool DoesTxOutBelongtoPrivKeyCalcOneTimePrivate(const CTxOut& txout, CKey key, CKey& otpk);
     void DecryptPrivateKey(unsigned char *privatekey,CPubKey pubkey,CKey privkey) const;
     void EncryptPrivateKey(unsigned char *privatekey,CPubKey pubkey,CKey privkey) const;
-    bool FillTxOutForTransaction(CTxOut& out,CPubKey recipientpubkey,std::string referenceline, unsigned char currency, bool nonprivate);
-    bool FillTxOutForTransaction(CTxOut& out,CTxDestination destination,std::string referenceline, unsigned char currency, bool nonprivate);
+    bool FillTxOutForTransaction(CTxOut& out,CPubKey recipientpubkey,std::string referenceline, unsigned char currency, bool nonprivate, bool withviewkey, CPubKey viewpubkey);
+    bool FillTxOutForTransaction(CTxOut& out,CTxDestination destination,std::string referenceline, unsigned char currency);
     bool GetRealAddressAndRefline(CTxOut out,CPubKey& recipientpubkey,std::string& referenceline,std::string mpk,bool usempk) const;
     bool GetRealAddressAndReflineWithViewkey(CTxOut out, CPubKey& recipientpubkey, std::string& referenceline, CKey &viewkey) const;
     bool GetViewKeyForAddressAsSender(CTxOut out, CKey& ViewKey) const;
@@ -1327,9 +1330,13 @@ const std::string& FormatOutputType(OutputType type);
  * The caller must make sure LearnRelatedScripts has been called beforehand.
  */
 CTxDestination GetDestinationForKeyInner(const CPubKey& key, OutputType type);
-CTxDestination GetDestinationForKey(const CPubKey& key, OutputType);
+CTxDestination GetDestinationForKey(const CPubKey& key, OutputType, const CPubKey& viewkey = CPubKey());
 CPubKey GetSecondPubKeyForDestination(const CTxDestination& dest);
 void SetSecondPubKeyForDestination(CTxDestination& dest, const CPubKey& key2);
+CPubKey GetViewPubKeyForDestination(const CTxDestination& dest);
+void SetViewPubKeyForDestination(CTxDestination& dest, const CPubKey& key2);
+bool GetHasViewKeyForDestination(const CTxDestination& dest);
+void SetHasViewKeyForDestination(CTxDestination& dest, bool hasviewkey);
 unsigned char GetCurrencyForDestination(const CTxDestination& dest);
 bool GetNonPrivateForDestination(const CTxDestination& dest);
 void SetCurrencyForDestination(CTxDestination& dest, const unsigned char key2);

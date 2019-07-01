@@ -98,9 +98,9 @@ UniValue importprivkey(const JSONRPCRequest& request)
         return NullUniValue;
     }
 
-    if (request.fHelp || request.params.size() < 1 || request.params.size() > 5)
+    if (request.fHelp || request.params.size() < 1 || request.params.size() > 6)
         throw std::runtime_error(
-            "importprivkey \"privkey\" ( \"label\" ) ( rescan ) (importchildkeys) (settomainkey)\n"
+            "importprivkey \"privkey\" ( \"label\" ) ( rescan ) (importchildkeys) (settomainkey) (address_type)\n"
             "\nAdds a private key (as returned by dumpprivkey) to your wallet. Requires a new wallet backup.\n"
             "Hint: use importmulti to import more than one private key.\n"
             "\nArguments:\n"
@@ -109,6 +109,7 @@ UniValue importprivkey(const JSONRPCRequest& request)
             "3. rescan               (boolean, optional, default=true) Rescan the wallet for transactions\n"
             "4. importchildkeys      (boolean, optional, default=false) Also import 10 child private keys from webwallet to import all webwallet accounts\n"
             "5. settomainkey         (boolean, optional, default=false) Makes the newly imported address to the main address of the wallet (getcurrentaddress will then return this address)\n"  
+            "6. \"address_type\"     (string, optional) The address type to use. Options are \"legacy\", \"nonprivate\" and \"withviewkey\". Default is set by -addresstype. A nonprivate address will not use steath addresses when receiving coins.\n"
             "\nNote: This call can take minutes to complete if rescan is true, during that time, other rpc calls\n"
             "may report that the imported key exists but related transactions are still missing, leading to temporarily incorrect/bogus balances and unspent outputs until rescan completes.\n"
             "\nExamples:\n"
@@ -149,6 +150,12 @@ UniValue importprivkey(const JSONRPCRequest& request)
         if (!request.params[4].isNull())
             settomainkey = request.params[4].get_bool();
 
+        OutputType output_type = pwallet->m_default_address_type;
+        if (!request.params[5].isNull()) {
+            if (!ParseOutputType(request.params[5].get_str(), output_type)) {
+                throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, strprintf("Unknown address type '%s'", request.params[5].get_str()));
+            }
+        }
 
         if (fRescan && fPruneMode)
             throw JSONRPCError(RPC_WALLET_ERROR, "Rescan is disabled in pruned mode");
@@ -165,10 +172,15 @@ UniValue importprivkey(const JSONRPCRequest& request)
         CKeyID vchAddress = pubkey.GetID();
         {
             pwallet->MarkDirty();
-            // We don't know which corresponding address will be used; label them all
-            for (const auto& dest : GetAllDestinationsForKey(pubkey)) {
-                pwallet->SetAddressBook(dest, strLabel, "receive");
+
+            CTxDestination dest;
+            if (output_type == OutputType::WITHVIEWKEY)
+            {    
+                dest = GetDestinationForKey(pubkey, output_type, key.GetViewKeyForPrivateKey().GetPubKey());
+            } else {
+                dest = GetDestinationForKey(pubkey, output_type);
             }
+            pwallet->SetAddressBook(dest, strLabel, "receive");
 
             // Don't throw error in case a key is already there
             if (pwallet->HaveKey(vchAddress)) {
@@ -205,10 +217,14 @@ UniValue importprivkey(const JSONRPCRequest& request)
                 CKeyID vchAddress = pubkeychild.GetID();
                 {
                     pwallet->MarkDirty();
-                    // We don't know which corresponding address will be used; label them all
-                    for (const auto& dest : GetAllDestinationsForKey(pubkeychild)) {
-                        pwallet->SetAddressBook(dest, strLabel, "receive");
+                    CTxDestination dest;
+                    if (output_type == OutputType::WITHVIEWKEY)
+                    {    
+                        dest = GetDestinationForKey(pubkeychild, output_type, childKey.key.GetViewKeyForPrivateKey().GetPubKey());
+                    } else {
+                        dest = GetDestinationForKey(pubkeychild, output_type);
                     }
+                    pwallet->SetAddressBook(dest, strLabel, "receive");
 
                     // Don't throw error in case a key is already there
                     if (pwallet->HaveKey(vchAddress)) {
@@ -235,6 +251,62 @@ UniValue importprivkey(const JSONRPCRequest& request)
         }
         if (scanned_time > TIMESTAMP_MIN) {
             throw JSONRPCError(RPC_WALLET_ERROR, "Rescan was unable to fully rescan the blockchain. Some transactions may be missing.");
+        }
+    }
+
+    return NullUniValue;
+}
+
+UniValue importviewkey(const JSONRPCRequest& request)
+{
+    CWallet * const pwallet = GetWalletForJSONRPCRequest(request);
+    if (!EnsureWalletIsAvailable(pwallet, request.fHelp)) {
+        return NullUniValue;
+    }
+
+    if (request.fHelp || request.params.size() < 1 || request.params.size() > 1)
+        throw std::runtime_error(
+            "importviewkey \"viewkey\"\n"
+            "\nAdds a view key (as returned by dumpviewkey) to your wallet.\n"
+            "\nArguments:\n"
+            "1. \"viewkey\"          (string, required) The view key (see dumpviewkey)\n"
+            "\nExamples:\n"
+            "\nDump a view key\n"
+            + HelpExampleCli("dumpviewkey", "\"myaddress\"") +
+            "\nImport the view key\n"
+            + HelpExampleCli("importviewkey", "\"mykey\"") +
+            "\nAs a JSON-RPC call\n"
+            + HelpExampleRpc("importviewkey", "\"mykey\"")
+        );
+
+
+    WalletRescanReserver reserver(pwallet);
+    {
+        LOCK2(cs_main, pwallet->cs_wallet);
+
+        EnsureWalletIsUnlocked(pwallet);
+
+        std::string strSecret = request.params[0].get_str();
+        std::string strLabel = "";
+        if (!request.params[1].isNull())
+            strLabel = request.params[1].get_str();
+
+        CKey key = DecodeSecret(strSecret);
+        if (!key.IsValid()) throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid private key encoding");
+
+        CPubKey pubkey = key.GetPubKey();
+        assert(key.VerifyPubKey(pubkey));
+        CKeyID vchAddress = pubkey.GetID();
+        {
+            pwallet->MarkDirty();
+            // Don't throw error in case a key is already there
+            if (pwallet->HaveKey(vchAddress)) {
+                return NullUniValue;
+            }
+
+            if (!pwallet->AddKeyPubKey(key, pubkey)) {
+                throw JSONRPCError(RPC_WALLET_ERROR, "Error adding key to wallet");
+            }
         }
     }
 
@@ -541,7 +613,7 @@ UniValue abortrescan(const JSONRPCRequest& request)
 }
 
 static void ImportAddress(CWallet*, const CTxDestination& dest, const std::string& strLabel);
-static void ImportScript(CWallet* const pwallet, const CScript& script, const std::string& strLabel, bool isRedeemScript)
+static void ImportScript(CWallet* const pwallet, const CScript& script, const std::string& strLabel, bool isRedeemScript, bool donotaddtoaddressbook)
 {
     if (!isRedeemScript && ::IsMine(*pwallet, script) == ISMINE_SPENDABLE) {
         throw JSONRPCError(RPC_WALLET_ERROR, "The wallet already contains the private key for this address or script");
@@ -559,7 +631,8 @@ static void ImportScript(CWallet* const pwallet, const CScript& script, const st
             throw JSONRPCError(RPC_WALLET_ERROR, "Error adding p2sh redeemScript to wallet");
         }
         ImportAddress(pwallet, id, strLabel);
-    } else {
+    } else 
+    if (!donotaddtoaddressbook) {
         CTxDestination destination;
         if (ExtractDestination(script, destination)) {
             pwallet->SetAddressBook(destination, strLabel, "receive");
@@ -570,10 +643,11 @@ static void ImportScript(CWallet* const pwallet, const CScript& script, const st
 static void ImportAddress(CWallet* const pwallet, const CTxDestination& dest, const std::string& strLabel)
 {
     CScript script = GetScriptForDestination(dest);
-    ImportScript(pwallet, script, strLabel, false);
+    ImportScript(pwallet, script, strLabel, false, true);
     // add to address book or update label
     if (IsValidDestination(dest))
         pwallet->SetAddressBook(dest, strLabel, "receive");
+
 }
 
 UniValue importaddress(const JSONRPCRequest& request)
@@ -640,7 +714,7 @@ UniValue importaddress(const JSONRPCRequest& request)
             ImportAddress(pwallet, dest, strLabel);
         } else if (IsHex(request.params[0].get_str())) {
             std::vector<unsigned char> data(ParseHex(request.params[0].get_str()));
-            ImportScript(pwallet, CScript(data.begin(), data.end()), strLabel, fP2SH);
+            ImportScript(pwallet, CScript(data.begin(), data.end()), strLabel, fP2SH, false);
         } else {
             throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Bitcash address or script");
         }
@@ -819,7 +893,7 @@ UniValue importpubkey(const JSONRPCRequest& request)
         for (const auto& dest : GetAllDestinationsForKey(pubKey)) {
             ImportAddress(pwallet, dest, strLabel);
         }
-        ImportScript(pwallet, GetScriptForRawPubKey(pubKey), strLabel, false);
+        ImportScript(pwallet, GetScriptForRawPubKey(pubKey), strLabel, false, true);
         pwallet->LearnAllRelatedScripts(pubKey);
     }
     if (fRescan)
@@ -1062,6 +1136,59 @@ std::cout << "Private Key:" << EncodeSecret(key) << std::endl;
     CKey vchSecret;
     if (!pwallet->GetKey(keyid, vchSecret)) {
         throw JSONRPCError(RPC_WALLET_ERROR, "Private key for address " + strAddress + " is not known");
+    }
+    return EncodeSecret(vchSecret);
+}
+
+UniValue dumpviewkey(const JSONRPCRequest& request)
+{
+    CWallet * const pwallet = GetWalletForJSONRPCRequest(request);
+    if (!EnsureWalletIsAvailable(pwallet, request.fHelp)) {
+        return NullUniValue;
+    }
+
+    CPubKey newKey;
+    CKey key;
+
+    if (request.fHelp || request.params.size() != 1)
+        throw std::runtime_error(
+            "dumpviewkey \"address\"\n"
+            "\nReveals the view key corresponding to 'address'.\n"
+            "Then the importviewkey can be used with this output\n"
+            "\nArguments:\n"
+            "1. \"address\"   (string, required) The bitcash address for the private key\n"
+            "\nResult:\n"
+            "\"key\"                (string) The view key\n"
+            "\nExamples:\n"
+            + HelpExampleCli("dumpviewkey", "\"myaddress\"")
+            + HelpExampleCli("importviewkey", "\"mykey\"")
+            + HelpExampleRpc("dumpviewkey", "\"myaddress\"")
+        );
+
+    LOCK2(cs_main, pwallet->cs_wallet);
+
+    EnsureWalletIsUnlocked(pwallet);
+
+    std::string strAddress = request.params[0].get_str();
+    CTxDestination dest = DecodeDestination(strAddress);
+    if (!IsValidDestination(dest)) {
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Bitcash address");
+    }
+    if (!GetHasViewKeyForDestination(dest)) {
+        throw JSONRPCError(RPC_TYPE_ERROR, "This address does not use a view key.");
+    }
+    CPubKey viewpubkey = GetViewPubKeyForDestination(dest);
+    CKey vchSecret;
+    if (!pwallet->GetKey(viewpubkey.GetID(), vchSecret)) {
+        //we do not store the view, so calculate it from the private key
+        auto keyid = GetKeyForDestination(*pwallet, dest);
+        if (keyid.IsNull()) {
+            throw JSONRPCError(RPC_TYPE_ERROR, "Address does not refer to a key");
+        }
+        if (!pwallet->GetKey(keyid, vchSecret)) {
+            throw JSONRPCError(RPC_WALLET_ERROR, "Private key for address " + strAddress + " is not known");
+        }
+        vchSecret = vchSecret.GetViewKeyForPrivateKey();
     }
     return EncodeSecret(vchSecret);
 }

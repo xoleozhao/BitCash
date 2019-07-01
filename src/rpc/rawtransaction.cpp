@@ -775,7 +775,7 @@ static UniValue createrawtransaction(const JSONRPCRequest& request)
             CTxOut out(nAmount, scriptPubKey,0 );
 #ifdef ENABLE_WALLET
             CWallet * const pwallet = GetWalletForJSONRPCRequest(request);
-            pwallet->FillTxOutForTransaction(out, destination, referenceline, 0, false);
+            pwallet->FillTxOutForTransaction(out, destination, referenceline, 0);
 #endif
             rawTx.vout.push_back(out);
 

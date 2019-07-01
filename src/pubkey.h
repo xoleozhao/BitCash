@@ -21,12 +21,14 @@ class CKeyID : public uint160
 {
 public:
     std::vector<unsigned char> recokey;
+    std::vector<unsigned char> viewkey;
     unsigned char currency;
     bool nonprivate;
     bool isdeposit;
+    bool hasviewkey;
 
-    CKeyID() : uint160(), nonprivate(0) {}
-    explicit CKeyID(const uint160& in) : uint160(in), nonprivate(0), isdeposit(false) {}
+    CKeyID() : uint160(), currency(0), nonprivate(false), isdeposit(false), hasviewkey(false) {}
+    explicit CKeyID(const uint160& in) : uint160(in), currency(0), nonprivate(false), isdeposit(false), hasviewkey(false) {}
 };
 
 

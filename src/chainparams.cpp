@@ -265,8 +265,9 @@ copy merkle root
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,230);//new BitCash address format
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,235);
-        base58Prefixes[PUBKEY_ADDRESSNONPRIVATE] = std::vector<unsigned char>(1,130);//format for mobile and lite wallet to receive without stealth addresses
+        base58Prefixes[PUBKEY_ADDRESSNONPRIVATE] = std::vector<unsigned char>(1,130);//format for exchanges, mobile and lite wallet to receive without stealth addresses
         base58Prefixes[SCRIPT_ADDRESSNONPRIVATE] = std::vector<unsigned char>(1,135);
+        base58Prefixes[PUBKEY_ADDRESSVIEWKEY] = std::vector<unsigned char>(1,156);//format for mobile and lite wallet with a viewkey
         base58Prefixes[PUBKEY_ADDRESSTREZOR] = std::vector<unsigned char>(1,0);//old BitCash address format = Bitcoin format
         base58Prefixes[SCRIPT_ADDRESSTREZOR] = std::vector<unsigned char>(1,5);
         base58Prefixes[SECRET_KEY] =     std::vector<unsigned char>(1,60+128);
@@ -449,8 +450,9 @@ if (cuckoo::VerifyProofOfWork(genesis.GetHash(), genesis.nBits, genesis.nEdgeBit
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,111);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,196);
-        base58Prefixes[PUBKEY_ADDRESSNONPRIVATE] = std::vector<unsigned char>(1,55);//format for mobile and lite wallet to receive without stealth addresses
+        base58Prefixes[PUBKEY_ADDRESSNONPRIVATE] = std::vector<unsigned char>(1,55);//format for exchanges, mobile and lite wallet to receive without stealth addresses
         base58Prefixes[SCRIPT_ADDRESSNONPRIVATE] = std::vector<unsigned char>(1,60);
+        base58Prefixes[PUBKEY_ADDRESSVIEWKEY] = std::vector<unsigned char>(1,66);//format for mobile and lite wallet with a viewkey
         base58Prefixes[PUBKEY_ADDRESSTREZOR] = std::vector<unsigned char>(1,111);
         base58Prefixes[SCRIPT_ADDRESSTREZOR] = std::vector<unsigned char>(1,196);
         base58Prefixes[SECRET_KEY] =     std::vector<unsigned char>(1,239);
@@ -569,6 +571,7 @@ public:
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,196);
         base58Prefixes[PUBKEY_ADDRESSNONPRIVATE] = std::vector<unsigned char>(1,55);//format for mobile and lite wallet to receive without stealth addresses
         base58Prefixes[SCRIPT_ADDRESSNONPRIVATE] = std::vector<unsigned char>(1,60);
+        base58Prefixes[PUBKEY_ADDRESSVIEWKEY] = std::vector<unsigned char>(1,66);//format for mobile and lite wallet with a viewkey
         base58Prefixes[PUBKEY_ADDRESSTREZOR] = std::vector<unsigned char>(1,111);
         base58Prefixes[SCRIPT_ADDRESSTREZOR] = std::vector<unsigned char>(1,196);
         base58Prefixes[SECRET_KEY] =     std::vector<unsigned char>(1,239);

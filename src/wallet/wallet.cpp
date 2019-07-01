@@ -492,7 +492,7 @@ std::string CWallet::DecryptRefLineTxOut(CTxOut out) const
 
         if (out.isnonprivate)
         {
-            //Decrypt as receiver of the transaction...
+            //Decrypt as sender of the transaction...
             CKey key;
             if (GetKey(onetimedestpubkey.GetID(), key)){
                 char randprivkey[32];
@@ -513,6 +513,8 @@ std::string CWallet::DecryptRefLineTxOut(CTxOut out) const
             for (const std::pair<CTxDestination, CAddressBookData>& item : mapAddressBook) {
                 if (GetNonPrivateForDestination(item.first)) continue;
                 CPubKey pubkey=GetSecondPubKeyForDestination(item.first);
+                CPubKey viewpubkey = GetViewPubKeyForDestination(item.first);
+                bool hasviewkey = GetHasViewKeyForDestination(item.first);
 
                 if (out.hasrecipientid) {
                     if (((out.recipientid1 != 0 || out.recipientid2 != 0) || (out.currencyisactive)) && (out.recipientid1 != pubkey[10] || out.recipientid2 != pubkey[20])) continue;
@@ -522,7 +524,16 @@ std::string CWallet::DecryptRefLineTxOut(CTxOut out) const
                 if (GetKey(pubkey.GetID(), key)) {
                     char randprivkey[32];
                     memcpy(&randprivkey,out.randomPrivatKey,32);
-                    DecryptPrivateKey((unsigned char*)&randprivkey, out.randomPubKey, key);
+                    if (hasviewkey) {
+                        CKey viewkey;
+                        if (!GetKey(viewpubkey.GetID(), viewkey)) {                            
+                            //we do not store the view, so calculate it from the private key
+                            viewkey = key.GetViewKeyForPrivateKey();
+                        }
+                        DecryptPrivateKey((unsigned char*)&randprivkey, out.randomPubKey, viewkey);
+                    } else {
+                        DecryptPrivateKey((unsigned char*)&randprivkey, out.randomPubKey, key);
+                    }
 
                     std::vector<unsigned char> vec(randprivkey, randprivkey + 32);
 
@@ -584,53 +595,64 @@ bool CWallet::GetRealAddressAsSender(CTxOut out,CPubKey& recipientpubkey) const
 //Decrypt real receiver address as receiver
 bool CWallet::GetRealAddressAsReceiver(CTxOut txout, CPubKey& recipientpubkey) const
 {
-   if (stealthaddresses.count(txout.scriptPubKey) > 0) {
-       recipientpubkey = stealthaddresses.at(txout.scriptPubKey);
-       return true;
-   }
-
-  CPubKey onetimedestpubkey;
-
-  if (ExtractCompletePubKey(*this, txout.scriptPubKey,onetimedestpubkey))
-  {
-    if (txout.isnonprivate)
-    {
-        recipientpubkey = onetimedestpubkey;
+    if (stealthaddresses.count(txout.scriptPubKey) > 0) {
+        recipientpubkey = stealthaddresses.at(txout.scriptPubKey);
         return true;
     }
 
-    for (const std::pair<CTxDestination, CAddressBookData>& item : mapAddressBook) {
-        if (GetNonPrivateForDestination(item.first)) continue;
-        CPubKey pubkey=GetSecondPubKeyForDestination(item.first);
+    CPubKey onetimedestpubkey;
 
-        if (txout.hasrecipientid) {
-            if (((txout.recipientid1 != 0 || txout.recipientid2 != 0) || (txout.currencyisactive)) && (txout.recipientid1 != pubkey[10] || txout.recipientid2 != pubkey[20])) continue;
+    if (ExtractCompletePubKey(*this, txout.scriptPubKey,onetimedestpubkey))
+    {
+        if (txout.isnonprivate)
+        {
+            recipientpubkey = onetimedestpubkey;
+            return true;
         }
 
-        CKey key;
-        if (GetKey(pubkey.GetID(), key)) {
-            //std::cout << "have privkey; Pubkey in Address Book to check: " << HexStr(pubkey.begin(),pubkey.end()) << std::endl;
+        for (const std::pair<CTxDestination, CAddressBookData>& item : mapAddressBook) {
+            if (GetNonPrivateForDestination(item.first)) continue;
+            CPubKey pubkey=GetSecondPubKeyForDestination(item.first);
+            CPubKey viewpubkey = GetViewPubKeyForDestination(item.first);
+            bool hasviewkey = GetHasViewKeyForDestination(item.first);
 
-            char randprivkey[32];
-            memcpy(&randprivkey,txout.randomPrivatKey,32);
-            DecryptPrivateKey((unsigned char*)&randprivkey,txout.randomPubKey,key);
+            if (txout.hasrecipientid) {
+                if (((txout.recipientid1 != 0 || txout.recipientid2 != 0) || (txout.currencyisactive)) && (txout.recipientid1 != pubkey[10] || txout.recipientid2 != pubkey[20])) continue;
+            }
 
-            std::vector<unsigned char> vec(randprivkey, randprivkey + 32);
+            CKey key;
+            if (GetKey(pubkey.GetID(), key)) {
+                //std::cout << "have privkey; Pubkey in Address Book to check: " << HexStr(pubkey.begin(),pubkey.end()) << std::endl;
 
-            CKey privkey;
-            privkey.Set(vec.begin(),vec.end(),true);
-            CPubKey destinationPubKey = CalculateOnetimeDestPubKey(pubkey,privkey,false);
-            if (onetimedestpubkey == destinationPubKey) {
-                recipientpubkey = pubkey;
-                SetStealthAddress(txout.scriptPubKey, recipientpubkey);
-                accountforscript[txout.scriptPubKey] = item.second.name;
-                return true;
+                char randprivkey[32];
+                memcpy(&randprivkey,txout.randomPrivatKey,32);
+                DecryptPrivateKey((unsigned char*)&randprivkey,txout.randomPubKey,key);
+
+                if (hasviewkey) {
+                    CKey viewkey;
+                    if (!GetKey(viewpubkey.GetID(), viewkey)) {                            
+                        //we do not store the view, so calculate it from the private key
+                        viewkey = key.GetViewKeyForPrivateKey();
+                    }
+                    DecryptPrivateKey((unsigned char*)&randprivkey, txout.randomPubKey, viewkey);
+                } else {
+                    DecryptPrivateKey((unsigned char*)&randprivkey, txout.randomPubKey, key);
+                }
+                std::vector<unsigned char> vec(randprivkey, randprivkey + 32);
+
+                CKey privkey;
+                privkey.Set(vec.begin(),vec.end(),true);
+                CPubKey destinationPubKey = CalculateOnetimeDestPubKey(pubkey,privkey,false);
+                if (onetimedestpubkey == destinationPubKey) {
+                    recipientpubkey = pubkey;
+                    SetStealthAddress(txout.scriptPubKey, recipientpubkey);
+                    accountforscript[txout.scriptPubKey] = item.second.name;
+                    return true;
+                }
             }
         }
-     }
-  }
-  return false;
-
+    }
+    return false;
 }
 
 //Decrypt the reference line if I know which private key belongs to the real (non stealth) receiver adddress 
@@ -2180,6 +2202,8 @@ isminetype CWallet::IsMineForOneDestination(const CTxOut& txout, CTxDestination&
     CPubKey onetimedestpubkey;
 
     CPubKey pubkey=GetSecondPubKeyForDestination(desttocheck);
+    CPubKey viewpubkey = GetViewPubKeyForDestination(desttocheck);
+    bool hasviewkey = GetHasViewKeyForDestination(desttocheck);
 
     if (txout.hasrecipientid) {
         if (((txout.recipientid1 != 0 || txout.recipientid2 != 0) || (txout.currencyisactive)) && (txout.recipientid1 != pubkey[10] || txout.recipientid2 != pubkey[20])) return ISMINE_NO;
@@ -2200,7 +2224,16 @@ isminetype CWallet::IsMineForOneDestination(const CTxOut& txout, CTxDestination&
 
                 char randprivkey[32];
                 memcpy(&randprivkey,txout.randomPrivatKey,32);
-                DecryptPrivateKey((unsigned char*)&randprivkey,txout.randomPubKey,key);
+                if (hasviewkey) {
+                    CKey viewkey;
+                    if (!GetKey(viewpubkey.GetID(), viewkey)) {                            
+                        //we do not store the view, so calculate it from the private key
+                        viewkey = key.GetViewKeyForPrivateKey();
+                    }
+                    DecryptPrivateKey((unsigned char*)&randprivkey, txout.randomPubKey, viewkey);
+                } else {
+                    DecryptPrivateKey((unsigned char*)&randprivkey, txout.randomPubKey, key);
+                }
 
                 std::vector<unsigned char> vec(randprivkey, randprivkey + 32);
 
@@ -2245,7 +2278,9 @@ isminetype CWallet::IsMine(const CTxOut& txout, int nr)
             for (const std::pair<CTxDestination, CAddressBookData>& item : mapAddressBook) {
                 if (GetNonPrivateForDestination(item.first)) continue;
 
-                CPubKey pubkey=GetSecondPubKeyForDestination(item.first);
+                CPubKey pubkey = GetSecondPubKeyForDestination(item.first);
+                CPubKey viewpubkey = GetViewPubKeyForDestination(item.first);
+                bool hasviewkey = GetHasViewKeyForDestination(item.first);
     
                 if (txout.hasrecipientid) {
                     if (((txout.recipientid1 != 0 || txout.recipientid2 != 0) || (txout.currencyisactive)) && (txout.recipientid1 != pubkey[10] || txout.recipientid2 != pubkey[20])) 
@@ -2257,7 +2292,16 @@ isminetype CWallet::IsMine(const CTxOut& txout, int nr)
 
                     char randprivkey[32];
                     memcpy(&randprivkey,txout.randomPrivatKey,32);
-                    DecryptPrivateKey((unsigned char*)&randprivkey,txout.randomPubKey,key);
+                    if (hasviewkey) {
+                        CKey viewkey;
+                        if (!GetKey(viewpubkey.GetID(), viewkey)) {                            
+                            //we do not store the view, so calculate it from the private key
+                            viewkey = key.GetViewKeyForPrivateKey();
+                        }
+                        DecryptPrivateKey((unsigned char*)&randprivkey, txout.randomPubKey, viewkey);
+                    } else {
+                        DecryptPrivateKey((unsigned char*)&randprivkey, txout.randomPubKey, key);
+                    }
 
                     std::vector<unsigned char> vec(randprivkey, randprivkey + 32);
 
@@ -3598,6 +3642,9 @@ CAmount CWallet::GetLegacyBalance(const isminefilter& filter, int minDepth, cons
                                 if (GetNonPrivateForDestination(item.first)) continue;
                                 if (item.second.name==*account) {
                                     CPubKey pubkey=GetSecondPubKeyForDestination(item.first);
+                                    CPubKey viewpubkey = GetViewPubKeyForDestination(item.first);
+                                    bool hasviewkey = GetHasViewKeyForDestination(item.first);
+
 
                                     if (out.hasrecipientid) {
                                         if (((out.recipientid1 != 0 || out.recipientid2 != 0) || (out.currencyisactive)) && (out.recipientid1 != pubkey[10] || out.recipientid2 != pubkey[20])) continue;
@@ -3609,8 +3656,17 @@ CAmount CWallet::GetLegacyBalance(const isminefilter& filter, int minDepth, cons
 
                                         char randprivkey[32];
                                         memcpy(&randprivkey,out.randomPrivatKey,32);
-                                        DecryptPrivateKey((unsigned char*)&randprivkey,out.randomPubKey,key);
-    
+
+                                        if (hasviewkey) {
+                                            CKey viewkey;
+                                            if (!GetKey(viewpubkey.GetID(), viewkey)) {                            
+                                                //we do not store the view, so calculate it from the private key
+                                                viewkey = key.GetViewKeyForPrivateKey();
+                                            }
+                                            DecryptPrivateKey((unsigned char*)&randprivkey, out.randomPubKey, viewkey);
+                                        } else {
+                                            DecryptPrivateKey((unsigned char*)&randprivkey, out.randomPubKey, key);
+                                        }    
                                         std::vector<unsigned char> vec(randprivkey, randprivkey + 32);
     
                                         CKey privkey;
@@ -4208,7 +4264,7 @@ bool CWallet::GetRealAddressAndReflineWithViewkey(CTxOut out, CPubKey& recipient
 }
 
 //Fills the TxOut with the data structures used for the stealth addresses and for the encryption of the reference line
-bool CWallet::FillTxOutForTransaction(CTxOut& out, CPubKey recipientpubkey, std::string referenceline, unsigned char currency, bool nonprivate)
+bool CWallet::FillTxOutForTransaction(CTxOut& out, CPubKey recipientpubkey, std::string referenceline, unsigned char currency, bool nonprivate, bool withviewkey, CPubKey viewpubkey)
 {
     CPubKey senderpubkey;
     CKey vchSecret;
@@ -4228,8 +4284,13 @@ bool CWallet::FillTxOutForTransaction(CTxOut& out, CPubKey recipientpubkey, std:
     out.recipientid1 = recipientpubkey[10];
     out.recipientid2 = recipientpubkey[20];
     out.hasrecipientid = true;
-                    
-    EncryptPrivateKey((unsigned char*)&out.randomPrivatKey, recipientpubkey, vchSecret);
+                 
+    if (withviewkey) {   
+        EncryptPrivateKey((unsigned char*)&out.randomPrivatKey, viewpubkey, vchSecret);
+    } else
+    {
+        EncryptPrivateKey((unsigned char*)&out.randomPrivatKey, recipientpubkey, vchSecret);
+    }
 
     if (nonprivate) {
         out.scriptPubKey = GetScriptForRawPubKey(recipientpubkey);
@@ -4250,9 +4311,15 @@ bool CWallet::FillTxOutForTransaction(CTxOut& out, CPubKey recipientpubkey, std:
     return true;
 }
 
-bool CWallet::FillTxOutForTransaction(CTxOut& out,CTxDestination destination,std::string referenceline, unsigned char currency, bool nonprivate)
+bool CWallet::FillTxOutForTransaction(CTxOut& out,CTxDestination destination,std::string referenceline, unsigned char currency)
 {
-    return FillTxOutForTransaction(out,GetSecondPubKeyForDestination(destination),referenceline, currency, nonprivate);
+    if (GetHasViewKeyForDestination(destination))
+    {
+        return FillTxOutForTransaction(out,GetSecondPubKeyForDestination(destination),referenceline, currency, GetNonPrivateForDestination(destination), true, GetViewPubKeyForDestination(destination));
+    } else
+    {
+        return FillTxOutForTransaction(out,GetSecondPubKeyForDestination(destination),referenceline, currency, GetNonPrivateForDestination(destination), false, CPubKey());
+    }
 }
 
 bool CWallet::CreateNicknameTransaction(std::string nickname, std::string address, CTransactionRef& tx, std::string& strFailReason, bool sign, CKey masterkey, bool usemasterkey, bool isnonprivate, bool donotsignnow)
@@ -4492,7 +4559,7 @@ bool CWallet::CreateTransaction(const std::vector<CRecipient>& vecSend, CTransac
                         return false;
                     }
 
-                    if (!FillTxOutForTransaction(txout, recipient.cpkey, recipient.refline, recipient.currency, recipient.nonprivate)){
+                    if (!FillTxOutForTransaction(txout, recipient.cpkey, recipient.refline, recipient.currency, recipient.nonprivate, recipient.hasviewkey, recipient.viewpubkey)){
                         strFailReason = _("Can not get private key");
                         return false;
                     }
@@ -4559,7 +4626,7 @@ bool CWallet::CreateTransaction(const std::vector<CRecipient>& vecSend, CTransac
                 {
                     // Fill a vout to ourself
                     CTxOut newTxOut(nChange, scriptChange, 0);                    
-                    if (!FillTxOutForTransaction(newTxOut, pubkeyforchange, "", curr, false)){
+                    if (!FillTxOutForTransaction(newTxOut, pubkeyforchange, "", curr, false, false, CPubKey())){
                         strFailReason = _("Can not get private key");
                         return false;
                     }
@@ -4917,7 +4984,7 @@ bool CWallet::CreateTransactionToMe(uint256& txid,int outnr, CKey key, CAmount n
                 txNew.vout.clear();
 
                 CTxOut txout(nValue, scriptChange, tocurrency);
-                if (!FillTxOutForTransaction(txout, pubkeyforchange, refline, tocurrency, false)){
+                if (!FillTxOutForTransaction(txout, pubkeyforchange, refline, tocurrency, false, false, CPubKey())){
                     strFailReason = _("Can not get private key");
                     return false;
                 }
@@ -5141,7 +5208,7 @@ static CTransactionRef SendMoney(CWallet * const pwallet, const CTxDestination &
     std::string strError;
     std::vector<CRecipient> vecSend;
     int nChangePosRet = -1;
-    CRecipient recipient = {scriptPubKey, nAmount, fSubtractFeeFromAmount, referenceline, tocurrency, GetNonPrivateForDestination(dest), GetSecondPubKeyForDestination(dest), false};
+    CRecipient recipient = {scriptPubKey, nAmount, fSubtractFeeFromAmount, referenceline, tocurrency, GetNonPrivateForDestination(dest), GetSecondPubKeyForDestination(dest), false, false, CPubKey()};
     vecSend.push_back(recipient);
     CTransactionRef tx;
 
@@ -6520,6 +6587,7 @@ static const std::string OUTPUT_TYPE_STRING_LEGACY = "legacy";
 static const std::string OUTPUT_TYPE_STRING_P2SH_SEGWIT = "p2sh-segwit";
 static const std::string OUTPUT_TYPE_STRING_BECH32 = "bech32";
 static const std::string OUTPUT_TYPE_STRING_NONPRIVATE = "nonprivate";
+static const std::string OUTPUT_TYPE_STRING_WITHVIEWKEY = "withviewkey";
 
 bool ParseOutputType(const std::string& type, OutputType& output_type)
 {
@@ -6531,6 +6599,9 @@ bool ParseOutputType(const std::string& type, OutputType& output_type)
         return true;
     } else if (type == OUTPUT_TYPE_STRING_NONPRIVATE) {
         output_type = OutputType::NONPRIVATE;
+        return true;
+    } else if (type == OUTPUT_TYPE_STRING_WITHVIEWKEY) {
+        output_type = OutputType::WITHVIEWKEY;
         return true;
     }/* else if (type == OUTPUT_TYPE_STRING_BECH32) {
         output_type = OutputType::BECH32;
@@ -6544,6 +6615,7 @@ const std::string& FormatOutputType(OutputType type)
     switch (type) {
     case OutputType::LEGACY: return OUTPUT_TYPE_STRING_LEGACY;
     case OutputType::NONPRIVATE: return OUTPUT_TYPE_STRING_NONPRIVATE;
+    case OutputType::WITHVIEWKEY: return OUTPUT_TYPE_STRING_WITHVIEWKEY;
     case OutputType::P2SH_SEGWIT: return OUTPUT_TYPE_STRING_P2SH_SEGWIT;
     case OutputType::BECH32: return OUTPUT_TYPE_STRING_BECH32;
     default: assert(false);
@@ -6572,6 +6644,7 @@ CTxDestination GetDestinationForKeyInner(const CPubKey& key, OutputType type)
     switch (type) {
     case OutputType::LEGACY: return key.GetID();
     case OutputType::NONPRIVATE: return key.GetID();
+    case OutputType::WITHVIEWKEY: return key.GetID();
     case OutputType::P2SH_SEGWIT:
     case OutputType::BECH32: {
         if (!key.IsCompressed()) return key.GetID();
@@ -6587,35 +6660,44 @@ CTxDestination GetDestinationForKeyInner(const CPubKey& key, OutputType type)
     }
 }
 
-CTxDestination GetDestinationForKey(const CPubKey& key, OutputType type)
+CTxDestination GetDestinationForKey(const CPubKey& key, OutputType type, const CPubKey& viewkey)
 {
     CTxDestination dest;
     dest=GetDestinationForKeyInner(key,type);
 
     if (auto id = boost::get<CKeyID>(&dest)) {
-       id->recokey.resize(33);
-       std::copy(key.begin(), key.end() , id->recokey.begin());
-       id->nonprivate = (type == OutputType::NONPRIVATE);
+        id->recokey.resize(33);
+        std::copy(key.begin(), key.end() , id->recokey.begin());
+        id->nonprivate = (type == OutputType::NONPRIVATE);
+        if (type == OutputType::WITHVIEWKEY)
+        {
+            id->hasviewkey = true;
+            id->viewkey.resize(33);
+            std::copy(viewkey.begin(), viewkey.end() , id->viewkey.begin());
+        } else
+        {
+            id->hasviewkey = false;
+        }
     }
     if (auto id = boost::get<WitnessV0ScriptHash>(&dest)) {
-       id->recokey.resize(33);
-       std::copy(key.begin(), key.end() , id->recokey.begin());
+        id->recokey.resize(33);
+        std::copy(key.begin(), key.end() , id->recokey.begin());
     }
     if (auto id = boost::get<WitnessV0KeyHash>(&dest)) {
-       id->recokey.resize(33);
-       std::copy(key.begin(), key.end() , id->recokey.begin());
+        id->recokey.resize(33);
+        std::copy(key.begin(), key.end() , id->recokey.begin());
     }
     if (auto id = boost::get<CScriptID>(&dest)) {
-       id->recokey.resize(33);
-       std::copy(key.begin(), key.end() , id->recokey.begin());
+        id->recokey.resize(33);
+        std::copy(key.begin(), key.end() , id->recokey.begin());
     }
     if (auto id = boost::get<WitnessUnknown>(&dest)) {
-       id->recokey.resize(33);
-       std::copy(key.begin(), key.end() , id->recokey.begin());
+        id->recokey.resize(33);
+        std::copy(key.begin(), key.end() , id->recokey.begin());
     }
     if (auto id = boost::get<CNoDestination>(&dest)) {
-       id->recokey.resize(33);
-       std::copy(key.begin(), key.end() , id->recokey.begin());
+        id->recokey.resize(33);
+        std::copy(key.begin(), key.end() , id->recokey.begin());
     }
     return dest;   
 }
@@ -6670,6 +6752,41 @@ void SetSecondPubKeyForDestination(CTxDestination& dest, const CPubKey& key2)
     if (auto id = boost::get<CNoDestination>(&dest)) {
         id->recokey.resize(33);
         std::copy(key2.begin(), key2.end() , id->recokey.begin());
+    }
+}
+
+CPubKey GetViewPubKeyForDestination(const CTxDestination& dest)
+{
+    CPubKey key2;
+
+    if (auto id = boost::get<CKeyID>(&dest)) {
+        key2=CPubKey(id->viewkey); 
+    }
+    return key2;   
+}
+
+bool GetHasViewKeyForDestination(const CTxDestination& dest)
+{
+    bool key2 = false;
+
+    if (auto id = boost::get<CKeyID>(&dest)) {
+        key2=id->hasviewkey;
+    }
+    return key2;   
+}
+
+void SetHasViewKeyForDestination(CTxDestination& dest, bool hasviewkey)
+{
+    if (auto id = boost::get<CKeyID>(&dest)) {
+        id->hasviewkey = hasviewkey;
+    }
+}
+
+void SetViewPubKeyForDestination(CTxDestination& dest, const CPubKey& key2)
+{
+    if (auto id = boost::get<CKeyID>(&dest)) {
+        id->viewkey.resize(33);
+        std::copy(key2.begin(), key2.end() , id->viewkey.begin());
     }
 }
 
