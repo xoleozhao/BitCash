@@ -23,7 +23,7 @@ public:
     bool hasviewkey;
     CPubKey viewkey;
 
-    CNicknameBookData() {}
+    CNicknameBookData(): pubkey(CPubKey()), hash(uint256S("0x00")), invalid(false), isnonprivate(false), hasviewkey(false), viewkey(CPubKey()) {}
 
 };
 
@@ -33,7 +33,7 @@ public:
     std::string name;
     uint256 hash;
 
-    CNicknameAddrBookData() {}
+    CNicknameAddrBookData(): name(""), hash(uint256S("0x00")) {}
 
 };
 

@@ -19,7 +19,7 @@ public:
     uint64_t timestamp;
     unsigned char currency;
 
-    CLinksBookData() {}
+    CLinksBookData(): link(""), description(""), amount(""), status(0), timestamp(0), currency(0) {}
 
 };
 

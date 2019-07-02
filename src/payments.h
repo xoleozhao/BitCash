@@ -18,7 +18,7 @@ public:
     int day, month;
     unsigned char currency;
 
-    CPaymentsBookData() {}
+    CPaymentsBookData(): recipient(""), description(""), amount(""), day(0), month(0), currency(0) {}
 
 };
 
@@ -28,7 +28,7 @@ public:
     std::string amounttosend, targetPrice; 
     bool senddollar, whenpricegoesabove;
 
-    COrdersBookData() {}
+    COrdersBookData(): amounttosend(""), targetPrice(""), senddollar(false), whenpricegoesabove(false) {}
 
 };
 
