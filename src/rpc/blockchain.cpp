@@ -48,7 +48,7 @@ static CUpdatedBlock latestblock;
 
 /* Get the price for a given block index
  */
-double GetBlockPrice(const CBlockIndex* blockindex)
+double GetBlockPrice(unsigned char currency, const CBlockIndex* blockindex)
 {
     if (blockindex == nullptr)
     {
@@ -57,9 +57,10 @@ double GetBlockPrice(const CBlockIndex* blockindex)
         else
             blockindex = chainActive.Tip();
     }
-    if (blockindex->nPriceInfo.priceCount<=0) return 0;
+    if (currency > blockindex->nPriceInfo.priceCount - 1) currency = blockindex->nPriceInfo.priceCount - 1;
+    if (blockindex->nPriceInfo.priceCount <= 0) return 0;
     else
-      return blockindex->GetPriceinCurrency(0);
+      return blockindex->GetPriceinCurrency(currency);
 }
 
 /* Calculate the difficulty for a given block index,
@@ -313,14 +314,18 @@ static UniValue getprice(const JSONRPCRequest& request)
             "getprice\n"
             "\nReturns the price stored in the latest block.\n"
             "\nResult:\n"
-            "\"price\"      (double) the price of one BitCash\n"
+            "\"pricedollarintobitcash\"      (double) the price of one BitCash for conversion of Dollar into BitCash\n"
+            "\"pricebitcashintodollar\"      (double) the price of one BitCash for conversion of BitCash into Dollar\n"
             "\nExamples:\n"
             + HelpExampleCli("getprice", "")
             + HelpExampleRpc("getprice", "")
         );
 
     LOCK(cs_main);
-    return ValueFromAmount(GetBlockPrice());
+    UniValue result(UniValue::VOBJ);
+    result.pushKV("pricedollarintobitcash", ValueFromAmount(GetBlockPrice(0)));
+    result.pushKV("pricebitcashintodollar", ValueFromAmount(GetBlockPrice(1)));
+    return result;
 }
 
 

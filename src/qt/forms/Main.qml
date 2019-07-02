@@ -234,9 +234,9 @@ Item {
         send.setmaxbalanceinternDo(avail, availnum)
     }
 
-    function setpriceDo(price) {
-        overview.setpriceDointern(price)
-        send.setpriceDointern(price)
+    function setpriceDo(price, price2) {
+        overview.setpriceDointern(price, price2)
+        send.setpriceDointern(price, price2)
     }
 
     function setwalletvalue(value)

@@ -253,7 +253,7 @@ public Q_SLOTS:
     void undoLinksRemovalClicked();
     void updateminingstats();
     void updateprice();
-    void ExecuteOrders(double price);
+    void ExecuteOrders(double price, double price2);
     void StopMiningBtnClicked(); 
     /** Set number of connections shown in the UI */
     void setNumConnections(int count);

@@ -208,9 +208,13 @@ SendForm {
     property real leftbalancere: 0
     property real leftbalancean: 0
     property real priceindollar: 0
+    property real priceindollar2: 0
 
-    function setpriceDointern(price) {
+    function setpriceDointern(price, price2) {
         priceindollar = price
+        if (price2 == 0)
+        priceindollar2 = price; else
+        priceindollar2 = price2
     }
 
     function calcleftbalance()
@@ -218,8 +222,8 @@ SendForm {
         leftbalance = maxbalancenum - amountEdit.text
         if (leftbalance < 0) leftbalance = 0
         leftamountlabel.text = leftbalance.toFixed(9)
-        if (paytoEdit.text.toUpperCase().indexOf("DOLLAR@") == 0 && priceindollar != 0) {
-            dollarlabel.text = amountEdit.text * priceindollar + " Dollar"
+        if (paytoEdit.text.toUpperCase().indexOf("DOLLAR@") == 0 && priceindollar2 != 0) {
+            dollarlabel.text = amountEdit.text * priceindollar2 + " Dollar"
         } else {
             dollarlabel.text = "";
         }

@@ -394,6 +394,88 @@ static UniValue signpricewithprivkey(const JSONRPCRequest& request)
     return obj;
 }
 
+static UniValue signdoublepricewithprivkey(const JSONRPCRequest& request)
+{
+    if (request.fHelp || request.params.size() != 3)
+        throw std::runtime_error(
+            "signpricewithprivkey \"privkey\" \"price\" \"price2\"\n"
+            "\nSign two price information with a private key\n"
+            "\nArguments:\n"
+            "1. \"privkey\"         (string, required) The private key to sign the message with.\n"
+            "2. \"price\"           (numeric or string, required) The price in USD.\n"
+            "3. \"price2\"          (numeric or string, required) The price in USD.\n"
+
+            "\nResult:\n"
+            "\"priceinfo\"          (string) The time stamped price information message HEX encoded\n"
+            "\"signature\"          (string) The signature of the price information message HEX encoded\n"
+            "\nExamples:\n"
+            "\nCreate the signature\n"
+            + HelpExampleCli("signpricewithprivkey", "\"privkey\" \"1.50\" \"privkey\" \"1.50\"") +
+            "\nAs json rpc\n"
+            + HelpExampleRpc("signpricewithprivkey", "\"privkey\", \"1.50\" \"privkey\" \"1.50\"")
+        );
+
+    std::string strPrivkey = request.params[0].get_str();
+    CAmount priceusd = AmountFromValue(request.params[1]);
+    if (priceusd <= 0)
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for send");
+
+    CAmount priceusd2 = AmountFromValue(request.params[2]);
+    if (priceusd2 <= 0)
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for send");
+
+    CPriceInfo pinfo;
+    pinfo.priceTime = GetAdjustedTime();
+    pinfo.priceCount = 2;
+    pinfo.prices[0] = priceusd;
+    pinfo.prices[1] = priceusd2;
+
+    CKey key = DecodeSecret(strPrivkey);
+    if (!key.IsValid()) {
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid private key");
+    }
+
+    CDataStream ssPrice(SER_NETWORK, PROTOCOL_VERSION);
+    ssPrice << pinfo;
+
+    CHashWriter ss(SER_GETHASH, 0);
+    ss << pinfo;
+
+    uint256 hash = ss.GetHash();
+//        std::cout << std::endl<< "hash when signing: " << hash.ToString() << std::endl;
+
+    std::vector<unsigned char> vchSig;
+    if (!key.Sign(hash, vchSig))
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Sign failed");
+
+    pinfo.priceTime = GetAdjustedTime();
+    pinfo.priceCount = 1;
+    pinfo.prices[0] = priceusd;
+
+    CDataStream ssPriceold(SER_NETWORK, PROTOCOL_VERSION);
+    ssPriceold << pinfo;
+
+    CHashWriter ss2(SER_GETHASH, 0);
+    ss << pinfo;
+
+    hash = ss2.GetHash();
+//        std::cout << std::endl<< "hash when signing: " << hash.ToString() << std::endl;
+
+    std::vector<unsigned char> vchSigold;
+    if (!key.Sign(hash, vchSigold))
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Sign failed");
+
+    UniValue obj(UniValue::VOBJ);
+    obj.pushKV("priceinfo2", HexStr(ssPrice.begin(), ssPrice.end()));
+    obj.pushKV("signature2", HexStr(vchSig.begin(), vchSig.end()));
+
+    obj.pushKV("priceinfo", HexStr(ssPriceold.begin(), ssPriceold.end()));
+    obj.pushKV("signature", HexStr(vchSigold.begin(), vchSigold.end()));
+
+    return obj;
+}
+
+
 static UniValue setmocktime(const JSONRPCRequest& request)
 {
     if (request.fHelp || request.params.size() != 1)
@@ -604,14 +686,15 @@ static UniValue echo(const JSONRPCRequest& request)
 static const CRPCCommand commands[] =
 { //  category              name                      actor (function)         argNames
   //  --------------------- ------------------------  -----------------------  ----------
-    { "control",            "getinfo",                &getinfo,                {} }, /* uses wallet if enabled */
-    { "control",            "getmemoryinfo",          &getmemoryinfo,          {"mode"} },
-    { "control",            "logging",                &logging,                {"include", "exclude"}},
-    { "util",               "validateaddress",        &validateaddress,        {"address"} }, /* uses wallet if enabled */
-    { "util",               "createmultisig",         &createmultisig,         {"nrequired","keys"} },
-    { "util",               "verifymessage",          &verifymessage,          {"address","signature","message"} },
-    { "util",               "signmessagewithprivkey", &signmessagewithprivkey, {"privkey","message"} },
-    { "util",               "signpricewithprivkey",   &signpricewithprivkey,   {"privkey","price"} },
+    { "control",            "getinfo",                      &getinfo,                   {} }, /* uses wallet if enabled */
+    { "control",            "getmemoryinfo",                &getmemoryinfo,             {"mode"} },
+    { "control",            "logging",                      &logging,                   {"include", "exclude"}},
+    { "util",               "validateaddress",              &validateaddress,           {"address"} }, /* uses wallet if enabled */
+    { "util",               "createmultisig",               &createmultisig,            {"nrequired","keys"} },
+    { "util",               "verifymessage",                &verifymessage,             {"address","signature","message"} },
+    { "util",               "signmessagewithprivkey",       &signmessagewithprivkey,    {"privkey","message"} },
+    { "util",               "signpricewithprivkey",         &signpricewithprivkey,      {"privkey","price"} },
+    { "util",               "signdoublepricewithprivkey",   &signdoublepricewithprivkey,{"privkey","price","price2"} },
 
     /* Not shown in help */
     { "hidden",             "setmocktime",            &setmocktime,            {"timestamp"}},

@@ -1131,7 +1131,9 @@ void BitcashGUI::StopMiningBtnClicked()
 extern bool triedoneproofofwork;
 
 //Check if we can execute one of the orders and execute it if we can
-void BitcashGUI::ExecuteOrders(double price)
+void BitcashGUI::ExecuteOrders(double price, double price2)
+    //price: dollar->bitcash /
+    //price2: bitcash->dollar *
 {
     std::vector<std::string> orderstodelete;
 
@@ -1144,7 +1146,9 @@ void BitcashGUI::ExecuteOrders(double price)
         for (std::map<std::string, COrdersBookData>::iterator it = mapOrdersBook.begin(); it != mapOrdersBook.end(); ++it) {        
             try {
                 double targetd = std::stod(it->second.targetPrice) * COIN;
-                if ((it->second.whenpricegoesabove && price > targetd) || (!it->second.whenpricegoesabove && price < targetd)) {
+                CAmount pricetolookat;
+                if (it->second.senddollar) pricetolookat = price; else pricetolookat = price2;
+                if ((it->second.whenpricegoesabove && pricetolookat > targetd) || (!it->second.whenpricegoesabove && pricetolookat < targetd)) {
                     //price target met
                     double amountd = std::stod(it->second.amounttosend);
                     unsigned char currency = 0;
@@ -1196,15 +1200,30 @@ void BitcashGUI::ExecuteOrders(double price)
 void BitcashGUI::updateprice()
 {
     QVariant returnedValue;
-    QVariant price;
-    double pri = GetBlockPrice();
+    QVariant price, price2;
+    double pri = GetBlockPrice(0);
+    double pri2 = GetBlockPrice(1);
+    bool found1 = false;
+    bool found2 = false;
     if (pri <= 1) price = "(No price available yet)";//1 = 0.000000001 which is the initial value of the price information and means no valid information available
     else {
         price = QString::fromStdString(FormatMoney(pri));
-        ExecuteOrders(pri);
+        found1 = true;
+    }
+    if (pri2 <= 1) price2 = "(No price available yet)";//1 = 0.000000001 which is the initial value of the price information and means no valid information available
+    else {
+        found2 = true;
+        price2 = QString::fromStdString(FormatMoney(pri2));
+    }
+    if (found1 && found2)
+    {
+        ExecuteOrders(pri, pri2);
+    } else
+    if (found1) {
+        ExecuteOrders(pri, pri);
     }
 
-    QMetaObject::invokeMethod(qmlrootitem, "setpriceDo",  Q_RETURN_ARG(QVariant, returnedValue), Q_RETURN_ARG(QVariant, price));
+    QMetaObject::invokeMethod(qmlrootitem, "setpriceDo",  Q_RETURN_ARG(QVariant, returnedValue), Q_RETURN_ARG(QVariant, price), Q_RETURN_ARG(QVariant, price2));
 
     QVariant supplybitcash, supplydollar, blockheight;
     CAmount bitcash, dollar;

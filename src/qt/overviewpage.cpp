@@ -214,9 +214,8 @@ void OverviewPage::setBalance(const interfaces::WalletBalances& balances)
 
     QMetaObject::invokeMethod(qmlrootitem, "setbalancesDo", Q_RETURN_ARG(QVariant, returnedValue), Q_ARG(QVariant, availDo), Q_ARG(QVariant, pendingDo), Q_ARG(QVariant, immatureDo), Q_ARG(QVariant, totalDo), Q_ARG(QVariant, availnumDo));
 
-
-    QVariant price;
-    double pri = GetBlockPrice();
+    double pri = GetBlockPrice(1);
+    if (pri == 0) pri = GetBlockPrice(0);
     if (pri <= 1) {
         totalvalueDo = "Not available";
     } else {

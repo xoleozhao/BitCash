@@ -22,6 +22,7 @@ bool isstabletimeactive(int32_t nVersion)
 
 CAmount CBlockHeader::GetPriceinCurrency(unsigned char currency) const
 {
+    if (currency > nPriceInfo.priceCount - 1) currency = nPriceInfo.priceCount - 1;
     CAmount d1 = abs(nPriceInfo.prices[currency]-nPriceInfo2.prices[currency]);
     CAmount d2 = abs(nPriceInfo2.prices[currency]-nPriceInfo3.prices[currency]);
     CAmount d3 = abs(nPriceInfo.prices[currency]-nPriceInfo3.prices[currency]);

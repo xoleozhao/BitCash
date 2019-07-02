@@ -2313,7 +2313,9 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
     //check if the currencies conversion is correct
     int j;
 
-    CAmount pricerate = block.GetPriceinCurrency(0);
+    CAmount pricerate = block.GetPriceinCurrency(0);//dollar->bitcash /
+    CAmount pricerate2 = block.GetPriceinCurrency(1);//bitcash->dollar *
+
 
     for (int i = 0; i < block.vtx.size(); i++) {
         const CTransaction &tx = *(block.vtx[i]);
@@ -2337,7 +2339,7 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
             if (tx.vout[j].currency != inputcurrency) {
                 if (inputcurrency == 0 && tx.vout[j].currency == 1) {
                     //Convert BitCash into Dollars
-                    if (tx.vout[j].nValue != (__int128_t)tx.vout[j].nValueBitCash * (__int128_t)pricerate / (__int128_t)COIN) {
+                    if (tx.vout[j].nValue != (__int128_t)tx.vout[j].nValueBitCash * (__int128_t)pricerate2 / (__int128_t)COIN) {
                         return state.DoS(100, false, REJECT_INVALID, "bad-currency-conversion", false, "The currency conversion is not correct.");
                     }
                 } else
@@ -3409,14 +3411,29 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
 
     uint256 pricehash3 = ss3.GetHash();
 
-    if  (block.nPriceInfo.priceCount != 1) {
-        return state.DoS(100, false, REJECT_INVALID, "bad-price-count", false, "Invalid number of price information.");
-    }
-    if  (block.nPriceInfo2.priceCount != 1) {
-        return state.DoS(100, false, REJECT_INVALID, "bad-price-count2", false, "Invalid number of price information.");
-    }
-    if  (block.nPriceInfo3.priceCount != 1) {
-        return state.DoS(100, false, REJECT_INVALID, "bad-price-count3", false, "Invalid number of price information.");
+    if (block.nTime > consensusParams.MASTERKEYDUMMY)
+    {
+        if  (block.nPriceInfo.priceCount != 2) {
+            return state.DoS(100, false, REJECT_INVALID, "bad-price-count", false, "Invalid number of price information.");
+        }
+        if  (block.nPriceInfo2.priceCount != 2) {
+            return state.DoS(100, false, REJECT_INVALID, "bad-price-count2", false, "Invalid number of price information.");
+        }
+        if  (block.nPriceInfo3.priceCount != 2) {
+            return state.DoS(100, false, REJECT_INVALID, "bad-price-count3", false, "Invalid number of price information.");
+        }
+
+    } else
+    {
+        if  (block.nPriceInfo.priceCount != 1) {
+            return state.DoS(100, false, REJECT_INVALID, "bad-price-count", false, "Invalid number of price information.");
+        }
+        if  (block.nPriceInfo2.priceCount != 1) {
+            return state.DoS(100, false, REJECT_INVALID, "bad-price-count2", false, "Invalid number of price information.");
+        }
+        if  (block.nPriceInfo3.priceCount != 1) {
+            return state.DoS(100, false, REJECT_INVALID, "bad-price-count3", false, "Invalid number of price information.");
+        }
     }
 
     for (int i = 0; i < block.nPriceInfo.priceCount; i++) {
@@ -4074,7 +4091,9 @@ bool ProcessNewBlock(
     //check if the currencies conversion is correct
     int j;
 
-    CAmount pricerate = pblocknew->GetPriceinCurrency(0);
+    CAmount pricerate = pblocknew->GetPriceinCurrency(0);//dollar->bitcash /
+    CAmount pricerate2 = pblocknew->GetPriceinCurrency(1);//bitcash->dollar *
+
 
     for (int i = 0; i < pblocknew->vtx.size(); i++) {
         CMutableTransaction tx(*pblocknew->vtx[i]);
@@ -4113,7 +4132,7 @@ bool ProcessNewBlock(
             if (tx.vout[j].currency != inputcurrency) {
                 if (inputcurrency == 0 && tx.vout[j].currency == 1) {
                     //Convert BitCash into Dollars
-                    CAmount amount = (__int128_t)tx.vout[j].nValueBitCash * (__int128_t)pricerate / (__int128_t)COIN;
+                    CAmount amount = (__int128_t)tx.vout[j].nValueBitCash * (__int128_t)pricerate2 / (__int128_t)COIN;
                     if (tx.vout[j].nValue != amount ) {
                         LogPrintf("Inputcurrency: %i \n",inputcurrency);
                         LogPrintf("Tx to change in ProcessNewBlock: %s \n",tx.GetHash().ToString());

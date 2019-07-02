@@ -104,8 +104,9 @@ Item {
         totalLabelDo.text = total
     }
 
-    function setpriceDointern(price) {
-        priceLabelDo.text = price        
+    function setpriceDointern(price, price2) {
+        priceLabelDo.text = price
+        price2LabelDo.text = price2
     }
 
     function setwalletvalueintern(value)
@@ -132,7 +133,7 @@ Item {
         radius: 1
         border.width: 0
         clip: true
-        height: 374
+        height: 408
         color: "white"
         anchors.left: parent.left
         anchors.leftMargin: 24
@@ -588,10 +589,15 @@ Item {
                priceLabelDo.font.pixelSize = totalLabel.font.pixelSize
                priceLabelDo.font.letterSpacing = totalLabel.font.letterSpacing
                priceLabelDo.font.letterSpacing = totalLabel.font.letterSpacing
+               price2LabelDo.font.pixelSize = totalLabel.font.pixelSize
+               price2LabelDo.font.letterSpacing = totalLabel.font.letterSpacing
+               price2LabelDo.font.letterSpacing = totalLabel.font.letterSpacing
                pricebitcashiconDo.font.pixelSize = totalbitcashicon.font.pixelSize
+               price2bitcashiconDo.font.pixelSize = totalbitcashicon.font.pixelSize
             }
             y: 25
             radius: 1
+            anchors.bottomMargin: 8
             clip: true
             height: 200
             color: "#00000000"
@@ -707,6 +713,19 @@ Item {
             color: "#3e45ac"
         }
         Label {
+            id: price2LabelDo
+            text: qsTr("-")
+            font.pixelSize: 42
+            font.family: "Montserrat Light"
+            font.weight: Font.Light
+            leftPadding: 0
+            anchors.left: price2bitcashiconDo.right
+            anchors.leftMargin: 0
+            anchors.top: priceLabelDo.bottom
+            anchors.topMargin: 10
+            color: "#3e45ac"
+        }
+        Label {
             id: pricebitcashiconDo
             anchors.left: parent.left
             anchors.leftMargin: 36
@@ -716,7 +735,19 @@ Item {
             font.family: "Montserrat Light"
             font.weight: Font.Light
             color: "#3e45ac"
-            text: "$"
+            text: "Buy: $"
+        }
+        Label {
+            id: price2bitcashiconDo
+            anchors.left: parent.left
+            anchors.leftMargin: 36
+            anchors.verticalCenter: price2LabelDo.verticalCenter
+
+            font.pixelSize: 42
+            font.family: "Montserrat Light"
+            font.weight: Font.Light
+            color: "#3e45ac"
+            text: "Sell: $"
         }
 
         }

@@ -181,7 +181,8 @@ void BlockAssembler::ConvertCurrenciesForBlockTemplate()
     int i;
     int j;
 
-    CAmount pricerate = pblock->GetPriceinCurrency(0);
+    CAmount pricerate = pblock->GetPriceinCurrency(0);//dollar->bitcash /
+    CAmount pricerate2 = pblock->GetPriceinCurrency(1);//bitcash->dollar *
 
     for (i = 0;i < pblock->vtx.size(); i++) {
 
@@ -208,7 +209,7 @@ void BlockAssembler::ConvertCurrenciesForBlockTemplate()
                 if (inputcurrency == 0 && tx.vout[j].currency == 1) {
                     //std::cout << "Input BitCash: " << FormatMoney(tx.vout[j].nValueBitCash) << std::endl;
                     //Convert BitCash into Dollars
-                    tx.vout[j].nValue = (__int128_t)tx.vout[j].nValueBitCash * (__int128_t)pricerate / (__int128_t)COIN;
+                    tx.vout[j].nValue = (__int128_t)tx.vout[j].nValueBitCash * (__int128_t)pricerate2 / (__int128_t)COIN;
                     //std::cout << "Converted to Dollar: " << FormatMoney(tx.vout[j].nValue) << std::endl;
                 } else
                 if (inputcurrency == 1 && tx.vout[j].currency == 0) {
@@ -570,8 +571,15 @@ CAmount GetPriceInformationFromWebserver(std::string server, std::string &price,
 	std::string priceinfo = getdocumentwithcurl(server);
 
         RSJresource  json (priceinfo);
-        price=json["priceinfo"].as<std::string>("");
-        signature=json["signature"].as<std::string>("");
+
+        if (time(nullptr) < Params().GetConsensus().MASTERKEYDUMMY) {
+            price = json["priceinfo"].as<std::string>("");
+            signature = json["signature"].as<std::string>("");
+        } else
+        {
+            price = json["priceinfo2"].as<std::string>("");
+            signature = json["signature2"].as<std::string>("");
+        }
     }
     catch (std::exception& e)
     {
