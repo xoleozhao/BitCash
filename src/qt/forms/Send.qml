@@ -207,12 +207,22 @@ SendForm {
     property real leftbalancein: 0
     property real leftbalancere: 0
     property real leftbalancean: 0
+    property real priceindollar: 0
+
+    function setpriceDointern(price) {
+        priceindollar = price
+    }
 
     function calcleftbalance()
     {
         leftbalance = maxbalancenum - amountEdit.text
         if (leftbalance < 0) leftbalance = 0
         leftamountlabel.text = leftbalance.toFixed(9)
+        if (paytoEdit.text.toUpperCase().indexOf("DOLLAR@") == 0 && priceindollar != 0) {
+            dollarlabel.text = amountEdit.text * priceindollar + " Dollar"
+        } else {
+            dollarlabel.text = "";
+        }
     }
 
     function calcleftbalanceDo()
@@ -220,6 +230,11 @@ SendForm {
         leftbalanceDo = maxbalancenumDo - amountEditDo.text
         if (leftbalanceDo < 0) leftbalanceDo = 0
         leftamountlabelDo.text = leftbalanceDo.toFixed(9)
+        if (paytoEditDo.text.toUpperCase().indexOf("DOLLAR@") != 0 && priceindollar != 0) {
+            bitcashlabel.text = amountEditDo.text / priceindollar + " BitCash"
+        } else {
+            bitcashlabel.text = "";
+        }
     }
 
     function calcleftbalancetw()

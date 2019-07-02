@@ -28,6 +28,7 @@ Item {
     property alias maxbalance: maxbalance
     property alias pasteaddress: pasteaddress
     property alias leftamountlabel: leftamountlabel
+    property alias dollarlabel: dollarlabel
 
     property alias paytoEditDo: paytoEditDo
     property alias labelEditDo: labelEditDo
@@ -40,6 +41,7 @@ Item {
     property alias maxbalanceDo: maxbalanceDo
     property alias pasteaddressDo: pasteaddressDo
     property alias leftamountlabelDo: leftamountlabelDo
+    property alias bitcashlabel: bitcashlabel
 
     /*********************************/
     property alias paytoEdittw: paytoEdittw
@@ -588,6 +590,7 @@ Item {
                     placeholderText: "0.000000000"
                 }
                 Rectangle {
+                    id: currencyrectangle
                     anchors.left: amountEdit.right
                     anchors.top: amountEdit.top
                     anchors.bottom: amountEdit.bottom
@@ -711,6 +714,19 @@ Item {
                     anchors.leftMargin: 30
                     anchors.top: amountEdit.bottom
                     anchors.topMargin: 20
+                }
+
+                Label {
+                    id: dollarlabel
+                    color: "#3e45ac"
+                    text: qsTr("")
+                    anchors.verticalCenter: currencyrectangle.verticalCenter
+                    font.weight: Font.DemiBold
+                    font.pixelSize: 13
+                    font.family: "Montserrat SemiBold"
+                    rightPadding: 4
+                    anchors.left: currencyrectangle.right
+                    anchors.leftMargin: 20
                 }
                 Label {
                     id: bitcashicon
@@ -864,6 +880,7 @@ Item {
                     placeholderText: "0.000000000"
                 }
                 Rectangle {
+                    id: currencyrectangleDo
                     anchors.left: amountEditDo.right
                     anchors.top: amountEditDo.top
                     anchors.bottom: amountEditDo.bottom
@@ -996,6 +1013,19 @@ Item {
                     visible: false
                     anchors.right: parent.right
                     anchors.rightMargin: 8
+                }
+
+                Label {
+                    id: bitcashlabel
+                    color: "#3e45ac"
+                    text: qsTr("")
+                    anchors.verticalCenter: currencyrectangleDo.verticalCenter
+                    font.weight: Font.DemiBold
+                    font.pixelSize: 13
+                    font.family: "Montserrat SemiBold"
+                    rightPadding: 4
+                    anchors.left: currencyrectangleDo.right
+                    anchors.leftMargin: 20
                 }
 
                 Label {

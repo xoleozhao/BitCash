@@ -236,6 +236,7 @@ Item {
 
     function setpriceDo(price) {
         overview.setpriceDointern(price)
+        send.setpriceDointern(price)
     }
 
     function setwalletvalue(value)
