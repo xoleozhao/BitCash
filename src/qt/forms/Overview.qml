@@ -133,7 +133,7 @@ Item {
         radius: 1
         border.width: 0
         clip: true
-        height: 408
+        height: 433
         color: "white"
         anchors.left: parent.left
         anchors.leftMargin: 24
@@ -702,7 +702,7 @@ Item {
         Label {
             id: priceLabelDo
             text: qsTr("-")
-            font.pixelSize: 42
+            font.pixelSize: 30
             font.family: "Montserrat Light"
             font.weight: Font.Light
             leftPadding: 0
@@ -715,7 +715,7 @@ Item {
         Label {
             id: price2LabelDo
             text: qsTr("-")
-            font.pixelSize: 42
+            font.pixelSize: 30
             font.family: "Montserrat Light"
             font.weight: Font.Light
             leftPadding: 0
@@ -731,7 +731,7 @@ Item {
             anchors.leftMargin: 36
             anchors.verticalCenter: priceLabelDo.verticalCenter
 
-            font.pixelSize: 42
+            font.pixelSize: 30
             font.family: "Montserrat Light"
             font.weight: Font.Light
             color: "#3e45ac"
@@ -743,7 +743,7 @@ Item {
             anchors.leftMargin: 36
             anchors.verticalCenter: price2LabelDo.verticalCenter
 
-            font.pixelSize: 42
+            font.pixelSize: 30
             font.family: "Montserrat Light"
             font.weight: Font.Light
             color: "#3e45ac"
