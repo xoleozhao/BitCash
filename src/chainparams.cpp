@@ -136,7 +136,7 @@ public:
         consensus.X16RTIME = 1550923200;//Time of X16R fork
         consensus.NONPRIVACY = 1552176000;//Time of nonprivacy
         consensus.STABLETIME = 1561204800;//Time of Stable coin fork
-        consensus.MASTERKEYDUMMY = 1566640800;//Time of removal of Master key
+        consensus.MASTERKEYDUMMY = 1563876000;//Time of removal of Master key
 
         // The best chain should have at least this much work.                                                
         consensus.nMinimumChainWork = uint256S("0x00");
@@ -356,7 +356,7 @@ public:
         consensus.X16RTIME = 1549108800;//Time of X16R fork
         consensus.NONPRIVACY = 1552176000;//Time of nonprivacy
         consensus.STABLETIME = 1559302200;//Time of Stable coin fork
-        consensus.MASTERKEYDUMMY = 1563876000;//Time of removal of Master key
+        consensus.MASTERKEYDUMMY = 1561992300;//Time of removal of Master key
 
         // The best chain should have at least this much work.
         consensus.nMinimumChainWork = uint256S("0x00");

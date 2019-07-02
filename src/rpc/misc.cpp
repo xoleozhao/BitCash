@@ -398,7 +398,7 @@ static UniValue signdoublepricewithprivkey(const JSONRPCRequest& request)
 {
     if (request.fHelp || request.params.size() != 3)
         throw std::runtime_error(
-            "signpricewithprivkey \"privkey\" \"price\" \"price2\"\n"
+            "signdoublepricewithprivkey \"privkey\" \"price\" \"price2\"\n"
             "\nSign two price information with a private key\n"
             "\nArguments:\n"
             "1. \"privkey\"         (string, required) The private key to sign the message with.\n"
@@ -410,9 +410,9 @@ static UniValue signdoublepricewithprivkey(const JSONRPCRequest& request)
             "\"signature\"          (string) The signature of the price information message HEX encoded\n"
             "\nExamples:\n"
             "\nCreate the signature\n"
-            + HelpExampleCli("signpricewithprivkey", "\"privkey\" \"1.50\" \"privkey\" \"1.50\"") +
+            + HelpExampleCli("signdoublepricewithprivkey", "\"privkey\" \"1.50\" \"privkey\" \"1.50\"") +
             "\nAs json rpc\n"
-            + HelpExampleRpc("signpricewithprivkey", "\"privkey\", \"1.50\" \"privkey\" \"1.50\"")
+            + HelpExampleRpc("signdoublepricewithprivkey", "\"privkey\", \"1.50\" \"privkey\" \"1.50\"")
         );
 
     std::string strPrivkey = request.params[0].get_str();
@@ -427,8 +427,14 @@ static UniValue signdoublepricewithprivkey(const JSONRPCRequest& request)
     CPriceInfo pinfo;
     pinfo.priceTime = GetAdjustedTime();
     pinfo.priceCount = 2;
-    pinfo.prices[0] = priceusd;
-    pinfo.prices[1] = priceusd2;
+    if (priceusd > priceusd2) {
+        pinfo.prices[0] = priceusd;
+        pinfo.prices[1] = priceusd2;
+    } else
+    {
+        pinfo.prices[0] = priceusd2;
+        pinfo.prices[1] = priceusd;
+    }
 
     CKey key = DecodeSecret(strPrivkey);
     if (!key.IsValid()) {
@@ -448,21 +454,22 @@ static UniValue signdoublepricewithprivkey(const JSONRPCRequest& request)
     if (!key.Sign(hash, vchSig))
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Sign failed");
 
-    pinfo.priceTime = GetAdjustedTime();
-    pinfo.priceCount = 1;
-    pinfo.prices[0] = priceusd;
+    CPriceInfo pinfo2;
+    pinfo2.priceTime = GetAdjustedTime();
+    pinfo2.priceCount = 1;
+    pinfo2.prices[0] = priceusd;
 
     CDataStream ssPriceold(SER_NETWORK, PROTOCOL_VERSION);
-    ssPriceold << pinfo;
+    ssPriceold << pinfo2;
 
     CHashWriter ss2(SER_GETHASH, 0);
-    ss << pinfo;
+    ss2 << pinfo2;
 
-    hash = ss2.GetHash();
+    uint256 hash2 = ss2.GetHash();
 //        std::cout << std::endl<< "hash when signing: " << hash.ToString() << std::endl;
 
     std::vector<unsigned char> vchSigold;
-    if (!key.Sign(hash, vchSigold))
+    if (!key.Sign(hash2, vchSigold))
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Sign failed");
 
     UniValue obj(UniValue::VOBJ);

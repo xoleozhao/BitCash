@@ -3437,16 +3437,34 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
     }
 
     for (int i = 0; i < block.nPriceInfo.priceCount; i++) {
+        if (block.nPriceInfo.priceCount >= 2)
+        {
+            if (block.nPriceInfo.prices[0] < block.nPriceInfo.prices[1])    {
+                return state.DoS(100, false, REJECT_INVALID, "bad-price-buysell", false, "The buy price must be higher than the sell price.");
+            }
+        }
         if  (block.nPriceInfo.prices[i]==0) {
             return state.DoS(100, false, REJECT_INVALID, "bad-price-iszero", false, "The price must be greater than zero.");
         }
     } 
     for (int i = 0; i < block.nPriceInfo2.priceCount; i++) {
+        if (block.nPriceInfo2.priceCount >= 2)
+        {
+            if (block.nPriceInfo2.prices[0] < block.nPriceInfo2.prices[1])    {
+                return state.DoS(100, false, REJECT_INVALID, "bad-price-buysell2", false, "The buy price must be higher than the sell price.");
+            }
+        }
         if  (block.nPriceInfo2.prices[i]==0) {
             return state.DoS(100, false, REJECT_INVALID, "bad-price-iszero2", false, "The price must be greater than zero.");
         }
     } 
     for (int i = 0; i < block.nPriceInfo3.priceCount; i++) {
+        if (block.nPriceInfo3.priceCount >= 2)
+        {
+            if (block.nPriceInfo3.prices[0] < block.nPriceInfo3.prices[1])    {
+                return state.DoS(100, false, REJECT_INVALID, "bad-price-buysell3", false, "The buy price must be higher than the sell price.");
+            }
+        }
         if  (block.nPriceInfo3.prices[i]==0) {
             return state.DoS(100, false, REJECT_INVALID, "bad-price-iszero3", false, "The price must be greater than zero.");
         }

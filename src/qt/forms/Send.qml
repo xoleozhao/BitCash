@@ -212,7 +212,7 @@ SendForm {
 
     function setpriceDointern(price, price2) {
         priceindollar = price
-        if (price2 == 0)
+        if (price2 === 0)
         priceindollar2 = price; else
         priceindollar2 = price2
     }

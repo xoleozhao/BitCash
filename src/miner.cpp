@@ -659,13 +659,34 @@ std::string CheckPriceServer(int i)
         std::string ex = *it;
 
         int64_t nTime1 = GetTimeMicros();
-        CAmount amount = GetPriceInformationFromWebserver(ex, price, signature);
-        if (amount == 0)
+        std::string price, signature;
+        GetPriceInformationFromWebserver(ex, price, signature);
+
+        bool found = false;
+        CAmount price1, price2;
+        if (IsHex(price)) { 
+            std::vector<unsigned char> txData(ParseHex(price));
+            CDataStream ssData(txData, SER_NETWORK, PROTOCOL_VERSION);
+            try {
+                CPriceInfo nPriceInfo;
+                ssData >> nPriceInfo;
+                if (nPriceInfo.priceCount >= 2 && nPriceInfo.prices[0] > 0 && nPriceInfo.prices[1] > 0) {
+                    price1 = nPriceInfo.prices[0];
+                    price2 = nPriceInfo.prices[1];
+                    found = true;
+                }
+            } catch (const std::exception&) {
+                // Fall through.
+            }    
+        } 
+
+
+        if (!found)
         {
             outstr += "FAILED ( " + std::to_string( ( GetTimeMicros()- nTime1 ) / 1000 ) + "ms ).";
         } else
         {
-            outstr += "SUCCESSFUL ( " + FormatMoney(amount) + "; " + std::to_string( ( GetTimeMicros()- nTime1 ) / 1000 ) + "ms ).";
+            outstr += "SUCCESSFUL ( " + FormatMoney(price1) + "; " + FormatMoney(price2) + "; " + std::to_string( ( GetTimeMicros()- nTime1 ) / 1000 ) + "ms ).";
         }
     } else outstr = "FAILED.";
 
