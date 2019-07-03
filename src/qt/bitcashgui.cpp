@@ -1781,7 +1781,7 @@ void BitcashGUI::DeleteOrdersClicked(const QString &strlink)
 //Execute recurring payments
 void BitcashGUI::recurringpayments()
 {
-    if (!UserKnowsPassword()) return;
+//    if (!UserKnowsPassword()) return;
 
     bool needtoupdate;
     time_t rawtime;
