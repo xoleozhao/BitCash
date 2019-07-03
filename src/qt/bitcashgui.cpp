@@ -118,7 +118,6 @@ QQmlContext *qmlrootctxt;
 QTimer *miningtimer;
 QTimer *priceupdatetimer;
 QAction *exportAction;
-bool pricewasfound = false;
 
 extern std::unique_ptr<CConnman> g_connman;
 
@@ -1214,7 +1213,6 @@ void BitcashGUI::updateprice()
     else {
         price = QString::fromStdString(FormatMoney(pri));
         found1 = true;
-        pricewasfound = true;
     }
     if (pri2 <= 1) price2 = "(No price available yet)";//1 = 0.000000001 which is the initial value of the price information and means no valid information available
     else {
