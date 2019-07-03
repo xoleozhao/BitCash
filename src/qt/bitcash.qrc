@@ -319,5 +319,7 @@
         <file>res/assets/Miscellaneous/arrowdown.png</file>
         <file>res/assets/Miscellaneous/converttobitcash.png</file>
         <file>res/assets/Miscellaneous/converttodollar.png</file>
+        <file>res/assets/Miscellaneous/converttobitcashblack.png</file>
+        <file>res/assets/Miscellaneous/converttodollarblack.png</file>
     </qresource>
 </RCC>

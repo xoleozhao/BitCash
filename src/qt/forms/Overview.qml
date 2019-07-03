@@ -133,7 +133,7 @@ Item {
         radius: 1
         border.width: 0
         clip: true
-        height: 433
+        height: 410
         color: "white"
         anchors.left: parent.left
         anchors.leftMargin: 24
@@ -586,14 +586,14 @@ Item {
                totalLabelDo.font.letterSpacing = totalLabel.font.letterSpacing
                totalbitcashiconDo.font.pixelSize = totalbitcashicon.font.pixelSize
 
-               priceLabelDo.font.pixelSize = totalLabel.font.pixelSize
-               priceLabelDo.font.letterSpacing = totalLabel.font.letterSpacing
-               priceLabelDo.font.letterSpacing = totalLabel.font.letterSpacing
-               price2LabelDo.font.pixelSize = totalLabel.font.pixelSize
-               price2LabelDo.font.letterSpacing = totalLabel.font.letterSpacing
-               price2LabelDo.font.letterSpacing = totalLabel.font.letterSpacing
-               pricebitcashiconDo.font.pixelSize = totalbitcashicon.font.pixelSize
-               price2bitcashiconDo.font.pixelSize = totalbitcashicon.font.pixelSize
+               priceLabelDo.font.pixelSize = totalLabel.font.pixelSize * 2/3
+               priceLabelDo.font.letterSpacing = totalLabel.font.letterSpacing * 2/3
+               priceLabelDo.font.letterSpacing = totalLabel.font.letterSpacing * 2/3
+               price2LabelDo.font.pixelSize = totalLabel.font.pixelSize * 2/3
+               price2LabelDo.font.letterSpacing = totalLabel.font.letterSpacing * 2/3
+               price2LabelDo.font.letterSpacing = totalLabel.font.letterSpacing * 2/3
+               pricebitcashiconDo.font.pixelSize = totalbitcashicon.font.pixelSize * 2/3
+               price2bitcashiconDo.font.pixelSize = totalbitcashicon.font.pixelSize * 2/3
             }
             y: 25
             radius: 1
@@ -727,27 +727,68 @@ Item {
         }
         Label {
             id: pricebitcashiconDo
-            anchors.left: parent.left
-            anchors.leftMargin: 36
+            anchors.left: convertinfonextprice.right
+            anchors.leftMargin: 10
             anchors.verticalCenter: priceLabelDo.verticalCenter
 
             font.pixelSize: 30
             font.family: "Montserrat Light"
             font.weight: Font.Light
             color: "#3e45ac"
-            text: "Buy: $"
+            text: ": $"
         }
-        Label {
-            id: price2bitcashiconDo
+
+        Image {
+            id: convertinfonextprice
             anchors.left: parent.left
             anchors.leftMargin: 36
+            anchors.verticalCenter: priceLabelDo.verticalCenter
+            fillMode: Image.PreserveAspectFit
+            source: "../res/assets/Miscellaneous/converttobitcashblack.png"
+            property string toolTipText: qsTr("Convert BitCash Dollars into BitCash (d->c).")
+            ToolTip.text: toolTipText
+            ToolTip.visible: toolTipText ? ma7.containsMouse : false
+            ToolTip.delay: 100
+            ToolTip.timeout: 5000
+            MouseArea {
+                id: ma7
+                anchors.fill: parent
+                hoverEnabled: true
+                onClicked: sendtobitcashsignalintern()
+            }
+        }
+
+        Label {
+            id: price2bitcashiconDo
+            anchors.left: convertinfonextprice2.right
+            anchors.leftMargin: 10
             anchors.verticalCenter: price2LabelDo.verticalCenter
 
             font.pixelSize: 30
             font.family: "Montserrat Light"
             font.weight: Font.Light
             color: "#3e45ac"
-            text: "Sell: $"
+            text: ": $"
+        }
+
+        Image {
+            id: convertinfonextprice2
+            anchors.left: parent.left
+            anchors.leftMargin: 36
+            anchors.verticalCenter: price2LabelDo.verticalCenter
+            fillMode: Image.PreserveAspectFit
+            source: "../res/assets/Miscellaneous/converttodollarblack.png"
+            property string toolTipText: qsTr("Convert BitCash into BitCash Dollars (c->d).")
+            ToolTip.text: toolTipText
+            ToolTip.visible: toolTipText ? ma8.containsMouse : false
+            ToolTip.delay: 100
+            ToolTip.timeout: 5000
+            MouseArea {
+                id: ma8
+                anchors.fill: parent
+                hoverEnabled: true
+                onClicked: sendtodollarsignalintern()
+            }
         }
 
         }
