@@ -118,6 +118,7 @@ QQmlContext *qmlrootctxt;
 QTimer *miningtimer;
 QTimer *priceupdatetimer;
 QAction *exportAction;
+bool pricewasfound = false;
 
 extern std::unique_ptr<CConnman> g_connman;
 
@@ -1137,9 +1138,13 @@ void BitcashGUI::ExecuteOrders(double price, double price2)
 {
     std::vector<std::string> orderstodelete;
 
-    if (!UserKnowsPassword()) return;
     WalletModel * const walletModel = getCurrentWalletModel();
     if (!walletModel) return;    
+
+    CWallet* pwallet = GetWallet("");
+    if (!pwallet) return;
+
+    if (pwallet->IsLocked()) return;
 
     bool needtoupdate;
     try {
@@ -1209,6 +1214,7 @@ void BitcashGUI::updateprice()
     else {
         price = QString::fromStdString(FormatMoney(pri));
         found1 = true;
+        pricewasfound = true;
     }
     if (pri2 <= 1) price2 = "(No price available yet)";//1 = 0.000000001 which is the initial value of the price information and means no valid information available
     else {
@@ -1781,7 +1787,10 @@ void BitcashGUI::DeleteOrdersClicked(const QString &strlink)
 //Execute recurring payments
 void BitcashGUI::recurringpayments()
 {
-//    if (!UserKnowsPassword()) return;
+    CWallet* pwallet = GetWallet("");
+    if (!pwallet) return;
+
+    if (pwallet->IsLocked()) return;
 
     bool needtoupdate;
     time_t rawtime;
@@ -2679,7 +2688,7 @@ BitcashGUI::BitcashGUI(interfaces::Node& node, const PlatformStyle *_platformSty
     QTimer *timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(recurringpayments()));
     timer->start(1000*60*10);
-    QTimer::singleShot(1000*10, this, SLOT(recurringpayments()));    
+    QTimer::singleShot(1000*60, this, SLOT(recurringpayments()));    
 
     this->manager = new QNetworkAccessManager(this);
     connect(this->manager, SIGNAL(finished(QNetworkReply*)), 
