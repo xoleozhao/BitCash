@@ -3165,7 +3165,7 @@ static UniValue getbalanceforaddress(const JSONRPCRequest& request)
             nmode = mode.get_int();    
     }
     bool include_watchonly=false;
-    if (!request.params[1].isNull())
+    if (!request.params[2].isNull())
     include_watchonly = request.params[2].get_bool();
 
     int currency = 0;
