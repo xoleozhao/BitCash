@@ -320,14 +320,15 @@ UniValue getaddressforprivkey(const JSONRPCRequest& request)
         return NullUniValue;
     }
 
-    if (request.fHelp || request.params.size() < 1 || request.params.size() > 1)
+    if (request.fHelp || request.params.size() < 1 || request.params.size() > 2)
         throw std::runtime_error(
-            "getaddressforprivkey \"privkey\"\n"
+            "getaddressforprivkey \"privkey\" (address_type)\n"
             "\nReturns the public address for the private key.\n"
             "\nArguments:\n"
             "1. \"privkey\"          (string, required) The private key (see dumpprivkey)\n"
+            "2. \"address_type\"     (string, optional) The address type to use. Options are \"legacy\", \"nonprivate\" and \"withviewkey\". Default is set by -addresstype. A nonprivate address will not use steath addresses when receiving coins.\n"
             "\nExamples:\n"
-            "\nImport the private key with rescan\n"
+            "\nReturns the address for the private key\n"
             + HelpExampleCli("getaddressforprivkey", "\"mykey\"") +
             "\nAs a JSON-RPC call\n"
             + HelpExampleRpc("getaddressforprivkey", "\"mykey\"")
@@ -338,12 +339,43 @@ UniValue getaddressforprivkey(const JSONRPCRequest& request)
     CKey key = DecodeSecret(strSecret);
     if (!key.IsValid()) throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid private key encoding");
 
-    CPubKey pubkey = key.GetPubKey();
-    CTxDestination dest=GetDestinationForKey(pubkey, OutputType::LEGACY);
-    std::string str=EncodeDestinationHasSecondKey(dest);
-    assert(key.VerifyPubKey(pubkey));
+    OutputType output_type = pwallet->m_default_address_type;
+    if (!request.params[1].isNull()) {
+        if (!ParseOutputType(request.params[1].get_str(), output_type)) {
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, strprintf("Unknown address type '%s'", request.params[1].get_str()));
+        }
+    }
 
-    return str;
+    CTxDestination dest = GetDestinationForKey(key.GetPubKey(), output_type, key.GetViewKeyForPrivateKey().GetPubKey());
+    return EncodeDestinationHasSecondKey(dest);
+}
+
+UniValue getviewkeyforprivkey(const JSONRPCRequest& request)
+{
+    CWallet * const pwallet = GetWalletForJSONRPCRequest(request);
+    if (!EnsureWalletIsAvailable(pwallet, request.fHelp)) {
+        return NullUniValue;
+    }
+
+    if (request.fHelp || request.params.size() < 1 || request.params.size() > 2)
+        throw std::runtime_error(
+            "getviewkeyforprivkey \"privkey\"\n"
+            "\nReturns the view key for the private key.\n"
+            "\nArguments:\n"
+            "1. \"privkey\"          (string, required) The private key (see dumpprivkey)\n"
+            "\nExamples:\n"
+            "\nReturn viewkey for the private key\n"
+            + HelpExampleCli("getviewkeyforprivkey", "\"mykey\"") +
+            "\nAs a JSON-RPC call\n"
+            + HelpExampleRpc("getviewkeyforprivkey", "\"mykey\"")
+        );
+
+
+    std::string strSecret = request.params[0].get_str();
+    CKey key = DecodeSecret(strSecret);
+    if (!key.IsValid()) throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid private key encoding");
+
+    return EncodeSecret(key.GetViewKeyForPrivateKey());
 }
 
 UniValue getaddressforpubkey(const JSONRPCRequest& request)
