@@ -2490,10 +2490,10 @@ static UniValue sendtoaddresswithprivkey(const JSONRPCRequest& request)
 
     EnsureWalletIsUnlocked(pwallet);
 
-        CPubKey pubkey = key.GetPubKey();
-        CTxDestination destfrom=GetDestinationForKey(pubkey, OutputType::LEGACY);
+    CPubKey pubkey = key.GetPubKey();
+    CTxDestination destfrom=GetDestinationForKey(pubkey, OutputType::LEGACY);
 //        std::string str=EncodeDestinationHasSecondKey(destfrom);
-        assert(key.VerifyPubKey(pubkey));
+    assert(key.VerifyPubKey(pubkey));
 //std::cout << str << std::endl;
 
 
@@ -7275,6 +7275,15 @@ UniValue getaddressinfo(const JSONRPCRequest& request)
     isminetype mine = IsMine(*pwallet, dest);
     ret.pushKV("ismine", bool(mine & ISMINE_SPENDABLE));
     ret.pushKV("iswatchonly", bool(mine & ISMINE_WATCH_ONLY));
+    if ((mine & ISMINE_WATCH_ONLY) && GetHasViewKeyForDestination(dest))
+    {
+        CPubKey viewpubkey = GetViewPubKeyForDestination(dest);
+        ret.pushKV("viewpubkey", EncodeDestinationHasSecondKey(GetDestinationForKey(viewpubkey, OutputType::LEGACY)));
+        CKey key;
+        bool havekey = pwallet->GetKey(viewpubkey.GetID(), key);
+        ret.pushKV("haveviewkey", havekey);
+    }
+
     UniValue detail = DescribeWalletAddress(pwallet, dest);
     ret.pushKVs(detail);
     if (pwallet->mapAddressBook.count(dest)) {
