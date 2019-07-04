@@ -409,15 +409,16 @@ UniValue getchildkeyforprivkey(const JSONRPCRequest& request)
         return NullUniValue;
     }
 
-    if (request.fHelp || request.params.size() < 2 || request.params.size() > 2)
+    if (request.fHelp || request.params.size() < 2 || request.params.size() > 3)
         throw std::runtime_error(
-            "getchildkeyforprivkey \"privkey\" childkeynumber\n"
+            "getchildkeyforprivkey \"privkey\" childkeynumber (address_type)\n"
             "\nReturns a child private key for the given private key.\n"
  	    "The address itself is used as label for the address book entry \n"
             "so payments received with all stealths addresses will be associated with the address.\n"
             "\nArguments:\n"
             "1. \"privkey\"          (string, required) The private key (see dumpprivkey)\n"
             "2. Childkey number      (numeric, required) The number of the child key (0 is the first child key)\n"
+            "3. \"address_type\"     (string, optional) The address type to use. Options are \"legacy\", \"nonprivate\" and \"withviewkey\". Default is set by -addresstype. A nonprivate address will not use steath addresses when receiving coins.\n"
             "\nExamples:\n"
             + HelpExampleCli("getchildkeyforprivkey", "\"mykey\" 0") +
             "\nAs a JSON-RPC call\n"
@@ -431,13 +432,19 @@ UniValue getchildkeyforprivkey(const JSONRPCRequest& request)
 
     int nrkey = request.params[1].get_int();
 
+    OutputType output_type = pwallet->m_default_address_type;
+    if (!request.params[2].isNull()) {
+        if (!ParseOutputType(request.params[2].get_str(), output_type)) {
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, strprintf("Unknown address type '%s'", request.params[2].get_str()));
+        }
+    }
+
     CExtKey masterKey; 
     CExtKey childKey;
     masterKey.SetMaster(key.begin(), key.size());
     masterKey.Derive(childKey, nrkey);
 
     std::string label;
-    OutputType output_type = pwallet->m_default_address_type;
 
     CPubKey newKey = childKey.key.GetPubKey();
 
@@ -445,7 +452,7 @@ UniValue getchildkeyforprivkey(const JSONRPCRequest& request)
 
     CTxDestination dest = GetDestinationForKey(newKey, output_type);   
 
-    label=EncodeDestinationHasSecondKey(dest);
+    label = EncodeDestinationHasSecondKey(dest);
     pwallet->SetAddressBook(dest, label, "receive");
 
     CScript script;
@@ -464,12 +471,13 @@ UniValue getnumberofchildkeysforprivkey(const JSONRPCRequest& request)
         return NullUniValue;
     }
 
-    if (request.fHelp || request.params.size() < 1 || request.params.size() > 1)
+    if (request.fHelp || request.params.size() < 1 || request.params.size() > 2)
         throw std::runtime_error(
-            "getnumberofchildkeysforprivkey \"privkey\"\n"
+            "getnumberofchildkeysforprivkey \"privkey\" (address_type)\n"
             "\nReturns the number of childkeys for which there are addresses in the address book for a given private key.\n"
             "\nArguments:\n"
             "1. \"privkey\"          (string, required) The private key (see dumpprivkey)\n"
+            "2. \"address_type\"     (string, optional) The address type to use. Options are \"legacy\", \"nonprivate\" and \"withviewkey\". Default is set by -addresstype. A nonprivate address will not use steath addresses when receiving coins.\n"
             "\nExamples:\n"
             + HelpExampleCli("getnumberofchildkeysforprivkey", "\"mykey\"") +
             "\nAs a JSON-RPC call\n"
@@ -480,6 +488,13 @@ UniValue getnumberofchildkeysforprivkey(const JSONRPCRequest& request)
     std::string strSecret = request.params[0].get_str();
     CKey key = DecodeSecret(strSecret);
     if (!key.IsValid()) throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid private key encoding");
+
+    OutputType output_type = pwallet->m_default_address_type;
+    if (!request.params[1].isNull()) {
+        if (!ParseOutputType(request.params[1].get_str(), output_type)) {
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, strprintf("Unknown address type '%s'", request.params[1].get_str()));
+        }
+    }
     
     CExtKey masterKey; 
     CExtKey childKey;
@@ -493,10 +508,9 @@ UniValue getnumberofchildkeysforprivkey(const JSONRPCRequest& request)
        masterKey.Derive(childKey, nrkey);
 
        found = false;
-       for (const auto& dest : GetAllDestinationsForKey(childKey.key.GetPubKey())) {
-           if (pwallet->mapAddressBook.count(dest)) {
-               found=true;
-            }
+       CTxDestination dest = GetDestinationForKey(childKey.key.GetPubKey(), output_type, childKey.key.GetViewKeyForPrivateKey().GetPubKey());
+       if (pwallet->mapAddressBook.count(dest)) {
+           found = true;
        }
        if (found) nrkey++;
     } while (found);
