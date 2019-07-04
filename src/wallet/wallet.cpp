@@ -532,7 +532,7 @@ std::string CWallet::DecryptRefLineTxOut(CTxOut out) const
                 }
 
                 CKey key;
-                if (GetKey(pubkey.GetID(), key)) {
+                if (GetKey(pubkey.GetID(), key) || hasviewkey) {
                     char randprivkey[32];
                     memcpy(&randprivkey,out.randomPrivatKey,32);
                     if (hasviewkey) {
@@ -646,7 +646,7 @@ bool CWallet::GetRealAddressAsReceiver(CTxOut txout, CPubKey& recipientpubkey, b
             }
 
             CKey key;
-            if (GetKey(pubkey.GetID(), key)) {
+            if (GetKey(pubkey.GetID(), key) || hasviewkey) {
                 //std::cout << "have privkey; Pubkey in Address Book to check: " << HexStr(pubkey.begin(),pubkey.end()) << std::endl;
 
                 char randprivkey[32];
@@ -2241,7 +2241,7 @@ isminetype CWallet::IsMineForOneDestination(const CTxOut& txout, CTxDestination&
     if (ExtractCompletePubKey(*this, txout.scriptPubKey,onetimedestpubkey))
     {
         CKey key;
-        if (GetKey(pubkey.GetID(), key)) {
+        if (GetKey(pubkey.GetID(), key) || hasviewkey) {
 
             if (txout.isnonprivate)
             {
@@ -2316,13 +2316,13 @@ isminetype CWallet::IsMine(const CTxOut& txout, int nr)
                 }
 
                 CKey key;
-                if (GetKey(pubkey.GetID(), key)) {
+                if (GetKey(pubkey.GetID(), key) || hasviewkey) {
 
                     char randprivkey[32];
                     memcpy(&randprivkey,txout.randomPrivatKey,32);
                     CKey viewkey;
                     if (hasviewkey) {
-                        if (!GetKey(viewpubkey.GetID(), viewkey)) {                            
+                        if (!GetKey(viewpubkey.GetID(), viewkey)) {
                             //we do not store the view, so calculate it from the private key
                             viewkey = key.GetViewKeyForPrivateKey();
                         }
@@ -3707,7 +3707,7 @@ CAmount CWallet::GetLegacyBalance(const isminefilter& filter, int minDepth, cons
 
 
                                     CKey key;
-                                    if (GetKey(pubkey.GetID(), key)) {
+                                    if (GetKey(pubkey.GetID(), key) || hasviewkey) {
 
                                         char randprivkey[32];
                                         memcpy(&randprivkey,out.randomPrivatKey,32);
