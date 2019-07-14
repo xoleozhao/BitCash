@@ -763,6 +763,7 @@ UniValue getchildkeyforprivkey(const JSONRPCRequest& request)
 
     CExtKey masterKey; 
     CExtKey childKey;
+    CKey viewkey;
     masterKey.SetMaster(key.begin(), key.size());
     if (output_type == OutputType::WITHVIEWKEY)
     {    
@@ -772,7 +773,7 @@ UniValue getchildkeyforprivkey(const JSONRPCRequest& request)
             masterKey.Derive(childKey, i);
             i++;
         
-            CKey viewkey = childKey.key.GetViewKeyForPrivateKey();
+            viewkey = childKey.key.GetViewKeyForPrivateKey();
             if (viewkey.IsValid()) {
                 numkeysfound++;
             }
@@ -784,7 +785,7 @@ UniValue getchildkeyforprivkey(const JSONRPCRequest& request)
     std::string label;
 
     CPubKey newKey = childKey.key.GetPubKey();
-    CTxDestination dest = GetDestinationForKey(newKey, output_type);   
+    CTxDestination dest = GetDestinationForKey(newKey, output_type, viewkey.GetPubKey());
 
     if (output_type == OutputType::WITHVIEWKEY) {
         ImportAddress(pwallet, dest, EncodeDestinationHasSecondKey(dest));
