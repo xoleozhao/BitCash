@@ -5077,10 +5077,23 @@ bool CWallet::CreateTransactionToMe(uint256& txid,int outnr, CKey key, CAmount n
             CScript scriptChange;
             CPubKey pubkeyforchange;
 
+            bool isnonprivate = false;
+            bool hasviewkey = false;
+            CPubKey viewpubkey;
             if (onlyfromoneaddress) {
                 pubkeyforchange = GetSecondPubKeyForDestination(fromaddress);
+                isnonprivate = GetNonPrivateForDestination(fromaddress);
+                hasviewkey = GetHasViewKeyForDestination(fromaddress);
+                viewpubkey = GetViewPubKeyForDestination(fromaddress);
             } else {
                 pubkeyforchange = GetCurrentAddressPubKey();
+                CTxDestination dest;
+    
+                if (GetLabelDestination(dest, "")) {
+                    isnonprivate = GetNonPrivateForDestination(dest);
+                    hasviewkey = GetHasViewKeyForDestination(dest);
+                    viewpubkey = GetViewPubKeyForDestination(dest);
+                }
             }
             scriptChange = GetScriptForRawPubKey(pubkeyforchange);
 
@@ -5095,7 +5108,7 @@ bool CWallet::CreateTransactionToMe(uint256& txid,int outnr, CKey key, CAmount n
                 txNew.vout.clear();
 
                 CTxOut txout(nValue, scriptChange, tocurrency);
-                if (!FillTxOutForTransaction(txout, pubkeyforchange, refline, tocurrency, false, false, CPubKey(), txNew.nVersion >= 6)){
+                if (!FillTxOutForTransaction(txout, pubkeyforchange, refline, tocurrency, isnonprivate, hasviewkey, viewpubkey, txNew.nVersion >= 6)){
                     strFailReason = _("Can not get private key");
                     return false;
                 }
