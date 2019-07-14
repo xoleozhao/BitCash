@@ -753,7 +753,7 @@ bool CWallet::DoesTxOutBelongtoPrivKeyCalcOneTimePrivate(const CTxOut& txout, CK
 
         char randprivkey[32];
         memcpy(&randprivkey,txout.randomPrivatKey,32);
-        DecryptPrivateKey((unsigned char*)&randprivkey,txout.randomPubKey,key);
+        DecryptPrivateKey((unsigned char*)&randprivkey, txout.randomPubKey, key);
 
         std::vector<unsigned char> vec(randprivkey, randprivkey + 32);
 
@@ -769,6 +769,26 @@ bool CWallet::DoesTxOutBelongtoPrivKeyCalcOneTimePrivate(const CTxOut& txout, CK
   */
             if (otpk.IsValid())
             return true;
+        } else {
+            //Test if it is a address with a view key
+            memcpy(&randprivkey,txout.randomPrivatKey,32);
+            DecryptPrivateKey((unsigned char*)&randprivkey, txout.randomPubKey, key.GetViewKeyForPrivateKey());
+
+            std::vector<unsigned char> vec(randprivkey, randprivkey + 32);
+
+            CKey privkey;
+            privkey.Set(vec.begin(),vec.end(),true);
+            CPubKey destinationPubKey = CalculateOnetimeDestPubKey(pubkey, privkey, false, txout.masterkeyisremoved);
+            if (onetimedestpubkey == destinationPubKey) {
+                otpk = CalculateOnetimeDestPrivateKey(key, privkey, txout.masterkeyisremoved);
+    /*
+                std::cout << "2.otpk: " << HexStr(otpk.begin(),otpk.end()) << std::endl;
+                std::cout << "2.otpk pub: " << HexStr(otpk.GetPubKey().begin(),otpk.GetPubKey().end()) << std::endl;
+                std::cout << "2.onetimedestpubkey: " << HexStr(onetimedestpubkey.begin(),onetimedestpubkey.end()) << std::endl;
+ */
+                if (otpk.IsValid())
+                return true;
+            }
         }
     }
 
