@@ -521,11 +521,12 @@ static UniValue createprivatekeyandaddress(const JSONRPCRequest& request)
         return NullUniValue;
     }
 
-    if (request.fHelp || request.params.size() > 2)
+    if (request.fHelp || request.params.size() > 1)
         throw std::runtime_error(
-            "createprivatekeyandaddress\n"
+            "createprivatekeyandaddress (address_type)\n"
             "\nReturns a new Bitcash address and the private key for the new address.\n"
             "The new address will not be added to the wallet or address book.\n"
+            "1. \"address_type\"         (string, optional) The address type to use. Options are \"legacy\", \"nonprivate\" and \"withviewkey\". Default is set by -addresstype. A nonprivate address will not use steath addresses when receiving coins.\n"
             "\nResult:\n"
             "\"address\"    (string) The new bitcash address\n"
             "\"privatekey\" (string) The private key for the new address\n"
@@ -534,19 +535,37 @@ static UniValue createprivatekeyandaddress(const JSONRPCRequest& request)
             + HelpExampleRpc("createprivatekeyandaddress", "")
         );
 
-    LOCK2(cs_main, pwallet->cs_wallet);
-
     std::string label;
     OutputType output_type = pwallet->m_default_address_type;
+    if (!request.params[0].isNull()) {
+        if (!ParseOutputType(request.params[0].get_str(), output_type)) {
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, strprintf("Unknown address type '%s'", request.params[0].get_str()));
+        }
+    }
+
 
     // Generate a new key that is NOT added to wallet
     CKey secret;
     secret.MakeNewKey(true);
     CPubKey newKey = secret.GetPubKey();
 
-    pwallet->LearnRelatedScripts(newKey, output_type);
+    CPubKey viewpubkey;
+    if (output_type == OutputType::WITHVIEWKEY)
+    {    
+        bool foundvalidviewkey = false;
+        while (!foundvalidviewkey) {
+            CKey viewkey = secret.GetViewKeyForPrivateKey();
+            if (viewkey.IsValid()) {
+                viewpubkey = viewkey.GetPubKey();
+                foundvalidviewkey = true;
+            } else {
+                secret.MakeNewKey(true);
+                newKey = secret.GetPubKey();
+            }
+        } 
+    }
 
-    CTxDestination dest = GetDestinationForKey(newKey, output_type);
+    CTxDestination dest = GetDestinationForKey(newKey, output_type, viewpubkey);
    
     UniValue result(UniValue::VOBJ);
     result.pushKV("address", EncodeDestinationHasSecondKey(dest));
@@ -2471,10 +2490,10 @@ static UniValue sendtoaddresswithprivkey(const JSONRPCRequest& request)
 
     EnsureWalletIsUnlocked(pwallet);
 
-        CPubKey pubkey = key.GetPubKey();
-        CTxDestination destfrom=GetDestinationForKey(pubkey, OutputType::LEGACY);
+    CPubKey pubkey = key.GetPubKey();
+    CTxDestination destfrom=GetDestinationForKey(pubkey, OutputType::LEGACY);
 //        std::string str=EncodeDestinationHasSecondKey(destfrom);
-        assert(key.VerifyPubKey(pubkey));
+    assert(key.VerifyPubKey(pubkey));
 //std::cout << str << std::endl;
 
 
@@ -3146,7 +3165,7 @@ static UniValue getbalanceforaddress(const JSONRPCRequest& request)
             nmode = mode.get_int();    
     }
     bool include_watchonly=false;
-    if (!request.params[1].isNull())
+    if (!request.params[2].isNull())
     include_watchonly = request.params[2].get_bool();
 
     int currency = 0;
@@ -7256,6 +7275,15 @@ UniValue getaddressinfo(const JSONRPCRequest& request)
     isminetype mine = IsMine(*pwallet, dest);
     ret.pushKV("ismine", bool(mine & ISMINE_SPENDABLE));
     ret.pushKV("iswatchonly", bool(mine & ISMINE_WATCH_ONLY));
+    if ((mine & ISMINE_WATCH_ONLY) && GetHasViewKeyForDestination(dest))
+    {
+        CPubKey viewpubkey = GetViewPubKeyForDestination(dest);
+        ret.pushKV("viewpubkey", EncodeDestinationHasSecondKey(GetDestinationForKey(viewpubkey, OutputType::LEGACY)));
+        CKey key;
+        bool havekey = pwallet->GetKey(viewpubkey.GetID(), key);
+        ret.pushKV("haveviewkey", havekey);
+    }
+
     UniValue detail = DescribeWalletAddress(pwallet, dest);
     ret.pushKVs(detail);
     if (pwallet->mapAddressBook.count(dest)) {
@@ -7487,6 +7515,7 @@ extern UniValue dumpviewkey(const JSONRPCRequest& request); // in rpcdump.cpp
 extern UniValue importprivkey(const JSONRPCRequest& request);
 extern UniValue importviewkey(const JSONRPCRequest& request);
 extern UniValue getaddressforprivkey(const JSONRPCRequest& request);
+extern UniValue getviewkeyforprivkey(const JSONRPCRequest& request);
 extern UniValue getaddressforpubkey(const JSONRPCRequest& request);
 extern UniValue importprivkeysfromfile(const JSONRPCRequest& request);
 extern UniValue importaddress(const JSONRPCRequest& request);
@@ -7518,7 +7547,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "claimcoinsfromlink",               &claimcoinsfromlink,            {"link"} },
     { "wallet",             "createcoinbaseforaddress",         &createcoinbaseforaddress,      {"address", "blockheight"} },
     { "wallet",             "createcoinbaseforaddresswithpoolfee",&createcoinbaseforaddresswithpoolfee,    {"address", "blockheight", "pooladdress", "poolfeepermille"} },
-    { "wallet",             "createprivatekeyandaddress",       &createprivatekeyandaddress,    {} },
+    { "wallet",             "createprivatekeyandaddress",       &createprivatekeyandaddress,    {"address_type"} },
 
     { "wallet",             "dumpprivkey",                      &dumpprivkey,                   {"address"}  },
     { "wallet",             "dumpviewkey",                      &dumpviewkey,                   {"address"}  },
@@ -7530,11 +7559,12 @@ static const CRPCCommand commands[] =
     { "wallet",             "getbalanceforcurrency",            &getbalance,                    {"currency", "account","minconf","include_watchonly"} },
     { "wallet",             "getaddressfornickname",            &getaddressfornickname,             {} },
     { "wallet",             "getaddressforpubkey",              &getaddressforpubkey,           {"pubkey"} },
-    { "wallet",             "getaddressforprivkey",             &getaddressforprivkey,          {"privkey"} },
-    { "wallet",             "getchildkeyforprivkey",            &getchildkeyforprivkey,         {"privkey", "childkeynumber"} },
+    { "wallet",             "getaddressforprivkey",             &getaddressforprivkey,          {"privkey", "address_type"} },
+    { "wallet",             "getviewkeyforprivkey",             &getviewkeyforprivkey,          {"privkey"} },
+    { "wallet",             "getchildkeyforprivkey",            &getchildkeyforprivkey,         {"privkey", "childkeynumber", "address_type"} },
     { "wallet",             "getinfoaboutlink",                 &getinfoaboutlink,              {"link"} },
     { "wallet",             "getnicknameforaddress",            &getnicknameforaddress,             {} },
-    { "wallet",             "getnumberofchildkeysforprivkey",   &getnumberofchildkeysforprivkey,{"privkey"} },
+    { "wallet",             "getnumberofchildkeysforprivkey",   &getnumberofchildkeysforprivkey,{"privkey", "address_type"} },
     { "wallet",             "getcurrentaddress",                &getcurrentaddress,             {} },
     { "wallet",             "getcurrentnickname",               &getcurrentnickname,             {} },
     { "wallet",             "getnewaddress",                    &getnewaddress,                 {"label|account","address_type"} },

@@ -532,7 +532,7 @@ std::string CWallet::DecryptRefLineTxOut(CTxOut out) const
                 }
 
                 CKey key;
-                if (GetKey(pubkey.GetID(), key)) {
+                if (GetKey(pubkey.GetID(), key) || hasviewkey) {
                     char randprivkey[32];
                     memcpy(&randprivkey,out.randomPrivatKey,32);
                     if (hasviewkey) {
@@ -646,7 +646,7 @@ bool CWallet::GetRealAddressAsReceiver(CTxOut txout, CPubKey& recipientpubkey, b
             }
 
             CKey key;
-            if (GetKey(pubkey.GetID(), key)) {
+            if (GetKey(pubkey.GetID(), key) || hasviewkey) {
                 //std::cout << "have privkey; Pubkey in Address Book to check: " << HexStr(pubkey.begin(),pubkey.end()) << std::endl;
 
                 char randprivkey[32];
@@ -2241,7 +2241,8 @@ isminetype CWallet::IsMineForOneDestination(const CTxOut& txout, CTxDestination&
     if (ExtractCompletePubKey(*this, txout.scriptPubKey,onetimedestpubkey))
     {
         CKey key;
-        if (GetKey(pubkey.GetID(), key)) {
+        bool havekey = GetKey(pubkey.GetID(), key);
+        if (havekey || hasviewkey) {
 
             if (txout.isnonprivate)
             {
@@ -2269,7 +2270,10 @@ isminetype CWallet::IsMineForOneDestination(const CTxOut& txout, CTxDestination&
                 privkey.Set(vec.begin(),vec.end(),true);
                 CPubKey destinationPubKey=CalculateOnetimeDestPubKey(pubkey, privkey, false, txout.masterkeyisremoved);
                 if (onetimedestpubkey==destinationPubKey) {                
-                    return ISMINE_SPENDABLE;
+                    if (havekey)
+                        return ISMINE_SPENDABLE;
+                    else
+                       return ISMINE_WATCH_ONLY;                    
                 }
             }
         }
@@ -2316,13 +2320,14 @@ isminetype CWallet::IsMine(const CTxOut& txout, int nr)
                 }
 
                 CKey key;
-                if (GetKey(pubkey.GetID(), key)) {
+                bool havekey = GetKey(pubkey.GetID(), key);
+                if (havekey || hasviewkey) {
 
                     char randprivkey[32];
                     memcpy(&randprivkey,txout.randomPrivatKey,32);
                     CKey viewkey;
                     if (hasviewkey) {
-                        if (!GetKey(viewpubkey.GetID(), viewkey)) {                            
+                        if (!GetKey(viewpubkey.GetID(), viewkey)) {
                             //we do not store the view, so calculate it from the private key
                             viewkey = key.GetViewKeyForPrivateKey();
                         }
@@ -2337,15 +2342,44 @@ isminetype CWallet::IsMine(const CTxOut& txout, int nr)
                     privkey.Set(vec.begin(),vec.end(),true);
                     CPubKey destinationPubKey = CalculateOnetimeDestPubKey(pubkey, privkey, false, txout.masterkeyisremoved);
                     if (onetimedestpubkey == destinationPubKey) {
-                        CKey otpk = CalculateOnetimeDestPrivateKey(key, privkey, txout.masterkeyisremoved);  
+                        if (!havekey) {
+                            SetStealthAddress(txout.scriptPubKey, pubkey);
+                            if (hasviewkey) SetViewkeyStealthAddress(txout.scriptPubKey, viewpubkey);
+                            accountforscript[txout.scriptPubKey] = item.second.name;
 
-                        AddKeyPubKeyWithDB(batch, otpk, destinationPubKey);
-                        SetStealthAddress(txout.scriptPubKey, pubkey);
-                        if (hasviewkey) SetViewkeyStealthAddress(txout.scriptPubKey, viewpubkey);
-                        accountforscript[txout.scriptPubKey] = item.second.name;
+                            res = IsMineBasic(txout,4);
 
-                        res = IsMineBasic(txout,4);
-                        found = true;
+                            CTxDestination dest = GetDestinationForKey(pubkey, OutputType::WITHVIEWKEY);
+                            CTxOut txout2 = txout;
+                            txout2.scriptPubKey = GetScriptForRawPubKey(pubkey);
+                            res=IsMineBasic(txout2,88);
+
+                            if (res & ISMINE_WATCH_ONLY) {
+                                std::string strLabel = mapAddressBook[dest].name;
+                                CTxDestination dest2 = GetDestinationForKey(onetimedestpubkey, OutputType::WITHVIEWKEY);
+                                if (!HaveWatchOnly(txout.scriptPubKey)) {
+                                    AddWatchOnly(txout.scriptPubKey, 0 /* nCreateTime */);
+                                }
+/*                                if (IsValidDestination(dest2)) {
+                                    SetAddressBook(dest2, strLabel, "receive");
+                                }*/
+                                res=IsMineBasic(txout,89);
+                            }
+
+                            found = true;
+                        } else 
+                        {
+                            CKey otpk = CalculateOnetimeDestPrivateKey(key, privkey, txout.masterkeyisremoved);  
+
+                            AddKeyPubKeyWithDB(batch, otpk, destinationPubKey);
+                            SetStealthAddress(txout.scriptPubKey, pubkey);
+                            if (hasviewkey) SetViewkeyStealthAddress(txout.scriptPubKey, viewpubkey);
+                            accountforscript[txout.scriptPubKey] = item.second.name;
+
+                            res = IsMineBasic(txout,4);
+
+                            found = true;
+                        }
                     }
                 }
                 if (!found) {
@@ -3707,7 +3741,7 @@ CAmount CWallet::GetLegacyBalance(const isminefilter& filter, int minDepth, cons
 
 
                                     CKey key;
-                                    if (GetKey(pubkey.GetID(), key)) {
+                                    if (GetKey(pubkey.GetID(), key) || hasviewkey) {
 
                                         char randprivkey[32];
                                         memcpy(&randprivkey,out.randomPrivatKey,32);
