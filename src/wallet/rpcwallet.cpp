@@ -872,6 +872,30 @@ static UniValue getlabeladdress(const JSONRPCRequest& request)
     return ret;
 }
 
+static UniValue listaddressbook(const JSONRPCRequest& request)
+{
+    CWallet * const pwallet = GetWalletForJSONRPCRequest(request);
+    if (!EnsureWalletIsAvailable(pwallet, request.fHelp)) {
+        return NullUniValue;
+    }
+
+    if (request.fHelp || request.params.size() != 0)
+        throw std::runtime_error(
+            "listaddressbook\n"
+            "\nLists all addresses which are in the address book.\n"
+            "\nExamples:\n"
+            + HelpExampleCli("listaddressbook", "")
+            + HelpExampleRpc("listaddressbook", "")
+        );
+
+
+    UniValue ret(UniValue::VOBJ);
+    for (const std::pair<CTxDestination, CAddressBookData>& item : pwallet->mapAddressBook) {
+        ret.pushKV(item.second.name, EncodeDestinationHasSecondKey(item.first));
+    }    
+    return ret;
+}
+
 
 
 static UniValue getrawchangeaddress(const JSONRPCRequest& request)
@@ -7586,6 +7610,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "importprunedfunds",                &importprunedfunds,             {"rawtransaction","txoutproof"} },
     { "wallet",             "importpubkey",                     &importpubkey,                  {"pubkey","label","rescan"} },
     { "wallet",             "keypoolrefill",                    &keypoolrefill,                 {"newsize"} },
+    { "wallet",             "listaddressbook",                  &listaddressbook,               {} },
     { "wallet",             "listaddressgroupings",             &listaddressgroupings,          {} },
     { "wallet",             "listlockunspent",                  &listlockunspent,               {} },
     { "wallet",             "listreceivedbyaddress",            &listreceivedbyaddress,         {"minconf","include_empty","include_watchonly","address_filter"} },
