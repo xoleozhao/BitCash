@@ -785,7 +785,10 @@ UniValue getchildkeyforprivkey(const JSONRPCRequest& request)
     std::string label;
 
     CPubKey newKey = childKey.key.GetPubKey();
-    CTxDestination dest = GetDestinationForKey(newKey, output_type, viewkey.GetPubKey());
+    CTxDestination dest;
+    if (viewkey.IsValid())
+    dest = GetDestinationForKey(newKey, output_type, viewkey.GetPubKey());else
+    dest = GetDestinationForKey(newKey, output_type);
 
     if (output_type == OutputType::WITHVIEWKEY) {
         ImportAddress(pwallet, dest, EncodeDestinationHasSecondKey(dest));
