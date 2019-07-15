@@ -2883,84 +2883,96 @@ void CWalletTx::GetAmountsForAddress(CTxDestination dest, std::list<COutputEntry
         CAmount nValueOut = tx->GetValueOut();
         nFee = nDebit - nValueOut;
     }
-
+    bool foundnonchangeout = false;
     // Sent/received.
-    for (unsigned int i = 0; i < tx->vout.size(); ++i)
+    int loopnr = 0;
+    while ((nDebit <= 0 && loopnr == 0 ) || (nDebit > 0 && !foundnonchangeout && loopnr < 2))
     {
-        const CTxOut& txout = tx->vout[i];
-        if (txout.currency != currency && currency != 255) continue;//255 -> all currencies
-        isminetype fIsMine = ISMINE_NO;
-        // Only need to handle txouts if AT LEAST one of these is true:
-        //   1) they debit from us (sent)
-        //   2) the output is to us (received)
-        if (nDebit > 0)
+
+        for (unsigned int i = 0; i < tx->vout.size(); ++i)
         {
-            // Don't report 'change' txouts
-            if (pwallet->IsChangeForAddress(dest, txout)) {
-                continue;
-            }
-        }
-        else {
-            fIsMine = pwallet->IsMineForOneDestination(txout,dest);
-            if (fIsMine==ISMINE_NO)
-            continue;
-        }
+            const CTxOut& txout = tx->vout[i];
 
-        // In either case, we need to get the destination address
-        CTxDestination address;
-
-        if (!ExtractDestination(txout.scriptPubKey, address) && !txout.scriptPubKey.IsUnspendable())
-        {
-            LogPrintf("CWalletTx::GetAmounts: Unknown transaction type found, txid %s\n",
-                     this->GetHash().ToString());
-            address = CNoDestination();
-        }
-
-
-        std::string referenceline="";
-        CPubKey pubkey;
-        CPubKey viewkey;
-        bool hasviewkey;
-
-        if (hasMasterPrivatKey && pwallet->GetRealAddressAndRefline(txout,pubkey,referenceline,"",false))
-        {         
-            address = pubkey.GetID();
-            SetSecondPubKeyForDestination(address,pubkey);
-        } else {
-            referenceline = DecryptRefLineTxOut(txout);
-
-            if (nDebit > 0 && pwallet->GetRealAddressAsSender(txout, pubkey, hasviewkey, viewkey)){
-                address = pubkey.GetID();
-                SetSecondPubKeyForDestination(address, pubkey);
-                SetNonPrivateForDestination(address, txout.isnonprivate);
-
-                if (hasviewkey) {
-                    SetHasViewKeyForDestination(address, hasviewkey);
-                    SetViewPubKeyForDestination(address, viewkey);
+            if (txout.currency != currency && currency != 255) continue;//255 -> all currencies
+            isminetype fIsMine = ISMINE_NO;
+            // Only need to handle txouts if AT LEAST one of these is true:
+            //   1) they debit from us (sent)
+            //   2) the output is to us (received)
+            if (nDebit > 0)
+            {
+                // Don't report 'change' txouts
+                // if all outputs are to the sender address, report them in the second loop, 
+                // so that the transaction is displayed in the web wallet
+                if (txout.nValue == txout.nValueBitCash && pwallet->IsChangeForAddress(dest, txout) && loopnr == 0) {
+                    continue;
                 }
-            } else
-        	if (pwallet->GetRealAddressAsReceiver(txout, pubkey, hasviewkey, viewkey)){
-                address = pubkey.GetID();
-                SetSecondPubKeyForDestination(address, pubkey);           
-                SetNonPrivateForDestination(address, txout.isnonprivate);
-
-                if (hasviewkey) {
-                    SetHasViewKeyForDestination(address, hasviewkey);
-                    SetViewPubKeyForDestination(address, viewkey);
+                foundnonchangeout = true;
+            }
+            else {
+                fIsMine = pwallet->IsMineForOneDestination(txout,dest);
+                if (fIsMine==ISMINE_NO) {
+                    continue;
                 }
             }
+
+            // In either case, we need to get the destination address
+            CTxDestination address;
+
+            if (!ExtractDestination(txout.scriptPubKey, address) && !txout.scriptPubKey.IsUnspendable())
+            {
+                LogPrintf("CWalletTx::GetAmounts: Unknown transaction type found, txid %s\n",
+                         this->GetHash().ToString());
+                address = CNoDestination();
+            }
+
+
+            std::string referenceline="";
+            CPubKey pubkey;
+            CPubKey viewkey;
+            bool hasviewkey;
+    
+            if (hasMasterPrivatKey && pwallet->GetRealAddressAndRefline(txout,pubkey,referenceline,"",false))
+            {         
+                address = pubkey.GetID();
+                SetSecondPubKeyForDestination(address,pubkey);
+            } else {
+                referenceline = DecryptRefLineTxOut(txout);
+  
+                if (nDebit > 0 && pwallet->GetRealAddressAsSender(txout, pubkey, hasviewkey, viewkey)){
+                    address = pubkey.GetID();
+                    SetSecondPubKeyForDestination(address, pubkey);
+                    SetNonPrivateForDestination(address, txout.isnonprivate);
+
+                    if (hasviewkey) {
+                        SetHasViewKeyForDestination(address, hasviewkey);
+                        SetViewPubKeyForDestination(address, viewkey);
+                    }
+                } else
+            	if (pwallet->GetRealAddressAsReceiver(txout, pubkey, hasviewkey, viewkey)){
+                    address = pubkey.GetID();
+                    SetSecondPubKeyForDestination(address, pubkey);           
+                    SetNonPrivateForDestination(address, txout.isnonprivate);
+
+                    if (hasviewkey) {
+                        SetHasViewKeyForDestination(address, hasviewkey);
+                        SetViewPubKeyForDestination(address, viewkey);
+                    }
+                }
+            }
+
+            COutputEntry output = {address, txout.nValue, (int)i, referenceline, txout.currency, txout.isnonprivate};
+
+            // If we are debited by the transaction, add the output as a "sent" entry
+            if (nDebit > 0) {
+                listSent.push_back(output);
+            }
+
+            // If we are receiving the output, add it as a "received" entry
+            if (fIsMine!=ISMINE_NO) {
+                listReceived.push_back(output);
+            }
         }
-
-        COutputEntry output = {address, txout.nValue, (int)i, referenceline, txout.currency, txout.isnonprivate};
-
-        // If we are debited by the transaction, add the output as a "sent" entry
-        if (nDebit > 0) {
-            listSent.push_back(output);
-        }
-
-        // If we are receiving the output, add it as a "received" entry
-        if (fIsMine!=ISMINE_NO)
-            listReceived.push_back(output);
+        loopnr++;
     }
 
 }
