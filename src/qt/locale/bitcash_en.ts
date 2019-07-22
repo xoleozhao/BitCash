@@ -90,7 +90,7 @@
     </message>
     <message>
         <location line="+5"/>
-        <source>These are your Bitcash addresses for receiving payments. It is recommended to use a new receiving address for each transaction.</source>
+        <source>These are your Bitcash addresses for receiving payments.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -175,7 +175,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../askpassphrasedialog.cpp" line="+46"/>
+        <location filename="../askpassphrasedialog.cpp" line="+47"/>
         <source>Enter the new passphrase to the wallet.&lt;br/&gt;Please use a passphrase of &lt;b&gt;ten or more random characters&lt;/b&gt;, or &lt;b&gt;eight or more words&lt;/b&gt;.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -186,11 +186,13 @@
     </message>
     <message>
         <location line="+3"/>
+        <location line="+8"/>
         <source>This operation needs your wallet passphrase to unlock the wallet.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+5"/>
+        <location line="-3"/>
+        <location line="+8"/>
         <source>Unlock wallet</source>
         <translation type="unfinished"></translation>
     </message>
@@ -215,7 +217,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+45"/>
+        <location line="+47"/>
         <source>Confirm wallet encryption</source>
         <translation type="unfinished"></translation>
     </message>
@@ -236,42 +238,42 @@
     </message>
     <message>
         <location line="+9"/>
-        <location line="+58"/>
+        <location line="+71"/>
         <source>Wallet encrypted</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-52"/>
+        <location line="-65"/>
         <source>IMPORTANT: Any previous backups you have made of your wallet file should be replaced with the newly generated, encrypted wallet file. For security reasons, previous backups of the unencrypted wallet file will become useless as soon as you start using the new, encrypted wallet.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+9"/>
         <location line="+7"/>
-        <location line="+42"/>
+        <location line="+55"/>
         <location line="+6"/>
         <source>Wallet encryption failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-54"/>
+        <location line="-67"/>
         <source>Wallet encryption failed due to an internal error. Your wallet was not encrypted.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+7"/>
-        <location line="+48"/>
+        <location line="+61"/>
         <source>The supplied passphrases do not match.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-37"/>
+        <location line="-50"/>
         <source>Wallet unlock failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+1"/>
-        <location line="+11"/>
+        <location line="+24"/>
         <location line="+19"/>
         <source>The passphrase entered for the wallet decryption was incorrect.</source>
         <translation type="unfinished"></translation>
@@ -287,9 +289,110 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+47"/>
+        <location line="+48"/>
         <location line="+33"/>
         <source>Warning: The Caps Lock key is on!</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Backupwallet</name>
+    <message>
+        <location filename="../forms/Backupwallet.qml" line="+133"/>
+        <source>There are 2 ways to backup your wallet. 1. You can save a wallet.dat file and 2. You can print your private key / paper wallet. We suggest you do both and keep them both safe.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+45"/>
+        <source>Your public address is the address you can share with other people. The private key should never be shared with anyone otherwise they will have access to all your BitCash. This Private key can be imported later on to access your coins.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+30"/>
+        <source>Public address</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>(to receive coins)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Backup your wallet using *.DAT file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>Backup your wallet using Paper wallet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+57"/>
+        <location line="+223"/>
+        <source>Private key</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-210"/>
+        <location line="+223"/>
+        <source>(to spend coins)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-210"/>
+        <source>Print</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+24"/>
+        <source>Download your file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+30"/>
+        <location line="+29"/>
+        <source>Copy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+32"/>
+        <source>Restore your wallet using *.DAT file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>Copy your *.DAT file to following directory:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+44"/>
+        <source>Restore your wallet using Paper wallet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>Paste your private key saved on your paper wallet. The import will take some time.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+57"/>
+        <source>Restore from private key</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+42"/>
+        <source>Secure your wallet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+25"/>
+        <source>Backup wallet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+29"/>
+        <source>Restore wallet</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -307,9 +410,22 @@
     </message>
 </context>
 <context>
+    <name>BitcashApplication</name>
+    <message>
+        <location filename="../bitcash.cpp" line="+475"/>
+        <source>Password was wrong</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>The wallet can not start without the correct password. The program will close now.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>BitcashGUI</name>
     <message>
-        <location filename="../bitcashgui.cpp" line="+137"/>
+        <location filename="../bitcashgui.cpp" line="+2563"/>
         <source>Wallet</source>
         <translation type="unfinished">Wallet</translation>
     </message>
@@ -319,7 +435,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+144"/>
+        <location line="+287"/>
         <source>&amp;Overview</source>
         <translation type="unfinished">&amp;Overview</translation>
     </message>
@@ -359,7 +475,37 @@
         <translation type="unfinished">Browse transaction history</translation>
     </message>
     <message>
-        <location line="+23"/>
+        <location line="+6"/>
+        <source>&amp;BitCash Express</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Send and receive BitCash via link</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>&amp;Mining</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Mine BitCash</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>&amp;Nicknames</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Register a nickname</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+31"/>
         <source>E&amp;xit</source>
         <translation type="unfinished">E&amp;xit</translation>
     </message>
@@ -407,6 +553,66 @@
         <location line="+1"/>
         <source>Show or hide the main Window</source>
         <translation type="unfinished">Show or hide the main Window</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>&amp;Create a new paper wallet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Create a paper wallet for save long term storage of your BitCash</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>&amp;Import / Restore from paper wallet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Import a private key from a paper wallet to add your BitCash to the main wallet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>&amp;Try to solve syncing issues</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Removes the invalid flag of all blocks. Tries to resolve syncing issues for example after a hard fork. </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>&amp;Resend wallet transactions</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>This command will broadcast all transaction in the mempool to the peers immediately. </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>&amp;Backup wallet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Make a backup copy of your wallet.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>&amp;Export transactions...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Export the transaction as CSV file</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+2"/>
@@ -519,12 +725,27 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+42"/>
+        <location line="+55"/>
         <source>&amp;File</source>
         <translation type="unfinished">&amp;File</translation>
     </message>
     <message>
         <location line="+16"/>
+        <source>&amp;Paper wallet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>&amp;Minimize to tray</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>&amp;Repair</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
         <source>&amp;Settings</source>
         <translation type="unfinished">&amp;Settings</translation>
     </message>
@@ -534,22 +755,17 @@
         <translation type="unfinished">&amp;Help</translation>
     </message>
     <message>
-        <location line="+15"/>
-        <source>Tabs toolbar</source>
-        <translation type="unfinished">Tabs toolbar</translation>
-    </message>
-    <message>
-        <location line="+94"/>
+        <location line="+115"/>
         <source>Wallet:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+47"/>
+        <location line="+50"/>
         <source>%1 client</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location line="+155"/>
+        <location line="+191"/>
         <source>%n active connection(s) to Bitcash network</source>
         <translation type="unfinished">
             <numerusform></numerusform>
@@ -572,17 +788,17 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+27"/>
+        <location line="+78"/>
         <source>Syncing Headers (%1%)...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+26"/>
+        <location line="+27"/>
         <source>Synchronizing with network...</source>
         <translation type="unfinished">Synchronizing with network...</translation>
     </message>
     <message>
-        <location line="+5"/>
+        <location line="+6"/>
         <source>Indexing blocks on disk...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -615,12 +831,13 @@
         <translation type="unfinished">Up to date</translation>
     </message>
     <message>
-        <location line="+19"/>
+        <location line="+20"/>
+        <location line="+1"/>
         <source>%1 behind</source>
         <translation type="unfinished">%1 behind</translation>
     </message>
     <message>
-        <location line="+5"/>
+        <location line="+6"/>
         <source>Catching up...</source>
         <translation type="unfinished">Catching up...</translation>
     </message>
@@ -640,12 +857,175 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+14"/>
+        <location line="-3112"/>
+        <location line="+5"/>
+        <location line="+3121"/>
         <source>Error</source>
         <translation type="unfinished">Error</translation>
     </message>
     <message>
+        <location line="-3337"/>
+        <source>Print eStatement</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+180"/>
+        <location line="+77"/>
+        <location line="+141"/>
+        <source>Print Document</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-187"/>
+        <source>Resulting URI too long, try to reduce the text for label / message.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Error encoding URI into QR Code.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+80"/>
+        <source>Could not create link.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+430"/>
+        <source>Could not start miner</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Could not start bitcashminer.exe.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+112"/>
+        <source>Amount transferred into BitCash: %1
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Amount transferred into Dollars: %1
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Order executed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+124"/>
+        <source>The recipient address is not valid. Please recheck.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location line="+3"/>
+        <source>The amount to pay must be larger than 0.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>The amount exceeds your balance.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>The total exceeds your balance when the %1 transaction fee is included.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Duplicate address found: addresses should only be used once each.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Transaction creation failed!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>The transaction was rejected with the following reason: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>A fee higher than %1 is considered an absurdly high fee.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Payment request expired.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>Send Coins</source>
+        <translation type="unfinished">Send Coins</translation>
+    </message>
+    <message>
+        <location line="+852"/>
+        <source>from wallet %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <location line="+5"/>
+        <location line="+5"/>
+        <location line="+4"/>
+        <source>%1 to %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Are you sure you want to send?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+11"/>
+        <source>added as transaction fee</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <location line="+4"/>
+        <source>Total Amount %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+15"/>
+        <source>Confirm send coins</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+213"/>
+        <location line="+9"/>
+        <source>New version available</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-8"/>
+        <location line="+9"/>
+        <source>This new version of the wallet is now available: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-8"/>
+        <location line="+9"/>
+        <source> You are using this version: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-8"/>
+        <source> Do you want to start the download of the new version? </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1191"/>
         <source>Warning</source>
         <translation type="unfinished">Warning</translation>
     </message>
@@ -721,7 +1101,7 @@
         <translation type="unfinished">Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;locked&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="../bitcash.cpp" line="+522"/>
+        <location filename="../bitcash.cpp" line="+99"/>
         <source>A fatal error occurred. Bitcash can no longer continue safely and will quit.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1176,6 +1556,272 @@
     </message>
 </context>
 <context>
+    <name>LinksPage</name>
+    <message>
+        <location filename="../forms/linkspage.ui" line="+14"/>
+        <source>Form</source>
+        <translation type="unfinished">Form</translation>
+    </message>
+    <message>
+        <location line="+18"/>
+        <source>Here you can create a link to send coins via email or messenger. You can enter the amount you want to send here.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Reference line:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Amount:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Send coins via link</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+11"/>
+        <source>Created links:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Copy selected link</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+25"/>
+        <source>Here you can paste a link which you have received to claim the coins.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+14"/>
+        <source>Paste a link here:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Claim coins from link</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Make a copy of the created links before you close this program. Otherwise the coins will be lost forever!!!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Paste link from clipboard</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../linkspage.cpp" line="+161"/>
+        <source>Could not claim the coins</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Coins claimed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>A transaction with the coins from the link been successfully created.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+14"/>
+        <source>Could not create link</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Link created</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>A new link for the coins has been created and copied to the clipboard. Make a copy of this link somewhere or you will not be able to claim these coins later on.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Main</name>
+    <message>
+        <location filename="../forms/Main.qml" line="+188"/>
+        <source>Send the below link directly to the Twitter user so that he/she can claim the coins.
+
+ You can even paste the link in public tweets or comments. No need to worry, no other user can gain access to these coins except for the intended Twitter user.
+
+If you submitted this transaction by accident, you can claim the coins back with your link.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Successfully sent the coins to the Twitter user</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+15"/>
+        <source>Send the below link directly to the Instagram user so that he/she can claim the coins.
+
+ You can even paste the link in public posts or comments. No need to worry, no other user can gain access to these coins except for the intended Instagram user.
+
+If you submitted this transaction by accident, you can claim the coins back with your link.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Successfully sent the coins to the Instagram user</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+15"/>
+        <source>Send the below link directly to the Twitch user so that he/she can claim the coins.
+
+ You can even paste the link in public posts or comments. No need to worry, no other user can gain access to these coins except for the intended Twitch user.
+
+If you submitted this transaction by accident, you can claim the coins back with your link.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Successfully sent the coins to the Twitch user</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+282"/>
+        <source>Overview</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+39"/>
+        <source>Mining</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+42"/>
+        <source>Send</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+38"/>
+        <source>Receive</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+37"/>
+        <source>History</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+37"/>
+        <source>Create your nickname</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+36"/>
+        <source>Recurring payments</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>MiningForm.ui</name>
+    <message>
+        <location filename="../forms/MiningForm.ui.qml" line="+65"/>
+        <source>Mining BitCash is easy. Simply click the Start mining button and your computer will start earning BitCash.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+45"/>
+        <source>You have successfully earned 0 BITC. It&apos;s been automatically added to your total balance.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+45"/>
+        <source>Mining information</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+90"/>
+        <source>Miningf </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+16"/>
+        <source>Miningf</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+16"/>
+        <location line="+16"/>
+        <location line="+16"/>
+        <source>sdfs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+24"/>
+        <source>Mining</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Start mining</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>Stop mining</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+23"/>
+        <source>Hashs per second</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+16"/>
+        <source>0.000000</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Stop animation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+15"/>
+        <source>We recommend checking this option if the animation is slowing down the mining.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Mining pool</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>MiningPage</name>
+    <message>
+        <location filename="../forms/miningpage.ui" line="+14"/>
+        <source>Form</source>
+        <translation type="unfinished">Form</translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>Start mining</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Stop mining</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ModalOverlay</name>
     <message>
         <location filename="../forms/modaloverlay.ui" line="+14"/>
@@ -1238,6 +1884,110 @@
     <message>
         <location filename="../modaloverlay.cpp" line="-1"/>
         <source>Unknown. Syncing Headers (%1)...</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>NicknamePage</name>
+    <message>
+        <location filename="../forms/nicknamepage.ui" line="+14"/>
+        <source>Form</source>
+        <translation type="unfinished">Form</translation>
+    </message>
+    <message>
+        <location line="+32"/>
+        <source>New nickname:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Address for the nickname:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Register new nickname for your address</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../nicknamepage.cpp" line="+145"/>
+        <source>Nickname created</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>The transaction with the nickname registration has been created. You can use the nickname as soon as the transaction is mined into a block.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Error</source>
+        <translation type="unfinished">Error</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Error: </source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Nicknames</name>
+    <message>
+        <location filename="../forms/Nicknames.qml" line="+53"/>
+        <source>Copied</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Copy to clipboard</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>NicknamesForm.ui</name>
+    <message>
+        <location filename="../forms/NicknamesForm.ui.qml" line="+60"/>
+        <source>Create your own nickname such as @joe or @amazon to receive payments from other BitCash users easier than using a BitCash address.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+26"/>
+        <source>Create your nickname</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+47"/>
+        <source>Please choose your nickname carefully as you won&apos;t be able to change it later. Each BitCash address can only have one nickname.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+92"/>
+        <source>Create nickname</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+15"/>
+        <source>Paste</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source></source>
+        <translation></translation>
+    </message>
+    <message>
+        <location line="+42"/>
+        <source>At present, only one Nickname per BitCash wallet is allowed. You have already created your nickname which is below.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+27"/>
+        <source>Your nickname</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+48"/>
+        <source>Copy to clipboard</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1307,7 +2057,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+104"/>
+        <location line="+114"/>
         <source>Automatically open the Bitcash client port on the router. This only works when your router supports UPnP and it is enabled.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1355,7 +2105,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+80"/>
+        <location line="+59"/>
         <location line="+13"/>
         <source>Third party URLs (e.g. a block explorer) that appear in the transactions tab as context menu items. %s in the URL is replaced by transaction hash. Multiple URLs are separated by vertical bar |.</source>
         <translation type="unfinished"></translation>
@@ -1386,17 +2136,22 @@
         <translation>&amp;Reset Options</translation>
     </message>
     <message>
-        <location line="-529"/>
+        <location line="-508"/>
         <source>&amp;Network</source>
         <translation>&amp;Network</translation>
     </message>
     <message>
-        <location line="-85"/>
+        <location line="-95"/>
         <source>(0 = auto, &lt;0 = leave that many cores free)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+36"/>
+        <location line="+22"/>
+        <source>Ask for password before sending coins (for encrypted wallets)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+24"/>
         <source>W&amp;allet</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1514,22 +2269,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+11"/>
-        <source>&amp;Unit to show amounts in:</source>
-        <translation>&amp;Unit to show amounts in:</translation>
-    </message>
-    <message>
-        <location line="+13"/>
-        <source>Choose the default subdivision unit to show in the interface and when sending coins.</source>
-        <translation>Choose the default subdivision unit to show in the interface and when sending coins.</translation>
-    </message>
-    <message>
-        <location line="-450"/>
+        <location line="-426"/>
         <source>Whether to show coin control features or not.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+464"/>
+        <location line="+443"/>
         <source>&amp;Third party transaction URLs</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1554,7 +2299,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+72"/>
+        <location line="+73"/>
         <source>Confirm options reset</source>
         <translation>Confirm options reset</translation>
     </message>
@@ -1601,6 +2346,179 @@
     </message>
 </context>
 <context>
+    <name>Overview</name>
+    <message>
+        <location filename="../forms/Overview.qml" line="+192"/>
+        <location line="+36"/>
+        <source>You can convert BitCash into BitCash Dollars (c-&gt;d) and BitCash Dollars into BitCash (d-&gt;c) with these two buttons.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-9"/>
+        <source>Convert</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+37"/>
+        <source>Available</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>Value of wallet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>BitCash supply</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>Dollar supply</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>Blockheight</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+14"/>
+        <source>Pending</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <location line="+21"/>
+        <source>You have received Bitcash but it has&lt;br&gt; not yet been confirmed by the Bitcash&lt;br&gt; blockchain network. Once it has been&lt;br&gt; confirmed, it will become available for&lt;br&gt; you to spend. This usually takes a few&lt;br&gt; minutes but can take up to one hour.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+27"/>
+        <location line="+83"/>
+        <location line="+27"/>
+        <source>32.950000000</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-83"/>
+        <location line="+26"/>
+        <location line="+15"/>
+        <location line="+257"/>
+        <location line="+13"/>
+        <source>-</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-201"/>
+        <location line="+27"/>
+        <source>8764332,956544566</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+70"/>
+        <source>Total BitCash balance</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <location line="+39"/>
+        <source>3345154,000000000</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-13"/>
+        <source>Total Dollar balance</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+39"/>
+        <source>Price of one BitCash in USD</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+57"/>
+        <source>Convert BitCash Dollars into BitCash (d-&gt;c).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+33"/>
+        <source>Convert BitCash into BitCash Dollars (c-&gt;d).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Immature</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <location line="+20"/>
+        <source>You have received Bitcash from mining,&lt;br&gt; but it has not yet been confirmed by&lt;br&gt; the Bitcash blockchain network. Once it&lt;br&gt; has been confirmed, it will become&lt;br&gt; available for you to spend. This usually&lt;br&gt; takes a few minutes but can take up to&lt;br&gt; one hour.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+27"/>
+        <location line="+29"/>
+        <source>2,453000</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+322"/>
+        <location line="+35"/>
+        <source>Start mining</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-19"/>
+        <source>Use your computer to mine and earn BitCash now.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+64"/>
+        <location line="+35"/>
+        <source>Backup wallet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-19"/>
+        <source>Save a backup of your wallet as a precaution now.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+72"/>
+        <source></source>
+        <translation></translation>
+    </message>
+    <message>
+        <location line="+14"/>
+        <source>Fully synced.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+22"/>
+        <location line="+12"/>
+        <source>Label</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+24"/>
+        <source>Automatic trading</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+16"/>
+        <source>Place a stop loss or take profit order</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Place orders</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>OverviewPage</name>
     <message>
         <location filename="../forms/overviewpage.ui" line="+14"/>
@@ -1613,58 +2531,58 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+10"/>
+        <location line="-196"/>
         <source>Available:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+16"/>
+        <location line="+180"/>
         <source>Your current spendable balance</source>
         <translation>Your current spendable balance</translation>
     </message>
     <message>
-        <location line="+41"/>
+        <location line="-66"/>
         <source>Pending:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-236"/>
+        <location line="+16"/>
         <source>Total of transactions that have yet to be confirmed, and do not yet count toward the spendable balance</source>
         <translation>Total of transactions that have yet to be confirmed, and do not yet count toward the spendable balance</translation>
     </message>
     <message>
-        <location line="+112"/>
+        <location line="+101"/>
         <source>Immature:</source>
         <translation>Immature:</translation>
     </message>
     <message>
-        <location line="-29"/>
+        <location line="-171"/>
         <source>Mined balance that has not yet matured</source>
         <translation>Mined balance that has not yet matured</translation>
     </message>
     <message>
-        <location line="-177"/>
+        <location line="-127"/>
         <source>Balances</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+16"/>
-        <location line="+386"/>
+        <location line="+392"/>
         <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Bitcash network after a connection is established, but this process has not completed yet.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-241"/>
+        <location line="-348"/>
         <source>Total:</source>
         <translation>Total:</translation>
     </message>
     <message>
-        <location line="+61"/>
+        <location line="+222"/>
         <source>Your current total balance</source>
         <translation>Your current total balance</translation>
     </message>
     <message>
-        <location line="+92"/>
+        <location line="+32"/>
         <source>Your current balance in watch-only addresses</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1674,23 +2592,125 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+49"/>
+        <location line="+55"/>
         <source>Recent transactions</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-317"/>
+        <location line="-290"/>
         <source>Unconfirmed transactions to watch-only addresses</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+50"/>
+        <location line="+63"/>
         <source>Mined balance in watch-only addresses that has not yet matured</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+128"/>
+        <location line="+57"/>
         <source>Current total balance in watch-only addresses</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Paperbillselect</name>
+    <message>
+        <location filename="../forms/Paperbillselect.qml" line="+67"/>
+        <source>Print paper BitCash Dollar bills</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+11"/>
+        <source>Bill denomination</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+26"/>
+        <source>Generate bill</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+39"/>
+        <source>$1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>$2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>$5</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>$10</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>$20</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>$50</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>$100</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Paperwallet</name>
+    <message>
+        <location filename="../forms/Paperwallet.qml" line="+85"/>
+        <source>You can use the paper wallet for a save long term storage of your BitCash. Your public address is the address you can share with other people. The private key should never be shared with anyone otherwise they will have access to all your BitCash. This Private key can be imported later on to access your coins.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+42"/>
+        <source>Print a paper wallet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+11"/>
+        <source>Public address</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>(to receive coins)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+49"/>
+        <location line="+50"/>
+        <source>Copy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+29"/>
+        <source>Private key</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>(to spend coins)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>Print</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+25"/>
+        <source>Generate new wallet</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1700,14 +2720,14 @@
         <location filename="../paymentserver.cpp" line="+328"/>
         <location line="+219"/>
         <location line="+42"/>
-        <location line="+113"/>
+        <location line="+111"/>
         <location line="+14"/>
         <location line="+18"/>
         <source>Payment request error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-323"/>
+        <location line="-321"/>
         <location line="+25"/>
         <location line="+13"/>
         <location line="+7"/>
@@ -1755,12 +2775,12 @@
         <location line="+31"/>
         <location line="+10"/>
         <location line="+17"/>
-        <location line="+88"/>
+        <location line="+86"/>
         <source>Payment request rejected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-155"/>
+        <location line="-153"/>
         <source>Payment request network doesn&apos;t match client network.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1791,7 +2811,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+68"/>
+        <location line="+66"/>
         <source>Refund from %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1823,6 +2843,79 @@
     <message>
         <location line="+11"/>
         <source>Payment acknowledged</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Payments</name>
+    <message>
+        <location filename="../forms/Payments.qml" line="+137"/>
+        <source>Recurring payments</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+26"/>
+        <source>Payments</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+29"/>
+        <source>Create new recurring payment</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+572"/>
+        <source>Removed payment.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+70"/>
+        <source>Create recurring payment</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+26"/>
+        <source>Recipient</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+57"/>
+        <source>Description</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+52"/>
+        <source>Send Dollar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+21"/>
+        <source>Amount</source>
+        <translation type="unfinished">Amount</translation>
+    </message>
+    <message>
+        <location line="+28"/>
+        <source>Enter the day of the month. The payment will be excuted every month on the same day.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Day of execution</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+27"/>
+        <source>Enter the Month of next execution. The payment will be executed the first time in this month.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Month of next execution</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>Create</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1860,19 +2953,75 @@
     </message>
 </context>
 <context>
+    <name>PrinteStatements</name>
+    <message>
+        <location filename="../forms/PrinteStatements.qml" line="+27"/>
+        <source>Print eStatement</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+50"/>
+        <source>Select the month</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+28"/>
+        <source>Select the year</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+26"/>
+        <source>Print</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+70"/>
+        <source>Print BitCash statement</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Print BitCash Dollar statement</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Printpaperbill</name>
+    <message>
+        <location filename="../forms/Printpaperbill.qml" line="+68"/>
+        <source>Print paper BitCash Dollar bills</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+24"/>
+        <source>Print front side</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+16"/>
+        <source>Print back side</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>QObject</name>
     <message>
-        <location filename="../bitcashunits.cpp" line="+185"/>
+        <location filename="../bitcashunits.cpp" line="+201"/>
         <source>Amount</source>
         <translation type="unfinished">Amount</translation>
     </message>
     <message>
         <location filename="../guiutil.cpp" line="+133"/>
-        <source>Enter a Bitcash address (e.g. %1)</source>
+        <source>Enter a Bitcash address (e.g. %1) or nickname</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+743"/>
+        <location line="+12"/>
+        <source>Enter a nickname</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+741"/>
         <source>%1 d</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1982,7 +3131,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../bitcash.cpp" line="+179"/>
+        <location filename="../bitcash.cpp" line="+180"/>
         <source>%1 didn&apos;t yet exit safely...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1995,7 +3144,7 @@
 <context>
     <name>QObject::QObject</name>
     <message>
-        <location filename="../bitcash.cpp" line="-86"/>
+        <location filename="../bitcash.cpp" line="-87"/>
         <source>Error: Specified data directory &quot;%1&quot; does not exist.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2455,6 +3604,42 @@
     </message>
 </context>
 <context>
+    <name>Receive</name>
+    <message>
+        <location filename="../forms/Receive.qml" line="+18"/>
+        <source>You have successfully claimed the coins from the link.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+69"/>
+        <location line="+12"/>
+        <location line="+12"/>
+        <location line="+12"/>
+        <source>Copied</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-32"/>
+        <source>Copy ₡ nickname to clipboard</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Copy $ nickname to clipboard</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Copy ₡ address to clipboard</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Copy $ address to clipboard</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ReceiveCoinsDialog</name>
     <message>
         <location filename="../forms/receivecoinsdialog.ui" line="+37"/>
@@ -2566,6 +3751,74 @@
     </message>
 </context>
 <context>
+    <name>ReceiveForm.ui</name>
+    <message>
+        <location filename="../forms/ReceiveForm.ui.qml" line="+49"/>
+        <source>Use your BitCash address or nickname you created to receive BitCash from other users</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+74"/>
+        <source>Receive</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+66"/>
+        <source>Your BitCash address</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+73"/>
+        <source>Your nickname to receive BitCash</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+56"/>
+        <source>Your nickname to receive Dollar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+57"/>
+        <source>Copy ₡ address to clipboard</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Copy $ address to clipboard</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+16"/>
+        <source>Your Dollar address</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+30"/>
+        <source>Copy ₡ nickname to clipboard</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Copy $ nickname to clipboard</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+52"/>
+        <source>Your nickname</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+31"/>
+        <source>Create your nickname</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+56"/>
+        <source>Receive money</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ReceiveRequestDialog</name>
     <message>
         <location filename="../forms/receiverequestdialog.ui" line="+29"/>
@@ -2673,6 +3926,20 @@
     <message>
         <location line="+42"/>
         <source>Requested</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Send</name>
+    <message>
+        <location filename="../forms/Send.qml" line="+69"/>
+        <source>You have successfully generated a link which you can send to anyone. The link has been copied to the clipboard.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+299"/>
+        <location line="+11"/>
+        <source>This is a valid BitCash address.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3168,6 +4435,277 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     </message>
 </context>
 <context>
+    <name>SendConfirmationDialog2</name>
+    <message>
+        <location filename="../bitcashgui.cpp" line="-2492"/>
+        <location line="+5"/>
+        <source>Yes</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SendForm.ui</name>
+    <message>
+        <location filename="../forms/SendForm.ui.qml" line="+137"/>
+        <source>Send BitCash to anyone with an existing BitCash address or nickname. If the recipient doesn&apos;t have BitCash, then use the </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+22"/>
+        <source>Send to anyone</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>feature instead.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+83"/>
+        <location line="+391"/>
+        <location line="+290"/>
+        <location line="+326"/>
+        <location line="+304"/>
+        <location line="+303"/>
+        <location line="+276"/>
+        <location line="+282"/>
+        <source>Send</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-2129"/>
+        <source>Direct</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+30"/>
+        <source>Dollar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+30"/>
+        <source>Twitter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+28"/>
+        <source>Instagram</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+28"/>
+        <source>Twitch</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+29"/>
+        <source>Anyone</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+46"/>
+        <location line="+290"/>
+        <location line="+312"/>
+        <location line="+304"/>
+        <location line="+303"/>
+        <source>Recipient</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-1160"/>
+        <location line="+290"/>
+        <location line="+342"/>
+        <location line="+304"/>
+        <location line="+303"/>
+        <source>Label for address book:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-1211"/>
+        <location line="+290"/>
+        <location line="+342"/>
+        <location line="+304"/>
+        <location line="+303"/>
+        <location line="+261"/>
+        <source>Description</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-1448"/>
+        <location line="+290"/>
+        <location line="+341"/>
+        <location line="+304"/>
+        <location line="+303"/>
+        <location line="+261"/>
+        <source>Amount</source>
+        <translation type="unfinished">Amount</translation>
+    </message>
+    <message>
+        <location line="-1487"/>
+        <location line="+290"/>
+        <source>Subtract transaction fee from amount</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-257"/>
+        <location line="+313"/>
+        <location line="+303"/>
+        <location line="+304"/>
+        <location line="+303"/>
+        <source>Use available balance</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-1213"/>
+        <location line="+616"/>
+        <location line="+304"/>
+        <location line="+303"/>
+        <source>0.000000 BITC</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-1209"/>
+        <location line="+313"/>
+        <location line="+303"/>
+        <location line="+304"/>
+        <location line="+303"/>
+        <source>Balance:</source>
+        <translation type="unfinished">Balance:</translation>
+    </message>
+    <message>
+        <location line="-1211"/>
+        <location line="+313"/>
+        <location line="+303"/>
+        <location line="+304"/>
+        <location line="+303"/>
+        <source>Paste</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-1214"/>
+        <location line="+326"/>
+        <location line="+290"/>
+        <location line="+304"/>
+        <location line="+303"/>
+        <location line="+230"/>
+        <source>You&apos;ll have</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-1439"/>
+        <source></source>
+        <translation></translation>
+    </message>
+    <message>
+        <location line="+23"/>
+        <location line="+313"/>
+        <location line="+291"/>
+        <location line="+304"/>
+        <location line="+303"/>
+        <location line="+230"/>
+        <source>0.000000000</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-1426"/>
+        <location line="+313"/>
+        <location line="+291"/>
+        <location line="+304"/>
+        <location line="+303"/>
+        <location line="+230"/>
+        <source>available balance left on your account</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-1249"/>
+        <source>Print paper bills</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+34"/>
+        <source>0.000000 Dollar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+163"/>
+        <source>Insert the recipient&apos;s Twitter handle here.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+226"/>
+        <location line="+303"/>
+        <location line="+303"/>
+        <location line="+148"/>
+        <source>Send Dollar instead of BitCash</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-676"/>
+        <source>Insert the recipient&apos;s Instagram handle here.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+303"/>
+        <source>Insert the recipient&apos;s Twitch handle here.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+261"/>
+        <source>If you want to send BitCash to someone without an existing BitCash address, you can simply create a BitCash link and send it via email, SMS or social media.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+230"/>
+        <source>Your BitCash was sent successfully!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Make another transaction</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>View account history</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Go back to Overview</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+21"/>
+        <source>It may take a few minutes to be received by the recipient as the</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+14"/>
+        <source>network sends and secures your transaction.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+59"/>
+        <source>username</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>@username</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+16"/>
+        <source>You&apos;re about to send 000 BITC for to @el. Please confirm this transaction.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+26"/>
+        <source>Change recipient</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ShutdownWindow</name>
     <message>
         <location filename="../utilitydialog.cpp" line="+80"/>
@@ -3371,6 +4909,60 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     </message>
 </context>
 <context>
+    <name>Trading</name>
+    <message>
+        <location filename="../forms/Trading.qml" line="+146"/>
+        <source>Send BitCash to your BitCash Dollar account</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Send BitCash Dollar to your BitCash account</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+18"/>
+        <source>If the price of one BitCash</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+21"/>
+        <source>Goes below the target price of</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+16"/>
+        <source>Goes above the target price of</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+56"/>
+        <source>Amount to send:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+52"/>
+        <location line="+451"/>
+        <source>Create order</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-25"/>
+        <source>Automatic trading</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+54"/>
+        <source>List of orders</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+61"/>
+        <source>Removed order.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>TrafficGraphWidget</name>
     <message>
         <location filename="../trafficgraphwidget.cpp" line="+81"/>
@@ -3381,7 +4973,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
 <context>
     <name>TransactionDesc</name>
     <message numerus="yes">
-        <location filename="../transactiondesc.cpp" line="+32"/>
+        <location filename="../transactiondesc.cpp" line="+33"/>
         <source>Open for %n more block(s)</source>
         <translation>
             <numerusform>Open for %n more block</numerusform>
@@ -3434,7 +5026,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+23"/>
+        <location line="+31"/>
         <source>Status</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3481,12 +5073,12 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <location line="+1"/>
         <location line="+20"/>
-        <location line="+72"/>
+        <location line="+92"/>
         <source>To</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-90"/>
+        <location line="-110"/>
         <source>own address</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3504,14 +5096,14 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <location line="+36"/>
         <location line="+12"/>
-        <location line="+56"/>
+        <location line="+83"/>
         <location line="+30"/>
-        <location line="+71"/>
+        <location line="+73"/>
         <source>Credit</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location line="-167"/>
+        <location line="-196"/>
         <source>matures in %n more block(s)</source>
         <translation>
             <numerusform>matures in %n more block</numerusform>
@@ -3524,14 +5116,19 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+62"/>
+        <location line="+82"/>
+        <source>Viewkey</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
         <location line="+26"/>
-        <location line="+74"/>
+        <location line="+76"/>
         <source>Debit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-90"/>
+        <location line="-92"/>
         <source>Total debit</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3551,8 +5148,18 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location line="+1"/>
+        <source>Net amount BITC</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Net amount USD</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location line="+11"/>
-        <source>Reference line</source>
+        <source>Description</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3645,7 +5252,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
 <context>
     <name>TransactionTableModel</name>
     <message>
-        <location filename="../transactiontablemodel.cpp" line="+228"/>
+        <location filename="../transactiontablemodel.cpp" line="+223"/>
         <source>Date</source>
         <translation type="unfinished">Date</translation>
     </message>
@@ -3724,21 +5331,22 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     </message>
     <message>
         <location line="+39"/>
-        <source>Received with</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location line="+2"/>
-        <source>Received from</source>
+        <source>Received</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+3"/>
-        <source>Sent to</source>
+        <source>Sent</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+2"/>
+        <location line="+449"/>
+        <source>Currency of transaction.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-447"/>
         <source>Payment to yourself</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3748,7 +5356,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+28"/>
+        <location line="+48"/>
         <source>watch-only</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3758,12 +5366,12 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+220"/>
+        <location line="+306"/>
         <source>(no label)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+39"/>
+        <location line="+62"/>
         <source>Transaction status. Hover over this field to show number of confirmations.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3801,7 +5409,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
 <context>
     <name>TransactionView</name>
     <message>
-        <location filename="../transactionview.cpp" line="+70"/>
+        <location filename="../transactionview.cpp" line="+73"/>
         <location line="+16"/>
         <source>All</source>
         <translation type="unfinished"></translation>
@@ -3898,11 +5506,16 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     </message>
     <message>
         <location line="+1"/>
-        <source>Copy reference line</source>
+        <source>Copy description</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+298"/>
+        <source>Description</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-297"/>
         <source>Copy transaction ID</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3927,7 +5540,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+200"/>
+        <location line="+276"/>
         <source>Export Transaction History</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3967,12 +5580,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+1"/>
-        <source>Reference line</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+2"/>
+        <location line="+4"/>
         <source>ID</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3997,7 +5605,17 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+171"/>
+        <location line="+58"/>
+        <source>Can&apos;t abandon</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Only transactions which have no confirmations and are not in the mempool can be abandoned.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+133"/>
         <source>Range:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4008,10 +5626,88 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     </message>
 </context>
 <context>
-    <name>UnitDisplayStatusBarControl</name>
+    <name>Transactions</name>
     <message>
-        <location filename="../bitcashgui.cpp" line="+141"/>
-        <source>Unit to show amounts in. Click to select another unit.</source>
+        <location filename="../forms/Transactions.qml" line="+109"/>
+        <source>History</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+26"/>
+        <source>Transactions</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+21"/>
+        <source>Generated links</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+683"/>
+        <source>Download list of transactions</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+524"/>
+        <source>Created links:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Link copied to clipboard.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+40"/>
+        <source>Removed link.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>TwitterSuccess</name>
+    <message>
+        <location filename="../forms/TwitterSuccess.qml" line="+95"/>
+        <source>Successfully sent the coins to the Twitter user</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+15"/>
+        <source>Send the below link directly to the Twitter user so that he/she can claim the coins.
+
+You can even paste the link in public tweets or comments. No need to worry, no other user can gain access to these coins except for the intended Twitter user.
+
+If you submitted this transaction by accident, you can claim the coins back with your link.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Only the link:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+32"/>
+        <source>Only the link without short message to the recipient.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <location line="+73"/>
+        <source>Copy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-42"/>
+        <source>Description together with the link:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+33"/>
+        <source>A short message to the recipient together with the link.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+37"/>
+        <source>Close</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4026,12 +5722,12 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
 <context>
     <name>WalletModel</name>
     <message>
-        <location filename="../walletmodel.cpp" line="+215"/>
+        <location filename="../walletmodel.cpp" line="+229"/>
         <source>Send Coins</source>
         <translation type="unfinished">Send Coins</translation>
     </message>
     <message>
-        <location line="+281"/>
+        <location line="+289"/>
         <location line="+39"/>
         <location line="+6"/>
         <source>Fee bump error</source>
@@ -4081,7 +5777,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
 <context>
     <name>WalletView</name>
     <message>
-        <location filename="../walletview.cpp" line="+48"/>
+        <location filename="../walletview.cpp" line="+55"/>
         <source>&amp;Export</source>
         <translation type="unfinished">&amp;Export</translation>
     </message>
@@ -4091,7 +5787,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <translation type="unfinished">Export the data in the current tab to a file</translation>
     </message>
     <message>
-        <location line="+207"/>
+        <location line="+242"/>
         <source>Backup Wallet</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4151,7 +5847,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+54"/>
+        <location line="+63"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4351,6 +6047,11 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <location line="+5"/>
         <source>Invalid amount for -maxtxfee=&lt;amount&gt;: &apos;%s&apos; (must be at least the minrelay fee of %s to prevent stuck transactions)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Invalid transaction created. This is a bug. Please report this and send the file debug.log as zip file to the developer.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4595,6 +6296,11 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     </message>
     <message>
         <location line="+3"/>
+        <source>You need to enter the deposit key/code in the description line field. The exchange has provided to you with the deposit key/code. Without the correct code your coins will not end up on your personal account on the exchange. The key must have a minimum length of 5 characters.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
         <source>You need to rebuild the database using -reindex to go back to unpruned mode.  This will redownload the entire blockchain</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4645,6 +6351,11 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     </message>
     <message>
         <location line="+1"/>
+        <source>Address already has a nickname.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
         <source>Allow DNS lookups for -addnode, -seednode and -connect</source>
         <translation type="unfinished">Allow DNS lookups for -addnode, -seednode and -connect</translation>
     </message>
@@ -4672,6 +6383,11 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <location line="+1"/>
         <source>Block creation options:</source>
         <translation type="unfinished">Block creation options:</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Can not get private key</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+1"/>
@@ -4722,6 +6438,11 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <location line="+1"/>
         <source>Corrupted block database detected</source>
         <translation type="unfinished">Corrupted block database detected</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Could not sign transaction.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+1"/>
@@ -4945,11 +6666,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     </message>
     <message>
         <location line="+1"/>
-        <source>Keypool ran out, please call keypoolrefill first</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
         <source>Listen for JSON-RPC connections on &lt;port&gt; (default: %u or testnet: %u)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5001,6 +6717,11 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <location line="+1"/>
         <source>Need to specify a port with -whitebind: &apos;%s&apos;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Nickname transactions for addresses with a viewkey are not yet allowed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5181,6 +6902,11 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     </message>
     <message>
         <location line="+1"/>
+        <source>Specifies the password to unlock the wallet.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
         <source>Specify blocks directory (default: &lt;datadir&gt;/blocks)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5226,6 +6952,11 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     </message>
     <message>
         <location line="+1"/>
+        <source>This address does not belong to this wallet.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
         <source>This is experimental software.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5237,6 +6968,11 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <location line="+1"/>
         <source>This is the transaction fee you will pay if you send a transaction.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>This nickname is already taken.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5288,6 +7024,16 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <location line="+1"/>
         <source>Transaction too large</source>
         <translation type="unfinished">Transaction too large</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Transactions from a Dollar account are not yet allowed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Transactions to a Dollar account are not yet allowed.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+1"/>

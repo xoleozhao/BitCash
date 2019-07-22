@@ -116,6 +116,30 @@ QT_FORMS_UI = \
   qt/forms/signverifymessagedialog.ui \
   qt/forms/transactiondescdialog.ui
 
+QT_FORMS_QML = \
+  qt/forms/Mining.qml \
+  qt/forms/MiningForm.ui.qml \
+  qt/forms/Main.qml \
+  qt/forms/Send.qml \
+  qt/forms/SendForm.ui.qml \
+  qt/forms/Nicknames.qml \
+  qt/forms/NicknamesForm.ui.qml \
+  qt/forms/Overview.qml \
+  qt/forms/Receive.qml \
+  qt/forms/ReceiveForm.ui.qml \
+  qt/forms/Transactions.qml \
+  qt/forms/MenuTextField.qml \
+  qt/forms/Mybutton.qml \
+  qt/forms/ShadowBox.qml \
+  qt/forms/Paperwallet.qml \
+  qt/forms/Backupwallet.qml \
+  qt/forms/TwitterSuccess.qml \
+  qt/forms/Payments.qml \
+  qt/forms/Trading.qml \
+  qt/forms/Paperbillselect.qml \
+  qt/forms/Printpaperbill.qml \
+  qt/forms/PrinteStatements.qml
+
 QT_MOC_CPP = \
   qt/moc_addressbookpage.cpp \
   qt/moc_addresstablemodel.cpp \
@@ -437,7 +461,7 @@ $(srcdir)/qt/bitcashstrings.cpp: $(libbitcash_server_a_SOURCES) $(libbitcash_wal
 	@test -n $(XGETTEXT) || echo "xgettext is required for updating translations"
 	$(AM_V_GEN) cd $(srcdir); XGETTEXT=$(XGETTEXT) PACKAGE_NAME="$(PACKAGE_NAME)" COPYRIGHT_HOLDERS="$(COPYRIGHT_HOLDERS)" COPYRIGHT_HOLDERS_SUBSTITUTION="$(COPYRIGHT_HOLDERS_SUBSTITUTION)" $(PYTHON) ../share/qt/extract_strings_qt.py $^
 
-translate: $(srcdir)/qt/bitcashstrings.cpp $(QT_FORMS_UI) $(QT_FORMS_UI) $(BITCASH_QT_BASE_CPP) qt/bitcash.cpp $(BITCASH_QT_WINDOWS_CPP) $(BITCASH_QT_WALLET_CPP) $(BITCASH_QT_H) $(BITCASH_MM)
+translate: $(srcdir)/qt/bitcashstrings.cpp $(QT_FORMS_UI) $(QT_FORMS_UI) $(QT_FORMS_QML) $(BITCASH_QT_BASE_CPP) qt/bitcash.cpp $(BITCASH_QT_WINDOWS_CPP) $(BITCASH_QT_WALLET_CPP) $(BITCASH_QT_H) $(BITCASH_MM)
 	@test -n $(LUPDATE) || echo "lupdate is required for updating translations"
 	$(AM_V_GEN) QT_SELECT=$(QT_SELECT) $(LUPDATE) $^ -locations relative -no-obsolete -ts $(srcdir)/qt/locale/bitcash_en.ts
 
