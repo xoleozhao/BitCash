@@ -253,7 +253,7 @@ Item {
                 Label {
                     width: recipientwidth
                     height: 44
-                    text: "Recipient"
+                    text: qsTr("Recipient")
                     verticalAlignment: Text.AlignVCenter
                     anchors.verticalCenter: parent.verticalCenter
                     rightPadding: 20
@@ -268,7 +268,7 @@ Item {
                                 Label {
                                     width: paymentsForm.width-amountwidth-recipientwidth-btnswidth-daywidth-monthwidth-currencywidth-30-30
                                     height: 44
-                                    text: "Description"
+                                    text: qsTr("Description")
                                     verticalAlignment: Text.AlignVCenter
                                     anchors.verticalCenter: parent.verticalCenter
                                     rightPadding: 20
@@ -283,7 +283,7 @@ Item {
                                 Label {
                                     width: amountwidth
                                     height: 44
-                                    text: "Amount"
+                                    text: qsTr("Amount")
                                     verticalAlignment: Text.AlignVCenter
                                     anchors.verticalCenter: parent.verticalCenter
                                     rightPadding: 20
@@ -315,7 +315,7 @@ Item {
                                 Label {
                                     width: daywidth
                                     height: 44
-                                    text: "Day"
+                                    text: qsTr("Day")
                                     verticalAlignment: Text.AlignVCenter
                                     anchors.verticalCenter: parent.verticalCenter
                                     rightPadding: 20
@@ -331,7 +331,7 @@ Item {
                                 Label {
                                     width: monthwidth
                                     height: 44
-                                    text: "Month"
+                                    text: qsTr("Month")
                                     verticalAlignment: Text.AlignVCenter
                                     anchors.verticalCenter: parent.verticalCenter
                                     rightPadding: 20
@@ -440,7 +440,7 @@ Item {
                                     Menu {
                                         id: contextMenulinks
                                         MenuItem {
-                                            text: "Copy recipient"
+                                            text: qsTr("Copy recipient")
                                             onTriggered: {
                                                 copytextfieldlinks.text=recipient
                                                 copytextfieldlinks.selectAll()
@@ -491,7 +491,7 @@ Item {
                                     Menu {
                                         id: contextMenureflinelinks
                                         MenuItem {
-                                            text: "Copy description"
+                                            text: qsTr("Copy description")
                                             onTriggered: {
                                                 copytextfieldlinks.text=description
                                                 copytextfieldlinks.selectAll()
@@ -545,7 +545,7 @@ Item {
                                     Menu {
                                         id: contextMenuamountan
                                         MenuItem {
-                                            text: "Copy amount"
+                                            text: qsTr("Copy amount")
                                             onTriggered: {
                                                 copytextfieldlinks.text=amount
                                                 copytextfieldlinks.selectAll()
@@ -597,7 +597,7 @@ Item {
                                     Menu {
                                         id: contextMenucurrencyan
                                         MenuItem {
-                                            text: "Copy amount"
+                                            text: qsTr("Copy amount")
                                             onTriggered: {
                                                 copytextfieldlinks.text=currency
                                                 copytextfieldlinks.selectAll()
@@ -649,7 +649,7 @@ Item {
                                     Menu {
                                         id: contextMenuday
                                         MenuItem {
-                                            text: "Copy day"
+                                            text: qsTr("Copy day")
                                             onTriggered: {
                                                 copytextfieldlinks.text=day
                                                 copytextfieldlinks.selectAll()
@@ -701,7 +701,7 @@ Item {
                                     Menu {
                                         id: contextMenumonth
                                         MenuItem {
-                                            text: "Copy month"
+                                            text: qsTr("Copy month")
                                             onTriggered: {
                                                 copytextfieldlinks.text=month
                                                 copytextfieldlinks.selectAll()
@@ -714,7 +714,7 @@ Item {
                                     property int column: 6
                                     width: btnswidth
                                     text: ""
-                                    ToolTip.text: "Remove payment"
+                                    ToolTip.text: qsTr("Remove payment")
                                     ToolTip.delay: 1000
                                     ToolTip.timeout: 5000
                                     ToolTip.visible: hovered
@@ -790,7 +790,7 @@ Item {
                     anchors.verticalCenter: parent.verticalCenter
                     anchors.right: closebutton.left
                     anchors.rightMargin: 20
-                    text: "Undo"
+                    text: qsTr("Undo")
                     font.weight: Font.DemiBold
                     leftPadding: 10
                     height:28
@@ -887,7 +887,7 @@ Item {
                 anchors.right: parent.right
                 anchors.rightMargin: 36
                 selectByMouse: true
-                placeholderText: "Paste the BitCash address or nickname of the recipient"
+                placeholderText: qsTr("Paste the BitCash address or nickname of the recipient")
                 validator: destCheckVal
 
             }
@@ -908,7 +908,7 @@ Item {
                 anchors.rightMargin: 36
                 anchors.right: parent.right
                 selectByMouse: true
-                placeholderText: "What are you paying for?"
+                placeholderText: qsTr("What are you paying for?")
             }
 
             Label {
@@ -957,7 +957,7 @@ Item {
                     anchors.top: parent.top
                     anchors.bottom: parent.bottom
                     padding: 16
-                    text: "BITC"
+                    text: qsTr("BITC")
                     font.pixelSize: 14
                     font.weight: Font.Normal
                     font.family: "Montserrat"
@@ -1013,7 +1013,7 @@ Item {
                 anchors.leftMargin: 36
                 horizontalAlignment: Text.AlignLeft
                 selectByMouse: true
-                placeholderText: "Enter the day (1-31)."
+                placeholderText: qsTr("Enter the day (1-31).")
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Enter the day of the month. The payment will be excuted every month on the same day.")
                 ToolTip.delay: 100
@@ -1048,7 +1048,7 @@ Item {
                 anchors.leftMargin: 15
                 horizontalAlignment: Text.AlignLeft
                 selectByMouse: true
-                placeholderText: "Enter the month (1-12)."
+                placeholderText: qsTr("Enter the month (1-12).")
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Enter the Month of next execution. The payment will be executed the first time in this month.")
                 ToolTip.delay: 100

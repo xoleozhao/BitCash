@@ -369,7 +369,7 @@ Item {
             font.family: "Montserrat SemiBold"
             font.weight: Font.DemiBold
             color: "#202124"
-            text: "$"
+            text: qsTr("$")
         }
 
         Label {
@@ -396,7 +396,7 @@ Item {
             font.family: "Montserrat Light"
             font.weight: Font.Light
             color: "#202124"
-            text: "₡"
+            text: qsTr("₡")
         }
 
         Label {
@@ -422,7 +422,7 @@ Item {
             font.family: "Montserrat Light"
             font.weight: Font.Light
             color: "#202124"
-            text: "$"
+            text: qsTr("$")
         }
 
         Label {
@@ -479,7 +479,7 @@ Item {
             font.family: "Montserrat SemiBold"
             font.weight: Font.DemiBold
             color: "#202124"
-            text: "₡"
+            text: qsTr("₡")
         }
 
         Label {
@@ -506,7 +506,7 @@ Item {
             font.family: "Montserrat SemiBold"
             font.weight: Font.DemiBold
             color: "#202124"
-            text: "$"
+            text: qsTr("$")
         }
 
         Label {
@@ -533,7 +533,7 @@ Item {
                 font.family: "Montserrat SemiBold"
                 font.weight: Font.DemiBold
                 color: "#202124"
-                text: "₡"
+                text: qsTr("₡")
             }
         }
 
@@ -560,7 +560,7 @@ Item {
                 font.family: "Montserrat SemiBold"
                 font.weight: Font.DemiBold
                 color: "#202124"
-                text: "$"
+                text: qsTr("$")
             }
         }
 
@@ -644,7 +644,7 @@ Item {
             font.family: "Montserrat Light"
             font.weight: Font.Light
             color: "#3e45ac"
-            text: "₡"
+            text: qsTr("₡")
         }
 
         Label {
@@ -683,7 +683,7 @@ Item {
             font.family: "Montserrat Light"
             font.weight: Font.Light
             color: "#3e45ac"
-            text: "$"
+            text: qsTr("$")
         }
 
         Label {
@@ -735,7 +735,7 @@ Item {
             font.family: "Montserrat Light"
             font.weight: Font.Light
             color: "#3e45ac"
-            text: ": $"
+            text: qsTr(": $")
         }
 
         Image {
@@ -768,7 +768,7 @@ Item {
             font.family: "Montserrat Light"
             font.weight: Font.Light
             color: "#3e45ac"
-            text: ": $"
+            text: qsTr(": $")
         }
 
         Image {
@@ -844,7 +844,7 @@ Item {
             font.family: "Montserrat SemiBold"
             font.weight: Font.DemiBold
             color: "#202124"
-            text: "₡"
+            text: qsTr("₡")
         }
 
 
@@ -873,7 +873,7 @@ Item {
             font.family: "Montserrat SemiBold"
             font.weight: Font.DemiBold
             color: "#202124"
-            text: "$"
+            text: qsTr("$")
         }
 
 
@@ -931,7 +931,7 @@ Item {
         width: 223
         height: 19
         color: "#202124"
-        text: "Last transactions"
+        text: qsTr("Last transactions")
         font.pixelSize: 18
         font.family: "Montserrat SemiBold"
         anchors.left: parent.left
@@ -961,7 +961,7 @@ Item {
                         Label {
                             width: datewidth
                             height: 44
-                            text: "Date"
+                            text: qsTr("Date")
                             verticalAlignment: Text.AlignVCenter
                             anchors.verticalCenterOffset: 0
                             rightPadding: 20
@@ -977,7 +977,7 @@ Item {
                         Label {
                             width: typewidth
                             height: 44
-                            text: "Type"
+                            text: qsTr("Type")
                             verticalAlignment: Text.AlignVCenter
                             rightPadding: 20
                             leftPadding: 20
@@ -992,7 +992,7 @@ Item {
                         Label {
                             width: overviewForm.width-datewidth-typewidth-amountwidth-amountusdwidth-30-30
                             height: 44
-                            text: "Address"
+                            text: qsTr("Address")
                             verticalAlignment: Text.AlignVCenter
                             rightPadding: 20
                             leftPadding: 20
@@ -1007,7 +1007,7 @@ Item {
                         Label {
                             width: amountwidth
                             height: 44
-                            text: "BITC"
+                            text: qsTr("BITC")
                             verticalAlignment: Text.AlignVCenter
                             bottomPadding: 10
                             rightPadding: 20
@@ -1024,7 +1024,7 @@ Item {
                         Label {
                             width: amountusdwidth
                             height: 44
-                            text: "USD"
+                            text: qsTr("USD")
                             verticalAlignment: Text.AlignVCenter
                             bottomPadding: 10
                             rightPadding: 20

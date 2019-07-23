@@ -338,9 +338,10 @@ Item {
 
     Mybutton {
         id: startminingbutton
+        x: 609
         anchors.right: layoutrect.right
         y: 66
-        width: 147
+        width: 250
         height: 44
         text: qsTr("Start mining")
         font.pixelSize: 16
@@ -354,8 +355,9 @@ Item {
     Mybutton {
         id: stopminingbutton
         y: 66
-        width: 147
+        width: 250
         text: qsTr("Stop mining")
+        anchors.leftMargin: 0
         font.weight: Font.DemiBold
         font.pixelSize: 14
         anchors.verticalCenter: mininglabel.verticalCenter

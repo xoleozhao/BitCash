@@ -262,7 +262,7 @@ Item {
                             anchors.top: parent.top
                             anchors.bottom: parent.bottom
                             padding: 16
-                            text: "USD"
+                            text: qsTr("USD")
                             font.pixelSize: 14
                             font.weight: Font.Normal
                             font.family: "Montserrat"
@@ -313,7 +313,7 @@ Item {
                             anchors.top: parent.top
                             anchors.bottom: parent.bottom
                             padding: 16
-                            text: "BITC"
+                            text: qsTr("BITC")
                             font.pixelSize: 14
                             font.weight: Font.Normal
                             font.family: "Montserrat"
@@ -366,7 +366,7 @@ Item {
                         Label {
                             width: listViewlinks.width-targetwidth-amountwidth-senddollarwidth-btnswidth-30-30
                             height: 44
-                            text: "If"
+                            text: qsTr("If")
                             verticalAlignment: Text.AlignVCenter
                             anchors.verticalCenter: parent.verticalCenter
                             rightPadding: 20
@@ -382,7 +382,7 @@ Item {
                         Label {
                             width: targetwidth
                             height: 44
-                            text: "USD"
+                            text: qsTr("USD")
                             verticalAlignment: Text.AlignVCenter
                             anchors.verticalCenter: parent.verticalCenter
                             horizontalAlignment: Text.AlignRight
@@ -398,7 +398,7 @@ Item {
                         Label {
                             width: amountwidth
                             height: 44
-                            text: "Send amount"
+                            text: qsTr("Send amount")
                             verticalAlignment: Text.AlignVCenter
                             anchors.verticalCenter: parent.verticalCenter
                             horizontalAlignment: Text.AlignRight
@@ -524,7 +524,7 @@ Item {
                                             Menu {
                                                 id: contextMenucurrencyan
                                                 MenuItem {
-                                                    text: "Copy when"
+                                                    text: qsTr("Copy when")
                                                     onTriggered: {
                                                         copytextfieldlinks.text = whenabove
                                                         copytextfieldlinks.selectAll()
@@ -576,7 +576,7 @@ Item {
                                             Menu {
                                                 id: contextMenureflinelinks
                                                 MenuItem {
-                                                    text: "Copy target"
+                                                    text: qsTr("Copy target")
                                                     onTriggered: {
                                                         copytextfieldlinks.text = target
                                                         copytextfieldlinks.selectAll()
@@ -630,7 +630,7 @@ Item {
                                             Menu {
                                                 id: contextMenulinks
                                                 MenuItem {
-                                                    text: "Copy amount"
+                                                    text: qsTr("Copy amount")
                                                     onTriggered: {
                                                         copytextfieldlinks.text = amount
                                                         copytextfieldlinks.selectAll()
@@ -683,7 +683,7 @@ Item {
                                             Menu {
                                                 id: contextMenuamountan
                                                 MenuItem {
-                                                    text: "Copy currency"
+                                                    text: qsTr("Copy currency")
                                                     onTriggered: {
                                                         copytextfieldlinks.text = senddollar
                                                         copytextfieldlinks.selectAll()
@@ -696,7 +696,7 @@ Item {
                                             property int column: 4
                                             width: btnswidth
                                             text: ""
-                                            ToolTip.text: "Cancel order"
+                                            ToolTip.text: qsTr("Cancel order")
                                             ToolTip.delay: 1000
                                             ToolTip.timeout: 5000
                                             ToolTip.visible: hovered

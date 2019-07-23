@@ -230,7 +230,7 @@ Item {
                 Label {
                     width: datewidth
                     height: 44
-                    text: "Date"
+                    text: qsTr("Date")
                     verticalAlignment: Text.AlignVCenter
                     anchors.verticalCenter: parent.verticalCenter
                     rightPadding: 20
@@ -245,7 +245,7 @@ Item {
                 Label {
                     width: typewidth
                     height: 44
-                    text: "Type"
+                    text: qsTr("Type")
                     verticalAlignment: Text.AlignVCenter
                     anchors.verticalCenter: parent.verticalCenter
                     rightPadding: 20
@@ -260,7 +260,7 @@ Item {
                 Label {
                     width: addresswidth
                     height: 44
-                    text: "Address"
+                    text: qsTr("Address")
                     verticalAlignment: Text.AlignVCenter
                     anchors.verticalCenter: parent.verticalCenter
                     rightPadding: 20
@@ -275,7 +275,7 @@ Item {
                 Label {
                     width: transactionsForm.width-datewidth-typewidth-addresswidth-amountwidth-amountusdwidth-30-30
                     height: 44
-                    text: "Description"
+                    text: qsTr("Description")
                     verticalAlignment: Text.AlignVCenter
                     anchors.verticalCenter: parent.verticalCenter
                     rightPadding: 20
@@ -290,7 +290,7 @@ Item {
                 Label {
                     width: amountwidth
                     height: 44
-                    text: "BITC"
+                    text: qsTr("BITC")
                     verticalAlignment: Text.AlignVCenter
                     anchors.verticalCenter: parent.verticalCenter
                     rightPadding: 20
@@ -306,7 +306,7 @@ Item {
                 Label {
                     width: amountusdwidth
                     height: 44
-                    text: "USD"
+                    text: qsTr("USD")
                     verticalAlignment: Text.AlignVCenter
                     anchors.verticalCenter: parent.verticalCenter
                     rightPadding: 20
@@ -395,7 +395,7 @@ Item {
                                     Menu {
                                         id: contextMenu
                                         MenuItem {
-                                            text: "Copy date"
+                                            text: qsTr("Copy date")
                                             onTriggered: {
                                                 copytextfield.text=transactiondate
                                                 copytextfield.selectAll()
@@ -457,7 +457,7 @@ Item {
                                     Menu {
                                         id: contextMenutyp
                                         MenuItem {
-                                            text: "Copy type"
+                                            text: qsTr("Copy type")
                                             onTriggered: {
                                                 copytextfield.text=transactiontype
                                                 copytextfield.selectAll()
@@ -510,7 +510,7 @@ Item {
                                     Menu {
                                         id: contextMenuaddress
                                         MenuItem {
-                                            text: "Copy address"
+                                            text: qsTr("Copy address")
                                             onTriggered: {
                                                 copytextfield.text=transactionaddress
                                                 copytextfield.selectAll()
@@ -563,7 +563,7 @@ Item {
                                     Menu {
                                         id: contextMenurefline
                                         MenuItem {
-                                            text: "Copy description"
+                                            text: qsTr("Copy description")
                                             onTriggered: {
                                                 copytextfield.text=transactionreferenceline
                                                 copytextfield.selectAll()
@@ -617,7 +617,7 @@ Item {
                                     Menu {
                                         id: contextMenuamount
                                         MenuItem {
-                                            text: "Copy amount BITC"
+                                            text: qsTr("Copy amount BITC")
                                             onTriggered: {
                                                 copytextfield.text= transactionamountbitc
                                                 copytextfield.selectAll()
@@ -671,7 +671,7 @@ Item {
                                     Menu {
                                         id: contextMenuamountusd
                                         MenuItem {
-                                            text: "Copy amount USD"
+                                            text: qsTr("Copy amount USD")
                                             onTriggered: {
                                                 copytextfield.text=transactionamountusd
                                                 copytextfield.selectAll()
@@ -703,7 +703,7 @@ Item {
                 text: ""
                 font.pixelSize: 14
                 font.family: "Montserrat"
-                placeholderText: "Search for address, transaction id or description..."
+                placeholderText: qsTr("Search for address, transaction id or description...")
                 bottomPadding: 10
                 topPadding: 10
                 rightPadding: 16
@@ -760,7 +760,7 @@ Item {
                     wrapMode: TextEdit.Wrap
                 }
                 Button{
-                    text: "Ok"
+                    text: qsTr("Ok")
                     anchors.horizontalCenterOffset: -100
                     id: okBtn
                     anchors.top:detailarea.bottom
@@ -769,7 +769,7 @@ Item {
                     onClicked: detaildialog.visible=false
                 }
                 Button{
-                    text: "Copy TX ID"
+                    text: qsTr("Copy TX ID")
                     anchors.left: okBtn.right
                     anchors.leftMargin: 20
                     id: copyTxIdBtn
@@ -786,7 +786,7 @@ Item {
                     }
                 }
                 Button{
-                    text: "Abandon"
+                    text: qsTr("Abandon")
                     anchors.left: copyTxIdBtn.right
                     anchors.leftMargin: 20
                     id: removeBtn
@@ -874,7 +874,7 @@ Item {
                 Label {
                     width: datewidth
                     height: 44
-                    text: "Date"
+                    text: qsTr("Date")
                     verticalAlignment: Text.AlignVCenter
                     anchors.verticalCenter: parent.verticalCenter
                     rightPadding: 20
@@ -889,7 +889,7 @@ Item {
                 Label {
                     width: transactionsForm.width-amountwidthan-linkwidthan-btnswidth2an-btnswidthan-datewidthan-currencywidthan-30-30
                     height: 44
-                    text: "Description"
+                    text: qsTr("Description")
                     verticalAlignment: Text.AlignVCenter
                     anchors.verticalCenter: parent.verticalCenter
                     rightPadding: 20
@@ -905,7 +905,7 @@ Item {
                 Label {
                     width: linkwidthan
                     height: 44
-                    text: "Link"
+                    text: qsTr("Link")
                     verticalAlignment: Text.AlignVCenter
                     anchors.verticalCenter: parent.verticalCenter
                     rightPadding: 20
@@ -935,7 +935,7 @@ Item {
                 Label {
                     width: amountwidthan
                     height: 44
-                    text: "Amount"
+                    text: qsTr("Amount")
                     verticalAlignment: Text.AlignVCenter
                     anchors.verticalCenter: parent.verticalCenter
                     rightPadding: 20
@@ -1072,7 +1072,7 @@ Item {
                                     Menu {
                                         id: contextMenulinks
                                         MenuItem {
-                                            text: "Copy date"
+                                            text: qsTr("Copy date")
                                             onTriggered: {
                                                 copytextfieldlinks.text=txdate
                                                 copytextfieldlinks.selectAll()
@@ -1123,7 +1123,7 @@ Item {
                                     Menu {
                                         id: contextMenureflinelinks
                                         MenuItem {
-                                            text: "Copy description"
+                                            text: qsTr("Copy description")
                                             onTriggered: {
                                                 copytextfieldlinks.text=description
                                                 copytextfieldlinks.selectAll()
@@ -1175,7 +1175,7 @@ Item {
                                     Menu {
                                         id: contextMenuaddresslinks
                                         MenuItem {
-                                            text: "Copy link"
+                                            text: qsTr("Copy link")
                                             onTriggered: {
                                                 copytextfieldlinks.text=name
                                                 copytextfieldlinks.selectAll()
@@ -1191,7 +1191,7 @@ Item {
                                     Button {
                                         anchors.horizontalCenter: parent.horizontalCenter
                                         anchors.verticalCenter: parent.verticalCenter
-                                        ToolTip.text: "Copy link"
+                                        ToolTip.text: qsTr("Copy link")
                                         ToolTip.delay: 1000
                                         ToolTip.timeout: 5000
                                         ToolTip.visible: hovered
@@ -1257,7 +1257,7 @@ Item {
                                     Menu {
                                         id: contextMenuamountan
                                         MenuItem {
-                                            text: "Copy amount"
+                                            text: qsTr("Copy amount")
                                             onTriggered: {
                                                 copytextfieldlinks.text=amount
                                                 copytextfieldlinks.selectAll()
@@ -1309,7 +1309,7 @@ Item {
                                     Menu {
                                         id: contextMenucurrencyan
                                         MenuItem {
-                                            text: "Copy currency"
+                                            text: qsTr("Copy currency")
                                             onTriggered: {
                                                 copytextfieldlinks.text=currency
                                                 copytextfieldlinks.selectAll()
@@ -1322,7 +1322,7 @@ Item {
                                     property int column: 5
                                     width: btnswidth2an
                                     text: ""
-                                    ToolTip.text: "Remove link"
+                                    ToolTip.text: qsTr("Remove link")
                                     ToolTip.delay: 1000
                                     ToolTip.timeout: 5000
                                     ToolTip.visible: hovered
@@ -1446,7 +1446,7 @@ Item {
                     anchors.verticalCenter: parent.verticalCenter
                     anchors.right: closebutton.left
                     anchors.rightMargin: 20
-                    text: "Undo"
+                    text: qsTr("Undo")
                     font.weight: Font.DemiBold
                     leftPadding: 10
                     height:28

@@ -517,7 +517,7 @@ Item {
     Label {
         id: receivingnickname2
         color: "#3e45ac"
-        text: "You haven't yet created a Nickname."
+        text: qsTr("You haven't yet created a Nickname.")
         visible: false
         font.letterSpacing: 0
         font.family: "Montserrat"
@@ -580,7 +580,7 @@ Item {
         rightPadding: 16
         leftPadding: 16
         topPadding: 16
-        placeholderText: "Paste your link here"
+        placeholderText: qsTr("Paste your link here")
         anchors.topMargin: 36
         selectByMouse: true
     }

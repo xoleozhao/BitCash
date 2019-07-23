@@ -124,7 +124,7 @@ Item {
             border.color: "#efb735"
             border.width: 1
 
-            height: 82
+            height: 106
 
             Text {
                 id: text1
@@ -169,7 +169,7 @@ Item {
             topPadding: 10
             anchors.top: nicknameEdit.bottom
             anchors.topMargin: 20
-            placeholderText: "Your BitCash address"
+            placeholderText: qsTr("Your BitCash address")
             selectByMouse: true
         }
 
@@ -204,7 +204,7 @@ Item {
             font.pixelSize: 14
             font.family: "Montserrat"
             bottomPadding: 10
-            placeholderText: "Nickname"
+            placeholderText: qsTr("Nickname")
             anchors.top: yellowbox.bottom
             anchors.topMargin: 30
             padding: 16

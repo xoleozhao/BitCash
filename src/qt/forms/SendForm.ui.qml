@@ -516,7 +516,7 @@ Item {
                     anchors.right: parent.right
                     anchors.rightMargin: 30
                     selectByMouse: true
-                    placeholderText: "Paste the BitCash address or nickname of the recipient"
+                    placeholderText: qsTr("Paste the BitCash address or nickname of the recipient")
                 }
 
                 MenuTextField {
@@ -557,7 +557,7 @@ Item {
                     anchors.rightMargin: 30
                     anchors.right: parent.right
                     selectByMouse: true
-                    placeholderText: "What are you paying for?"
+                    placeholderText: qsTr("What are you paying for?")
                 }
 
                 Label {
@@ -806,7 +806,7 @@ Item {
                     anchors.right: parent.right
                     anchors.rightMargin: 30
                     selectByMouse: true
-                    placeholderText: "Paste the BitCash address or nickname of the recipient"
+                    placeholderText: qsTr("Paste the BitCash address or nickname of the recipient")
                 }
 
                 MenuTextField {
@@ -847,7 +847,7 @@ Item {
                     anchors.rightMargin: 30
                     anchors.right: parent.right
                     selectByMouse: true
-                    placeholderText: "What are you paying for?"
+                    placeholderText: qsTr("What are you paying for?")
                 }
 
                 Label {
@@ -1143,7 +1143,7 @@ Item {
                     anchors.right: parent.right
                     anchors.rightMargin: 30
                     selectByMouse: true
-                    placeholderText: "Twitter's nickname of the recipient"
+                    placeholderText: qsTr("Twitter's nickname of the recipient")
 
                     ToolTip.visible: hovered
                     ToolTip.text: qsTr("Insert the recipient's Twitter handle here.")
@@ -1189,7 +1189,7 @@ Item {
                     anchors.rightMargin: 30
                     anchors.right: parent.right
                     selectByMouse: true
-                    placeholderText: "What are you paying for?"
+                    placeholderText: qsTr("What are you paying for?")
                 }
 
                 Label {
@@ -1447,7 +1447,7 @@ Item {
                     anchors.right: parent.right
                     anchors.rightMargin: 30
                     selectByMouse: true
-                    placeholderText: "Instagram's nickname of the recipient"
+                    placeholderText: qsTr("Instagram's nickname of the recipient")
 
                     ToolTip.visible: hovered
                     ToolTip.text: qsTr("Insert the recipient's Instagram handle here.")
@@ -1493,7 +1493,7 @@ Item {
                     anchors.rightMargin: 30
                     anchors.right: parent.right
                     selectByMouse: true
-                    placeholderText: "What are you paying for?"
+                    placeholderText: qsTr("What are you paying for?")
                 }
 
                 Label {
@@ -1750,7 +1750,7 @@ Item {
                     anchors.right: parent.right
                     anchors.rightMargin: 30
                     selectByMouse: true
-                    placeholderText: "Twitch's nickname of the recipient"
+                    placeholderText: qsTr("Twitch's nickname of the recipient")
 
                     ToolTip.visible: hovered
                     ToolTip.text: qsTr("Insert the recipient's Twitch handle here.")
@@ -1796,7 +1796,7 @@ Item {
                     anchors.rightMargin: 30
                     anchors.right: parent.right
                     selectByMouse: true
-                    placeholderText: "What are you paying for?"
+                    placeholderText: qsTr("What are you paying for?")
                 }
 
                 Label {
@@ -2057,7 +2057,7 @@ Item {
                     anchors.rightMargin: 30
                     anchors.right: parent.right
                     selectByMouse: true
-                    placeholderText: "What are you paying for?"
+                    placeholderText: qsTr("What are you paying for?")
                 }
 
                 Label {

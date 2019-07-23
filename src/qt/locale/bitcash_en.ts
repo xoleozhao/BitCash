@@ -929,11 +929,12 @@
     </message>
     <message>
         <location line="+3"/>
+        <location line="+555"/>
         <source>The amount exceeds your balance.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="-552"/>
         <source>The total exceeds your balance when the %1 transaction fee is included.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -968,7 +969,72 @@
         <translation type="unfinished">Send Coins</translation>
     </message>
     <message>
-        <location line="+852"/>
+        <location line="+101"/>
+        <location line="+196"/>
+        <location line="+65"/>
+        <location line="+287"/>
+        <location line="+55"/>
+        <location line="+55"/>
+        <source>BITC</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-657"/>
+        <location line="+193"/>
+        <location line="+65"/>
+        <location line="+290"/>
+        <location line="+55"/>
+        <location line="+55"/>
+        <source>USD</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-460"/>
+        <location line="+65"/>
+        <source>Price goes above</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-63"/>
+        <location line="+65"/>
+        <source>Price goes below</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+111"/>
+        <source>Confirm execution of recurring payment</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Recipient: %1
+Description: %2
+Amount: %3
+Amount: %4
+Day of execution: %5
+Month of execution: %6
+
+Do you want to execute the payment?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+35"/>
+        <source>You need to enter the Twitter name of the recipient.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>You need to enter the amount of coins you want to send.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+168"/>
+        <location line="+55"/>
+        <source>Could not create transaction. Reason: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+109"/>
         <source>from wallet %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1002,7 +1068,37 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+213"/>
+        <location line="+50"/>
+        <source>Error: no connection to the BitCash network.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Please wait until the download of the blockchain is complete.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+33"/>
+        <source>This nickname is already taken or is invalid.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+34"/>
+        <source>This is not a valid Twitter user name!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+36"/>
+        <source>This is not a valid Instagram user name!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+35"/>
+        <source>This is not a valid Twitch user name!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+17"/>
         <location line="+9"/>
         <source>New version available</source>
         <translation type="unfinished"></translation>
@@ -1704,11 +1800,12 @@ If you submitted this transaction by accident, you can claim the coins back with
     </message>
     <message>
         <location line="+42"/>
+        <location line="+11"/>
         <source>Send</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+38"/>
+        <location line="+27"/>
         <source>Receive</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1961,7 +2058,17 @@ If you submitted this transaction by accident, you can claim the coins back with
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+92"/>
+        <location line="+39"/>
+        <source>Your BitCash address</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+35"/>
+        <source>Nickname</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+18"/>
         <source>Create nickname</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2395,14 +2502,33 @@ If you submitted this transaction by accident, you can claim the coins back with
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+27"/>
+        <location line="+20"/>
+        <location line="+53"/>
+        <location line="+84"/>
+        <location line="+54"/>
+        <location line="+123"/>
+        <location line="+190"/>
+        <source>$</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-497"/>
         <location line="+83"/>
         <location line="+27"/>
         <source>32.950000000</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-83"/>
+        <location line="-90"/>
+        <location line="+83"/>
+        <location line="+54"/>
+        <location line="+111"/>
+        <location line="+200"/>
+        <source>₡</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-441"/>
         <location line="+26"/>
         <location line="+15"/>
         <location line="+257"/>
@@ -2438,7 +2564,13 @@ If you submitted this transaction by accident, you can claim the coins back with
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+57"/>
+        <location line="+47"/>
+        <location line="+33"/>
+        <source>: $</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-23"/>
         <source>Convert BitCash Dollars into BitCash (d-&gt;c).</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2465,7 +2597,37 @@ If you submitted this transaction by accident, you can claim the coins back with
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+322"/>
+        <location line="+51"/>
+        <source>Last transactions</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+30"/>
+        <source>Date</source>
+        <translation type="unfinished">Date</translation>
+    </message>
+    <message>
+        <location line="+16"/>
+        <source>Type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+15"/>
+        <source>Address</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+15"/>
+        <source>BITC</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>USD</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+178"/>
         <location line="+35"/>
         <source>Start mining</source>
         <translation type="unfinished"></translation>
@@ -2874,12 +3036,14 @@ If you submitted this transaction by accident, you can claim the coins back with
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+26"/>
+        <location line="-578"/>
+        <location line="+604"/>
         <source>Recipient</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+57"/>
+        <location line="-589"/>
+        <location line="+646"/>
         <source>Description</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2889,12 +3053,79 @@ If you submitted this transaction by accident, you can claim the coins back with
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+21"/>
+        <location line="-683"/>
+        <location line="+704"/>
         <source>Amount</source>
         <translation type="unfinished">Amount</translation>
     </message>
     <message>
-        <location line="+28"/>
+        <location line="-672"/>
+        <source>Day</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+16"/>
+        <source>Month</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+109"/>
+        <source>Copy recipient</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+51"/>
+        <source>Copy description</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+54"/>
+        <location line="+52"/>
+        <source>Copy amount</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+52"/>
+        <source>Copy day</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+52"/>
+        <source>Copy month</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>Remove payment</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+76"/>
+        <source>Undo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+97"/>
+        <source>Paste the BitCash address or nickname of the recipient</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+21"/>
+        <source>What are you paying for?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+49"/>
+        <source>BITC</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+56"/>
+        <source>Enter the day (1-31).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
         <source>Enter the day of the month. The payment will be excuted every month on the same day.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2904,7 +3135,12 @@ If you submitted this transaction by accident, you can claim the coins back with
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+27"/>
+        <location line="+25"/>
+        <source>Enter the month (1-12).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
         <source>Enter the Month of next execution. The payment will be executed the first time in this month.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3808,12 +4044,22 @@ If you submitted this transaction by accident, you can claim the coins back with
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+31"/>
+        <location line="+13"/>
+        <source>You haven&apos;t yet created a Nickname.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+18"/>
         <source>Create your nickname</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+56"/>
+        <location line="+45"/>
+        <source>Paste your link here</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+11"/>
         <source>Receive money</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4512,7 +4758,13 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-1160"/>
+        <location line="-1179"/>
+        <location line="+290"/>
+        <source>Paste the BitCash address or nickname of the recipient</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-271"/>
         <location line="+290"/>
         <location line="+342"/>
         <location line="+304"/>
@@ -4521,7 +4773,17 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-1211"/>
+        <location line="-1217"/>
+        <location line="+290"/>
+        <location line="+342"/>
+        <location line="+304"/>
+        <location line="+303"/>
+        <location line="+261"/>
+        <source>What are you paying for?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-1494"/>
         <location line="+290"/>
         <location line="+342"/>
         <location line="+304"/>
@@ -4627,7 +4889,12 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+163"/>
+        <location line="+160"/>
+        <source>Twitter&apos;s nickname of the recipient</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
         <source>Insert the recipient&apos;s Twitter handle here.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4640,12 +4907,22 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-676"/>
+        <location line="-679"/>
+        <source>Instagram&apos;s nickname of the recipient</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
         <source>Insert the recipient&apos;s Instagram handle here.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+303"/>
+        <location line="+300"/>
+        <source>Twitch&apos;s nickname of the recipient</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
         <source>Insert the recipient&apos;s Twitch handle here.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4936,18 +5213,64 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+56"/>
+        <location line="+47"/>
+        <location line="+120"/>
+        <source>USD</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-111"/>
         <source>Amount to send:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+52"/>
+        <location line="+42"/>
+        <source>BITC</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+10"/>
         <location line="+451"/>
         <source>Create order</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-25"/>
+        <location line="-408"/>
+        <source>If</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+32"/>
+        <source>Send amount</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+126"/>
+        <source>Copy when</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+52"/>
+        <source>Copy target</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+54"/>
+        <source>Copy amount</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+53"/>
+        <source>Copy currency</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>Cancel order</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+53"/>
         <source>Automatic trading</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5643,12 +5966,127 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+683"/>
+        <location line="+77"/>
+        <location line="+644"/>
+        <source>Date</source>
+        <translation type="unfinished">Date</translation>
+    </message>
+    <message>
+        <location line="-629"/>
+        <source>Type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+15"/>
+        <source>Address</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+15"/>
+        <location line="+614"/>
+        <source>Description</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-599"/>
+        <source>BITC</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+16"/>
+        <source>USD</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+89"/>
+        <location line="+677"/>
+        <source>Copy date</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-615"/>
+        <source>Copy type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+53"/>
+        <source>Copy address</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+53"/>
+        <location line="+560"/>
+        <source>Copy description</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-506"/>
+        <source>Copy amount BITC</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+54"/>
+        <source>Copy amount USD</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+32"/>
+        <source>Search for address, transaction id or description...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+57"/>
+        <source>Ok</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>Copy TX ID</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Abandon</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+50"/>
         <source>Download list of transactions</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+524"/>
+        <location line="+69"/>
+        <source>Link</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+30"/>
+        <source>Amount</source>
+        <translation type="unfinished">Amount</translation>
+    </message>
+    <message>
+        <location line="+240"/>
+        <location line="+16"/>
+        <source>Copy link</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+66"/>
+        <source>Copy amount</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+52"/>
+        <source>Copy currency</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>Remove link</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+38"/>
         <source>Created links:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5660,6 +6098,11 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <location line="+40"/>
         <source>Removed link.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+29"/>
+        <source>Undo</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

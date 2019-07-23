@@ -592,7 +592,7 @@ Item {
                 font: parent.font
                 opacity: enabled ? 1.0 : 0.3
                 color: "#4d505e"
-                text: "Send"
+                text: qsTr("Send")
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
                 elide: Text.ElideRight
