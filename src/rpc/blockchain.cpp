@@ -182,19 +182,19 @@ UniValue blockheaderToJSON(const CBlockIndex* blockindex)
     result.pushKV("pricecount", blockindex->nPriceInfo.priceCount);
 
     for (int i=0;i<blockindex->nPriceInfo.priceCount;i++)
-        result.pushKV("price", ValueFromAmount(blockindex->nPriceInfo.prices[i]));
+        result.pushKV("price_" + std::to_string(i), ValueFromAmount(blockindex->nPriceInfo.prices[i]));
 
     result.pushKV("pricetime2", (int64_t)blockindex->nPriceInfo2.priceTime);
     result.pushKV("pricecount2", blockindex->nPriceInfo2.priceCount);
 
     for (int i=0;i<blockindex->nPriceInfo2.priceCount;i++)
-        result.pushKV("price2", ValueFromAmount(blockindex->nPriceInfo2.prices[i]));
+        result.pushKV("price2_" + std::to_string(i), ValueFromAmount(blockindex->nPriceInfo2.prices[i]));
 
     result.pushKV("pricetime3", (int64_t)blockindex->nPriceInfo3.priceTime);
     result.pushKV("pricecount3", blockindex->nPriceInfo3.priceCount);
 
     for (int i=0;i<blockindex->nPriceInfo3.priceCount;i++)
-        result.pushKV("price3", ValueFromAmount(blockindex->nPriceInfo3.prices[i])); 
+        result.pushKV("price3_" + std::to_string(i), ValueFromAmount(blockindex->nPriceInfo3.prices[i])); 
 
     for (int i=0;i<blockindex->nPriceInfo3.priceCount;i++)
         result.pushKV("priceaverage", ValueFromAmount(blockindex->GetPriceinCurrency(i))); 
@@ -249,20 +249,20 @@ UniValue blockToJSON(const CBlock& block, const CBlockIndex* blockindex, bool tx
     result.pushKV("pricecount", block.nPriceInfo.priceCount);
 
     for (int i=0;i<block.nPriceInfo.priceCount;i++)
-    result.pushKV("price", ValueFromAmount(block.nPriceInfo.prices[i]));
+    result.pushKV("price_" + std::to_string(i), ValueFromAmount(block.nPriceInfo.prices[i]));
 
 
     result.pushKV("pricetime2", (int64_t)blockindex->nPriceInfo2.priceTime);
     result.pushKV("pricecount2", blockindex->nPriceInfo2.priceCount);
 
     for (int i=0;i<blockindex->nPriceInfo2.priceCount;i++)
-        result.pushKV("price2", ValueFromAmount(blockindex->nPriceInfo2.prices[i]));
+        result.pushKV("price2_" + std::to_string(i), ValueFromAmount(blockindex->nPriceInfo2.prices[i]));
 
     result.pushKV("pricetime3", (int64_t)blockindex->nPriceInfo3.priceTime);
     result.pushKV("pricecount3", blockindex->nPriceInfo3.priceCount);
 
     for (int i=0;i<blockindex->nPriceInfo3.priceCount;i++)
-        result.pushKV("price3", ValueFromAmount(blockindex->nPriceInfo3.prices[i])); 
+        result.pushKV("price3_" + std::to_string(i), ValueFromAmount(blockindex->nPriceInfo3.prices[i])); 
 
 
     if (blockindex->pprev)

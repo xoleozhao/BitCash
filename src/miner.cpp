@@ -530,6 +530,7 @@ std::string pricewebsites[numwebsites] = {
 
 
 CAmount pricecache = COIN;
+CAmount pricecache2 = COIN;
 bool haspriceinfo = false;
 uint64_t pricetime = 0;
 
@@ -564,8 +565,9 @@ void GetExchangesListFromWebserver()
 //std::cout << "count " << exchanges.size() << std::endl;
 }
 
-CAmount GetPriceInformationFromWebserver(std::string server, std::string &price, std::string &signature)
+CAmount GetPriceInformationFromWebserver(std::string server, std::string &price, std::string &signature, CAmount &secondprice)
 {
+    secondprice = 0;
     try
     {
 	std::string priceinfo = getdocumentwithcurl(server);
@@ -591,7 +593,9 @@ CAmount GetPriceInformationFromWebserver(std::string server, std::string &price,
         try {
             CPriceInfo nPriceInfo;
             ssData >> nPriceInfo;
-            if (nPriceInfo.prices[0]>0) {
+            if (nPriceInfo.prices[0] > 0) {
+                if (nPriceInfo.priceCount > 1 && nPriceInfo.prices[1] > 0)
+                secondprice = nPriceInfo.prices[1];
                 return nPriceInfo.prices[0];
             } else return 0;
         } catch (const std::exception&) {
@@ -603,7 +607,7 @@ CAmount GetPriceInformationFromWebserver(std::string server, std::string &price,
     return 0;
 }
 
-CAmount GetOnePriceInformation(std::string &price, std::string &signature)
+CAmount GetOnePriceInformation(std::string &price, std::string &signature, CAmount &secondprice)
 {   
     CAmount res = 0;
     int size = exchanges.size();
@@ -616,7 +620,7 @@ CAmount GetOnePriceInformation(std::string &price, std::string &signature)
 	std::advance(it, i);
         std::string ex = *it;
 
-        res = GetPriceInformationFromWebserver(ex, price, signature);
+        res = GetPriceInformationFromWebserver(ex, price, signature, secondprice);
         count++;
     }
 
@@ -660,7 +664,8 @@ std::string CheckPriceServer(int i)
 
         int64_t nTime1 = GetTimeMicros();
         std::string price, signature;
-        GetPriceInformationFromWebserver(ex, price, signature);
+        CAmount secondprice;
+        GetPriceInformationFromWebserver(ex, price, signature, secondprice);
 
         bool found = false;
         CAmount price1, price2;
@@ -711,7 +716,9 @@ CAmount GetPriceInformation(std::string &price, std::string &signature, std::str
         std::string ex = *it;
 
         
-        res = GetPriceInformationFromWebserver(ex, price, signature);
+        CAmount secondprice;
+        res = GetPriceInformationFromWebserver(ex, price, signature, secondprice);
+
         count++;
     }
 
@@ -729,7 +736,9 @@ CAmount GetPriceInformation(std::string &price, std::string &signature, std::str
 	std::advance(it, i);
         std::string ex = *it;
 
-        res = GetPriceInformationFromWebserver(ex, price2, signature2);
+        CAmount secondprice;
+        res = GetPriceInformationFromWebserver(ex, price2, signature2, secondprice);
+
         count++;
     }
 
@@ -746,7 +755,9 @@ CAmount GetPriceInformation(std::string &price, std::string &signature, std::str
 	std::advance(it, i);
         std::string ex = *it;
 
-        res = GetPriceInformationFromWebserver(ex, price3, signature3);
+        CAmount secondprice;
+        res = GetPriceInformationFromWebserver(ex, price3, signature3, secondprice);
+
         count++;
     }
     return res;   
@@ -860,17 +871,20 @@ bool AddPriceInformation(CBlockHeader *pblock)
     return true;
 }
 
-CAmount GetCachedPriceInformation(uint64_t cachetime)
+CAmount GetCachedPriceInformation(uint64_t cachetime, CAmount &secondpricereturn)
 {
     std::string price, signature;
+    CAmount secondprice = 0;
     if (!haspriceinfo || GetTimeMillis() > pricetime + cachetime) {        
-        CAmount tempprice = GetOnePriceInformation(price, signature);
+        CAmount tempprice = GetOnePriceInformation(price, signature, secondprice);
         if (tempprice != 0) {
-   	    pricecache = tempprice;
+      	    pricecache = tempprice;
+            pricecache2 = secondprice;
             pricetime = GetTimeMillis();        
             haspriceinfo = true;
         }
     }
+    secondpricereturn = pricecache2; 
     return pricecache;
 }
 

@@ -381,7 +381,8 @@ bool Consensus::CheckTxInputs(const CTransaction& tx, CValidationState& state, c
                 txfee_aux = (__int128_t)txfee_aux * (__int128_t)COIN / (__int128_t)block->GetPriceinCurrency(0);
             } else 
             {
-                txfee_aux = (__int128_t)txfee_aux * (__int128_t)COIN / (__int128_t)GetCachedPriceInformation(30 * 60 * 1000);
+                CAmount secondprice;
+                txfee_aux = (__int128_t)txfee_aux * (__int128_t)COIN / (__int128_t)GetCachedPriceInformation(30 * 60 * 1000, secondprice);
             }
         }
     }

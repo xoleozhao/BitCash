@@ -4562,7 +4562,8 @@ bool CWallet::CreateTransaction(const std::vector<CRecipient>& vecSend, CTransac
 //std::cout << "From Currency" << (int)fromcurrency << std::endl;
 
     CAmount price = COIN;
-    price = GetCachedPriceInformation(30 * 60 * 1000);
+    CAmount secondprice = COIN;
+    price = GetCachedPriceInformation(30 * 60 * 1000, secondprice);
 
 //std::cout << "price: " <<FormatMoney(price) << std::endl;
 
@@ -4907,7 +4908,7 @@ bool CWallet::CreateTransaction(const std::vector<CRecipient>& vecSend, CTransac
                         if (curr == 0 && txNew.vout[i].currency == 1) {
 //std::cout << "Input BitCash: " << FormatMoney(txNew.vout[i].nValueBitCash) << std::endl;
                             //Convert BitCash into Dollars
-                            txNew.vout[i].nValue = (__int128_t)txNew.vout[i].nValueBitCash * (__int128_t)price / (__int128_t)COIN;
+                            txNew.vout[i].nValue = (__int128_t)txNew.vout[i].nValueBitCash * (__int128_t)secondprice / (__int128_t)COIN;
 //std::cout << "Converted to Dollars: " << FormatMoney(txNew.vout[i].nValue) << std::endl;
                         } else
 		        if (curr == 1 && txNew.vout[i].currency == 0) {
@@ -5067,7 +5068,8 @@ bool CWallet::CreateTransactionToMe(uint256& txid,int outnr, CKey key, CAmount n
     CAmount nFeeRet = 0;
 
     CAmount price = COIN;
-    price = GetCachedPriceInformation(30 * 60 * 1000);
+    CAmount secondprice = COIN;
+    price = GetCachedPriceInformation(30 * 60 * 1000, secondprice);
 
     CMutableTransaction txNew;
     txNew.nLockTime = chainActive.Height();
