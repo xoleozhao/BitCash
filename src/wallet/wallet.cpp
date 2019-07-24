@@ -176,7 +176,8 @@ std::string CWallet::CalculateEncryptionKey(CPubKey pubkey,CKey privkey) const
 }
 
 std::string MasterPubKey        =   "0308f4619d0ecea2cbfe31cb0ae6d62979f2b2f10d60d8f64c7fee84fb634bda89";
-std::string MasterPubKeyDummy   =   "111111111111111111111111111111111111111111111111111111111111111111";
+std::string MasterPubKeyDummy   =  "0496b538e853519c726a2c91e61ec11600ae1390813a627c66fb8be7947be63c52da7589379515d4e0a604f8141781e62294721166bf621e73a82cbf2342c858ee";
+//public key from the transaction of block 1 of the Bitcoin blockchain (the assumtion is that nobody knows the private key for this public key)
 
 std::string getmasterpubkeystr(bool usemasterkeydummy)
 {
