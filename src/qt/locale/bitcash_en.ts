@@ -425,7 +425,7 @@
 <context>
     <name>BitcashGUI</name>
     <message>
-        <location filename="../bitcashgui.cpp" line="+2563"/>
+        <location filename="../bitcashgui.cpp" line="+2597"/>
         <source>Wallet</source>
         <translation type="unfinished">Wallet</translation>
     </message>
@@ -596,6 +596,26 @@
     </message>
     <message>
         <location line="+2"/>
+        <source>&amp;Rescan blockchain (will take very long)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Rescan the blockchain for coins. </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>&amp;Rescan last 50000 blocks of the blockchain</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Rescans the last 50000 blocks of the blockchain for coins. </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
         <source>&amp;Backup wallet</source>
         <translation type="unfinished"></translation>
     </message>
@@ -725,7 +745,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+55"/>
+        <location line="+57"/>
         <source>&amp;File</source>
         <translation type="unfinished">&amp;File</translation>
     </message>
@@ -745,7 +765,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+9"/>
         <source>&amp;Settings</source>
         <translation type="unfinished">&amp;Settings</translation>
     </message>
@@ -857,14 +877,14 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-3112"/>
+        <location line="-3156"/>
         <location line="+5"/>
-        <location line="+3121"/>
+        <location line="+3165"/>
         <source>Error</source>
         <translation type="unfinished">Error</translation>
     </message>
     <message>
-        <location line="-3337"/>
+        <location line="-3381"/>
         <source>Print eStatement</source>
         <translation type="unfinished"></translation>
     </message>
@@ -891,7 +911,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+430"/>
+        <location line="+464"/>
         <source>Could not start miner</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1121,7 +1141,7 @@ Do you want to execute the payment?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+1191"/>
+        <location line="+1201"/>
         <source>Warning</source>
         <translation type="unfinished">Warning</translation>
     </message>
@@ -1865,7 +1885,7 @@ If you submitted this transaction by accident, you can claim the coins back with
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+12"/>
+        <location line="+13"/>
         <source>Start mining</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1875,7 +1895,7 @@ If you submitted this transaction by accident, you can claim the coins back with
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+23"/>
+        <location line="+24"/>
         <source>Hashs per second</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4683,7 +4703,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
 <context>
     <name>SendConfirmationDialog2</name>
     <message>
-        <location filename="../bitcashgui.cpp" line="-2492"/>
+        <location filename="../bitcashgui.cpp" line="-2502"/>
         <location line="+5"/>
         <source>Yes</source>
         <translation type="unfinished"></translation>

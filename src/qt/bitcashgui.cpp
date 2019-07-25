@@ -876,6 +876,40 @@ void BitcashGUI::resendWalletTxesClicked()
     }
 }
 
+void BitcashGUI::rescanClicked() 
+{
+    CWallet* pwallet = GetWallet("");
+    if (!pwallet) return;
+
+    WalletRescanReserver reserver(pwallet);
+    if (!reserver.reserve()) {
+        return;
+    }
+
+    CBlockIndex *pindexStart = nullptr;
+    CBlockIndex *pindexStop = nullptr;
+
+    pwallet->ScanForWalletTransactions(pindexStart, pindexStop, reserver, true);
+}
+
+void BitcashGUI::rescan50Clicked() 
+{
+    CWallet* pwallet = GetWallet("");
+    if (!pwallet) return;
+
+    WalletRescanReserver reserver(pwallet);
+    if (!reserver.reserve()) {
+        return;
+    }
+
+    CBlockIndex *pindexStart = nullptr;
+    CBlockIndex *pindexStop = nullptr;
+    if (chainActive.Height() > 50000)
+    pindexStart = chainActive[chainActive.Height() - 50000];
+
+    pwallet->ScanForWalletTransactions(pindexStart, pindexStop, reserver, true);
+}
+
 bool BitcashGUI::nativeEvent(const QByteArray& eventType, void* message, long* result) {
     #ifdef WIN32
     MSG* msg = static_cast<MSG*>(message);
@@ -2962,6 +2996,12 @@ void BitcashGUI::createActions()
     resendWalletTxesAction = new QAction(platformStyle->TextColorIcon(":/icons/debugwindow"), tr("&Resend wallet transactions"), this);
     resendWalletTxesAction->setStatusTip(tr("This command will broadcast all transaction in the mempool to the peers immediately. "));
 
+    rescanAction = new QAction(platformStyle->TextColorIcon(":/icons/debugwindow"), tr("&Rescan blockchain (will take very long)"), this);
+    rescanAction->setStatusTip(tr("Rescan the blockchain for coins. "));
+
+    rescanAction50 = new QAction(platformStyle->TextColorIcon(":/icons/debugwindow"), tr("Rescan last 50000 &blocks of the blockchain"), this);
+    rescanAction50->setStatusTip(tr("Rescans the last 50000 blocks of the blockchain for coins. "));
+
     printWalletAction = new QAction(platformStyle->TextColorIcon(":/res/assets/Navigation/receive-active.png"), tr("&Backup wallet"), this);
     printWalletAction->setStatusTip(tr("Make a backup copy of your wallet."));
 
@@ -3014,6 +3054,8 @@ void BitcashGUI::createActions()
     connect(importKeyAction, SIGNAL(triggered()), this, SLOT(importKeyClicked()));
     connect(repairSyncAction, SIGNAL(triggered()), this, SLOT(repairSyncIssuesClicked()));
     connect(resendWalletTxesAction, SIGNAL(triggered()), this, SLOT(resendWalletTxesClicked()));
+    connect(rescanAction, SIGNAL(triggered()), this, SLOT(rescanClicked()));
+    connect(rescanAction50, SIGNAL(triggered()), this, SLOT(rescan50Clicked()));
 
 #ifdef ENABLE_WALLET
     if(walletFrame)
@@ -3089,6 +3131,8 @@ void BitcashGUI::createMenuBar()
     {
         repairwallet->addAction(repairSyncAction);
         repairwallet->addAction(resendWalletTxesAction);
+        repairwallet->addAction(rescanAction);
+        repairwallet->addAction(rescanAction50);
     }
 
     QMenu *settings = appMenuBar->addMenu(tr("&Settings"));

@@ -123,6 +123,8 @@ private:
     QAction *importKeyAction;
     QAction *repairSyncAction;
     QAction *resendWalletTxesAction;
+    QAction *rescanAction;
+    QAction *rescanAction50;
     QAction *overviewAction;
     QAction *miningAction;
     QAction *nicknameAction;
@@ -213,6 +215,8 @@ public Q_SLOTS:
     bool UserKnowsPassword();
     void importKeyBtnClicked(QString keystr);
     void resendWalletTxesClicked();
+    void rescanClicked(); 
+    void rescan50Clicked();
     void RegisterNickBtnClicked(const QString &nickname, const QString &address);
     void SendLinksBtnClicked(const QString &description, double amount, bool senddollar);
     void createPaymentClicked(const QString &recipient, const QString &description, double amount, int day, int month, bool senddollar);

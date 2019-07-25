@@ -439,12 +439,12 @@
     <message>
         <location line="-187"/>
         <location line="+5"/>
-        <location line="+3121"/>
+        <location line="+3165"/>
         <source>Error</source>
         <translation type="unfinished">错误</translation>
     </message>
     <message>
-        <location line="-3126"/>
+        <location line="-3170"/>
         <source>Resulting URI too long, try to reduce the text for label / message.</source>
         <translation type="unfinished">URI 太长，请试着精简标签或消息文本。</translation>
     </message>
@@ -459,7 +459,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+430"/>
+        <location line="+464"/>
         <source>Could not start miner</source>
         <translation type="unfinished"></translation>
     </message>
@@ -860,6 +860,26 @@ Do you want to execute the payment?</source>
     </message>
     <message>
         <location line="+2"/>
+        <source>&amp;Rescan blockchain (will take very long)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Rescan the blockchain for coins. </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Rescan last 50000 &amp;blocks of the blockchain</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Rescans the last 50000 blocks of the blockchain for coins. </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
         <source>&amp;Backup wallet</source>
         <translation type="unfinished"></translation>
     </message>
@@ -989,7 +1009,7 @@ Do you want to execute the payment?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+55"/>
+        <location line="+57"/>
         <source>&amp;File</source>
         <translation type="unfinished">文件(&amp;F)</translation>
     </message>
@@ -1009,7 +1029,7 @@ Do you want to execute the payment?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+9"/>
         <source>&amp;Settings</source>
         <translation type="unfinished">设置(&amp;S)</translation>
     </message>
@@ -2081,7 +2101,7 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+9"/>
         <source></source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location line="+42"/>
@@ -2652,7 +2672,7 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+72"/>
         <source></source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location line="+14"/>
@@ -4677,7 +4697,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
 <context>
     <name>SendConfirmationDialog2</name>
     <message>
-        <location filename="../bitcashgui.cpp" line="-2492"/>
+        <location filename="../bitcashgui.cpp" line="-2502"/>
         <location line="+5"/>
         <source>Yes</source>
         <translation type="unfinished">是</translation>
@@ -4850,7 +4870,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <location line="-1439"/>
         <source></source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location line="+23"/>
@@ -4883,12 +4903,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+35"/>
-        <source></source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+125"/>
+        <location line="+160"/>
         <source>Twitter&apos;s nickname of the recipient</source>
         <translation type="unfinished"></translation>
     </message>
