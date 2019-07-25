@@ -593,6 +593,7 @@ bool CWallet::GetRealAddressAsSender(CTxOut out, CPubKey& recipientpubkey, bool 
         recipientpubkey=onetimedestpubkey;
         if (out.isnonprivate)
         {
+            hasviewkey = false;
             return true;
         }
 
@@ -632,6 +633,7 @@ bool CWallet::GetRealAddressAsReceiver(CTxOut txout, CPubKey& recipientpubkey, b
     {
         if (txout.isnonprivate)
         {
+            gethasviewkey = false;
             recipientpubkey = onetimedestpubkey;
             return true;
         }
