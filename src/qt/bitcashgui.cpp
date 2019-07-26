@@ -1069,7 +1069,7 @@ void BitcashGUI::StartMiningBtnClicked()
                     poolstr = "stratum+tcp://eu.bsod.pw:2564";
                 break;
                 case 3:
-                    poolstr = "stratum+tcp://pool.rig.tokyo:8001";
+                    poolstr = "stratum+tcp://x16r.mine.zergpool.com:3636";
                 break;
                 case 4:
                     poolstr = "stratum+tcp://us.gethash.cc:3639";
