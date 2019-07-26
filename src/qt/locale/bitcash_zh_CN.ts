@@ -1732,37 +1732,37 @@ Do you want to execute the payment?</source>
     <message>
         <location line="+7"/>
         <source>Paste link from clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation type=从剪贴板中粘贴链接</translation>
     </message>
     <message>
         <location filename="../linkspage.cpp" line="+161"/>
         <source>Could not claim the coins</source>
-        <translation type="unfinished"></translation>
+        <translation type=不能领取硬币</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Coins claimed</source>
-        <translation type="unfinished"></translation>
+        <translation type=硬币已领取</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>A transaction with the coins from the link been successfully created.</source>
-        <translation type="unfinished"></translation>
+        <translation type=链接中的硬币交易已成功创建</translation>
     </message>
     <message>
         <location line="+14"/>
         <source>Could not create link</source>
-        <translation type="unfinished"></translation>
+        <translation type=不能创建链接</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Link created</source>
-        <translation type="unfinished"></translation>
+        <translation type=链接已创建</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>A new link for the coins has been created and copied to the clipboard. Make a copy of this link somewhere or you will not be able to claim these coins later on.</source>
-        <translation type="unfinished"></translation>
+        <translation type=新的硬币链接已经创建并复制到剪贴板。把这个链接复制并保存，否则以后就不能认领这些硬币。</translation>
     </message>
 </context>
 <context>
@@ -1774,12 +1774,14 @@ Do you want to execute the payment?</source>
  You can even paste the link in public tweets or comments. No need to worry, no other user can gain access to these coins except for the intended Twitter user.
 
 If you submitted this transaction by accident, you can claim the coins back with your link.</source>
-        <translation type="unfinished"></translation>
+        <translation type=将下面的链接直接发送给Twitter用户，以便他/她可以领取硬币。
+你甚至可以将链接粘贴到公共推文或评论中。无需担心，除了预期的Twitter用户，其他用户都无法领取这些硬币。
+如果您不小心提交了这笔交易，您可以通过链接索回这些硬币。 </translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Successfully sent the coins to the Twitter user</source>
-        <translation type="unfinished"></translation>
+        <translation type=成功发送硬币给推特用户</translation>
     </message>
     <message>
         <location line="+15"/>
@@ -1788,12 +1790,14 @@ If you submitted this transaction by accident, you can claim the coins back with
  You can even paste the link in public posts or comments. No need to worry, no other user can gain access to these coins except for the intended Instagram user.
 
 If you submitted this transaction by accident, you can claim the coins back with your link.</source>
-        <translation type="unfinished"></translation>
+        <translation type=将以下链接直接发送给Instagram用户，以便他/她可以领取硬币。
+甚至可以将链接粘贴到公共文章或评论中。无需担心，除了预期的Instagram用户外，其他用户无法领取这些硬币。
+如果您不小心提交了这笔交易，您可以通过链接索回这些硬币</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Successfully sent the coins to the Instagram user</source>
-        <translation type="unfinished"></translation>
+        <translation type=成功发送硬币给Instagram用户</translation>
     </message>
     <message>
         <location line="+15"/>
@@ -1802,48 +1806,50 @@ If you submitted this transaction by accident, you can claim the coins back with
  You can even paste the link in public posts or comments. No need to worry, no other user can gain access to these coins except for the intended Twitch user.
 
 If you submitted this transaction by accident, you can claim the coins back with your link.</source>
-        <translation type="unfinished"></translation>
+        <translation type==将以下链接直接发送给Twitch用户，以便他/她可以领取硬币。
+甚至可以将链接粘贴到公共文章或评论中。无需担心，除了预期的Twitch用户外，其他用户无法领取这些硬币。
+如果您不小心提交了这笔交易，您可以通过链接索回这些硬币</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Successfully sent the coins to the Twitch user</source>
-        <translation type="unfinished"></translation>
+        <translation type=成功发送硬币给Twitch用户></translation>
     </message>
     <message>
         <location line="+282"/>
         <source>Overview</source>
-        <translation type="unfinished"></translation>
+        <translation type=概况></translation>
     </message>
     <message>
         <location line="+39"/>
         <source>Mining</source>
-        <translation type="unfinished"></translation>
+        <translation type=挖矿中</translation>
     </message>
     <message>
         <location line="+42"/>
         <location line="+11"/>
         <source>Send</source>
-        <translation type="unfinished"></translation>
+        <translation type=发送</translation>
     </message>
     <message>
         <location line="+27"/>
         <source>Receive</source>
-        <translation type="unfinished"></translation>
+        <translation type=收到</translation>
     </message>
     <message>
         <location line="+37"/>
         <source>History</source>
-        <translation type="unfinished"></translation>
+        <translation type=历史</translation>
     </message>
     <message>
         <location line="+37"/>
         <source>Create your nickname</source>
-        <translation type="unfinished"></translation>
+        <translation type=建立你的昵称</translation>
     </message>
     <message>
         <location line="+36"/>
         <source>Recurring payments</source>
-        <translation type="unfinished"></translation>
+        <translation type=经常性付款</translation>
     </message>
 </context>
 <context>
@@ -1851,27 +1857,27 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location filename="../forms/MiningForm.ui.qml" line="+65"/>
         <source>Mining BitCash is easy. Simply click the Start mining button and your computer will start earning BitCash.</source>
-        <translation type="unfinished"></translation>
+        <translation type=开采BitCash很容易。只需单击“开始挖矿”按钮，电脑就会开始赚取BitCash</translation>
     </message>
     <message>
         <location line="+45"/>
         <source>You have successfully earned 0 BITC. It&apos;s been automatically added to your total balance.</source>
-        <translation type="unfinished"></translation>
+        <translation type="你已经成功赚取BitCash.t&apos;它已自动添加到您的总余额中</translation>
     </message>
     <message>
         <location line="+45"/>
         <source>Mining information</source>
-        <translation type="unfinished"></translation>
+        <translation type=挖矿信息</translation>
     </message>
     <message>
         <location line="+90"/>
         <source>Miningf </source>
-        <translation type="unfinished"></translation>
+        <translation type=最小值</translation>
     </message>
     <message>
         <location line="+16"/>
         <source>Miningf</source>
-        <translation type="unfinished"></translation>
+        <translation type="最小值</translation>
     </message>
     <message>
         <location line="+16"/>
@@ -1883,22 +1889,22 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+24"/>
         <source>Mining</source>
-        <translation type="unfinished"></translation>
+        <translation type=挖矿中</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>Start mining</source>
-        <translation type="unfinished"></translation>
+        <translation type=挖矿中</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>Stop mining</source>
-        <translation type="unfinished"></translation>
+        <translation type=停止挖矿</translation>
     </message>
     <message>
         <location line="+24"/>
         <source>Hashs per second</source>
-        <translation type="unfinished"></translation>
+        <translation type=每秒哈希值</translation>
     </message>
     <message>
         <location line="+16"/>
@@ -1908,17 +1914,17 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+8"/>
         <source>Stop animation</source>
-        <translation type="unfinished"></translation>
+        <translation type=停止动画</translation>
     </message>
     <message>
         <location line="+15"/>
         <source>We recommend checking this option if the animation is slowing down the mining.</source>
-        <translation type="unfinished"></translation>
+        <translation type=如果动画显示挖矿速度减慢，我们建议检查此选项</translation>
     </message>
     <message>
         <location line="+17"/>
         <source>Mining pool</source>
-        <translation type="unfinished"></translation>
+        <translation type=矿池</translation>
     </message>
 </context>
 <context>
@@ -1931,12 +1937,12 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+13"/>
         <source>Start mining</source>
-        <translation type="unfinished"></translation>
+        <translation type=开始挖矿</translation>
     </message>
     <message>
         <location line="+10"/>
         <source>Stop mining</source>
-        <translation type="unfinished"></translation>
+        <translation type=停止挖矿</translation>
     </message>
 </context>
 <context>
@@ -1949,12 +1955,12 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+119"/>
         <source>Recent transactions may not yet be visible, and therefore your wallet&apos;s balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the bitcash network, as detailed below.</source>
-        <translation type="unfinished"></translation>
+        <translation type=最近的交易可能还不可见，因此您的钱包余额可能不正确。一旦您的钱包完成与bitcash网络的同步，信息将会正确显示，详情如下</translation>
     </message>
     <message>
         <location line="+19"/>
         <source>Attempting to spend bitcashs that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
-        <translation type="unfinished"></translation>
+        <translation type=试图消费受未显示交易影响的小比特将不会被网络接受。</translation>
     </message>
     <message>
         <location line="+63"/>
@@ -2015,27 +2021,27 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+32"/>
         <source>New nickname:</source>
-        <translation type="unfinished"></translation>
+        <translation type=新的昵称</translation>
     </message>
     <message>
         <location line="+10"/>
         <source>Address for the nickname:</source>
-        <translation type="unfinished"></translation>
+        <translation type=把昵称作为钱包地址</translation>
     </message>
     <message>
         <location line="+10"/>
         <source>Register new nickname for your address</source>
-        <translation type="unfinished"></translation>
+        <translation type=注册新的昵称作为钱包地址</translation>
     </message>
     <message>
         <location filename="../nicknamepage.cpp" line="+145"/>
         <source>Nickname created</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">昵称已创建</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>The transaction with the nickname registration has been created. You can use the nickname as soon as the transaction is mined into a block.</source>
-        <translation type="unfinished"></translation>
+        <translation type=已创建具有昵称注册的交易记录。一旦挖矿到一个块中，就可以使用昵称。</translation>
     </message>
     <message>
         <location line="+3"/>
