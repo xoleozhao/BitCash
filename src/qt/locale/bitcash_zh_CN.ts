@@ -310,90 +310,90 @@
     <message>
         <location line="+30"/>
         <source>Public address</source>
-        <translation type="unfinished"></translation>
+        <translation type=公钥地址</translation>
     </message>
     <message>
         <location line="+12"/>
         <source>(to receive coins)</source>
-        <translation type="unfinished"></translation>
+        <translation type=（到收到硬币）</translation>
     </message>
     <message>
         <location line="+12"/>
         <source>Backup your wallet using *.DAT file</source>
-        <translation type="unfinished"></translation>
+        <translation type=使用钱包文件备份你的钱包</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>Backup your wallet using Paper wallet</source>
-        <translation type="unfinished"></translation>
+        <translation type=使用纸钱包备案你的钱包</translation>
     </message>
     <message>
         <location line="+57"/>
         <location line="+223"/>
         <source>Private key</source>
-        <translation type="unfinished"></translation>
+        <translation type=私钥</translation>
     </message>
     <message>
         <location line="-210"/>
         <location line="+223"/>
         <source>(to spend coins)</source>
-        <translation type="unfinished"></translation>
+        <translation type=（到你付款硬币）</translation>
     </message>
     <message>
         <location line="-210"/>
         <source>Print</source>
-        <translation type="unfinished"></translation>
+        <translation type=打印</translation>
     </message>
     <message>
         <location line="+24"/>
         <source>Download your file</source>
-        <translation type="unfinished"></translation>
+        <translation type=下载文件</translation>
     </message>
     <message>
         <location line="+30"/>
         <location line="+29"/>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translation type=复制</translation>
     </message>
     <message>
         <location line="+32"/>
         <source>Restore your wallet using *.DAT file</source>
-        <translation type="unfinished"></translation>
+        <translation type=使用钱包文件恢复你的钱包</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>Copy your *.DAT file to following directory:</source>
-        <translation type="unfinished"></translation>
+        <translation type=复制你的钱包文件从以下目录</translation>
     </message>
     <message>
         <location line="+44"/>
         <source>Restore your wallet using Paper wallet</source>
-        <translation type="unfinished"></translation>
+        <translation type=使用纸钱包恢复你的钱包</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>Paste your private key saved on your paper wallet. The import will take some time.</source>
-        <translation type="unfinished"></translation>
+        <translation type=从你保存的纸钱包中粘贴你的私钥，输入需要一些时间</translation>
     </message>
     <message>
         <location line="+57"/>
         <source>Restore from private key</source>
-        <translation type="unfinished"></translation>
+        <translation type=从私钥中恢复</translation>
     </message>
     <message>
         <location line="+42"/>
         <source>Secure your wallet</source>
-        <translation type="unfinished"></translation>
+        <translation type=保管好你的钱包</translation>
     </message>
     <message>
         <location line="+25"/>
         <source>Backup wallet</source>
-        <translation type="unfinished"></translation>
+        <translation type=备份钱包</translation>
     </message>
     <message>
         <location line="+29"/>
         <source>Restore wallet</source>
-        <translation type="unfinished"></translation>
+        <translation type=恢复钱包</translation>
     </message>
 </context>
 <context>
@@ -414,12 +414,12 @@
     <message>
         <location filename="../bitcash.cpp" line="+475"/>
         <source>Password was wrong</source>
-        <translation type="unfinished"></translation>
+        <translation type=密码错误</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>The wallet can not start without the correct password. The program will close now.</source>
-        <translation type="unfinished"></translation>
+        <translation type=程序将关闭，密码错误，钱包不能运行</translation>
     </message>
 </context>
 <context>
@@ -434,19 +434,19 @@
         <location line="+77"/>
         <location line="+141"/>
         <source>Print Document</source>
-        <translation type="unfinished"></translation>
+        <translation type=打印文档</translation>
     </message>
     <message>
         <location line="-187"/>
         <location line="+5"/>
         <location line="+3165"/>
         <source>Error</source>
-        <translation type="unfinished">错误</translation>
+        <translation type=错误</translation>
     </message>
     <message>
         <location line="-3170"/>
         <source>Resulting URI too long, try to reduce the text for label / message.</source>
-        <translation type="unfinished">URI 太长，请试着精简标签或消息文本。</translation>
+        <translation type=URI 太长，请尝试精简标签或消息文本。</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -456,85 +456,85 @@
     <message>
         <location line="+80"/>
         <source>Could not create link.</source>
-        <translation type="unfinished"></translation>
+        <translation type=不能创建链接</translation>
     </message>
     <message>
         <location line="+464"/>
         <source>Could not start miner</source>
-        <translation type="unfinished"></translation>
+        <translation type=不能启动挖矿</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Could not start bitcashminer.exe.</source>
-        <translation type="unfinished"></translation>
+        <translation type=不能启动挖矿程序</translation>
     </message>
     <message>
         <location line="+112"/>
         <source>Amount transferred into BitCash: %1
 </source>
-        <translation type="unfinished"></translation>
+        <translation type=转移小比特的金额</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Amount transferred into Dollars: %1
 </source>
-        <translation type="unfinished"></translation>
+        <translation type=转移美金的金额</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Order executed</source>
-        <translation type="unfinished"></translation>
+        <translation type=订单已执行</translation>
     </message>
     <message>
         <location line="+124"/>
         <source>The recipient address is not valid. Please recheck.</source>
-        <translation type="unfinished">接收人地址无效。请重新检查。</translation>
+        <translation type=接收人地址无效。请重新检查。</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>The amount to pay must be larger than 0.</source>
-        <translation type="unfinished">支付金额必须大于0。</translation>
+        <translation type=支付金额必须大于0。</translation>
     </message>
     <message>
         <location line="+3"/>
         <location line="+555"/>
         <source>The amount exceeds your balance.</source>
-        <translation type="unfinished">金额超出您的余额。</translation>
+        <translation type=金额超出您的余额。</translation>
     </message>
     <message>
         <location line="-552"/>
         <source>The total exceeds your balance when the %1 transaction fee is included.</source>
-        <translation type="unfinished">计入 %1 交易费后的金额超出您的余额。</translation>
+        <translation type=计入 %1 交易费后的金额超出您的余额。</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Duplicate address found: addresses should only be used once each.</source>
-        <translation type="unfinished">发现重复地址：每个地址应该只使用一次。</translation>
+        <translation type=发现重复地址：每个地址应该只使用一次。</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Transaction creation failed!</source>
-        <translation type="unfinished">交易创建失败！</translation>
+        <translation type=交易创建失败！</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>The transaction was rejected with the following reason: %1</source>
-        <translation type="unfinished">交易因以下原因拒绝：%1</translation>
+        <translation type=交易因以下原因拒绝：%1</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>A fee higher than %1 is considered an absurdly high fee.</source>
-        <translation type="unfinished">交易费一般不应超过 %1。</translation>
+        <translation type=交易费一般不应超过 %1。</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Payment request expired.</source>
-        <translation type="unfinished">付款请求已过期。</translation>
+        <translation type=付款请求已过期</translation>
     </message>
     <message>
         <location line="+9"/>
         <source>Send Coins</source>
-        <translation type="unfinished">发送</translation>
+        <translation type=>发送</translation>
     </message>
     <message>
         <location line="+101"/>
@@ -544,7 +544,7 @@
         <location line="+55"/>
         <location line="+55"/>
         <source>BITC</source>
-        <translation type="unfinished"></translation>
+        <translation type=小比特></translation>
     </message>
     <message>
         <location line="-657"/>
@@ -554,24 +554,24 @@
         <location line="+55"/>
         <location line="+55"/>
         <source>USD</source>
-        <translation type="unfinished"></translation>
+        <translation type=美金</translation>
     </message>
     <message>
         <location line="-460"/>
         <location line="+65"/>
         <source>Price goes above</source>
-        <translation type="unfinished"></translation>
+        <translation type=价格高于</translation>
     </message>
     <message>
         <location line="-63"/>
         <location line="+65"/>
         <source>Price goes below</source>
-        <translation type="unfinished"></translation>
+        <translation type=价格低于</translation>
     </message>
     <message>
         <location line="+111"/>
         <source>Confirm execution of recurring payment</source>
-        <translation type="unfinished"></translation>
+        <translation type=确定执行定期付款</translation>
     </message>
     <message>
         <location line="+0"/>
@@ -583,28 +583,28 @@ Day of execution: %5
 Month of execution: %6
 
 Do you want to execute the payment?</source>
-        <translation type="unfinished"></translation>
+        <translation type=确定付款？</translation>
     </message>
     <message>
         <location line="+35"/>
         <source>You need to enter the Twitter name of the recipient.</source>
-        <translation type="unfinished"></translation>
+        <translation type=输入推特用户名作为收款地址</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>You need to enter the amount of coins you want to send.</source>
-        <translation type="unfinished"></translation>
+        <translation type=输入发送的硬币数量</translation>
     </message>
     <message>
         <location line="+168"/>
         <location line="+55"/>
         <source>Could not create transaction. Reason: %1</source>
-        <translation type="unfinished"></translation>
+        <translation type=不能创建交易，原因：</translation>
     </message>
     <message>
         <location line="+109"/>
         <source>from wallet %1</source>
-        <translation type="unfinished"></translation>
+        <translation type=从钱包</translation>
     </message>
     <message>
         <location line="+13"/>
@@ -612,131 +612,131 @@ Do you want to execute the payment?</source>
         <location line="+5"/>
         <location line="+4"/>
         <source>%1 to %2</source>
-        <translation type="unfinished">%1 到 %2</translation>
+        <translation type=%1 到 %2</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Are you sure you want to send?</source>
-        <translation type="unfinished">您确定要发出吗？</translation>
+        <translation type=确定发送？</translation>
     </message>
     <message>
         <location line="+11"/>
         <source>added as transaction fee</source>
-        <translation type="unfinished">已添加交易费</translation>
+        <translation type=已添加交易费</translation>
     </message>
     <message>
         <location line="+17"/>
         <location line="+4"/>
         <source>Total Amount %1</source>
-        <translation type="unfinished">总金额 %1</translation>
+        <translation type=总金额 %1</translation>
     </message>
     <message>
         <location line="+15"/>
         <source>Confirm send coins</source>
-        <translation type="unfinished">确认发送</translation>
+        <translation type=确认发送</translation>
     </message>
     <message>
         <location line="+50"/>
         <source>Error: no connection to the BitCash network.</source>
-        <translation type="unfinished"></translation>
+        <translation type=小比特网络未能链接</translation>
     </message>
     <message>
         <location line="+8"/>
         <source>Please wait until the download of the blockchain is complete.</source>
-        <translation type="unfinished"></translation>
+        <translation type=区块下载中，请等待完成。</translation>
     </message>
     <message>
         <location line="+33"/>
         <source>This nickname is already taken or is invalid.</source>
-        <translation type="unfinished"></translation>
+        <translation type=此昵称已被占用或无效</translation>
     </message>
     <message>
         <location line="+34"/>
         <source>This is not a valid Twitter user name!</source>
-        <translation type="unfinished"></translation>
+        <translation type=推特用户名无效</translation>
     </message>
     <message>
         <location line="+36"/>
         <source>This is not a valid Instagram user name!</source>
-        <translation type="unfinished"></translation>
+        <translation type= Instagram用户名无效</translation>
     </message>
     <message>
         <location line="+35"/>
         <source>This is not a valid Twitch user name!</source>
-        <translation type="unfinished"></translation>
+        <translation type=Twitch用户名无效</translation>
     </message>
     <message>
         <location line="+17"/>
         <location line="+9"/>
         <source>New version available</source>
-        <translation type="unfinished"></translation>
+        <translation type=有可用的新版本</translation>
     </message>
     <message>
         <location line="-8"/>
         <location line="+9"/>
         <source>This new version of the wallet is now available: </source>
-        <translation type="unfinished"></translation>
+        <translation type="有可用的新版本钱包</translation>
     </message>
     <message>
         <location line="-8"/>
         <location line="+9"/>
         <source> You are using this version: </source>
-        <translation type="unfinished"></translation>
+        <translation type=你正在使用本版本</translation>
     </message>
     <message>
         <location line="-8"/>
         <source> Do you want to start the download of the new version? </source>
-        <translation type="unfinished"></translation>
+        <translation type=确定下载新版本？</translation>
     </message>
     <message>
         <location line="+78"/>
         <source>Wallet</source>
-        <translation type="unfinished">钱包</translation>
+        <translation type=钱包</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Node</source>
-        <translation type="unfinished">节点</translation>
+        <translation type=节点</translation>
     </message>
     <message>
         <location line="+287"/>
         <source>&amp;Overview</source>
-        <translation type="unfinished">概况(&amp;O)</translation>
+        <translation type=概况(&amp;O)</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Show general overview of wallet</source>
-        <translation type="unfinished">显示钱包概况</translation>
+        <translation type=显示钱包概况</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>&amp;Send</source>
-        <translation type="unfinished">发送(&amp;S)</translation>
+        <translation type=发送(&amp;S)</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Send coins to a Bitcash address</source>
-        <translation type="unfinished"></translation>
+        <translation type="发送小比特到钱包地址</translation>
     </message>
     <message>
         <location line="+10"/>
         <source>&amp;Receive</source>
-        <translation type="unfinished">接收(&amp;R)</translation>
+        <translation type=接收(&amp;R)</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Request payments (generates QR codes and bitcash: URIs)</source>
-        <translation type="unfinished"></translation>
+        <translation type=付款请求</translation>
     </message>
     <message>
         <location line="+10"/>
         <source>&amp;Transactions</source>
-        <translation type="unfinished">交易记录(&amp;T)</translation>
+        <translation type=交易记录(&amp;T)</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Browse transaction history</source>
-        <translation type="unfinished">查看交易历史</translation>
+        <translation type=查看交易历史</translation>
     </message>
     <message>
         <location line="+6"/>
@@ -746,27 +746,27 @@ Do you want to execute the payment?</source>
     <message>
         <location line="+1"/>
         <source>Send and receive BitCash via link</source>
-        <translation type="unfinished"></translation>
+        <translation type=通过链接发送和接收小比特</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>&amp;Mining</source>
-        <translation type="unfinished"></translation>
+        <translation type=挖矿中</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Mine BitCash</source>
-        <translation type="unfinished"></translation>
+        <translation type=小比特</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>&amp;Nicknames</source>
-        <translation type="unfinished"></translation>
+        <translation type=昵称</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Register a nickname</source>
-        <translation type="unfinished"></translation>
+        <translation type=注册昵称</translation>
     </message>
     <message>
         <location line="+31"/>
@@ -821,82 +821,82 @@ Do you want to execute the payment?</source>
     <message>
         <location line="+2"/>
         <source>&amp;Create a new paper wallet</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">创建一个新的纸钱包</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Create a paper wallet for save long term storage of your BitCash</source>
-        <translation type="unfinished"></translation>
+        <translation type=创建一个纸钱包，长期保持小比特</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>&amp;Import / Restore from paper wallet</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">从纸钱包恢复</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Import a private key from a paper wallet to add your BitCash to the main wallet</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">从纸钱包输入私钥，把小比特加入到主钱包</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>&amp;Try to solve syncing issues</source>
-        <translation type="unfinished"></translation>
+        <translation type="尝试解决同步问题</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Removes the invalid flag of all blocks. Tries to resolve syncing issues for example after a hard fork. </source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">删除所有块的无效标志。例如在硬分叉之后，尝试解决同步问题，</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>&amp;Resend wallet transactions</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">重新发送交易</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>This command will broadcast all transaction in the mempool to the peers immediately. </source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">此命令将立即广播mempool中的所有事务。</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>&amp;Rescan blockchain (will take very long)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">重新扫描区块（这将花费大量时间）</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Rescan the blockchain for coins. </source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">重新扫描区块中的硬币</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Rescan last 50000 &amp;blocks of the blockchain</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">重新扫描最后的50000</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Rescans the last 50000 blocks of the blockchain for coins. </source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">重新扫描最后的50000区块中的硬币</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>&amp;Backup wallet</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">备份钱包</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Make a backup copy of your wallet.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">备份你的钱包</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>&amp;Export transactions...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">导出交易记录</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Export the transaction as CSV file</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">以CSV文件导出交易记录</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -921,12 +921,12 @@ Do you want to execute the payment?</source>
     <message>
         <location line="+1"/>
         <source>&amp;Import private keys from textfile...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">从文件文本导入私钥</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Import a list of private keys from a textfile</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">从文本文件导入私钥列表</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -946,7 +946,7 @@ Do you want to execute the payment?</source>
     <message>
         <location line="+1"/>
         <source>Sign messages with your Bitcash addresses to prove you own them</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">在你的钱包地址当中进行消息签名,以此证明你拥有该钱包地址</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -956,7 +956,7 @@ Do you want to execute the payment?</source>
     <message>
         <location line="+1"/>
         <source>Verify messages to ensure they were signed with specified Bitcash addresses</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">验证消息以确保它们使用指定的小比特地址签名</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -996,7 +996,7 @@ Do you want to execute the payment?</source>
     <message>
         <location line="+1"/>
         <source>Open a bitcash: URI or payment request</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">打开小比特：URI或是付款请求</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -1006,7 +1006,7 @@ Do you want to execute the payment?</source>
     <message>
         <location line="+2"/>
         <source>Show the %1 help message to get a list with possible Bitcash command-line options</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">显示%1帮助消息以获取可能包含bitcash命令行选项的列表</translation>
     </message>
     <message>
         <location line="+57"/>
@@ -1016,17 +1016,17 @@ Do you want to execute the payment?</source>
     <message>
         <location line="+16"/>
         <source>&amp;Paper wallet</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">纸钱包</translation>
     </message>
     <message>
         <location line="+8"/>
         <source>&amp;Minimize to tray</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">最小化到系统托盘</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>&amp;Repair</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">修复</translation>
     </message>
     <message>
         <location line="+9"/>
@@ -1041,7 +1041,7 @@ Do you want to execute the payment?</source>
     <message>
         <location line="+115"/>
         <source>Wallet:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">钱包</translation>
     </message>
     <message>
         <location line="+50"/>
@@ -1051,7 +1051,7 @@ Do you want to execute the payment?</source>
     <message numerus="yes">
         <location line="+191"/>
         <source>%n active connection(s) to Bitcash network</source>
-        <translation type="unfinished">
+        <translation type="unfinished">%n活动链接在Bitcash网络
             <numerusform></numerusform>
         </translation>
     </message>
@@ -1103,7 +1103,7 @@ Do you want to execute the payment?</source>
     <message numerus="yes">
         <location line="+9"/>
         <source>Processed %n block(s) of transaction history.</source>
-        <translation type="unfinished">
+        <translation type="unfinished">已经处理%n区块的交易记录
             <numerusform></numerusform>
         </translation>
     </message>
@@ -1136,7 +1136,7 @@ Do you want to execute the payment?</source>
     <message>
         <location line="+13"/>
         <source>Bitcash</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Bitcash</translation>
     </message>
     <message>
         <location line="+17"/>
@@ -1166,7 +1166,7 @@ Do you want to execute the payment?</source>
         <location line="+2"/>
         <source>Wallet: %1
 </source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">钱包：%1</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -1222,7 +1222,7 @@ Do you want to execute the payment?</source>
     <message>
         <location filename="../bitcash.cpp" line="+99"/>
         <source>A fatal error occurred. Bitcash can no longer continue safely and will quit.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">发生致命错误。Bitcash不能继续，程序将退出</translation>
     </message>
 </context>
 <context>
@@ -1460,27 +1460,27 @@ Do you want to execute the payment?</source>
     <message>
         <location line="+71"/>
         <source>The entered address &quot;%1&quot; is not a valid Bitcash address.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">输入的 &quot;%1&quot; 不是有效的Bitcash地址</translation>
     </message>
     <message>
         <location line="+33"/>
         <source>Address &quot;%1&quot; already exists as a receiving address with label &quot;%2&quot; and so cannot be added as a sending address.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">地址&quot;%1&quot; 已经作为带有标签的 &quot;%2&quot存在;不能做为发送地址添加</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>The entered address &quot;%1&quot; is already in the address book with label &quot;%2&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">输入的地址 &quot;%1&quot;已经在标签为&quot;%2&quot;的地址本中</translation>
     </message>
     <message>
         <location line="-28"/>
         <source>Could not unlock wallet.</source>
-        <translation>无法将钱包解锁。</translation>
+        <translation>钱包无法解锁。</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>New key generation failed.</source>
-        <translation>产生新的密钥失败了。</translation>
+        <translation>生成新密钥失败。</translation>
     </message>
 </context>
 <context>
@@ -1527,7 +1527,7 @@ Do you want to execute the payment?</source>
     <message>
         <location line="+5"/>
         <source>About %1</source>
-        <translation>關於 %1</translation>
+        <translation>关于 %1</translation>
     </message>
     <message>
         <location line="+19"/>
@@ -1605,7 +1605,7 @@ Do you want to execute the payment?</source>
     <message>
         <location line="+10"/>
         <source>This initial synchronisation is very demanding, and may expose hardware problems with your computer that had previously gone unnoticed. Each time you run %1, it will continue downloading where it left off.</source>
-        <translation type="unfinished"></translation>
+        <translation type=这种初始同步要求很高，可能会暴露出先前未被注意到的计算机硬件问题。每次运行%1时，它将继续从停止的位置下载。</translation>
     </message>
     <message>
         <location line="+10"/>
@@ -1635,12 +1635,12 @@ Do you want to execute the payment?</source>
     <message>
         <location line="-11"/>
         <source>Bitcash</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Bitcash<</translation>
     </message>
     <message>
         <location line="+19"/>
         <source>%1 will download and store a copy of the Bitcash block chain.</source>
-        <translation type="unfinished"></translation>
+        <translation type=已经下载并存储%1的区块</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -1660,14 +1660,14 @@ Do you want to execute the payment?</source>
     <message numerus="yes">
         <location line="+9"/>
         <source>%n GB of free space available</source>
-        <translation type="unfinished">
+        <translation type=%GB可用硬盘空间
             <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <location line="+3"/>
         <source>(of %n GB needed)</source>
-        <translation type="unfinished">
+        <translation type=需要%nGB
             <numerusform></numerusform>
         </translation>
     </message>
@@ -1682,52 +1682,52 @@ Do you want to execute the payment?</source>
     <message>
         <location line="+18"/>
         <source>Here you can create a link to send coins via email or messenger. You can enter the amount you want to send here.</source>
-        <translation type="unfinished"></translation>
+        <translation type=您可以在这里创建一个链接，通过电子邮件或信息发送硬币。您可以在此处输入要发送的金额。</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Reference line:</source>
-        <translation type="unfinished"></translation>
+        <translation type=参考线</translation>
     </message>
     <message>
         <location line="+10"/>
         <source>Amount:</source>
-        <translation type="unfinished">金额：</translation>
+        <translation type=金额：</translation>
     </message>
     <message>
         <location line="+10"/>
         <source>Send coins via link</source>
-        <translation type="unfinished"></translation>
+        <translation type=通过链接发送硬币</translation>
     </message>
     <message>
         <location line="+11"/>
         <source>Created links:</source>
-        <translation type="unfinished"></translation>
+        <translation type=已创建的链接</translation>
     </message>
     <message>
         <location line="+10"/>
         <source>Copy selected link</source>
-        <translation type="unfinished"></translation>
+        <translation type=复制选择的链接</translation>
     </message>
     <message>
         <location line="+25"/>
         <source>Here you can paste a link which you have received to claim the coins.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">你可以在这里粘贴一个链领取硬币</translation>
     </message>
     <message>
         <location line="+14"/>
         <source>Paste a link here:</source>
-        <translation type="unfinished"></translation>
+        <translation type=粘贴链接在这里</translation>
     </message>
     <message>
         <location line="+10"/>
         <source>Claim coins from link</source>
-        <translation type="unfinished"></translation>
+        <translation type=从链接领取硬币</translation>
     </message>
     <message>
         <location line="+17"/>
         <source>Make a copy of the created links before you close this program. Otherwise the coins will be lost forever!!!</source>
-        <translation type="unfinished"></translation>
+        <translation type=关闭此程序之前，请复制创建的链接。否则硬币将永远丢失！！</translation>
     </message>
     <message>
         <location line="+7"/>
