@@ -41,7 +41,7 @@
     <message>
         <location line="-71"/>
         <source>Enter address or label to search</source>
-        <translation type="unfinished"></translation>
+        <translation type=输入要搜索的地址或标签</translation>
     </message>
     <message>
         <location line="+101"/>
@@ -61,12 +61,12 @@
     <message>
         <location filename="../addressbookpage.cpp" line="+85"/>
         <source>Choose the address to send coins to</source>
-        <translation>选择要付钱过去的地址</translation>
+        <translation>选择付款地址</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Choose the address to receive coins with</source>
-        <translation>选择要收钱进来的地址</translation>
+        <translation>选择收款地址</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -86,12 +86,12 @@
     <message>
         <location line="+7"/>
         <source>These are your Bitcash addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation type="unfinished"></translation>
+        <translation type=这是您的小比特付款地址，发送之前，请务必检查地址及金额。</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>These are your Bitcash addresses for receiving payments.</source>
-        <translation type="unfinished"></translation>
+        <translation type=这是您的小比特收款地址</translation>
     </message>
     <message>
         <location line="+7"/>
@@ -162,12 +162,12 @@
     <message>
         <location line="+14"/>
         <source>New passphrase</source>
-        <translation>新密码</translation>
+        <translation>输入新密码</translation>
     </message>
     <message>
         <location line="+14"/>
         <source>Repeat new passphrase</source>
-        <translation>重复新密码</translation>
+        <translation>重复输入新密码</translation>
     </message>
     <message>
         <location line="+14"/>
@@ -199,7 +199,7 @@
     <message>
         <location line="+3"/>
         <source>This operation needs your wallet passphrase to decrypt the wallet.</source>
-        <translation>这个操作需要你的钱包密码来把钱包解密。</translation>
+        <translation>这个操作需要你的钱包密码来解密钱包。</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -224,17 +224,17 @@
     <message>
         <location line="+12"/>
         <source>%1 will close now to finish the encryption process. Remember that encrypting your wallet cannot fully protect your bitcashs from being stolen by malware infecting your computer.</source>
-        <translation type="unfinished"></translation>
+        <translation type=钱包将立即关闭以完成加密过程。记住，加密你的钱包不能完全保护你的小比特被感染你电脑的病毒/木马程序偷走。</translation>
     </message>
     <message>
         <location line="-11"/>
         <source>Are you sure you wish to encrypt your wallet?</source>
-        <translation>你确定要把钱包加密吗？</translation>
+        <translation>确定加密钱包？</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR BITCASHS&lt;/b&gt;!</source>
-        <translation type="unfinished"></translation>
+        <translation type=如果你丢失了你的钱包以及密码，你将会失去你所有的小比特</translation>
     </message>
     <message>
         <location line="+9"/>
@@ -258,13 +258,13 @@
     <message>
         <location line="-67"/>
         <source>Wallet encryption failed due to an internal error. Your wallet was not encrypted.</source>
-        <translation>因为内部错误导致钱包加密失败。你的钱包还是没加密。</translation>
+        <translation>因为内部错误导致钱包加密失败。你的钱包未加密。</translation>
     </message>
     <message>
         <location line="+7"/>
         <location line="+61"/>
         <source>The supplied passphrases do not match.</source>
-        <translation>提供的密码不一致。</translation>
+        <translation>密码不一致。</translation>
     </message>
     <message>
         <location line="-50"/>
@@ -300,17 +300,17 @@
     <message>
         <location filename="../forms/Backupwallet.qml" line="+133"/>
         <source>There are 2 ways to backup your wallet. 1. You can save a wallet.dat file and 2. You can print your private key / paper wallet. We suggest you do both and keep them both safe.</source>
-        <translation type="unfinished"></translation>
+        <translation type=两个办法备份你的钱包，并请确定存放在安全的地方：1、备份你的钱包文件，2、打印你的私钥/纸钱包。</translation>
     </message>
     <message>
         <location line="+45"/>
         <source>Your public address is the address you can share with other people. The private key should never be shared with anyone otherwise they will have access to all your BitCash. This Private key can be imported later on to access your coins.</source>
-        <translation type="unfinished"></translation>
+        <translation type=你的公钥可以分享给任何人，你的私钥不能分享给任何人，否正他们将可以导入私钥，知道你所有的小比特。</translation>
     </message>
     <message>
         <location line="+30"/>
         <source>Public address</source>
-        <translation type="unfinished"></translation>
+        <translation type=公钥地址</translation>
     </message>
     <message>
         <location line="+12"/>
