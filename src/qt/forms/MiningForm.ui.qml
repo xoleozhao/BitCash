@@ -341,12 +341,13 @@ Item {
         x: 609
         anchors.right: layoutrect.right
         y: 66
-        width: 250
+        //width: 250
         height: 44
         text: qsTr("Start mining")
         font.pixelSize: 16
         anchors.verticalCenter: mininglabel.verticalCenter
         leftPadding: 40
+        rightPadding: 20
         iconname: "../res/assets/Miscellaneous/button-start.png"
         font.capitalization: Font.MixedCase
         font.family: "Montserrat"
@@ -355,14 +356,15 @@ Item {
     Mybutton {
         id: stopminingbutton
         y: 66
-        width: 250
+        //width: 250
         text: qsTr("Stop mining")
-        anchors.leftMargin: 0
+        anchors.right: startminingbutton.right
+        anchors.rightMargin: 0
         font.weight: Font.DemiBold
         font.pixelSize: 14
         anchors.verticalCenter: mininglabel.verticalCenter
         leftPadding: 46
-        anchors.left: startminingbutton.left
+        rightPadding: 20
         height: 44
         iconname: "../res/assets/Miscellaneous/button-stop.png"
         font.capitalization: Font.MixedCase
@@ -371,6 +373,24 @@ Item {
         checkable: false
     }
 
+    property alias informationbtn: informationbtn
+
+    Mybutton {
+        id: informationbtn
+        x: 527
+        height: 44
+        text: qsTr("Information before you start")
+        anchors.top: stopanimation.bottom
+        anchors.topMargin: 0
+        anchors.right: startminingbutton.right
+        anchors.rightMargin: 0
+        font.pixelSize: 16
+        leftPadding: 40
+        rightPadding: 20
+        iconname: "../res/assets/Miscellaneous/info-yellow.png"
+        font.capitalization: Font.MixedCase
+        font.family: "Montserrat"
+    }
     property alias labelgraphs: labelgraphs
 
     Label {
@@ -458,5 +478,59 @@ Item {
         currentIndex: 0
         visible: false
         model: ["stratum+tcp://mine.icemining.ca:3649", "stratum+tcp://bitc-us.skypool.co:8101", "stratum+tcp://eu.bsod.pw:2564", "stratum+tcp://pool.rig.tokyo:8001", "stratum+tcp://us.gethash.cc:3639", "stratum+tcp://x16r.mine.zpool.ca:3636"]
+    }
+
+    property alias infowhitebox: infowhitebox
+
+    ShadowBox {
+        id: infowhitebox
+        anchors.left: layoutrect.left
+        anchors.right: layoutrect.right
+        color: "white"
+        radius: 3
+        anchors.leftMargin: -6
+        anchors.top: mininglabel.bottom
+        anchors.topMargin: -40
+        border.width: 0
+        width: 632
+        height: 488
+        visible: false
+    }
+
+    property alias mininginfotext: mininginfotext
+
+    Text {
+        id: mininginfotext
+        y: 74
+        anchors.left: infowhitebox.left
+        anchors.top: infowhitebox.top
+        anchors.right: infowhitebox.right
+        anchors.leftMargin: 15
+        anchors.rightMargin: 15
+        anchors.topMargin: 15
+        text: qsTr("Welcome to Bitcash mining!  The one click solution for mining!  \n\nBefore we begin, please take note of a few requirements for mining:\n\nNvidia video card\n980 model or later (minimum 3gb vram)\n\nNow select your pool, click start mining and begin receiving bitcash rewards directly to your wallet!  \n\nThat's it!  Leave you wallet open while mining and enjoy!  \n\nThe algo your mining is X16R, and you miner is Trex miner which has been integrated into the bitcash wallet.\n\nAny questions please visit us on discord https://discord.gg/t2MdnWQ")
+        wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+        font.pixelSize: 14
+        font.family: "Montserrat"
+        font.weight: Font.Normal
+        visible: false
+    }
+    property alias closeinformationbtn: closeinformationbtn
+
+    Mybutton {
+        id: closeinformationbtn
+        height: 44
+        text: qsTr("Close")
+        anchors.top: mininginfotext.bottom
+        anchors.topMargin: 20
+        anchors.left: infowhitebox.left
+        anchors.leftMargin: 15
+        font.pixelSize: 16
+        leftPadding: 40
+        rightPadding: 20
+        iconname: "../res/assets/Miscellaneous/info-yellow.png"
+        font.capitalization: Font.MixedCase
+        font.family: "Montserrat"
+        visible: false
     }
 }

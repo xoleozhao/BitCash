@@ -115,6 +115,20 @@ MiningForm {
          graphsstat.text=graphs
      }
 
+     informationbtn.onClicked:
+     {
+         infowhitebox.visible = true
+         mininginfotext.visible = true
+         closeinformationbtn.visible = true
+     }
+
+     closeinformationbtn.onClicked:
+     {
+         infowhitebox.visible = false
+         mininginfotext.visible = false
+         closeinformationbtn.visible = false
+     }
+
      stopanimation.onCheckStateChanged: {
          if (!stopanimation.checked)
          {
