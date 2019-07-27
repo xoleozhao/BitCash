@@ -2045,7 +2045,7 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+1"/>
         <source>Error: </source>
-        <translation type="unfinished"></translation>
+        <translation type=错误</translation>
     </message>
 </context>
 <context>
@@ -2053,12 +2053,12 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location filename="../forms/Nicknames.qml" line="+53"/>
         <source>Copied</source>
-        <translation type="unfinished"></translation>
+        <translation type=已复制</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Copy to clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation type=从剪贴板复制</translation>
     </message>
 </context>
 <context>
@@ -2066,37 +2066,37 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location filename="../forms/NicknamesForm.ui.qml" line="+60"/>
         <source>Create your own nickname such as @joe or @amazon to receive payments from other BitCash users easier than using a BitCash address.</source>
-        <translation type="unfinished"></translation>
+        <translation type=创建您自己的昵称，如@joe或@amazon，以此比使用bitcash地址更容易收到其他bitcash用户的付款。</translation>
     </message>
     <message>
         <location line="+26"/>
         <source>Create your nickname</source>
-        <translation type="unfinished"></translation>
+        <translation type=创建你的昵称</translation>
     </message>
     <message>
         <location line="+47"/>
         <source>Please choose your nickname carefully as you won&apos;t be able to change it later. Each BitCash address can only have one nickname.</source>
-        <translation type="unfinished"></translation>
+        <translation type=请仔细选择你的昵称，因为以后你将无法更改昵称，每个bitcash只能有一个昵称。</translation>
     </message>
     <message>
         <location line="+39"/>
         <source>Your BitCash address</source>
-        <translation type="unfinished"></translation>
+        <translation type=你的小比特地址</translation>
     </message>
     <message>
         <location line="+35"/>
         <source>Nickname</source>
-        <translation type="unfinished"></translation>
+        <translation type=昵称</translation>
     </message>
     <message>
         <location line="+18"/>
         <source>Create nickname</source>
-        <translation type="unfinished"></translation>
+        <translation type=创建昵称</translation>
     </message>
     <message>
         <location line="+15"/>
         <source>Paste</source>
-        <translation type="unfinished"></translation>
+        <translation type=粘贴</translation>
     </message>
     <message>
         <location line="+9"/>
@@ -2106,17 +2106,17 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+42"/>
         <source>At present, only one Nickname per BitCash wallet is allowed. You have already created your nickname which is below.</source>
-        <translation type="unfinished"></translation>
+        <translation type=你已经创建了昵称，目前，每个小比特钱包只能有一个昵称。</translation>
     </message>
     <message>
         <location line="+27"/>
         <source>Your nickname</source>
-        <translation type="unfinished"></translation>
+        <translation type=你的昵称</translation>
     </message>
     <message>
         <location line="+48"/>
         <source>Copy to clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation type=从剪贴板中复制</translation>
     </message>
 </context>
 <context>
@@ -2187,111 +2187,111 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+35"/>
         <source>Ask for password before sending coins (for encrypted wallets)</source>
-        <translation type="unfinished"></translation>
+        <translation type=发送之前询问密码（用于已加密的钱包）</translation>
     </message>
     <message>
         <location line="+79"/>
         <source>Automatically open the Bitcash client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation type="unfinished"></translation>
+        <translation type=自动打开路由器上的Bitcash客户端端口，这仅在路由器支持UPnP并已有效启动。</translation>
     </message>
     <message>
         <location line="+10"/>
         <source>Accept connections from outside.</source>
-        <translation type="unfinished"></translation>
+        <translation type=接受外部连接</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Allow incomin&amp;g connections</source>
-        <translation type="unfinished"></translation>
+        <translation type=允许&amp连接</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Connect to the Bitcash network through a SOCKS5 proxy.</source>
-        <translation type="unfinished"></translation>
+        <translation type=通过SOCKS5代理连接到Bitcash网络</translation>
     </message>
     <message>
         <location line="+37"/>
         <location line="+187"/>
         <source>IP address of the proxy (e.g. IPv4: 127.0.0.1 / IPv6: ::1)</source>
-        <translation>代理的 IP 地址 (例如 IPv4: 127.0.0.1 / IPv6: ::1)</translation>
+        <translation>type=代理的 IP 地址 (例如 IPv4: 127.0.0.1 / IPv6: ::1)</translation>
     </message>
     <message>
         <location line="-118"/>
         <location line="+23"/>
         <location line="+23"/>
         <source>Shows if the supplied default SOCKS5 proxy is used to reach peers via this network type.</source>
-        <translation>显示默认的SOCKS5代理是否被用于在该类型的网络下连接同伴</translation>
+        <translation>type=显示默认的SOCKS5代理是否被用于在该类型的网络下连接同伴</translation>
     </message>
     <message>
         <location line="+35"/>
         <source>Connect to the Bitcash network through a separate SOCKS5 proxy for Tor hidden services.</source>
-        <translation type="unfinished"></translation>
+        <translation type=通过一个单独的socks5代理服务器连接到Bitcash网络，用于Tor隐藏服务。</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Use separate SOCKS&amp;5 proxy to reach peers via Tor hidden services:</source>
-        <translation type="unfinished"></translation>
+        <translation type=使用单独的SOCKS&amp代理通过Tor隐藏服务与对方取得联系.</translation>
     </message>
     <message>
         <location line="+108"/>
-        <source>Hide the icon from the system tray.</source>
-        <translation type="unfinished"></translation>
+        <source>.</source>
+        <translation type=从系统托盘中隐藏图标</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>&amp;Hide tray icon</source>
-        <translation type="unfinished"></translation>
+        <translation type=&amp;隐藏托盘图标</translation>
     </message>
     <message>
         <location line="+17"/>
         <source>Minimize instead of exit the application when the window is closed. When this option is enabled, the application will be closed only after selecting Exit in the menu.</source>
-        <translation>窗口被关闭时最小化而不是退出应用程序。当此选项启用时，应用程序只会在菜单中选择退出时退出。</translation>
+        <translation>type=窗口被关闭时最小化而不是退出应用程序。当此选项启用时，应用程序只会在菜单中选择退出时退出。</translation>
     </message>
     <message>
         <location line="+59"/>
         <location line="+13"/>
         <source>Third party URLs (e.g. a block explorer) that appear in the transactions tab as context menu items. %s in the URL is replaced by transaction hash. Multiple URLs are separated by vertical bar |.</source>
-        <translation>出现在交易的选项卡的上下文菜单项的第三方网址 (例如：区块链接查询) 。 %s的URL被替换为交易哈希。多个的URL需要竖线 | 分隔。</translation>
+        <translation>type=出现在交易的选项卡的上下文菜单项的第三方网址 (例如：区块链接查询) 。 %s的URL被替换为交易哈希。多个的URL需要竖线 | 分隔。</translation>
     </message>
     <message>
         <location line="-10"/>
         <source>&amp;Third party transaction URLs</source>
-        <translation type="unfinished"></translation>
+        <translation type=&amp；第三方URLs传输</translation>
     </message>
     <message>
         <location line="+41"/>
         <source>Active command-line options that override above options:</source>
-        <translation>有效的命令行参数覆盖上述选项:</translation>
+        <translation> type=有效的命令行参数覆盖上述选项:</translation>
     </message>
     <message>
         <location line="+45"/>
         <source>Open the %1 configuration file from the working directory.</source>
-        <translation>从工作目录下打开配置文件 %1。</translation>
+        <translation> type=从工作目录下打开配置文件 %1。</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Open Configuration File</source>
-        <translation>打开配置文件</translation>
+        <translation> type=打开配置文件</translation>
     </message>
     <message>
         <location line="+10"/>
         <source>Reset all client options to default.</source>
-        <translation>恢复客户端的缺省设置</translation>
+        <translation>type=恢复客户端的缺省设置</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>&amp;Reset Options</source>
-        <translation>恢复缺省设置(&amp;R)</translation>
+        <translation> type=恢复缺省设置(&amp;R)</translation>
     </message>
     <message>
         <location line="-508"/>
         <source>&amp;Network</source>
-        <translation>网络(&amp;N)</translation>
+        <translation> type=网络(&amp;N)</translation>
     </message>
     <message>
         <location line="-95"/>
         <source>(0 = auto, &lt;0 = leave that many cores free)</source>
-        <translation>(0 = 自动, &lt;0 = 保持指定数量的CPU核心空闲)</translation>
+        <translation> type=(0 = 自动, &lt;0 = 保持指定数量的CPU核心空闲)</translation>
     </message>
     <message>
         <location line="+46"/>
@@ -2479,48 +2479,48 @@ If you submitted this transaction by accident, you can claim the coins back with
         <location filename="../forms/Overview.qml" line="+192"/>
         <location line="+36"/>
         <source>You can convert BitCash into BitCash Dollars (c-&gt;d) and BitCash Dollars into BitCash (d-&gt;c) with these two buttons.</source>
-        <translation type="unfinished"></translation>
+        <translation type=您可以使用这两个按钮将BitCash转换为 BitCash美元（c-&gt；d），将 BitCash美元转换为 BitCash（d-&gt；c）。</translation>
     </message>
     <message>
         <location line="-9"/>
         <source>Convert</source>
-        <translation type="unfinished"></translation>
+        <translation type=转换</translation>
     </message>
     <message>
         <location line="+37"/>
         <source>Available</source>
-        <translation type="unfinished"></translation>
+        <translation type=有效</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>Value of wallet</source>
-        <translation type="unfinished"></translation>
+        <translation type=钱包价值</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>BitCash supply</source>
-        <translation type="unfinished"></translation>
+        <translation type=小比特供应</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>Dollar supply</source>
-        <translation type="unfinished"></translation>
+        <translation type=美金供应</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>Blockheight</source>
-        <translation type="unfinished"></translation>
+        <translation type=区块高度</translation>
     </message>
     <message>
         <location line="+14"/>
         <source>Pending</source>
-        <translation type="unfinished"></translation>
+        <translation type=挂起</translation>
     </message>
     <message>
         <location line="+9"/>
         <location line="+21"/>
         <source>You have received Bitcash but it has&lt;br&gt; not yet been confirmed by the Bitcash&lt;br&gt; blockchain network. Once it has been&lt;br&gt; confirmed, it will become available for&lt;br&gt; you to spend. This usually takes a few&lt;br&gt; minutes but can take up to one hour.</source>
-        <translation type="unfinished"></translation>
+        <translation type=你收到了Bitcash ，但尚未得到区块链的确认，一旦确认，你可以消费，通常需要几分钟的事情，最长不超过一小时。</translation>
     </message>
     <message>
         <location line="+20"/>
@@ -2566,7 +2566,7 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+70"/>
         <source>Total BitCash balance</source>
-        <translation type="unfinished"></translation>
+        <translation type=BitCash总余额</translation>
     </message>
     <message>
         <location line="+13"/>
@@ -2577,12 +2577,12 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="-13"/>
         <source>Total Dollar balance</source>
-        <translation type="unfinished"></translation>
+        <translation type=美金总余额</translation>
     </message>
     <message>
         <location line="+39"/>
         <source>Price of one BitCash in USD</source>
-        <translation type="unfinished"></translation>
+        <translation type=一个小比特的美元价格</translation>
     </message>
     <message>
         <location line="+47"/>
@@ -2598,18 +2598,18 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+33"/>
         <source>Convert BitCash into BitCash Dollars (c-&gt;d).</source>
-        <translation type="unfinished"></translation>
+        <translation type=从BitCash到BitCash美金的转换 (c-&gt;d).</translation>
     </message>
     <message>
         <location line="+17"/>
         <source>Immature</source>
-        <translation type="unfinished"></translation>
+        <translation type=未成熟</translation>
     </message>
     <message>
         <location line="+9"/>
         <location line="+20"/>
         <source>You have received Bitcash from mining,&lt;br&gt; but it has not yet been confirmed by&lt;br&gt; the Bitcash blockchain network. Once it&lt;br&gt; has been confirmed, it will become&lt;br&gt; available for you to spend. This usually&lt;br&gt; takes a few minutes but can take up to&lt;br&gt; one hour.</source>
-        <translation type="unfinished"></translation>
+        <translation type=你收到了挖矿的Bitcash ，但尚未得到区块链的确认，一旦确认，你可以消费，通常需要几分钟的事情，最长不超过一小时。</translation>
     </message>
     <message>
         <location line="+27"/>
@@ -2620,7 +2620,7 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+51"/>
         <source>Last transactions</source>
-        <translation type="unfinished"></translation>
+        <translation type=上次交易记录</translation>
     </message>
     <message>
         <location line="+30"/>
@@ -2651,23 +2651,23 @@ If you submitted this transaction by accident, you can claim the coins back with
         <location line="+178"/>
         <location line="+35"/>
         <source>Start mining</source>
-        <translation type="unfinished"></translation>
+        <translation type=开始挖矿</translation>
     </message>
     <message>
         <location line="-19"/>
         <source>Use your computer to mine and earn BitCash now.</source>
-        <translation type="unfinished"></translation>
+        <translation type=现在开始使用你的电脑挖矿来赚取小比特。</translation>
     </message>
     <message>
         <location line="+64"/>
         <location line="+35"/>
         <source>Backup wallet</source>
-        <translation type="unfinished"></translation>
+        <translation type=备份钱包</translation>
     </message>
     <message>
         <location line="-19"/>
         <source>Save a backup of your wallet as a precaution now.</source>
-        <translation type="unfinished"></translation>
+        <translation type=保存一个钱包备份文件作为预防措施。</translation>
     </message>
     <message>
         <location line="+72"/>
@@ -2677,7 +2677,7 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+14"/>
         <source>Fully synced.</source>
-        <translation type="unfinished"></translation>
+        <translation type=全部同步完成。</translation>
     </message>
     <message>
         <location line="+22"/>
@@ -2688,17 +2688,17 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+24"/>
         <source>Automatic trading</source>
-        <translation type="unfinished"></translation>
+        <translation type=自动交易</translation>
     </message>
     <message>
         <location line="+16"/>
         <source>Place a stop loss or take profit order</source>
-        <translation type="unfinished"></translation>
+        <translation type=发出止损或获利指令。</translation>
     </message>
     <message>
         <location line="+17"/>
         <source>Place orders</source>
-        <translation type="unfinished"></translation>
+        <translation type=订单</translation>
     </message>
 </context>
 <context>
@@ -2752,7 +2752,7 @@ If you submitted this transaction by accident, you can claim the coins back with
         <location line="+16"/>
         <location line="+392"/>
         <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Bitcash network after a connection is established, but this process has not completed yet.</source>
-        <translation type="unfinished"></translation>
+        <translation type=显示的信息可能已过期。在建立连接后，您的钱包会自动与Bitcash网络同步，但此过程尚未完成。</translation>
     </message>
     <message>
         <location line="-348"/>
@@ -2800,17 +2800,17 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location filename="../forms/Paperbillselect.qml" line="+67"/>
         <source>Print paper BitCash Dollar bills</source>
-        <translation type="unfinished"></translation>
+        <translation type=打印BitCash美金纸质账单</translation>
     </message>
     <message>
         <location line="+11"/>
         <source>Bill denomination</source>
-        <translation type="unfinished"></translation>
+        <translation type=账单面额</translation>
     </message>
     <message>
         <location line="+26"/>
         <source>Generate bill</source>
-        <translation type="unfinished"></translation>
+        <translation type="生成账单</translation>
     </message>
     <message>
         <location line="+39"/>
@@ -2853,48 +2853,48 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location filename="../forms/Paperwallet.qml" line="+85"/>
         <source>You can use the paper wallet for a save long term storage of your BitCash. Your public address is the address you can share with other people. The private key should never be shared with anyone otherwise they will have access to all your BitCash. This Private key can be imported later on to access your coins.</source>
-        <translation type="unfinished"></translation>
+        <translation type=你可以使用纸制钱包来长期保存你的BitCash。您的公共地址是您可以与其他人共享的地址。私人密钥不应该与任何人共享，否则他们将可以访问您的所有BitCash.。可以在以后导入私钥，以访问您的硬币。</translation>
     </message>
     <message>
         <location line="+42"/>
         <source>Print a paper wallet</source>
-        <translation type="unfinished"></translation>
+        <translation type=打印一个纸钱包</translation>
     </message>
     <message>
         <location line="+11"/>
         <source>Public address</source>
-        <translation type="unfinished"></translation>
+        <translation type=公共地址</translation>
     </message>
     <message>
         <location line="+12"/>
         <source>(to receive coins)</source>
-        <translation type="unfinished"></translation>
+        <translation type=（收到硬币）</translation>
     </message>
     <message>
         <location line="+49"/>
         <location line="+50"/>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translation type=复制</translation>
     </message>
     <message>
         <location line="+29"/>
         <source>Private key</source>
-        <translation type="unfinished"></translation>
+        <translation type=私钥</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>(to spend coins)</source>
-        <translation type="unfinished"></translation>
+        <translation type=（消费硬币）</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>Print</source>
-        <translation type="unfinished"></translation>
+        <translation type=打印</translation>
     </message>
     <message>
         <location line="+25"/>
         <source>Generate new wallet</source>
-        <translation type="unfinished"></translation>
+        <translation type=生成新钱包</translation>
     </message>
 </context>
 <context>
@@ -2930,12 +2930,12 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="-120"/>
         <source>Cannot start bitcash: click-to-pay handler</source>
-        <translation type="unfinished"></translation>
+        <translation type=无法启动bitcash:单击支付处理程序。</translation>
     </message>
     <message>
         <location line="+82"/>
         <source>&apos;bitcash://&apos; is not a valid URI. Use &apos;bitcash:&apos; instead.</source>
-        <translation type="unfinished"></translation>
+        <translation type=&apos；bitcash://&apos；不是有效的URI。使用&apos；bitcash:&apos；代替</translation>
     </message>
     <message>
         <location line="+46"/>
@@ -2975,7 +2975,7 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+6"/>
         <source>Payment request is not initialized.</source>
-        <translation type="unfinished"></translation>
+        <translation type=付款请求未初始化。</translation>
     </message>
     <message>
         <location line="+26"/>
@@ -3034,29 +3034,29 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location filename="../forms/Payments.qml" line="+137"/>
         <source>Recurring payments</source>
-        <translation type="unfinished"></translation>
+        <translation type=定期付款</translation>
     </message>
     <message>
         <location line="+26"/>
         <source>Payments</source>
-        <translation type="unfinished"></translation>
+        <translation type=付款</translation>
     </message>
     <message>
         <location line="+29"/>
         <source>Create new recurring payment</source>
-        <translation type="unfinished"></translation>
+        <translation type=创建新的定期付款</translation>
     </message>
     <message>
         <location line="+64"/>
         <location line="+604"/>
         <source>Recipient</source>
-        <translation type="unfinished"></translation>
+        <translation type=接受方</translation>
     </message>
     <message>
         <location line="-589"/>
         <location line="+646"/>
         <source>Description</source>
-        <translation type="unfinished"></translation>
+        <translation type=说明</translation>
     </message>
     <message>
         <location line="-631"/>
@@ -3067,22 +3067,22 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="-672"/>
         <source>Day</source>
-        <translation type="unfinished"></translation>
+        <translation type=日</translation>
     </message>
     <message>
         <location line="+16"/>
         <source>Month</source>
-        <translation type="unfinished"></translation>
+        <translation type=月</translation>
     </message>
     <message>
         <location line="+109"/>
         <source>Copy recipient</source>
-        <translation type="unfinished"></translation>
+        <translation type=复制接受方</translation>
     </message>
     <message>
         <location line="+51"/>
         <source>Copy description</source>
-        <translation type="unfinished"></translation>
+        <translation type=复制说明</translation>
     </message>
     <message>
         <location line="+54"/>
@@ -3093,42 +3093,42 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+52"/>
         <source>Copy day</source>
-        <translation type="unfinished"></translation>
+        <translation type=复制 日</translation>
     </message>
     <message>
         <location line="+52"/>
         <source>Copy month</source>
-        <translation type="unfinished"></translation>
+        <translation type=复制 月</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>Remove payment</source>
-        <translation type="unfinished"></translation>
+        <translation type=删除付款</translation>
     </message>
     <message>
         <location line="+47"/>
         <source>Removed payment.</source>
-        <translation type="unfinished"></translation>
+        <translation type=已删除付款</translation>
     </message>
     <message>
         <location line="+29"/>
         <source>Undo</source>
-        <translation type="unfinished"></translation>
+        <translation type=取消</translation>
     </message>
     <message>
         <location line="+41"/>
         <source>Create recurring payment</source>
-        <translation type="unfinished"></translation>
+        <translation type=创建定期付款</translation>
     </message>
     <message>
         <location line="+56"/>
         <source>Paste the BitCash address or nickname of the recipient</source>
-        <translation type="unfinished"></translation>
+        <translation type=粘贴BitCash地址或是接受方的昵称。</translation>
     </message>
     <message>
         <location line="+21"/>
         <source>What are you paying for?</source>
-        <translation type="unfinished"></translation>
+        <translation type=确定支付？</translation>
     </message>
     <message>
         <location line="+49"/>
@@ -3138,42 +3138,42 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+9"/>
         <source>Send Dollar</source>
-        <translation type="unfinished"></translation>
+        <translation type=发送美金</translation>
     </message>
     <message>
         <location line="+47"/>
         <source>Enter the day (1-31).</source>
-        <translation type="unfinished"></translation>
+        <translation type=输入日（1-31）</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Enter the day of the month. The payment will be excuted every month on the same day.</source>
-        <translation type="unfinished"></translation>
+        <translation type="输入月份中的日期，每月将在同一日付款。</translation>
     </message>
     <message>
         <location line="+8"/>
         <source>Day of execution</source>
-        <translation type="unfinished"></translation>
+        <translation type=执行日期</translation>
     </message>
     <message>
         <location line="+25"/>
         <source>Enter the month (1-12).</source>
-        <translation type="unfinished"></translation>
+        <translation type=输入月（1-12）.</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Enter the Month of next execution. The payment will be executed the first time in this month.</source>
-        <translation type="unfinished"></translation>
+        <translation type=输入下一个执行月份。付款将在本月第一次执行。</translation>
     </message>
     <message>
         <location line="+8"/>
         <source>Month of next execution</source>
-        <translation type="unfinished"></translation>
+        <translation type=下一个执行月份。</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>Create</source>
-        <translation type="unfinished"></translation>
+        <translation type=创建</translation>
     </message>
 </context>
 <context>
@@ -3219,27 +3219,27 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+50"/>
         <source>Select the month</source>
-        <translation type="unfinished"></translation>
+        <translation type=选择月份</translation>
     </message>
     <message>
         <location line="+28"/>
         <source>Select the year</source>
-        <translation type="unfinished"></translation>
+        <translation type=选择年份</translation>
     </message>
     <message>
         <location line="+26"/>
         <source>Print</source>
-        <translation type="unfinished"></translation>
+        <translation type=打印</translation>
     </message>
     <message>
         <location line="+70"/>
         <source>Print BitCash statement</source>
-        <translation type="unfinished"></translation>
+        <translation type=打印Bitcash说明。</translation>
     </message>
     <message>
         <location line="+12"/>
         <source>Print BitCash Dollar statement</source>
-        <translation type="unfinished"></translation>
+        <translation type=打印Bitcash美金说明。</translation>
     </message>
 </context>
 <context>
@@ -3247,17 +3247,17 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location filename="../forms/Printpaperbill.qml" line="+68"/>
         <source>Print paper BitCash Dollar bills</source>
-        <translation type="unfinished"></translation>
+        <translation type=打印Bitcash美金纸质账单</translation>
     </message>
     <message>
         <location line="+24"/>
         <source>Print front side</source>
-        <translation type="unfinished"></translation>
+        <translation type=打印正面</translation>
     </message>
     <message>
         <location line="+16"/>
         <source>Print back side</source>
-        <translation type="unfinished"></translation>
+        <translation type=打印背面</translation>
     </message>
 </context>
 <context>
@@ -3270,12 +3270,12 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location filename="../guiutil.cpp" line="+133"/>
         <source>Enter a Bitcash address (e.g. %1) or nickname</source>
-        <translation type="unfinished"></translation>
+        <translation type=输入Bitcash地址 (e.g. %1)或昵称</translation>
     </message>
     <message>
         <location line="+12"/>
         <source>Enter a nickname</source>
-        <translation type="unfinished"></translation>
+        <translation type=输入昵称</translation>
     </message>
     <message>
         <location line="+741"/>
@@ -3316,28 +3316,28 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message numerus="yes">
         <location line="+18"/>
         <source>%n second(s)</source>
-        <translation type="unfinished">
+        <translation type=%n 秒
             <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <location line="+4"/>
         <source>%n minute(s)</source>
-        <translation type="unfinished">
+        <translation type=%n 分钟
             <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <location line="+4"/>
         <source>%n hour(s)</source>
-        <translation type="unfinished">
+        <translation type=%n 小时)
             <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <location line="+4"/>
         <source>%n day(s)</source>
-        <translation type="unfinished">
+        <translation type=%n 日
             <numerusform></numerusform>
         </translation>
     </message>
@@ -3345,7 +3345,7 @@ If you submitted this transaction by accident, you can claim the coins back with
         <location line="+4"/>
         <location line="+6"/>
         <source>%n week(s)</source>
-        <translation type="unfinished">
+        <translation type=%n 周
             <numerusform></numerusform>
         </translation>
     </message>
@@ -3526,12 +3526,12 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+7"/>
         <source>Current number of blocks</source>
-        <translation>当前数据块数量</translation>
+        <translation>当前区块数量</translation>
     </message>
     <message>
         <location line="+52"/>
         <source>Memory Pool</source>
-        <translation>资金池</translation>
+        <translation>内存池</translation>
     </message>
     <message>
         <location line="+7"/>
@@ -3546,12 +3546,12 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+48"/>
         <source>Open the %1 debug log file from the current data directory. This can take a few seconds for large log files.</source>
-        <translation type="unfinished"></translation>
+        <translation type=从当前数据目录打开%1调试日志文件。对于大型日志文件，这可能需要几秒钟的时间。</translation>
     </message>
     <message>
         <location line="+46"/>
         <source>Wallet: </source>
-        <translation type="unfinished"></translation>
+        <translation type=钱包：</translation>
     </message>
     <message>
         <location line="+8"/>
@@ -3610,17 +3610,17 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+69"/>
         <source>Starting Block</source>
-        <translation>正在启动数据块</translation>
+        <translation>区块正在启动</translation>
     </message>
     <message>
         <location line="+23"/>
         <source>Synced Headers</source>
-        <translation>同步区块头</translation>
+        <translation>区块头已同步</translation>
     </message>
     <message>
         <location line="+23"/>
         <source>Synced Blocks</source>
-        <translation>同步区块链</translation>
+        <translation>区块链已同步</translation>
     </message>
     <message>
         <location line="-1095"/>
@@ -3631,12 +3631,12 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="-616"/>
         <source>Decrease font size</source>
-        <translation>缩小文字</translation>
+        <translation>文字缩小</translation>
     </message>
     <message>
         <location line="+29"/>
         <source>Increase font size</source>
-        <translation>放大文字</translation>
+        <translation>文字放大</translation>
     </message>
     <message>
         <location line="+610"/>
@@ -3784,12 +3784,12 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+1"/>
         <source>Type %1 for an overview of available commands.</source>
-        <translation type="unfinished"></translation>
+        <translation type=键入%1查看可用命令。</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>For more information on using this console type %1.</source>
-        <translation type="unfinished"></translation>
+        <translation type=更多信息，控制台键入%1。</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -3804,12 +3804,12 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+68"/>
         <source>Executing command without any wallet</source>
-        <translation type="unfinished"></translation>
+        <translation type=不通过钱包执行命令</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Executing command using &quot;%1&quot; wallet</source>
-        <translation type="unfinished"></translation>
+        <translation type=执行命令 使用 &quot;%1&quot; 钱包</translation>
     </message>
     <message>
         <location line="+190"/>
@@ -3859,7 +3859,7 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location filename="../forms/Receive.qml" line="+18"/>
         <source>You have successfully claimed the coins from the link.</source>
-        <translation type="unfinished"></translation>
+        <translation type=你已经成功地从链接中领取了硬币。</translation>
     </message>
     <message>
         <location line="+69"/>
