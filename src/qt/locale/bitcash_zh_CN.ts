@@ -3867,27 +3867,27 @@ If you submitted this transaction by accident, you can claim the coins back with
         <location line="+12"/>
         <location line="+12"/>
         <source>Copied</source>
-        <translation type="unfinished"></translation>
+        <translation type=已复制</translation>
     </message>
     <message>
         <location line="-32"/>
         <source>Copy ₡ nickname to clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation type=从剪贴板复制 ₡ 昵称</translation>
     </message>
     <message>
         <location line="+12"/>
         <source>Copy $ nickname to clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation type=从剪贴板复制 $ 昵称></translation>
     </message>
     <message>
         <location line="+12"/>
         <source>Copy ₡ address to clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation type=从剪贴板复制 ₡ 地址</translation>
     </message>
     <message>
         <location line="+12"/>
         <source>Copy $ address to clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation type=从剪贴板复制 $ 地址<</translation>
     </message>
 </context>
 <context>
@@ -3911,7 +3911,7 @@ If you submitted this transaction by accident, you can claim the coins back with
         <location line="+13"/>
         <location line="+14"/>
         <source>An optional label to associate with the new receiving address.</source>
-        <translation>可为新建的收款地址添加一个标签。</translation>
+        <translation>为新建收款地址添加一个标签。</translation>
     </message>
     <message>
         <location line="-7"/>
@@ -3928,12 +3928,12 @@ If you submitted this transaction by accident, you can claim the coins back with
         <location line="-137"/>
         <location line="+46"/>
         <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Bitcash network.</source>
-        <translation type="unfinished"></translation>
+        <translation type=附加到付款请求的可选消息，该消息将在打开请求时显示。注意：该消息不会随Bitcash网络的付款一起发送。</translation>
     </message>
     <message>
         <location line="+15"/>
         <source>&amp;Request payment / create receiving address</source>
-        <translation type="unfinished"></translation>
+        <translation type=&amp;请求付款/创建接收地址</translation>
     </message>
     <message>
         <location line="+17"/>
@@ -3948,17 +3948,17 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+78"/>
         <source>Bech32 addresses (BIP-173) are cheaper to spend from and offer better protection against typos. When unchecked a P2SH wrapped SegWit address will be created, compatible with older wallets.</source>
-        <translation type="unfinished"></translation>
+        <translation Bech32地址（BIP-173）消费更便宜，并且能够更好地防止打字错误。未选中时，将创建一个P2SH包装的SegWit地址并与旧钱包兼容。</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Generate Bech32 address</source>
-        <translation type="unfinished"></translation>
+        <translation type=生成Bech32地址</translation>
     </message>
     <message>
         <location line="+61"/>
         <source>Requested payments history</source>
-        <translation>请求付款的历史</translation>
+        <translation>请求付款历史</translation>
     </message>
     <message>
         <location line="+25"/>
@@ -4006,77 +4006,77 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location filename="../forms/ReceiveForm.ui.qml" line="+49"/>
         <source>Use your BitCash address or nickname you created to receive BitCash from other users</source>
-        <translation type="unfinished"></translation>
+        <translation type=使用您创建的Bitcash地址或昵称接收来自其他用户的Bitcash</translation>
     </message>
     <message>
         <location line="+74"/>
         <source>Receive</source>
-        <translation type="unfinished"></translation>
+        <translation type=收到</translation>
     </message>
     <message>
         <location line="+66"/>
         <source>Your BitCash address</source>
-        <translation type="unfinished"></translation>
+        <translation type=你的小比特地址</translation>
     </message>
     <message>
         <location line="+73"/>
         <source>Your nickname to receive BitCash</source>
-        <translation type="unfinished"></translation>
+        <translation type=你的昵称接收小比特</translation>
     </message>
     <message>
         <location line="+56"/>
         <source>Your nickname to receive Dollar</source>
-        <translation type="unfinished"></translation>
+        <translation type="你的昵称接收美金</translation>
     </message>
     <message>
         <location line="+57"/>
         <source>Copy ₡ address to clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation type=复制 ₡ 地址从剪贴板</translation>
     </message>
     <message>
         <location line="+17"/>
         <source>Copy $ address to clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation type==复制 $ 地址从剪贴板</translation>
     </message>
     <message>
         <location line="+16"/>
         <source>Your Dollar address</source>
-        <translation type="unfinished"></translation>
+        <translation type=你的美金地址</translation>
     </message>
     <message>
         <location line="+30"/>
         <source>Copy ₡ nickname to clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation type=复制 ₡ 地址从剪贴板</translation>
     </message>
     <message>
         <location line="+17"/>
         <source>Copy $ nickname to clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation type=复制 $ 地址从剪贴板</translation>
     </message>
     <message>
         <location line="+52"/>
         <source>Your nickname</source>
-        <translation type="unfinished"></translation>
+        <translation type=你的昵称</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>You haven&apos;t yet created a Nickname.</source>
-        <translation type="unfinished"></translation>
+        <translation type=你n&apos;尚未创建昵称</translation>
     </message>
     <message>
         <location line="+18"/>
         <source>Create your nickname</source>
-        <translation type="unfinished"></translation>
+        <translation type=创建你的昵称</translation>
     </message>
     <message>
         <location line="+45"/>
         <source>Paste your link here</source>
-        <translation type="unfinished"></translation>
+        <translation type=粘贴你的链接到这里</translation>
     </message>
     <message>
         <location line="+11"/>
         <source>Receive money</source>
-        <translation type="unfinished"></translation>
+        <translation type=收款</translation>
     </message>
 </context>
 <context>
@@ -4195,13 +4195,13 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location filename="../forms/Send.qml" line="+69"/>
         <source>You have successfully generated a link which you can send to anyone. The link has been copied to the clipboard.</source>
-        <translation type="unfinished"></translation>
+        <translation type=您已成功生成一个链接，可以将其发送给任何人。链接已复制到剪贴板。</translation>
     </message>
     <message>
         <location line="+299"/>
         <location line="+11"/>
         <source>This is a valid BitCash address.</source>
-        <translation type="unfinished"></translation>
+        <translation type=这是一个有效的BitCash地址。</translation>
     </message>
 </context>
 <context>
@@ -4210,7 +4210,7 @@ If you submitted this transaction by accident, you can claim the coins back with
         <location filename="../forms/sendcoinsdialog.ui" line="+14"/>
         <location filename="../sendcoinsdialog.cpp" line="+581"/>
         <source>Send Coins</source>
-        <translation>发送</translation>
+        <translation>发送硬币</translation>
     </message>
     <message>
         <location line="+76"/>
@@ -4302,7 +4302,7 @@ If you submitted this transaction by accident, you can claim the coins back with
         <source>Specify a custom fee per kB (1,000 bytes) of the transaction&apos;s virtual size.
 
 Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satoshis per kB&quot; for a transaction size of 500 bytes (half of 1 kB) would ultimately yield a fee of only 50 satoshis.</source>
-        <translation type="unfinished"></translation>
+        <translation type=由于费用是以每字节为基础计算的，每kb&quot100个Satoshis的费用&quot,对于500字节（1KB的一半）的事务大小，最终将产生50个Satoshis的费用。</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -4332,17 +4332,17 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <location line="+52"/>
         <source>(Smart fee not initialized yet. This usually takes a few blocks...)</source>
-        <translation>(智能交易费用 尚未初始化。 需要再下载一些数据块...)</translation>
+        <translation>(智能交易费用 尚未初始化。 需要再下载一些区块...)</translation>
     </message>
     <message>
         <location line="+103"/>
         <source>Enable Replace-By-Fee</source>
-        <translation type="unfinished"></translation>
+        <translation type=启用“替换为费用”</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>With Replace-By-Fee (BIP-125) you can increase a transaction&apos;s fee after it is sent. Without this, a higher fee may be recommended to compensate for increased transaction delay risk.</source>
-        <translation type="unfinished"></translation>
+        <translation type=使用“替换为费用”（BIP-125），您可以在发送交易后增加交易费用&apos;如果不这样做，可能会建议更高的费用来补偿增加的交易延迟风险。</translation>
     </message>
     <message>
         <location line="+79"/>
@@ -4368,7 +4368,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <location line="+540"/>
         <location line="+13"/>
         <source>Paying only the minimum fee is just fine as long as there is less transaction volume than space in the blocks. But be aware that this can end up in a never confirming transaction once there is more demand for bitcash transactions than the network can process.</source>
-        <translation type="unfinished"></translation>
+        <translation type=只要交易量小于区块中的空间，只支付最低费用就可以了。但要知道，一旦Bitcash交易的需求超过了网络的处理能力，这可能最终导致一个永不确认的交易。</translation>
     </message>
     <message>
         <location line="+143"/>
@@ -4438,7 +4438,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <location line="+117"/>
         <source>from wallet %1</source>
-        <translation type="unfinished"></translation>
+        <translation type=从钱包%1</translation>
     </message>
     <message>
         <location line="+13"/>
@@ -4471,12 +4471,12 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <location line="+4"/>
         <source>You can increase the fee later (signals Replace-By-Fee, BIP-125).</source>
-        <translation type="unfinished"></translation>
+        <translation type=您可以稍后增加费用（信令费用替代，BIP-125）。</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Not signalling Replace-By-Fee, BIP-125.</source>
-        <translation type="unfinished"></translation>
+        <translation type=非信令费用替代，BIP-125。</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -4536,14 +4536,14 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message numerus="yes">
         <location line="+43"/>
         <source>Estimated to begin confirmation within %n block(s).</source>
-        <translation type="unfinished">
+        <translation type=预计在%n个块内开始确认。
             <numerusform></numerusform>
         </translation>
     </message>
     <message>
         <location line="+101"/>
         <source>Warning: Invalid Bitcash address</source>
-        <translation type="unfinished"></translation>
+        <translation type=警告:无效的Bitcash地址</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -4583,7 +4583,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <location line="+18"/>
         <source>The Bitcash address to send the payment to</source>
-        <translation type="unfinished"></translation>
+        <translation type=准备付款将发送的Bitcash地址</translation>
     </message>
     <message>
         <location line="+75"/>
@@ -4625,7 +4625,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <location line="-1038"/>
         <source>The fee will be deducted from the amount being sent. The recipient will receive less bitcashs than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
-        <translation type="unfinished"></translation>
+        <translation type=费用将从发送的金额中扣除。收件人收到的比特币比您在“金额”字段中输入的要少。如果选择了多个收件人，费用将平均分摊。</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -4635,7 +4635,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <location line="+7"/>
         <source>Use available balance</source>
-        <translation type="unfinished"></translation>
+        <translation type=使用可用余额</translation>
     </message>
     <message>
         <location line="+9"/>
@@ -4645,12 +4645,12 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <location line="+10"/>
         <source>A message that was attached to the bitcash: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Bitcash network.</source>
-        <translation type="unfinished"></translation>
+        <translation type=附加到Bitcash的消息:URI该消息将与事务一起存储以供参考。注意：此消息不会通过Bitcash网络发送。</translation>
     </message>
     <message>
         <location line="+20"/>
         <source>Reference line:</source>
-        <translation type="unfinished"></translation>
+        <translation type=参考线：</translation>
     </message>
     <message>
         <location line="+423"/>
@@ -4708,17 +4708,17 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <location filename="../forms/SendForm.ui.qml" line="+137"/>
         <source>Send BitCash to anyone with an existing BitCash address or nickname. If the recipient doesn&apos;t have BitCash, then use the </source>
-        <translation type="unfinished"></translation>
+        <translation type=将Bitcash发送给任何拥有现有Bitcash地址或昵称的人。如果收件人没有&apos;Bitcash，则使用</translation>
     </message>
     <message>
         <location line="+22"/>
         <source>Send to anyone</source>
-        <translation type="unfinished"></translation>
+        <translation type=发送给任何人</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>feature instead.</source>
-        <translation type="unfinished"></translation>
+        <translation type=功能替换</translation>
     </message>
     <message>
         <location line="+83"/>
@@ -4730,37 +4730,37 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <location line="+276"/>
         <location line="+282"/>
         <source>Send</source>
-        <translation type="unfinished"></translation>
+        <translation type=发送</translation>
     </message>
     <message>
         <location line="-2129"/>
         <source>Direct</source>
-        <translation type="unfinished"></translation>
+        <translation type=直接</translation>
     </message>
     <message>
         <location line="+30"/>
         <source>Dollar</source>
-        <translation type="unfinished"></translation>
+        <translation type=美金</translation>
     </message>
     <message>
         <location line="+30"/>
         <source>Twitter</source>
-        <translation type="unfinished"></translation>
+        <translation type=推特</translation>
     </message>
     <message>
         <location line="+28"/>
         <source>Instagram</source>
-        <translation type="unfinished"></translation>
+        <translation type=Instagram</translation>
     </message>
     <message>
         <location line="+28"/>
         <source>Twitch</source>
-        <translation type="unfinished"></translation>
+        <translation type=Twitch</translation>
     </message>
     <message>
         <location line="+29"/>
         <source>Anyone</source>
-        <translation type="unfinished"></translation>
+        <translation type=任何人</translation>
     </message>
     <message>
         <location line="+46"/>
@@ -4775,7 +4775,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <location line="-1179"/>
         <location line="+290"/>
         <source>Paste the BitCash address or nickname of the recipient</source>
-        <translation type="unfinished"></translation>
+        <translation type=从收件人中粘贴Bitcash地址或昵称。</translation>
     </message>
     <message>
         <location line="-271"/>
@@ -4784,7 +4784,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <location line="+304"/>
         <location line="+303"/>
         <source>Label for address book:</source>
-        <translation type="unfinished"></translation>
+        <translation type=地址本标签</translation>
     </message>
     <message>
         <location line="-1217"/>
@@ -4794,7 +4794,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <location line="+303"/>
         <location line="+261"/>
         <source>What are you paying for?</source>
-        <translation type="unfinished"></translation>
+        <translation type=确定发送？</translation>
     </message>
     <message>
         <location line="-1494"/>
@@ -4804,7 +4804,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <location line="+303"/>
         <location line="+261"/>
         <source>Description</source>
-        <translation type="unfinished"></translation>
+        <translation type=说明</translation>
     </message>
     <message>
         <location line="-1448"/>
@@ -4820,7 +4820,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <location line="-1487"/>
         <location line="+290"/>
         <source>Subtract transaction fee from amount</source>
-        <translation type="unfinished"></translation>
+        <translation type=从金额中减去交易费用</translation>
     </message>
     <message>
         <location line="-257"/>
@@ -4829,7 +4829,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <location line="+304"/>
         <location line="+303"/>
         <source>Use available balance</source>
-        <translation type="unfinished"></translation>
+        <translation type=使用可用余额</translation>
     </message>
     <message>
         <location line="-1213"/>
