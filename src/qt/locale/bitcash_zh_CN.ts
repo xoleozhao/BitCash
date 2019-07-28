@@ -4855,7 +4855,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <location line="+304"/>
         <location line="+303"/>
         <source>Paste</source>
-        <translation type="unfinished"></translation>
+        <translation type=粘贴</translation>
     </message>
     <message>
         <location line="-1214"/>
@@ -4865,7 +4865,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <location line="+303"/>
         <location line="+230"/>
         <source>You&apos;ll have</source>
-        <translation type="unfinished"></translation>
+        <translation type=你将拥有&apos;</translation>
     </message>
     <message>
         <location line="-1439"/>
@@ -4890,12 +4890,12 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <location line="+303"/>
         <location line="+230"/>
         <source>available balance left on your account</source>
-        <translation type="unfinished"></translation>
+        <translation type=您账户上的可用余额</translation>
     </message>
     <message>
         <location line="-1249"/>
         <source>Print paper bills</source>
-        <translation type="unfinished"></translation>
+        <translation type=打印纸质账单</translation>
     </message>
     <message>
         <location line="+34"/>
@@ -4905,12 +4905,12 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <location line="+160"/>
         <source>Twitter&apos;s nickname of the recipient</source>
-        <translation type="unfinished"></translation>
+        <translation type=推特昵称&apos;作为接收方</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Insert the recipient&apos;s Twitter handle here.</source>
-        <translation type="unfinished"></translation>
+        <translation type=在这里插入推特接收方&apos;</translation>
     </message>
     <message>
         <location line="+226"/>
@@ -4918,82 +4918,82 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <location line="+303"/>
         <location line="+148"/>
         <source>Send Dollar instead of BitCash</source>
-        <translation type="unfinished"></translation>
+        <translation type=发送美金代替BitCash</translation>
     </message>
     <message>
         <location line="-679"/>
         <source>Instagram&apos;s nickname of the recipient</source>
-        <translation type="unfinished"></translation>
+        <translation type=Instagram昵称 &apos;作为接收方</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Insert the recipient&apos;s Instagram handle here.</source>
-        <translation type="unfinished"></translation>
+        <translation type=在这里插入Instagram接收方&apos;</translation>
     </message>
     <message>
         <location line="+300"/>
         <source>Twitch&apos;s nickname of the recipient</source>
-        <translation type="unfinished"></translation>
+        <translation type=Twitch昵称 &apos;作为接收方</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Insert the recipient&apos;s Twitch handle here.</source>
-        <translation type="unfinished"></translation>
+        <translation type=在这里插入Twitch接收方&apos;</translation>
     </message>
     <message>
         <location line="+261"/>
         <source>If you want to send BitCash to someone without an existing BitCash address, you can simply create a BitCash link and send it via email, SMS or social media.</source>
-        <translation type="unfinished"></translation>
+        <translation type=如果您想将Bitcash发送给没有Bitcash地址的人，您只需创建Bitcash链接并通过电子邮件、短信或社交媒体发送即可。</translation>
     </message>
     <message>
         <location line="+230"/>
         <source>Your BitCash was sent successfully!</source>
-        <translation type="unfinished"></translation>
+        <translation type=你的BitCash已成功发送！</translation>
     </message>
     <message>
         <location line="+10"/>
         <source>Make another transaction</source>
-        <translation type="unfinished"></translation>
+        <translation type=再做一笔交易</translation>
     </message>
     <message>
         <location line="+17"/>
         <source>View account history</source>
-        <translation type="unfinished"></translation>
+        <translation type=查看账户历史记录</translation>
     </message>
     <message>
         <location line="+17"/>
         <source>Go back to Overview</source>
-        <translation type="unfinished"></translation>
+        <translation type=返回到概况</translation>
     </message>
     <message>
         <location line="+21"/>
         <source>It may take a few minutes to be received by the recipient as the</source>
-        <translation type="unfinished"></translation>
+        <translation type=接收方可能需要几分钟</translation>
     </message>
     <message>
         <location line="+14"/>
         <source>network sends and secures your transaction.</source>
-        <translation type="unfinished"></translation>
+        <translation type=通过网络发送并保护您的交易</translation>
     </message>
     <message>
         <location line="+59"/>
         <source>username</source>
-        <translation type="unfinished"></translation>
+        <translation type=用户名</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>@username</source>
-        <translation type="unfinished"></translation>
+        <translation type=@用户名</translation>
     </message>
     <message>
         <location line="+16"/>
         <source>You&apos;re about to send 000 BITC for to @el. Please confirm this transaction.</source>
-        <translation type="unfinished"></translation>
+        <translation type=你&apos;将向 @el发送 000 BITC,请确认你的交易。</translation>
     </message>
     <message>
         <location line="+26"/>
         <source>Change recipient</source>
-        <translation type="unfinished"></translation>
+        <translation type=更换接收方</translation>
     </message>
 </context>
 <context>
@@ -5024,12 +5024,12 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <location line="+6"/>
         <source>You can sign messages/agreements with your addresses to prove you can receive bitcashs sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
-        <translation type="unfinished"></translation>
+        <translation type=你可以用你的地址签署信息/协议来证明你可以接收/发送给他们的Bitcash。小心不要签署任何模糊或随机的东西，因为网络钓鱼攻击可能试图欺骗你签署你的身份给他们。只有在你同意的详细声明上签字。</translation>
     </message>
     <message>
         <location line="+18"/>
         <source>The Bitcash address to sign the message with</source>
-        <translation type="unfinished"></translation>
+        <translation type=签署信息的Bitcash地址</translation>
     </message>
     <message>
         <location line="+7"/>
@@ -5071,17 +5071,17 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <location line="+21"/>
         <source>Sign the message to prove you own this Bitcash address</source>
-        <translation type="unfinished"></translation>
+        <translation type=签名信息证明您拥有这个Bitcash地址</translation>
     </message>
     <message>
         <location line="+106"/>
         <source>The Bitcash address the message was signed with</source>
-        <translation type="unfinished"></translation>
+        <translation type=带有消息签名的Bitcash地址</translation>
     </message>
     <message>
         <location line="+37"/>
         <source>Verify the message to ensure it was signed with the specified Bitcash address</source>
-        <translation type="unfinished"></translation>
+        <translation type=验证消息签名以保证它是指定的Bitcash地址。</translation>
     </message>
     <message>
         <location line="-140"/>
@@ -5122,7 +5122,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <location filename="../signverifymessagedialog.cpp" line="+41"/>
         <source>Click &quot;Sign Message&quot; to generate signature</source>
-        <translation>单击“签名消息“产生签名。</translation>
+        <translation>单击“签名消息“生成签名。</translation>
     </message>
     <message>
         <location line="+82"/>
@@ -5142,7 +5142,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <location line="-77"/>
         <location line="+77"/>
         <source>The entered address does not refer to a key.</source>
-        <translation>输入的地址没有关联的公私钥对。</translation>
+        <translation>输入的地址未引用密钥。</translation>
     </message>
     <message>
         <location line="-69"/>
@@ -5204,69 +5204,69 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <location filename="../forms/Trading.qml" line="+146"/>
         <source>Send BitCash to your BitCash Dollar account</source>
-        <translation type="unfinished"></translation>
+        <translation type=发送BitCash到你的BitCash美金账户</translation>
     </message>
     <message>
         <location line="+17"/>
         <source>Send BitCash Dollar to your BitCash account</source>
-        <translation type="unfinished"></translation>
+        <translation type=发送BitCash美金到你的BitCash账户</translation>
     </message>
     <message>
         <location line="+18"/>
         <source>If the price of one BitCash</source>
-        <translation type="unfinished"></translation>
+        <translation type=如果一个小比特的价格</translation>
     </message>
     <message>
         <location line="+21"/>
         <source>Goes below the target price of</source>
-        <translation type="unfinished"></translation>
+        <translation type=低于目标价格</translation>
     </message>
     <message>
         <location line="+16"/>
         <source>Goes above the target price of</source>
-        <translation type="unfinished"></translation>
+        <translation type=高于目标价格</translation>
     </message>
     <message>
         <location line="+47"/>
         <location line="+120"/>
         <source>USD</source>
-        <translation type="unfinished"></translation>
+        <translation type=USD</translation>
     </message>
     <message>
         <location line="-111"/>
         <source>Amount to send:</source>
-        <translation type="unfinished"></translation>
+        <translation type=发送金额：</translation>
     </message>
     <message>
         <location line="+42"/>
         <source>BITC</source>
-        <translation type="unfinished"></translation>
+        <translation type=BITC</translation>
     </message>
     <message>
         <location line="+10"/>
         <location line="+451"/>
         <source>Create order</source>
-        <translation type="unfinished"></translation>
+        <translation type=创建订单</translation>
     </message>
     <message>
         <location line="-408"/>
         <source>If</source>
-        <translation type="unfinished"></translation>
+        <translation type=如果</translation>
     </message>
     <message>
         <location line="+32"/>
         <source>Send amount</source>
-        <translation type="unfinished"></translation>
+        <translation type=发送金额</translation>
     </message>
     <message>
         <location line="+126"/>
         <source>Copy when</source>
-        <translation type="unfinished"></translation>
+        <translation type=复制时间</translation>
     </message>
     <message>
         <location line="+52"/>
         <source>Copy target</source>
-        <translation type="unfinished"></translation>
+        <translation type=复制目标</translation>
     </message>
     <message>
         <location line="+54"/>
@@ -5276,27 +5276,27 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <location line="+53"/>
         <source>Copy currency</source>
-        <translation type="unfinished"></translation>
+        <translation type=复制货币</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>Cancel order</source>
-        <translation type="unfinished"></translation>
+        <translation type=取消订单</translation>
     </message>
     <message>
         <location line="+53"/>
         <source>Automatic trading</source>
-        <translation type="unfinished"></translation>
+        <translation type=自动交易</translation>
     </message>
     <message>
         <location line="+54"/>
         <source>List of orders</source>
-        <translation type="unfinished"></translation>
+        <translation type=订单列表</translation>
     </message>
     <message>
         <location line="+61"/>
         <source>Removed order.</source>
-        <translation type="unfinished"></translation>
+        <translation type=删除订单</translation>
     </message>
 </context>
 <context>
@@ -5312,7 +5312,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message numerus="yes">
         <location filename="../transactiondesc.cpp" line="+33"/>
         <source>Open for %n more block(s)</source>
-        <translation type="unfinished">
+        <translation type=开启到%n更多区块
             <numerusform></numerusform>
         </translation>
     </message>
@@ -5374,7 +5374,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message numerus="yes">
         <location line="+2"/>
         <source>, broadcast through %n node(s)</source>
-        <translation type="unfinished">
+        <translation type=通过%n节点广播
             <numerusform></numerusform>
         </translation>
     </message>
@@ -5440,7 +5440,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message numerus="yes">
         <location line="-196"/>
         <source>matures in %n more block(s)</source>
-        <translation type="unfinished">
+        <translation type=再过%n区块过期
             <numerusform></numerusform>
         </translation>
     </message>
@@ -5452,7 +5452,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <location line="+82"/>
         <source>Viewkey</source>
-        <translation type="unfinished"></translation>
+        <translation type=视图键</translation>
     </message>
     <message>
         <location line="+7"/>
@@ -5484,17 +5484,17 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <location line="+1"/>
         <source>Net amount BITC</source>
-        <translation type="unfinished"></translation>
+        <translation type=BITC净额</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Net amount USD</source>
-        <translation type="unfinished"></translation>
+        <translation type=USD净额</translation>
     </message>
     <message>
         <location line="+11"/>
         <source>Description</source>
-        <translation type="unfinished"></translation>
+        <translation type=说明</translation>
     </message>
     <message>
         <location line="+8"/>
@@ -5520,7 +5520,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <location line="+1"/>
         <source>Transaction virtual size</source>
-        <translation type="unfinished"></translation>
+        <translation type=交易虚拟尺寸</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -5603,12 +5603,12 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <location line="+0"/>
         <source>Reference line</source>
-        <translation type="unfinished"></translation>
+        <translation type=参考线</translation>
     </message>
     <message numerus="yes">
         <location line="+60"/>
         <source>Open for %n more block(s)</source>
-        <translation type="unfinished">
+        <translation type=开启%n区块
             <numerusform></numerusform>
         </translation>
     </message>
@@ -5676,7 +5676,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <location line="+449"/>
         <source>Currency of transaction.</source>
-        <translation type="unfinished"></translation>
+        <translation type=货币交易</translation>
     </message>
     <message>
         <location line="-447"/>
@@ -5721,7 +5721,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <location line="+2"/>
         <source>Whether or not a watch-only address is involved in this transaction.</source>
-        <translation>该交易中是否涉及  观察地址(watch-only address)。</translation>
+        <translation>该交易中是否涉及观察地址(watch-only address)。</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -5731,7 +5731,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <location line="+2"/>
         <source>Reference Line for the transaction.</source>
-        <translation type="unfinished"></translation>
+        <translation type=交易记录的参考行</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -5755,12 +5755,12 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <location line="+1"/>
         <source>This week</source>
-        <translation>这星期</translation>
+        <translation>本周</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>This month</source>
-        <translation>这个月</translation>
+        <translation>本月</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -5805,7 +5805,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <location line="+6"/>
         <source>Enter address, transaction id, or label to search</source>
-        <translation type="unfinished"></translation>
+        <translation type="输入地址、交易ID、标签等进行搜索</translation>
     </message>
     <message>
         <location line="+6"/>
@@ -5840,12 +5840,12 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <location line="+1"/>
         <source>Copy description</source>
-        <translation type="unfinished"></translation>
+        <translation type=复制说明</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Copy transaction ID</source>
-        <translation>复制交易识别码</translation>
+        <translation>复制交易ID/translation>
     </message>
     <message>
         <location line="+1"/>
@@ -5910,7 +5910,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <location line="+1"/>
         <source>Description</source>
-        <translation type="unfinished"></translation>
+        <translation type=说明</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -5940,12 +5940,12 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <location line="+58"/>
         <source>Can&apos;t abandon</source>
-        <translation type="unfinished"></translation>
+        <translation type=允许&apos;t放弃</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Only transactions which have no confirmations and are not in the mempool can be abandoned.</source>
-        <translation type="unfinished"></translation>
+        <translation type=只有没有确认且不在内存池中的交易才能被放弃</translation>
     </message>
     <message>
         <location line="+133"/>
@@ -5963,17 +5963,17 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <location filename="../forms/Transactions.qml" line="+109"/>
         <source>History</source>
-        <translation type="unfinished"></translation>
+        <translation type=历史记录</translation>
     </message>
     <message>
         <location line="+26"/>
         <source>Transactions</source>
-        <translation type="unfinished"></translation>
+        <translation type=交易</translation>
     </message>
     <message>
         <location line="+21"/>
         <source>Generated links</source>
-        <translation type="unfinished"></translation>
+        <translation type=生成链接</translation>
     </message>
     <message>
         <location line="+77"/>
@@ -5995,7 +5995,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <location line="+15"/>
         <location line="+614"/>
         <source>Description</source>
-        <translation type="unfinished"></translation>
+        <translation type=说明</translation>
     </message>
     <message>
         <location line="-599"/>
@@ -6005,18 +6005,18 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <location line="+16"/>
         <source>USD</source>
-        <translation type="unfinished"></translation>
+        <translation type=USD</translation>
     </message>
     <message>
         <location line="+89"/>
         <location line="+677"/>
         <source>Copy date</source>
-        <translation type="unfinished"></translation>
+        <translation type=复制日期</translation>
     </message>
     <message>
         <location line="-615"/>
         <source>Copy type</source>
-        <translation type="unfinished"></translation>
+        <translation type=复制类型</translation>
     </message>
     <message>
         <location line="+53"/>
@@ -6027,22 +6027,22 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <location line="+53"/>
         <location line="+560"/>
         <source>Copy description</source>
-        <translation type="unfinished"></translation>
+        <translation type=复制说明</translation>
     </message>
     <message>
         <location line="-506"/>
         <source>Copy amount BITC</source>
-        <translation type="unfinished"></translation>
+        <translation type=复制BITC金额</translation>
     </message>
     <message>
         <location line="+54"/>
         <source>Copy amount USD</source>
-        <translation type="unfinished"></translation>
+        <translation type=复制USD金额</translation>
     </message>
     <message>
         <location line="+32"/>
         <source>Search for address, transaction id or description...</source>
-        <translation type="unfinished"></translation>
+        <translation type=以地址、交易ID、描述等搜索></translation>
     </message>
     <message>
         <location line="+57"/>
@@ -6052,22 +6052,22 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <location line="+9"/>
         <source>Copy TX ID</source>
-        <translation type="unfinished"></translation>
+        <translation type=复制交易ID</translation>
     </message>
     <message>
         <location line="+17"/>
         <source>Abandon</source>
-        <translation type="unfinished"></translation>
+        <translation type=放弃</translation>
     </message>
     <message>
         <location line="+50"/>
         <source>Download list of transactions</source>
-        <translation type="unfinished"></translation>
+        <translation type=下载交易列表</translation>
     </message>
     <message>
         <location line="+69"/>
         <source>Link</source>
-        <translation type="unfinished"></translation>
+        <translation type=链接</translation>
     </message>
     <message>
         <location line="+30"/>
@@ -6078,7 +6078,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <location line="+240"/>
         <location line="+16"/>
         <source>Copy link</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">复制链接</translation>
     </message>
     <message>
         <location line="+66"/>
@@ -6088,32 +6088,32 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <location line="+52"/>
         <source>Copy currency</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"复制货币></translation>
     </message>
     <message>
         <location line="+13"/>
         <source>Remove link</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">删除链接</translation>
     </message>
     <message>
         <location line="+38"/>
         <source>Created links:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">链接已创建</translation>
     </message>
     <message>
         <location line="+17"/>
         <source>Link copied to clipboard.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">从剪贴板复制链接</translation>
     </message>
     <message>
         <location line="+40"/>
         <source>Removed link.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">删除链接</translation>
     </message>
     <message>
         <location line="+29"/>
         <source>Undo</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">撤销</translation>
     </message>
 </context>
 <context>
@@ -6121,7 +6121,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <location filename="../forms/TwitterSuccess.qml" line="+95"/>
         <source>Successfully sent the coins to the Twitter user</source>
-        <translation type="unfinished"></translation>
+        <translation type=成功发送硬币到推特用户</translation>
     </message>
     <message>
         <location line="+15"/>
@@ -6130,38 +6130,40 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
 You can even paste the link in public tweets or comments. No need to worry, no other user can gain access to these coins except for the intended Twitter user.
 
 If you submitted this transaction by accident, you can claim the coins back with your link.</source>
-        <translation type="unfinished"></translation>
+        <translation type=将下面的链接直接发送给Twitter用户，以便他/她可以领取硬币。
+你甚至可以将链接粘贴到公共推文或评论中。无需担心，除了指定的Twitter用户，其他用户都无法访问这些硬币。
+如果您不小心提交了这项交易，您可以通过链接索回这些硬币。</translation>
     </message>
     <message>
         <location line="+17"/>
         <source>Only the link:</source>
-        <translation type="unfinished"></translation>
+        <translation type=仅链接</translation>
     </message>
     <message>
         <location line="+32"/>
         <source>Only the link without short message to the recipient.</source>
-        <translation type="unfinished"></translation>
+        <translation type=仅有不带消息的链接指向收件人</translation>
     </message>
     <message>
         <location line="+9"/>
         <location line="+73"/>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">复制</translation>
     </message>
     <message>
         <location line="-42"/>
         <source>Description together with the link:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">链接说明</translation>
     </message>
     <message>
         <location line="+33"/>
         <source>A short message to the recipient together with the link.</source>
-        <translation type="unfinished"></translation>
+        <translation type=给收件人的短消息及链接</translation>
     </message>
     <message>
         <location line="+37"/>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation type=关闭</translation>
     </message>
 </context>
 <context>
@@ -6169,7 +6171,7 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location filename="../walletframe.cpp" line="+29"/>
         <source>No wallet has been loaded.</source>
-        <translation>没有载入钱包。</translation>
+        <translation>钱包没有载入。</translation>
     </message>
 </context>
 <context>
@@ -6177,7 +6179,7 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location filename="../walletmodel.cpp" line="+229"/>
         <source>Send Coins</source>
-        <translation>发送</translation>
+        <translation>发送硬币</translation>
     </message>
     <message>
         <location line="+289"/>
@@ -6189,7 +6191,7 @@ If you submitted this transaction by accident, you can claim the coins back with
         <location line="+39"/>
         <location line="+6"/>
         <source>Fee bump error</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">费用增加错误</translation>
     </message>
     <message>
         <location line="-39"/>
@@ -6214,7 +6216,7 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+4"/>
         <source>Confirm fee bump</source>
-        <translation type="unfinished"></translation>
+        <translation type=确认费用增加</translation>
     </message>
     <message>
         <location line="+17"/>
@@ -6232,7 +6234,7 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location filename="../walletview.cpp" line="+55"/>
         <source>&amp;Export</source>
-        <translation>导出(&amp;E)</translation>
+        <translation>&amp;导出</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -6272,37 +6274,37 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+8"/>
         <source>Private keys</source>
-        <translation type="unfinished"></translation>
+        <translation type=私钥</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Private keys (*.txt)</source>
-        <translation type="unfinished"></translation>
+        <translation type=私钥（*.txt）</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Import Failed</source>
-        <translation type="unfinished"></translation>
+        <translation type=导入失败</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>There was an error trying to import the private keys from %1.</source>
-        <translation type="unfinished"></translation>
+        <translation type=导入私钥时，从%1发生了一个错误。</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Import Successful</source>
-        <translation type="unfinished"></translation>
+        <translation type=成功导入</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>The private keys have been imported from %1.</source>
-        <translation type="unfinished"></translation>
+        <translation type=私钥从%1时被导入。></translation>
     </message>
     <message>
         <location line="+63"/>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation type=取消</translation>
     </message>
 </context>
 <context>
@@ -6310,7 +6312,7 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location filename="../bitcashstrings.cpp" line="+12"/>
         <source>Bitcash Core</source>
-        <translation type="unfinished"></translation>
+        <translation type=Bitcash核心</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -6345,7 +6347,7 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+3"/>
         <source>Add a node to connect to and attempt to keep the connection open (see the `addnode` RPC command help for more info)</source>
-        <translation type="unfinished"></translation>
+        <translation type=添加要连接的节点并尝试保持连接打开（有关详细信息，请参阅“add node” RPC命令帮助）</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -6365,7 +6367,7 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+3"/>
         <source>Bind to given address to listen for JSON-RPC connections. This option is ignored unless -rpcallowip is also passed. Port is optional and overrides -rpcport. Use [host]:port notation for IPv6. This option can be specified multiple times (default: 127.0.0.1 and ::1 i.e., localhost, or if -rpcallowip has been specified, 0.0.0.0 and :: i.e., all addresses)</source>
-        <translation type="unfinished"></translation>
+        <translation type=绑定到指定地址以侦听JSON-RPC连接。除非同时传递-rpcallowip，否则将忽略此选项。端口可选，并覆盖-rpcport。使用[主机]：IPv6的端口表示法。可以多次指定此选项（默认值：127.0.0.1和：：1，即本地主机，如果已指定-rpcallowip，则可以指定0.0.0和：：即所有地址）</translation>
     </message>
     <message>
         <location line="+6"/>
@@ -6375,12 +6377,12 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+2"/>
         <source>Cannot provide specific connections and have addrman find outgoing connections at the same.</source>
-        <translation type="unfinished"></translation>
+        <translation type=无法提供指定连接，同时需要addrman查看传出连接。</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Connect only to the specified node(s); -connect=0 disables automatic connections (the rules for this peer are the same as for -addnode)</source>
-        <translation type="unfinished"></translation>
+        <translation type=仅连接到指定的节点；-connect=0 禁用自动连接（此规则与-addnode相同）</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -6410,12 +6412,12 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+2"/>
         <source>Equivalent bytes per sigop in transactions for relay and mining (default: %u)</source>
-        <translation type="unfinished"></translation>
+        <translation type=中继和挖掘交易中每个sigop的等效字节数（默认值：%u）</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Error loading %s: You can&apos;t enable HD on an already existing non-HD wallet</source>
-        <translation type="unfinished"></translation>
+        <translation type=加载%s时出错：您可以在&apos;t已经存在的非HD钱包上启用HD</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -6440,22 +6442,22 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+3"/>
         <source>Execute command when a wallet transaction changes (%s in cmd is replaced by TxID)</source>
-        <translation type="unfinished">当最佳区块变化时执行命令 (命令行中的 %s 会被替换成区块哈希值)</translation>
+        <translation type="unfinished">当最佳区块变化时执行命令 (命令行中的 %s 会被替换成交易ID)</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Execute command when the best block changes (%s in cmd is replaced by block hash)</source>
-        <translation type="unfinished">当最佳数据块变化时执行命令 (命令行中的 %s 会被替换成数据块哈希值)</translation>
+        <translation type="unfinished">当最佳数据块变化时执行命令 (命令行中的 %s 会被替换成区块哈希值)</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Extra transactions to keep in memory for compact block reconstructions (default: %u)</source>
-        <translation type="unfinished"></translation>
+        <translation type=为压缩区块重建而保留在内存中的额外事务（默认值：%u）</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Fee estimation failed. Fallbackfee is disabled. Wait a few blocks or enable -fallbackfee.</source>
-        <translation type="unfinished"></translation>
+        <translation type=交易费用估算失败。FallbackFee已禁用。等待几个区块或启用-FallbackFee。</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -6470,12 +6472,12 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+3"/>
         <source>Force relay of transactions from whitelisted peers even if they violate local relay policy (default: %d)</source>
-        <translation type="unfinished"></translation>
+        <translation type=强制从白名单中继事务，即使它们违反本地中继策略（默认值：%d）</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>How thorough the block verification of -checkblocks is (0-4, default: %u)</source>
-        <translation type="unfinished">数据块验证 严密级别  -checkblocks (0-4, 默认: %u) </translation>
+        <translation type="unfinished">区验证 严密级别  -检查区块 (0-4, 默认: %u) </translation>
     </message>
     <message>
         <location line="+2"/>
@@ -6490,12 +6492,12 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+3"/>
         <source>If this block is in the chain assume that it and its ancestors are valid and potentially skip their script verification (0 to verify all, default: %s, testnet: %s)</source>
-        <translation type="unfinished"></translation>
+        <translation type=如果此区块在链中，则假定它及其先前区块有效，并可能跳过其脚本验证（0验证全部，默认值为：%s，测试网为：%s）</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Invalid -wallet path &apos;%s&apos;. -wallet path should point to a directory where wallet.dat and database/log.?????????? files can be stored, a location where such a directory could be created, or (for backwards compatibility) the name of an existing data file in -walletdir (%s)</source>
-        <translation type="unfinished"></translation>
+        <translation type=无效钱包路径&apos；%s&apos；。-钱包路径应指向wallet.dat和数据库/日志所在的目录。可以存储文件，可以在其中创建此类目录的位置，或者（为了向后兼容）在-walletdir（%s）中现有数据文件的名称。<</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -6505,12 +6507,12 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+3"/>
         <source>Invalid transaction created. This is a bug. Please report this and send the file debug.log as zip file to the developer.</source>
-        <translation type="unfinished"></translation>
+        <translation type=无效交易记录已创建。这是一个错误。请报告此情况并将debug.log文件作为zip文件发送给开发人员。 </translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Location of the auth cookie. Relative paths will be prefixed by a net-specific datadir location. (default: data dir)</source>
-        <translation type="unfinished"></translation>
+        <translation type=>验证cookie的位置。相对路径将以网络特定的数据目录位置作为前缀。（默认：data dir）</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -6520,12 +6522,12 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+3"/>
         <source>Maximum allowed median peer time offset adjustment. Local perspective of time may be influenced by peers forward or backward by this amount. (default: %u seconds)</source>
-        <translation type="unfinished"></translation>
+        <translation type=允许最大的时间偏移调整。时间的局部视角可能受到向前或向后的影响。（默认值：%u秒）</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Maximum size of data in data carrier transactions we relay and mine (default: %u)</source>
-        <translation type="unfinished">Maximum size of data in data carrier transactions we relay and mine (default: %u)</translation>
+        <translation type="unfinished">中继和挖矿的数据载体事务中的最大数据大小（默认值：%u）u)</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -6535,7 +6537,7 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+3"/>
         <source>Number of seconds to keep misbehaving peers from reconnecting (default: %u)</source>
-        <translation type="unfinished">限制 非礼节点 若干秒内不能连接 (默认: %u) </translation>
+        <translation type="unfinished">阻止非法节点 重新连接的秒数（默认值：%u）</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -6560,12 +6562,12 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+2"/>
         <source>Prune: last wallet synchronisation goes beyond pruned data. You need to -reindex (download the whole blockchain again in case of pruned node)</source>
-        <translation type="unfinished">修剪：最后的钱包同步超过了修剪的数据。你需要通过 -reindex (重新下载整个区块链以防修剪节点)</translation>
+        <translation type="unfinished">修剪：最后的钱包同步超过了修剪的数据。你需要通过 -reindex (重新下载整个区块链以防止修剪节点)</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Query for peer addresses via DNS lookup, if low on addresses (default: 1 unless -connect used)</source>
-        <translation type="unfinished"></translation>
+        <translation type=如果地址不足，则通过DNS查询对等地址（默认值：1，除非使用-connect）<</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -6575,7 +6577,7 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+3"/>
         <source>Reduce storage requirements by enabling pruning (deleting) of old blocks. This allows the pruneblockchain RPC to be called to delete specific blocks, and enables automatic pruning of old blocks if a target size in MiB is provided. This mode is incompatible with -txindex and -rescan. Warning: Reverting this setting requires re-downloading the entire blockchain. (default: 0 = disable pruning blocks, 1 = allow manual pruning via RPC, &gt;%u = automatically prune block files to stay under the specified target size in MiB)</source>
-        <translation type="unfinished"></translation>
+        <translation type=通过启用对旧块的修剪（删除）来减少存储需求。这将允许调用 pruneblockchain rpc删除特定的块，并在提供MIB中的目标大小时启用旧块的自动修剪。此模式与-txindex和-rescan不兼容。警告：恢复此设置需要重新下载整个区块链。（默认值：0=禁用修剪块，1=允许通过RPC手动修剪，&gt；%u=自动修剪块文件以保持在MIB中指定的目标大小之下）</translation>
     </message>
     <message>
         <location line="+9"/>
@@ -6585,42 +6587,42 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+3"/>
         <source>Set lowest fee rate (in %s/kB) for transactions to be included in block creation. (default: %s)</source>
-        <translation type="unfinished"></translation>
+        <translation type=为要包含在区块创建中的交易设置最低费率（以%s/kb为单位）。（默认值：%s） </translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Set the number of script verification threads (%u to %d, 0 = auto, &lt;0 = leave that many cores free, default: %d)</source>
-        <translation type="unfinished">设置脚本验证的程序 (%u 到 %d, 0 = 自动, &lt;0 = 保留自由的核心, 默认值: %d)</translation>
+        <translation type="unfinished">设置脚本验证的程序 (%u 到 %d, 0 = 自动, &lt;0 = 保留内核更多空闲, 默认值: %d)</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Sets the serialization of raw transaction or block hex returned in non-verbose mode, non-segwit(0) or segwit(1) (default: %d)</source>
-        <translation type="unfinished"></translation>
+        <translation type=设置以非详细模式、非segwit（0）或segwit（1）返回的原始交易或区块十六进制的序列化（默认值：%d）</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Specify configuration file. Relative paths will be prefixed by datadir location. (default: %s)</source>
-        <translation type="unfinished"></translation>
+        <translation type=指定配置文件。相对路径将以datadir位置作为前缀。（默认值：%s）</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Specify directory to hold wallets (default: &lt;datadir&gt;/wallets if it exists, otherwise &lt;datadir&gt;)</source>
-        <translation type="unfinished"></translation>
+        <translation type=指定存放钱包的目录（默认值：&lt；datadir&gt；/钱包如果存在，否则为&lt；datadir&gt；）</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Specify location of debug log file. Relative paths will be prefixed by a net-specific datadir location. (default: %s)</source>
-        <translation type="unfinished"></translation>
+        <translation type=指定调试日志文件的位置。相对路径将以网络特定的datadir位置作为前缀。（默认值：%s）</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Specify pid file. Relative paths will be prefixed by a net-specific datadir location. (default: %s)</source>
-        <translation type="unfinished"></translation>
+        <translation type=指定PID文件。相对路径将以网络特定的datadir位置作为前缀。</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Specify wallet database path. Can be specified multiple times to load multiple wallets. Path is interpreted relative to &lt;walletdir&gt; if it is not absolute, and will be created if it does not exist (as a directory containing a wallet.dat file and log files). For backwards compatibility this will also accept names of existing data files in &lt;walletdir&gt;.)</source>
-        <translation type="unfinished"></translation>
+        <translation type=指定钱包数据库路径。可以多次指定以加载多个钱包。如果路径不是绝对路径，则会相对于&lt；walletdir&gt；进行解释，如果路径不存在，则会创建路径（作为包含wallet.dat文件和日志文件的目录）。为了向后兼容，还将接受&lt；walletdir&gt；中现有数据文件的名称。）</translation>
     </message>
     <message>
         <location line="+6"/>
@@ -6635,7 +6637,7 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+5"/>
         <source>The fee rate (in %s/kB) that indicates your tolerance for discarding change by adding it to the fee (default: %s). Note: An output is discarded if it is dust at this rate, but we will always discard up to the dust relay fee and a discard fee above that is limited by the fee estimate for the longest target</source>
-        <translation type="unfinished"></translation>
+        <translation type=交易费率（以%s/kb为单位），通过将更改添加到费用中来指示您放弃更改的容忍度（默认值：%s）。注意：如果以这个速率产生粉尘，输出将被丢弃，但我们将始终丢灰尘中继费和以上的丢弃费，这受到最长目标的费用估计的限制。</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -6655,12 +6657,12 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+3"/>
         <source>This is the transaction fee you may pay when fee estimates are not available.</source>
-        <translation type="unfinished">这是在费用估计不可用时你可能会支付的交易费。</translation>
+        <translation type="unfinished">这是在费用估计不可用时，你可能会支付的交易费。</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>This product includes software developed by the OpenSSL Project for use in the OpenSSL Toolkit %s and cryptographic software written by Eric Young and UPnP software written by Thomas Bernard.</source>
-        <translation type="unfinished"></translation>
+        <translation type=本产品包括OpenSSL项目开发的用于OpenSSL工具包%s的软件和Eric Young编写的加密软件以及Thomas Bernard编写的UPNP软件。 </translation>
     </message>
     <message>
         <location line="+4"/>
@@ -6675,12 +6677,12 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+3"/>
         <source>Unable to replay blocks. You will need to rebuild the database using -reindex-chainstate.</source>
-        <translation type="unfinished"></translation>
+        <translation type=无法重放区块。需要使用-reindex chainstate重新生成数据库</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Unable to rewind the database to a pre-fork state. You will need to redownload the blockchain</source>
-        <translation type="unfinished"></translation>
+        <translation type=无法将数据库回滚到pre-fork状态。您需要重新下载区块链</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -6705,12 +6707,12 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+3"/>
         <source>Username and hashed password for JSON-RPC connections. The field &lt;userpw&gt; comes in the format: &lt;USERNAME&gt;:&lt;SALT&gt;$&lt;HASH&gt;. A canonical python script is included in share/rpcuser. The client then connects normally using the rpcuser=&lt;USERNAME&gt;/rpcpassword=&lt;PASSWORD&gt; pair of arguments. This option can be specified multiple times</source>
-        <translation type="unfinished"></translation>
+        <translation type=JSON-RPC连接的用户名和哈希密码。字段&lt；userpw&gt；的格式为：&lt；username&gt；：&lt；salt&gt；$&lt；hash&gt；。share/rpcuser中包含规范的python脚本。然后，客户端使用rpcuser=&lt；username&gt；/rpcpassword=&lt；password&gt；参数对正常连接。可以多次指定此选项</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Wallet will not create transactions that violate mempool chain limits (default: %u)</source>
-        <translation type="unfinished"></translation>
+        <translation type=钱包不会创建违反内存池链限制的交易（默认值：%u）</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -6725,7 +6727,7 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+3"/>
         <source>Warning: Wallet file corrupt, data salvaged! Original %s saved as %s in %s; if your balance or transactions are incorrect you should restore from a backup.</source>
-        <translation type="unfinished"></translation>
+        <translation type=警告：钱包文件损坏，数据被抢救！原始的%s在%s中保存为%s；如果余额或交易记录不正确，应从备份中还原。</translation>
     </message>
     <message>
         <location line="+4"/>
@@ -6740,7 +6742,7 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+2"/>
         <source>Whitelist peers connecting from the given IP address (e.g. 1.2.3.4) or CIDR notated network (e.g. 1.2.3.0/24). Can be specified multiple times.</source>
-        <translation type="unfinished"></translation>
+        <translation type=从给定IP地址（如1.2.3.4）或CIDR标记网络（如1.2.3.0/24）连接的白名单节点。可以多次指定。</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -6750,7 +6752,7 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+3"/>
         <source>You need to enter the deposit key/code in the description line field. The exchange has provided to you with the deposit key/code. Without the correct code your coins will not end up on your personal account on the exchange. The key must have a minimum length of 5 characters.</source>
-        <translation type="unfinished"></translation>
+        <translation type=您需要在描述行字段中输入存款密钥/代码。交易所已向您提供了存款密钥/代码。如果没有正确的密码，你的硬币将无法存入你在交易所的个人帐户。密钥的最小长度必须为5个字符。</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -6806,7 +6808,7 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+1"/>
         <source>Address already has a nickname.</source>
-        <translation type="unfinished"></translation>
+        <translation type=地址已有昵称</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -6841,7 +6843,7 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+1"/>
         <source>Can not get private key</source>
-        <translation type="unfinished"></translation>
+        <translation type=无法获取私钥</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -6856,7 +6858,7 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+1"/>
         <source>Cannot write to data directory &apos;%s&apos;; check permissions.</source>
-        <translation type="unfinished"></translation>
+        <translation type=无法写入数据目录&apos；%s&apos；；检查权限。</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -6896,7 +6898,7 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+1"/>
         <source>Could not sign transaction.</source>
-        <translation type="unfinished"></translation>
+        <translation type=无法签署交易。</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -6946,7 +6948,7 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+1"/>
         <source>Error creating %s: You can&apos;t create non-HD wallets with this version.</source>
-        <translation type="unfinished"></translation>
+        <translation type=创建%s时出错：您不能使用此版本创建非HD钱包</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -6976,7 +6978,7 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+1"/>
         <source>Error loading %s: You can&apos;t disable HD on an already existing HD wallet</source>
-        <translation type="unfinished"></translation>
+        <translation type=加载%s时出错：您不能在已经存在的HD钱包上禁用HD。</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -7026,7 +7028,7 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+1"/>
         <source>Failed to rescan the wallet during initialization</source>
-        <translation type="unfinished"></translation>
+        <translation type="钱包初始化时重新扫描钱包失败。</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -7066,7 +7068,7 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+1"/>
         <source>Initialization sanity check failed. %s is shutting down.</source>
-        <translation type="unfinished"></translation>
+        <translation type=初始化完整性检查失败。%S正在关闭。</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -7106,7 +7108,7 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+1"/>
         <source>Invalid netmask specified in -whitelist: &apos;%s&apos;</source>
-        <translation type="unfinished">-whitelist: &apos;%s&apos; 指定的网络掩码无效</translation>
+        <translation type="unfinished">-白名单: &apos;%s&apos; 指定的网络掩码无效</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -7176,7 +7178,7 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+1"/>
         <source>Nickname transactions for addresses with a viewkey are not yet allowed.</source>
-        <translation type="unfinished"></translation>
+        <translation type=地址的昵称交易使用VIEWKEY不被允许。</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -7243,7 +7245,7 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+1"/>
         <source>Rebuild chain state and block index from the blk*.dat files on disk</source>
-        <translation type="unfinished"></translation>
+        <translation type=从磁盘上的blk*.dat文件重建链状态和区块索引。</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -7258,7 +7260,7 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+1"/>
         <source>Relay and mine data carrier transactions (default: %u)</source>
-        <translation type="unfinished">Relay and mine data carrier transactions (default: %u)</translation>
+        <translation type="unfinished">中继和挖矿数据载于交易（默认值：%u）</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -7268,7 +7270,7 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+1"/>
         <source>Replaying blocks...</source>
-        <translation type="unfinished"></translation>
+        <translation type=正在重放区块</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -7300,7 +7302,7 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+1"/>
         <source>Send transactions with full-RBF opt-in enabled (RPC only, default: %u)</source>
-        <translation type="unfinished"></translation>
+        <translation type=发送启用了完全RBF选择加入的交易（仅限RPC，默认值：%u）</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -7340,33 +7342,33 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+1"/>
         <source>Specified -walletdir &quot;%s&quot; does not exist</source>
-        <translation type="unfinished"></translation>
+        <translation type=指定的钱包目录（-walletdir）&quot;%s&quot; 不存在<</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Specified -walletdir &quot;%s&quot; is a relative path</source>
-        <translation type="unfinished"></translation>
+        <translation type=指定的钱包目录（-walletdir）&quot;%s&quot; 是相对路径</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Specified -walletdir &quot;%s&quot; is not a directory</source>
-        <translation type="unfinished"></translation>
+        <translation type=指定的钱包目录（-walletdir）&quot;%s&quot; 不是目录</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Specified blocks directory &quot;%s&quot; does not exist.
 </source>
-        <translation type="unfinished"></translation>
+        <translation type=指定的区块目录&quot;%s&quot; 不存在</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Specifies the password to unlock the wallet.</source>
-        <translation type="unfinished"></translation>
+        <translation type=指定解锁钱包的密码</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Specify blocks directory (default: &lt;datadir&gt;/blocks)</source>
-        <translation type="unfinished"></translation>
+        <translation type=指定区块目录 (默认: &lt;datadir&gt;/区块)</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -7412,7 +7414,7 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+1"/>
         <source>This address does not belong to this wallet.</source>
-        <translation type="unfinished"></translation>
+        <translation type=这个地址不属于这个钱包。</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -7422,7 +7424,7 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+1"/>
         <source>This is the minimum transaction fee you pay on every transaction.</source>
-        <translation type="unfinished"></translation>
+        <translation type=这是您在每笔交易中支付的最低交易费用。</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -7432,7 +7434,7 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+1"/>
         <source>This nickname is already taken.</source>
-        <translation type="unfinished"></translation>
+        <translation type=这个昵称已被占用。</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -7462,12 +7464,12 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+1"/>
         <source>Transaction fee and change calculation failed</source>
-        <translation type="unfinished"></translation>
+        <translation type="交易费用和更改失败></translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Transaction has too long of a mempool chain</source>
-        <translation type="unfinished"></translation>
+        <translation type=mempool chain的交易太长</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -7487,12 +7489,12 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+1"/>
         <source>Transactions from a Dollar account are not yet allowed.</source>
-        <translation type="unfinished"></translation>
+        <translation type=美元账户的交易尚不允许。</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Transactions to a Dollar account are not yet allowed.</source>
-        <translation type="unfinished"></translation>
+        <translation type=美元账户的交易尚不允许。</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -7507,7 +7509,7 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+1"/>
         <source>Unable to generate initial keys</source>
-        <translation type="unfinished"></translation>
+        <translation type=无法生成初始密钥</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -7552,7 +7554,7 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+1"/>
         <source>Upgrading txindex database</source>
-        <translation type="unfinished"></translation>
+        <translation type=升级txtindex数据库</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -7587,7 +7589,7 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+1"/>
         <source>Wallet %s resides outside wallet directory %s</source>
-        <translation type="unfinished"></translation>
+        <translation type=钱包%s位于钱包目录之外%s</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -7597,7 +7599,7 @@ If you submitted this transaction by accident, you can claim the coins back with
     <message>
         <location line="+1"/>
         <source>Wallet needed to be rewritten: restart %s to complete</source>
-        <translation type="unfinished"></translation>
+        <translation type=钱包需要重新写入，重新启动已经完成%s</translation>
     </message>
     <message>
         <location line="+1"/>
